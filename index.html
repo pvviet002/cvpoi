@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mảng 2 chiều trong C++ — Bài học cho lớp 9</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Be+Vietnam+Pro:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F1F3EE;
+    --card:#FBFCF9;
+    --ink:#14303A;
+    --ink-soft:#5B7079;
+    --rule:#CBD8D6;
+    --mark:#F2A33C;      /* ô đang xét */
+    --mark-soft:#FDEBD0;
+    --teal:#2E8B84;      /* hàng / nhấn mạnh */
+    --teal-soft:#DCEDEB;
+    --red:#C6413A;       /* lỗi sai */
+    --red-soft:#F7DFDD;
+    --shadow:0 1px 0 var(--rule), 0 6px 22px -14px rgba(20,48,58,.5);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    background-image:
+      linear-gradient(var(--rule) 1px, transparent 1px),
+      linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+    background-size:26px 26px;
+    background-position:-1px -1px;
+    color:var(--ink);
+    font-family:"Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size:16px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.85), rgba(255,255,255,0) 60%);
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 90px;position:relative}
+
+  /* ---------- Chữ ---------- */
+  h1,h2,h3,.display{font-family:"Bricolage Grotesque", "Bricolage Grotesque Fallback", system-ui, sans-serif;font-weight:800;line-height:1.08;letter-spacing:-.02em}
+  h1{font-size:clamp(2.1rem,6vw,4.1rem)}
+  h2{font-size:clamp(1.5rem,3.4vw,2.3rem);margin-bottom:.35em}
+  h3{font-size:1.12rem;font-weight:600;letter-spacing:-.005em;margin-bottom:.35em}
+  p{margin-bottom:.9em;max-width:64ch}
+  code, .mono{font-family:"JetBrains Mono", ui-monospace, "SF Mono", Consolas, monospace}
+  p code, li code, td code{background:var(--teal-soft);color:#1D5D58;padding:.08em .38em;border-radius:4px;font-size:.87em;font-weight:700}
+  strong{font-weight:600}
+  .eyebrow{
+    font-family:"JetBrains Mono", monospace;font-size:.72rem;font-weight:700;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--teal);
+  }
+  .lead{font-size:1.08rem;color:var(--ink-soft);max-width:56ch}
+
+  /* ---------- Hero ---------- */
+  header{padding:64px 0 24px}
+  .hero-top{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between;margin-bottom:34px}
+  .hero-top h1 span{color:var(--teal);display:block}
+  .hero-meta{font-size:.85rem;color:var(--ink-soft);text-align:right;border-left:2px solid var(--mark);padding-left:14px;line-height:1.5}
+
+  /* Chữ ký của trang: dải ô 1 chiều gấp thành bảng 2 chiều */
+  .fold{
+    background:var(--card);border:1px solid var(--rule);border-radius:14px;
+    box-shadow:var(--shadow);padding:22px;
+  }
+  .fold-head{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .fold-label{font-size:.9rem;color:var(--ink-soft)}
+  .fold-label b{color:var(--ink);font-weight:600}
+  #foldStage{position:relative;height:220px;transition:height .5s cubic-bezier(.2,.8,.25,1)}
+  .fcell{
+    position:absolute;top:0;left:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:var(--teal-soft);border:1.5px solid var(--teal);border-radius:7px;
+    color:#1D5D58;
+    transition:transform .75s cubic-bezier(.34,1.16,.36,1), background .3s, border-color .3s;
+    will-change:transform;
+  }
+  .fcell .fv{font-family:"JetBrains Mono",monospace;font-weight:700;line-height:1}
+  .fcell .fi{font-family:"JetBrains Mono",monospace;opacity:.72;line-height:1;margin-top:3px;white-space:nowrap}
+  .fold-note{margin-top:16px;font-size:.92rem;color:var(--ink-soft);border-top:1px dashed var(--rule);padding-top:12px}
+  .fold-note b{color:var(--ink);font-weight:600}
+
+  /* ---------- Nút ---------- */
+  button{font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer}
+  .btn{
+    background:var(--ink);color:#F6F8F5;border:none;border-radius:8px;
+    padding:9px 17px;transition:transform .12s, background .2s;
+  }
+  .btn:hover{background:#0C222A}
+  .btn:active{transform:translateY(1px)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--rule);border-radius:8px;padding:8px 15px;transition:border-color .2s,background .2s}
+  .btn-ghost:hover{border-color:var(--teal);background:var(--teal-soft)}
+  .btn-mark{background:var(--mark);color:#3D2500}
+  .btn-mark:hover{background:#E39220}
+  :focus-visible{outline:2.5px solid var(--mark);outline-offset:2px;border-radius:4px}
+
+  /* ---------- Bố cục bài học ---------- */
+  section{padding:52px 0;border-top:1px solid var(--rule);margin-top:8px}
+  .sec-head{margin-bottom:26px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}
+  .card{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px 22px;box-shadow:var(--shadow)}
+  .card h3{display:flex;align-items:center;gap:9px}
+  .num{
+    flex:none;width:24px;height:24px;border-radius:6px;background:var(--ink);color:#F6F8F5;
+    font-family:"JetBrains Mono",monospace;font-size:.75rem;font-weight:700;
+    display:grid;place-items:center;
+  }
+
+  /* Khối code */
+  pre{
+    background:#12303B;color:#DCE7E5;border-radius:10px;padding:15px 17px;
+    overflow-x:auto;font-family:"JetBrains Mono",monospace;font-size:.83rem;line-height:1.75;
+    margin:.7em 0;
+  }
+  pre .k{color:#F2A33C}     /* từ khoá */
+  pre .t{color:#6FD3C6}     /* kiểu dữ liệu */
+  pre .n{color:#F58C7B}     /* số */
+  pre .c{color:#7E9BA3;font-style:italic} /* chú thích */
+  pre .s{color:#B7E88A}     /* chuỗi */
+
+  ul.tick{list-style:none;margin:.4em 0 .9em}
+  ul.tick li{padding-left:22px;position:relative;margin-bottom:.3em}
+  ul.tick li::before{content:"▸";position:absolute;left:2px;color:var(--teal);font-weight:700}
+
+  table{border-collapse:collapse;width:100%;font-size:.9rem;margin:.6em 0}
+  th,td{border:1px solid var(--rule);padding:8px 11px;text-align:left}
+  th{background:var(--teal-soft);font-weight:600;color:#1D5D58}
+
+  /* ---------- Bàn mô phỏng ---------- */
+  .lab{background:var(--card);border:1.5px solid var(--ink);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+  .lab-bar{
+    display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center;
+    padding:14px 20px;background:var(--ink);color:#E7EEEC;
+  }
+  .lab-bar .eyebrow{color:var(--mark)}
+  .ctl{display:flex;align-items:center;gap:7px;font-size:.85rem}
+  .ctl input[type=number]{
+    width:52px;padding:5px 7px;border-radius:6px;border:1.5px solid #3B5A63;background:#0D2630;
+    color:#F6F8F5;font-family:"JetBrains Mono",monospace;font-size:.85rem;text-align:center;
+  }
+  .ctl input[type=range]{width:100px;accent-color:var(--mark)}
+  .lab-body{display:grid;grid-template-columns:1.1fr .9fr;gap:0}
+  .lab-left{padding:22px;border-right:1px solid var(--rule)}
+  .lab-right{padding:22px;background:#F5F7F3}
+
+  .axis-hint{font-family:"JetBrains Mono",monospace;font-size:.72rem;color:var(--ink-soft);margin-bottom:6px}
+  .grid-frame{display:inline-grid;gap:6px;margin:2px 0 4px}
+  .cell{
+    background:#fff;border:1.5px solid var(--rule);border-radius:7px;
+    width:60px;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    cursor:pointer;transition:transform .16s, background .16s, border-color .16s, box-shadow .16s;
+    font-family:"JetBrains Mono",monospace;
+  }
+  .cell .v{font-size:1.02rem;font-weight:700;color:var(--ink);line-height:1}
+  .cell .idx{font-size:.62rem;color:var(--ink-soft);margin-top:3px;line-height:1}
+  .cell:hover{border-color:var(--teal);background:var(--teal-soft)}
+  .cell.on{background:var(--mark);border-color:#C97F14;transform:scale(1.09);box-shadow:0 8px 18px -8px rgba(201,127,20,.8);z-index:2}
+  .cell.on .v{color:#3D2500}
+  .cell.on .idx{color:#6B4406}
+  .cell.done{background:var(--mark-soft);border-color:#EBC48D}
+  .cell.pick{border-color:var(--teal);border-width:2.5px;background:var(--teal-soft)}
+
+  .strip-wrap{margin-top:22px;border-top:1px dashed var(--rule);padding-top:16px}
+  .strip{display:flex;gap:3px;flex-wrap:wrap;margin-top:8px}
+  .mcell{
+    width:34px;height:34px;display:grid;place-items:center;border-radius:5px;
+    background:#fff;border:1.5px solid var(--rule);
+    font-family:"JetBrains Mono",monospace;font-size:.75rem;font-weight:700;color:var(--ink-soft);
+    transition:background .16s,border-color .16s,transform .16s;
+  }
+  .mcell.on{background:var(--mark);border-color:#C97F14;color:#3D2500;transform:translateY(-3px)}
+  .mcell.done{background:var(--mark-soft);border-color:#EBC48D;color:#8A5A0B}
+  .mcell.pick{border-color:var(--teal);border-width:2.5px;background:var(--teal-soft)}
+  .strip-note{font-size:.82rem;color:var(--ink-soft);margin-top:9px}
+
+  /* Bảng code chạy */
+  .codeline{
+    font-family:"JetBrains Mono",monospace;font-size:.8rem;line-height:1.5;
+    padding:3px 8px 3px 30px;border-radius:5px;position:relative;white-space:pre;
+    color:#DCE7E5;transition:background .15s;
+  }
+  .codeline::before{
+    content:attr(data-ln);position:absolute;left:8px;color:#4E6D76;font-size:.7rem;
+  }
+  .codeline.hot{background:#2A5560;box-shadow:inset 3px 0 0 var(--mark)}
+  .code-panel{background:#12303B;border-radius:10px;padding:12px 8px}
+  .readout{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 4px}
+  .reg{
+    flex:1;min-width:78px;background:#fff;border:1.5px solid var(--rule);border-radius:8px;padding:8px 10px;
+  }
+  .reg .rk{font-family:"JetBrains Mono",monospace;font-size:.68rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.08em}
+  .reg .rv{font-family:"JetBrains Mono",monospace;font-size:1.15rem;font-weight:700;color:var(--ink);line-height:1.25}
+  .reg.hot{border-color:var(--mark);background:#FEF6EA}
+  .say{
+    background:#fff;border:1.5px solid var(--rule);border-left:4px solid var(--teal);
+    border-radius:8px;padding:10px 13px;font-size:.88rem;min-height:62px;margin-top:10px;
+  }
+  .say b{color:var(--teal);font-weight:600}
+  .modes{display:flex;gap:0;border:1.5px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:14px}
+  .modes button{flex:1;padding:8px 6px;background:#fff;border:none;color:var(--ink-soft);font-size:.82rem;transition:background .2s,color .2s}
+  .modes button.sel{background:var(--teal);color:#fff}
+
+  /* ---------- Lỗi thường gặp ---------- */
+  .err{background:var(--red-soft);border:1px solid #E9BCB8;border-left:4px solid var(--red);border-radius:10px;padding:16px 18px}
+  .err h3{color:var(--red)}
+  .ok{background:var(--teal-soft);border:1px solid #B9DBD7;border-left:4px solid var(--teal);border-radius:10px;padding:16px 18px}
+  .ok h3{color:#1D5D58}
+
+  /* ---------- Quiz ---------- */
+  .q{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;margin-bottom:14px;box-shadow:var(--shadow)}
+  .q p.qt{font-weight:600;margin-bottom:.7em}
+  .opts{display:grid;gap:7px}
+  .opt{
+    text-align:left;background:#fff;border:1.5px solid var(--rule);border-radius:8px;padding:9px 13px;
+    font-weight:500;transition:border-color .15s,background .15s;
+  }
+  .opt:hover:not(:disabled){border-color:var(--teal);background:var(--teal-soft)}
+  .opt:disabled{cursor:default}
+  .opt.right{border-color:var(--teal);background:var(--teal-soft);color:#1D5D58;font-weight:600}
+  .opt.wrong{border-color:var(--red);background:var(--red-soft);color:var(--red)}
+  .why{margin-top:10px;font-size:.88rem;color:var(--ink-soft);border-top:1px dashed var(--rule);padding-top:9px;display:none}
+  .why.show{display:block}
+  .why b{color:var(--ink);font-weight:600}
+  .score{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--teal)}
+
+  footer{border-top:1px solid var(--rule);padding:30px 0 0;color:var(--ink-soft);font-size:.86rem}
+
+  @media (max-width:900px){
+    .grid2{grid-template-columns:1fr}
+    .lab-body{grid-template-columns:1fr}
+    .lab-left{border-right:none;border-bottom:1px solid var(--rule)}
+    .hero-meta{text-align:left}
+    .cell{width:50px;height:48px}
+    .mcell{width:29px;height:29px;font-size:.68rem}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition-duration:.01ms !important;animation-duration:.01ms !important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="hero-top">
+    <div>
+      <div class="eyebrow">Tin học · C++ · Bài 1</div>
+      <h1>Mảng 2 chiều<span>thật ra vẫn là mảng 1 chiều.</span></h1>
+    </div>
+    <div class="hero-meta">
+      Cần biết trước:<br>
+      <code>cin/cout</code> · <code>if/else</code><br>
+      vòng lặp <code>for</code> · mảng 1 chiều
+    </div>
+  </div>
+
+  <div class="fold">
+    <div class="fold-head">
+      <div class="fold-label">Bấm nút để xem <b>một dãy 12 ô</b> gấp lại thành <b>bảng 3 hàng × 4 cột</b>.</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-mark" id="foldBtn">Gấp thành bảng</button>
+      </div>
+    </div>
+    <div id="foldStage"></div>
+    <div class="fold-note" id="foldNote">
+      <b>Dãy thẳng:</b> 12 ô nằm liên tiếp, đánh số từ 0 đến 11 — đúng như mảng 1 chiều em đã học.
+    </div>
+  </div>
+</header>
+
+<!-- ============ 1. VÌ SAO ============ -->
+<section id="vi-sao">
+  <div class="sec-head">
+    <div class="eyebrow">Phần 1</div>
+    <h2>Vì sao cần mảng 2 chiều?</h2>
+    <p class="lead">Mảng 1 chiều lưu được một <em>dãy</em>. Nhưng nhiều thứ trong đời thực là một <em>bảng</em>.</p>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3><span class="num">1</span> Bài toán: bảng điểm của lớp</h3>
+      <p>Lớp có 3 học sinh, mỗi bạn có 4 điểm kiểm tra. Nếu dùng mảng 1 chiều, em phải khai báo 3 mảng riêng:</p>
+      <pre><span class="t">int</span> an[<span class="n">4</span>], binh[<span class="n">4</span>], cuong[<span class="n">4</span>];  <span class="c">// 30 bạn thì sao?!</span></pre>
+      <p>Không ổn. Ta cần một cấu trúc lưu được cả <strong>hàng</strong> (mỗi bạn một hàng) và <strong>cột</strong> (mỗi bài kiểm tra một cột).</p>
+    </div>
+    <div class="card">
+      <h3><span class="num">2</span> Lời giải: một bảng duy nhất</h3>
+      <pre><span class="t">int</span> diem[<span class="n">3</span>][<span class="n">4</span>];  <span class="c">// 3 hàng, 4 cột = 12 ô</span>
+
+<span class="c">// Điểm bài 3 của bạn thứ 2:</span>
+diem[<span class="n">1</span>][<span class="n">2</span>] = <span class="n">9</span>;</pre>
+      <p>Đọc là: “ô ở <strong>hàng 1</strong>, <strong>cột 2</strong>”. Chỉ số vẫn đếm <strong>từ 0</strong>, y như mảng 1 chiều.</p>
+      <ul class="tick">
+        <li>Bàn cờ caro → <code>char ban[10][10];</code></li>
+        <li>Ảnh đen trắng → <code>int anh[100][100];</code></li>
+        <li>Thời khoá biểu → <code>int tkb[6][10];</code></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. KHAI BÁO ============ -->
+<section id="khai-bao">
+  <div class="sec-head">
+    <div class="eyebrow">Phần 2</div>
+    <h2>Khai báo và truy cập</h2>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3><span class="num">3</span> Khai báo</h3>
+      <pre><span class="c">// Cú pháp:  kiểu  tên[số_hàng][số_cột];</span>
+<span class="t">int</span>  a[<span class="n">3</span>][<span class="n">4</span>];       <span class="c">// 3 hàng, 4 cột</span>
+<span class="t">char</span> c[<span class="n">8</span>][<span class="n">8</span>];       <span class="c">// bàn cờ vua</span>
+
+<span class="c">// Khai báo kèm giá trị luôn:</span>
+<span class="t">int</span> b[<span class="n">2</span>][<span class="n">3</span>] = {
+    {<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>},   <span class="c">// hàng 0</span>
+    {<span class="n">4</span>, <span class="n">5</span>, <span class="n">6</span>}    <span class="c">// hàng 1</span>
+};</pre>
+      <p>Mỗi cặp ngoặc nhọn bên trong là <strong>một hàng</strong>. Nhìn vào code là thấy luôn hình dạng cái bảng.</p>
+      <p><b>Mẹo thi:</b> nếu chưa biết trước kích thước, cứ khai báo dư rồi dùng một phần:</p>
+      <pre><span class="k">const</span> <span class="t">int</span> MAX = <span class="n">100</span>;
+<span class="t">int</span> a[MAX][MAX];   <span class="c">// dùng m hàng, n cột thôi</span>
+<span class="t">int</span> m, n;
+cin >> m >> n;</pre>
+    </div>
+    <div class="card">
+      <h3><span class="num">4</span> Truy cập một ô</h3>
+      <p>Với <code>int b[2][3]</code> ở bên trái:</p>
+      <table>
+        <tr><th>Viết</th><th>Nghĩa</th><th>Giá trị</th></tr>
+        <tr><td><code>b[0][0]</code></td><td>hàng 0, cột 0</td><td>1</td></tr>
+        <tr><td><code>b[0][2]</code></td><td>hàng 0, cột 2</td><td>3</td></tr>
+        <tr><td><code>b[1][0]</code></td><td>hàng 1, cột 0</td><td>4</td></tr>
+        <tr><td><code>b[1][2]</code></td><td>hàng 1, cột 2</td><td>6</td></tr>
+      </table>
+      <p><strong>Chỉ số đầu luôn là hàng, chỉ số sau luôn là cột.</strong> Nhớ câu này: <em>“hàng trước, cột sau”</em>.</p>
+      <p>Mảng <code>a[m][n]</code> có hàng hợp lệ từ <code>0</code> đến <code>m-1</code>, cột từ <code>0</code> đến <code>n-1</code>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. BÀN MÔ PHỎNG ============ -->
+<section id="mo-phong">
+  <div class="sec-head">
+    <div class="eyebrow">Phần 3 · Tương tác</div>
+    <h2>Bàn mô phỏng</h2>
+    <p class="lead">Đổi kích thước, bấm vào một ô bất kỳ, rồi bấm <strong>Chạy</strong> để xem hai vòng <code>for</code> lồng nhau đi qua từng ô như thế nào.</p>
+  </div>
+
+  <div class="lab">
+    <div class="lab-bar">
+      <span class="eyebrow">Bảng a[m][n]</span>
+      <label class="ctl">m (hàng) <input type="number" id="inR" min="1" max="5" value="3"></label>
+      <label class="ctl">n (cột) <input type="number" id="inC" min="1" max="5" value="4"></label>
+      <button class="btn-ghost" id="btnNew" style="color:#E7EEEC;border-color:#3B5A63">Tạo bảng mới</button>
+      <span style="flex:1"></span>
+      <label class="ctl">Tốc độ <input type="range" id="inSpd" min="120" max="1400" value="620" step="20"></label>
+      <button class="btn btn-mark" id="btnRun">▶ Chạy</button>
+      <button class="btn-ghost" id="btnStep" style="color:#E7EEEC;border-color:#3B5A63">Từng bước</button>
+      <button class="btn-ghost" id="btnReset" style="color:#E7EEEC;border-color:#3B5A63">Đặt lại</button>
+    </div>
+
+    <div class="lab-body">
+      <div class="lab-left">
+        <div class="axis-hint" id="axisHint">cột j →</div>
+        <div id="gridFrame" class="grid-frame"></div>
+
+        <div class="strip-wrap">
+          <div class="eyebrow" style="color:var(--ink-soft)">Trong bộ nhớ máy tính</div>
+          <div class="strip" id="strip"></div>
+          <div class="strip-note" id="stripNote">
+            Máy tính vẫn xếp 12 ô thành <b>một dãy thẳng</b>: hết hàng 0 mới đến hàng 1. Ô <code>a[i][j]</code> nằm ở vị trí thứ <code>i×n + j</code>.
+          </div>
+        </div>
+      </div>
+
+      <div class="lab-right">
+        <div class="modes">
+          <button id="mRow" class="sel">Duyệt theo hàng</button>
+          <button id="mCol">Duyệt theo cột</button>
+        </div>
+
+        <div class="code-panel" id="codePanel"></div>
+
+        <div class="readout">
+          <div class="reg" id="regI"><div class="rk">i (hàng)</div><div class="rv">–</div></div>
+          <div class="reg" id="regJ"><div class="rk">j (cột)</div><div class="rv">–</div></div>
+          <div class="reg" id="regS"><div class="rk">tong</div><div class="rv">0</div></div>
+        </div>
+
+        <div class="say" id="say">Bấm <b>▶ Chạy</b> để bắt đầu, hoặc bấm vào một ô trong bảng để xem chỉ số của nó.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. NHẬP XUẤT ============ -->
+<section id="nhap-xuat">
+  <div class="sec-head">
+    <div class="eyebrow">Phần 4</div>
+    <h2>Nhập, xuất và xử lý</h2>
+    <p class="lead">Quy tắc vàng: <strong>muốn đụng tới mọi ô của bảng thì cần hai vòng <code>for</code> lồng nhau.</strong></p>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3><span class="num">5</span> Nhập bảng từ bàn phím</h3>
+      <pre><span class="t">int</span> a[<span class="n">100</span>][<span class="n">100</span>], m, n;
+cin >> m >> n;
+
+<span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; m; i++)
+    <span class="k">for</span> (<span class="t">int</span> j = <span class="n">0</span>; j &lt; n; j++)
+        cin >> a[i][j];</pre>
+      <h3 style="margin-top:1.2em"><span class="num">6</span> In bảng ra màn hình</h3>
+      <pre><span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; m; i++) {
+    <span class="k">for</span> (<span class="t">int</span> j = <span class="n">0</span>; j &lt; n; j++)
+        cout &lt;&lt; a[i][j] &lt;&lt; <span class="s">" "</span>;
+    cout &lt;&lt; endl;   <span class="c">// xuống dòng khi hết 1 hàng</span>
+}</pre>
+      <p>Dòng <code>cout &lt;&lt; endl;</code> đặt <strong>ngoài</strong> vòng <code>for</code> của <code>j</code> — nếu đặt trong, mỗi số sẽ nằm một dòng.</p>
+    </div>
+    <div class="card">
+      <h3><span class="num">7</span> Ba bài toán kinh điển</h3>
+      <p><strong>Tính tổng tất cả phần tử</strong></p>
+      <pre><span class="t">int</span> tong = <span class="n">0</span>;
+<span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; m; i++)
+    <span class="k">for</span> (<span class="t">int</span> j = <span class="n">0</span>; j &lt; n; j++)
+        tong += a[i][j];</pre>
+      <p><strong>Đếm số chẵn</strong> (dùng <code>if</code> đã học)</p>
+      <pre><span class="t">int</span> dem = <span class="n">0</span>;
+<span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; m; i++)
+    <span class="k">for</span> (<span class="t">int</span> j = <span class="n">0</span>; j &lt; n; j++)
+        <span class="k">if</span> (a[i][j] % <span class="n">2</span> == <span class="n">0</span>)
+            dem++;</pre>
+      <p><strong>Tìm giá trị lớn nhất</strong></p>
+      <pre><span class="t">int</span> maxV = a[<span class="n">0</span>][<span class="n">0</span>];
+<span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; m; i++)
+    <span class="k">for</span> (<span class="t">int</span> j = <span class="n">0</span>; j &lt; n; j++)
+        <span class="k">if</span> (a[i][j] > maxV)
+            maxV = a[i][j];</pre>
+      <p>Thấy không? Bộ khung hai vòng <code>for</code> luôn giống hệt nhau — chỉ đổi phần việc ở giữa.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. LỖI ============ -->
+<section id="loi">
+  <div class="sec-head">
+    <div class="eyebrow">Phần 5</div>
+    <h2>Bốn lỗi ai cũng mắc lần đầu</h2>
+  </div>
+  <div class="grid2">
+    <div class="err">
+      <h3>✕ Vượt quá chỉ số</h3>
+      <pre><span class="t">int</span> a[<span class="n">3</span>][<span class="n">3</span>];
+a[<span class="n">3</span>][<span class="n">0</span>] = <span class="n">5</span>;   <span class="c">// SAI!</span></pre>
+      <p style="margin:0">Mảng <code>a[3][3]</code> chỉ có hàng <strong>0, 1, 2</strong>. Không hề có hàng 3. Chương trình có thể vẫn chạy nhưng cho kết quả bậy hoặc bị crash.</p>
+    </div>
+    <div class="ok">
+      <h3>✓ Điều kiện lặp đúng</h3>
+      <pre><span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; m; i++)   <span class="c">// i &lt; m, không phải i &lt;= m</span></pre>
+      <p style="margin:0">Luôn là <code>&lt;</code> chứ không phải <code>&lt;=</code>, vì chỉ số cuối cùng là <code>m-1</code>.</p>
+    </div>
+    <div class="err">
+      <h3>✕ Nhầm hàng với cột</h3>
+      <pre>a[j][i]   <span class="c">// đảo ngược mất rồi!</span></pre>
+      <p style="margin:0"><code>a[1][2]</code> và <code>a[2][1]</code> là <strong>hai ô khác nhau</strong>. Nhớ: biến của vòng <code>for</code> ngoài đi vào ngoặc đầu.</p>
+    </div>
+    <div class="err">
+      <h3>✕ Viết <code>a[i, j]</code></h3>
+      <pre>a[i, j]     <span class="c">// SAI trong C++</span>
+a[i][j]     <span class="c">// ĐÚNG</span></pre>
+      <p style="margin:0">C++ bắt buộc mỗi chỉ số một cặp ngoặc vuông riêng.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6. QUIZ ============ -->
+<section id="quiz">
+  <div class="sec-head">
+    <div class="eyebrow">Phần 6</div>
+    <h2>Kiểm tra nhanh</h2>
+    <p class="lead">Điểm: <span class="score" id="score">0 / 5</span></p>
+  </div>
+  <div id="quizBox"></div>
+</section>
+
+<footer>
+  Bài học mảng 2 chiều C++ · Dành cho học sinh lớp 9 · Mở bằng trình duyệt bất kỳ, không cần cài đặt gì thêm.
+</footer>
+</div>
+
+<script>
+/* =========================================================
+   1. HERO — dải ô 1 chiều gấp thành bảng 2 chiều
+   ========================================================= */
+const FR = 3, FC = 4, FN = FR * FC;
+const stage = document.getElementById('foldStage');
+const foldBtn = document.getElementById('foldBtn');
+const foldNote = document.getElementById('foldNote');
+const fVals = Array.from({length: FN}, () => Math.floor(Math.random() * 90) + 10);
+let folded = false;
+
+const fcells = fVals.map((v, k) => {
+  const d = document.createElement('div');
+  d.className = 'fcell';
+  d.innerHTML = `<span class="fv">${v}</span><span class="fi"></span>`;
+  stage.appendChild(d);
+  return d;
+});
+
+function layoutFold() {
+  const W = stage.clientWidth;
+  const gap = 6;
+  const lineSize = Math.min(52, Math.floor((W - (FN - 1) * gap) / FN));
+  const gridSize = Math.min(78, Math.floor((W - (FC - 1) * gap) / FC), 78);
+  const size = folded ? gridSize : lineSize;
+
+  fcells.forEach((d, k) => {
+    d.style.width = size + 'px';
+    d.style.height = size + 'px';
+    d.querySelector('.fv').style.fontSize = Math.max(11, size * 0.34) + 'px';
+    d.querySelector('.fi').style.fontSize = Math.max(8, size * 0.17) + 'px';
+    let x, y;
+    if (folded) {
+      const i = Math.floor(k / FC), j = k % FC;
+      const gw = FC * size + (FC - 1) * gap;
+      x = (W - gw) / 2 + j * (size + gap);
+      y = 14 + i * (size + gap);
+      d.querySelector('.fi').textContent = `a[${i}][${j}]`;
+    } else {
+      const lw = FN * size + (FN - 1) * gap;
+      x = (W - lw) / 2 + k * (size + gap);
+      y = 78;
+      d.querySelector('.fi').textContent = `a[${k}]`;
+    }
+    d.style.transitionDelay = (k * 32) + 'ms';
+    d.style.transform = `translate(${x}px, ${y}px)`;
+  });
+  stage.style.height = (folded ? (14 + FR * size + (FR - 1) * gap + 14) : 220) + 'px';
+}
+
+foldBtn.addEventListener('click', () => {
+  folded = !folded;
+  layoutFold();
+  foldBtn.textContent = folded ? 'Trải lại thành dãy' : 'Gấp thành bảng';
+  foldNote.innerHTML = folded
+    ? '<b>Bảng 3×4:</b> vẫn 12 ô đó, chỉ đổi cách gọi tên. Ô số 6 trong dãy chính là <code>a[1][2]</code> — vì 1×4 + 2 = 6.'
+    : '<b>Dãy thẳng:</b> 12 ô nằm liên tiếp, đánh số từ 0 đến 11 — đúng như mảng 1 chiều em đã học.';
+});
+window.addEventListener('resize', layoutFold);
+layoutFold();
+
+/* =========================================================
+   2. BÀN MÔ PHỎNG
+   ========================================================= */
+const gridFrame = document.getElementById('gridFrame');
+const strip     = document.getElementById('strip');
+const codePanel = document.getElementById('codePanel');
+const regI = document.getElementById('regI'), regJ = document.getElementById('regJ'), regS = document.getElementById('regS');
+const say  = document.getElementById('say');
+const inR = document.getElementById('inR'), inC = document.getElementById('inC'), inSpd = document.getElementById('inSpd');
+const btnRun = document.getElementById('btnRun'), btnStep = document.getElementById('btnStep'),
+      btnReset = document.getElementById('btnReset'), btnNew = document.getElementById('btnNew');
+const mRow = document.getElementById('mRow'), mCol = document.getElementById('mCol');
+
+let R = 3, C = 4, A = [], mode = 'row';
+let steps = [], sp = -1, timer = null, running = false;
+
+function buildArray() {
+  R = Math.min(5, Math.max(1, parseInt(inR.value) || 3));
+  C = Math.min(5, Math.max(1, parseInt(inC.value) || 4));
+  inR.value = R; inC.value = C;
+  A = Array.from({length: R}, () => Array.from({length: C}, () => Math.floor(Math.random() * 20) + 1));
+  drawGrid(); drawStrip(); drawCode(); reset();
+}
+
+function drawGrid() {
+  gridFrame.style.gridTemplateColumns = `repeat(${C}, auto)`;
+  gridFrame.innerHTML = '';
+  for (let i = 0; i < R; i++) for (let j = 0; j < C; j++) {
+    const b = document.createElement('button');
+    b.className = 'cell';
+    b.id = `c-${i}-${j}`;
+    b.innerHTML = `<span class="v">${A[i][j]}</span><span class="idx">${i},${j}</span>`;
+    b.addEventListener('click', () => pick(i, j));
+    gridFrame.appendChild(b);
+  }
+}
+
+function drawStrip() {
+  strip.innerHTML = '';
+  for (let i = 0; i < R; i++) for (let j = 0; j < C; j++) {
+    const d = document.createElement('div');
+    d.className = 'mcell';
+    d.id = `m-${i}-${j}`;
+    d.textContent = A[i][j];
+    d.title = `a[${i}][${j}] — vị trí ${i * C + j}`;
+    strip.appendChild(d);
+  }
+}
+
+/* --- code hiển thị, đồng bộ với mode --- */
+function drawCode() {
+  const outer = mode === 'row' ? 'i' : 'j';
+  const inner = mode === 'row' ? 'j' : 'i';
+  const oLim  = mode === 'row' ? 'm' : 'n';
+  const iLim  = mode === 'row' ? 'n' : 'm';
+  const L = [
+    `<span class="t">int</span> tong = <span class="n">0</span>;`,
+    `<span class="k">for</span> (<span class="t">int</span> ${outer} = <span class="n">0</span>; ${outer} &lt; ${oLim}; ${outer}++) {`,
+    `    <span class="k">for</span> (<span class="t">int</span> ${inner} = <span class="n">0</span>; ${inner} &lt; ${iLim}; ${inner}++) {`,
+    `        tong = tong + a[i][j];`,
+    `    }`,
+    `}`,
+    `cout &lt;&lt; tong;`
+  ];
+  codePanel.innerHTML = L.map((s, k) =>
+    `<div class="codeline" id="L${k}" data-ln="${k + 1}">${s}</div>`).join('');
+}
+
+/* --- sinh danh sách các bước --- */
+function makeSteps() {
+  steps = [];
+  let tong = 0;
+  steps.push({ line: 0, i: null, j: null, tong: 0, msg: 'Tạo biến <b>tong</b> và gán bằng 0.' });
+  if (mode === 'row') {
+    for (let i = 0; i < R; i++) {
+      steps.push({ line: 1, i, j: null, tong, msg: `Vòng ngoài: <b>i = ${i}</b> — bắt đầu quét <b>hàng ${i}</b> từ trái sang phải.` });
+      for (let j = 0; j < C; j++) {
+        tong += A[i][j];
+        steps.push({ line: 3, i, j, tong, hit: [i, j],
+          msg: `<b>a[${i}][${j}] = ${A[i][j]}</b>. Cộng vào tong → tong = ${tong}. Trong bộ nhớ ô này nằm ở vị trí ${i}×${C} + ${j} = <b>${i * C + j}</b>.` });
+      }
+    }
+  } else {
+    for (let j = 0; j < C; j++) {
+      steps.push({ line: 1, i: null, j, tong, msg: `Vòng ngoài: <b>j = ${j}</b> — bắt đầu quét <b>cột ${j}</b> từ trên xuống dưới.` });
+      for (let i = 0; i < R; i++) {
+        tong += A[i][j];
+        steps.push({ line: 3, i, j, tong, hit: [i, j],
+          msg: `<b>a[${i}][${j}] = ${A[i][j]}</b>. Cộng vào tong → tong = ${tong}. Chú ý dải bộ nhớ bên trái: các ô sáng lên <b>cách quãng</b>, vì cùng cột thì không nằm cạnh nhau.` });
+      }
+    }
+  }
+  steps.push({ line: 6, i: null, j: null, tong, done: true, msg: `Xong! Đã đi qua đủ ${R * C} ô. In ra <b>tong = ${tong}</b>.` });
+}
+
+function paint(k) {
+  const st = steps[k];
+  document.querySelectorAll('.codeline').forEach(e => e.classList.remove('hot'));
+  document.getElementById('L' + st.line)?.classList.add('hot');
+
+  // các ô đã đi qua
+  const visited = new Set();
+  for (let t = 0; t <= k; t++) if (steps[t].hit) visited.add(steps[t].hit.join('-'));
+
+  document.querySelectorAll('.cell, .mcell').forEach(e => e.classList.remove('on', 'done'));
+  visited.forEach(key => {
+    document.getElementById('c-' + key)?.classList.add('done');
+    document.getElementById('m-' + key)?.classList.add('done');
+  });
+  if (st.hit) {
+    const key = st.hit.join('-');
+    document.getElementById('c-' + key)?.classList.remove('done');
+    document.getElementById('m-' + key)?.classList.remove('done');
+    document.getElementById('c-' + key)?.classList.add('on');
+    document.getElementById('m-' + key)?.classList.add('on');
+  }
+
+  regI.querySelector('.rv').textContent = st.i === null ? '–' : st.i;
+  regJ.querySelector('.rv').textContent = st.j === null ? '–' : st.j;
+  regS.querySelector('.rv').textContent = st.tong;
+  regI.classList.toggle('hot', st.i !== null);
+  regJ.classList.toggle('hot', st.j !== null);
+  regS.classList.toggle('hot', !!st.hit || !!st.done);
+  say.innerHTML = st.msg;
+}
+
+function stepOnce() {
+  if (steps.length === 0) makeSteps();
+  if (sp >= steps.length - 1) { stop(); return false; }
+  sp++; paint(sp);
+  return true;
+}
+
+function play() {
+  if (running) { stop(); return; }
+  if (sp >= steps.length - 1) reset();
+  running = true;
+  btnRun.textContent = '❚❚ Dừng';
+  const tick = () => {
+    if (!stepOnce()) return;
+    if (running) timer = setTimeout(tick, parseInt(inSpd.value));
+  };
+  tick();
+}
+function stop() { running = false; clearTimeout(timer); btnRun.textContent = '▶ Chạy'; }
+function reset() {
+  stop(); makeSteps(); sp = -1;
+  document.querySelectorAll('.cell, .mcell').forEach(e => e.classList.remove('on', 'done', 'pick'));
+  document.querySelectorAll('.codeline').forEach(e => e.classList.remove('hot'));
+  [regI, regJ, regS].forEach(r => r.classList.remove('hot'));
+  regI.querySelector('.rv').textContent = '–';
+  regJ.querySelector('.rv').textContent = '–';
+  regS.querySelector('.rv').textContent = '0';
+  say.innerHTML = 'Bấm <b>▶ Chạy</b> để bắt đầu, hoặc bấm vào một ô trong bảng để xem chỉ số của nó.';
+}
+
+function pick(i, j) {
+  stop();
+  document.querySelectorAll('.cell, .mcell').forEach(e => e.classList.remove('pick'));
+  document.getElementById(`c-${i}-${j}`).classList.add('pick');
+  document.getElementById(`m-${i}-${j}`).classList.add('pick');
+  say.innerHTML = `Ô này là <b>a[${i}][${j}]</b>, giá trị <b>${A[i][j]}</b>.<br>
+    Nó ở hàng ${i}, cột ${j}. Trong bộ nhớ nó là ô thứ <b>${i}×${C} + ${j} = ${i * C + j}</b> (đếm từ 0).`;
+}
+
+function setMode(m) {
+  mode = m;
+  mRow.classList.toggle('sel', m === 'row');
+  mCol.classList.toggle('sel', m === 'col');
+  document.getElementById('axisHint').textContent = m === 'row' ? 'cột j →   (đi hết hàng rồi mới xuống hàng dưới)' : 'cột j →   (đi hết cột rồi mới sang cột bên phải)';
+  drawCode(); reset();
+}
+
+btnRun.addEventListener('click', play);
+btnStep.addEventListener('click', () => { stop(); stepOnce(); });
+btnReset.addEventListener('click', reset);
+btnNew.addEventListener('click', buildArray);
+inR.addEventListener('change', buildArray);
+inC.addEventListener('change', buildArray);
+mRow.addEventListener('click', () => setMode('row'));
+mCol.addEventListener('click', () => setMode('col'));
+
+buildArray();
+setMode('row');
+
+/* =========================================================
+   3. QUIZ
+   ========================================================= */
+const QUIZ = [
+  {
+    q: 'Khai báo <code>int a[3][4];</code> tạo ra bao nhiêu ô nhớ?',
+    o: ['7 ô', '12 ô', '34 ô', '3 ô'],
+    r: 1,
+    w: 'Số ô = số hàng × số cột = 3 × 4 = <b>12</b>.'
+  },
+  {
+    q: 'Với <code>int a[3][4];</code>, ô ở <b>góc dưới bên phải</b> được viết là gì?',
+    o: ['a[3][4]', 'a[4][3]', 'a[2][3]', 'a[1][1]'],
+    r: 2,
+    w: 'Chỉ số đếm từ 0, nên hàng cuối là 3−1 = 2 và cột cuối là 4−1 = 3 → <b>a[2][3]</b>. Viết <code>a[3][4]</code> là vượt quá mảng.'
+  },
+  {
+    q: 'Cho <code>int b[2][3] = {{1,2,3},{4,5,6}};</code> — <code>b[1][0]</code> bằng bao nhiêu?',
+    o: ['2', '4', '3', '1'],
+    r: 1,
+    w: 'Hàng 1 là <code>{4,5,6}</code>, cột 0 của hàng đó là số đầu tiên → <b>4</b>. (Đừng nhầm với <code>b[0][1]</code> = 2.)'
+  },
+  {
+    q: 'Muốn duyệt hết bảng <b>theo từng hàng</b> (trái→phải, rồi xuống hàng dưới), vòng <code>for</code> <b>ngoài</b> chạy biến nào?',
+    o: ['j — biến cột', 'i — biến hàng', 'Biến nào cũng được', 'Cần 3 vòng for'],
+    r: 1,
+    w: 'Vòng ngoài giữ nguyên <b>i</b> (một hàng), vòng trong cho <b>j</b> chạy hết các cột của hàng đó. Đổi lại thì thành duyệt theo cột.'
+  },
+  {
+    q: 'Đoạn nào dưới đây in xuống dòng sau mỗi hàng cho đúng?',
+    o: [
+      'Đặt <code>cout &lt;&lt; endl;</code> ngay sau <code>cout &lt;&lt; a[i][j];</code>',
+      'Đặt <code>cout &lt;&lt; endl;</code> sau khi vòng for của j kết thúc',
+      'Không cần endl',
+      'Đặt <code>cout &lt;&lt; endl;</code> trước cả hai vòng for'
+    ],
+    r: 1,
+    w: 'Phải in hết một hàng (tức là vòng <code>j</code> chạy xong) rồi mới xuống dòng. Nếu đặt trong vòng <code>j</code>, mỗi số sẽ rơi xuống một dòng riêng.'
+  }
+];
+
+let score = 0, answered = 0;
+const quizBox = document.getElementById('quizBox');
+QUIZ.forEach((item, qi) => {
+  const div = document.createElement('div');
+  div.className = 'q';
+  div.innerHTML = `<p class="qt">Câu ${qi + 1}. ${item.q}</p>
+    <div class="opts">${item.o.map((t, k) => `<button class="opt" data-q="${qi}" data-k="${k}">${t}</button>`).join('')}</div>
+    <div class="why" id="w${qi}"><b>Vì sao:</b> ${item.w}</div>`;
+  quizBox.appendChild(div);
+});
+
+quizBox.addEventListener('click', e => {
+  const b = e.target.closest('.opt');
+  if (!b || b.disabled) return;
+  const qi = +b.dataset.q, k = +b.dataset.k, item = QUIZ[qi];
+  const opts = quizBox.querySelectorAll(`.opt[data-q="${qi}"]`);
+  if (opts[0].disabled) return;
+  opts.forEach(o => o.disabled = true);
+  opts[item.r].classList.add('right');
+  if (k !== item.r) b.classList.add('wrong'); else score++;
+  answered++;
+  document.getElementById('w' + qi).classList.add('show');
+  document.getElementById('score').textContent = `${score} / 5`;
+});
+</script>
+</body>
+</html>
