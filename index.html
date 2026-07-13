@@ -684,27 +684,34 @@ timThay = <span class="k">true</span>;            <span class="c">// kéo cờ l
       <p style="margin-bottom:0"><b>Vai trò hai lính canh:</b> <code>max1 = VOCUC</code> để phần tử đầu tiên chắc chắn vượt qua; <code>max2 = VOCUC</code> vừa làm vạch xuất phát, vừa làm <strong>cờ hiệu</strong> — sau lần 2 mà nó <em>vẫn còn nguyên</em> thì cả bảng chỉ có một giá trị duy nhất (ví dụ <code>5 5 5 5</code>), tức là không tồn tại số lớn thứ hai.</p>
     </div>
     <div class="card">
-      <h3>Cách 2 — dồn 2D về 1D</h3>
-      <p>Nếu em đã học sắp xếp mảng 1 chiều, có thể đổ hết bảng vào một mảng thẳng:</p>
-      <pre><span class="t">int</span> b[<span class="n">10000</span>], k = <span class="n">0</span>;
+      <h3>Cách 2 — dồn 2D về 1D rồi <code>sort</code></h3>
+      <p>Bảng vốn đã là một dãy thẳng trong bộ nhớ (nhớ lại phần đầu bài), nên ta cứ chép nó ra một mảng 1 chiều rồi nhờ <strong>hàm <code>sort</code> có sẵn</strong> của C++ sắp xếp hộ:</p>
+      <pre><span class="k">#include</span> <span class="s">&lt;algorithm&gt;</span>   <span class="c">// nơi có hàm sort</span>
+<span class="k">using</span> <span class="k">namespace</span> std;
 
+<span class="t">int</span> b[<span class="n">10000</span>], k = <span class="n">0</span>;
+
+<span class="c">// đổ cả bảng vào mảng 1 chiều b</span>
 <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; m; i++)
     <span class="k">for</span> (<span class="t">int</span> j = <span class="n">0</span>; j &lt; n; j++)
         b[k++] = a[i][j];   <span class="c">// k chạy 0,1,2,...</span>
 
-<span class="c">// sắp xếp b giảm dần (nổi bọt)</span>
-<span class="k">for</span> (<span class="t">int</span> p = <span class="n">0</span>; p &lt; k - <span class="n">1</span>; p++)
-    <span class="k">for</span> (<span class="t">int</span> q = p + <span class="n">1</span>; q &lt; k; q++)
-        <span class="k">if</span> (b[q] &gt; b[p]) {
-            <span class="t">int</span> tmp = b[p]; b[p] = b[q]; b[q] = tmp;
-        }
+<span class="c">// sắp xếp GIẢM dần: lớn nhất nằm ở b[0]</span>
+sort(b, b + k, greater&lt;<span class="t">int</span>&gt;());
 
-<span class="c">// đi từ đầu, tìm số đầu tiên KHÁC b[0]</span>
+<span class="c">// đi từ đầu, tìm số ĐẦU TIÊN khác b[0]</span>
 <span class="t">int</span> kq = VOCUC;
 <span class="k">for</span> (<span class="t">int</span> p = <span class="n">1</span>; p &lt; k; p++)
-    <span class="k">if</span> (b[p] != b[<span class="n">0</span>]) { kq = b[p]; <span class="k">break</span>; }</pre>
-      <p>Chính là kỹ thuật <code>b[k++]</code>: bảng vốn đã là một dãy thẳng trong bộ nhớ, ta chỉ chép lại nó. Chú ý dòng cuối lại dùng <code>break</code> — gặp số khác <code>b[0]</code> đầu tiên là dừng ngay.</p>
-      <p style="margin-bottom:0">Cách này dễ nghĩ nhưng tốn thêm một mảng phụ và chạy chậm hơn nhiều vì phải sắp xếp.</p>
+    <span class="k">if</span> (b[p] != b[<span class="n">0</span>]) { kq = b[p]; <span class="k">break</span>; }
+
+<span class="k">if</span> (kq == VOCUC) cout &lt;&lt; <span class="s">"Khong co"</span>;
+<span class="k">else</span> cout &lt;&lt; kq;</pre>
+      <ul class="tick">
+        <li><code>sort(b, b + k)</code> sắp xếp <strong>tăng dần</strong> đoạn từ <code>b[0]</code> đến <code>b[k-1]</code>. Viết <code>b + k</code> chứ không phải <code>b + k - 1</code>.</li>
+        <li>Thêm <code>greater&lt;int&gt;()</code> để đổi thành <strong>giảm dần</strong>. Khi đó <code>b[0]</code> chính là max1.</li>
+        <li>Vòng <code>for</code> cuối lại dùng <code>break</code> — gặp số khác <code>b[0]</code> đầu tiên là dừng ngay. Cờ hiệu ở đây là <code>kq</code> với lính canh <code>VOCUC</code>.</li>
+      </ul>
+      <p style="margin-bottom:0"><b>So sánh:</b> viết nhanh, ít lỗi hơn tự code sắp xếp. Nhưng tốn thêm một mảng phụ 10 000 phần tử và <code>sort</code> vẫn chậm hơn hai vòng duyệt ở Cách 1. Trong bài thi có giới hạn thời gian, <strong>Cách 1 vẫn là lựa chọn tốt hơn</strong>.</p>
     </div>
   </div>
 
