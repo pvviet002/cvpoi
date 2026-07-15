@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kỹ thuật Quét Trục Số - EduCode Master</title>
+    
+    <!-- Bổ sung MathJax để render công thức toán học -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #0B1220;
+            --bg2: #0F1A2E;
+            --panel: #111E36;
+            --accent: #38D6C4;
+            --accent-dim: rgba(56, 214, 196, 0.2);
+            --accent2: #5B8CFF;
+            --mark: #FFB454;
+            --red: #FF6B6B;
+            --green: #4ADE80;
+            --text-main: #E2E8F0;
+            --text-muted: #94A3B8;
+            --shadow-card: 0 20px 60px -30px rgba(0,0,0,.9);
+            --glow: 0 0 15px var(--accent-dim);
+            --border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.03em; }
+        code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        section { padding: 80px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+        /* Typography */
+        h1 { font-size: 3.5rem; color: #fff; text-shadow: var(--glow); margin-bottom: 1rem; }
+        h2 { font-size: 2.2rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 15px; }
+        h2::before { content: ''; width: 4px; height: 1em; background: var(--accent); border-radius: 4px; }
+        p { margin-bottom: 1rem; color: var(--text-muted); font-size: 1.1rem; }
+        
+        .highlight { color: var(--accent); font-weight: 600; }
+        .red-text { color: var(--red); }
+
+        /* UI Components */
+        .card {
+            background: linear-gradient(145deg, var(--panel), var(--bg2));
+            border: var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: var(--shadow-card);
+            backdrop-filter: blur(10px);
+        }
+
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media(max-width: 768px) { .grid2 { grid-template-columns: 1fr; } }
+
+        button {
+            background: linear-gradient(135deg, var(--accent2), var(--accent));
+            color: #000;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--glow);
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 0 25px var(--accent-dim); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        button.btn-outline {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            box-shadow: none;
+        }
+        button.btn-outline:hover { background: var(--accent-dim); }
+
+        /* Code Block */
+        pre {
+            background: #0A1220;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+            font-size: 0.95rem;
+            color: #A6ACCD;
+        }
+        .kw { color: #89DDFF; } /* Keyword */
+        .fn { color: #82AAFF; } /* Function */
+        .op { color: #89DDFF; } /* Operator */
+        .st { color: #C3E88D; } /* String */
+        .nm { color: #F78C6C; } /* Number */
+        .cm { color: #676E95; font-style: italic; } /* Comment */
+
+        /* Hero & Mini Lab */
+        .prereq-box {
+            display: inline-block;
+            background: rgba(255, 180, 84, 0.1);
+            color: var(--mark);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 180, 84, 0.2);
+        }
+        .mini-lab {
+            margin-top: 30px;
+            padding: 20px;
+            background: var(--bg2);
+            border-radius: 12px;
+            border: var(--border);
+            text-align: center;
+        }
+        .mini-number-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+            background: var(--panel);
+            border-radius: 30px;
+            padding: 0 20px;
+            position: relative;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+        .mini-node {
+            width: 30px; height: 30px;
+            background: var(--bg);
+            border: 2px solid var(--text-muted);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'JetBrains Mono'; font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .mini-node:hover, .mini-node.active { border-color: var(--accent); color: var(--accent); box-shadow: var(--glow); }
+        .logic-card { padding: 15px; border-radius: 8px; background: rgba(0,0,0,0.2); }
+
+        /* Interactive Lab */
+        #lab-container {
+            display: flex; flex-direction: column; gap: 20px;
+        }
+        .lab-toolbar {
+            display: flex; gap: 15px; align-items: center;
+            padding: 15px; background: var(--bg2); border-radius: 12px; border: var(--border);
+        }
+        .lab-speed { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--text-muted); }
+        
+        .lab-main { display: grid; grid-template-columns: 1fr 400px; gap: 20px; }
+        @media(max-width: 900px) { .lab-main { grid-template-columns: 1fr; } }
+        
+        /* Left: Visualizer */
+        .visual-panel {
+            background: var(--bg2); border: var(--border); border-radius: 12px;
+            padding: 30px; display: flex; flex-direction: column; justify-content: center;
+            position: relative; overflow: hidden; min-height: 400px;
+        }
+        .main-number-line {
+            position: relative; width: 100%; height: 4px; background: var(--text-muted); margin-top: 150px;
+        }
+        .main-node {
+            position: absolute; top: -14px;
+            width: 32px; height: 32px; background: var(--panel); border: 2px solid var(--text-muted);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            transform: translateX(-50%); font-family: 'JetBrains Mono'; font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .statement-arrow {
+            position: absolute; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-family: 'JetBrains Mono';
+            font-weight: bold; transition: 0.3s;
+        }
+        .arrow-L { border-right: 2px solid; border-bottom: 2px solid; border-top: 2px solid; border-radius: 10px 0 0 10px; }
+        .arrow-G { border-left: 2px solid; border-bottom: 2px solid; border-top: 2px solid; border-radius: 0 10px 10px 0; }
+        
+        .cuoi-marker {
+            position: absolute; bottom: 30px; transform: translateX(-50%);
+            color: var(--accent); font-size: 2rem; transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-shadow: var(--glow);
+        }
+
+        /* Right: Code & State */
+        .state-panel { display: flex; flex-direction: column; gap: 15px; }
+        .code-runner { background: #0A1220; border-radius: 12px; padding: 15px; font-family: 'JetBrains Mono'; font-size: 0.9rem; border: var(--border);}
+        .codeline { padding: 4px 10px; border-radius: 4px; border-left: 3px solid transparent; transition: 0.2s; color: #A6ACCD;}
+        .codeline.hot { background: rgba(255, 180, 84, 0.1); border-left-color: var(--mark); color: #fff;}
+        
+        .vars-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .var-item { background: var(--bg2); padding: 10px; border-radius: 8px; border: var(--border); text-align: center; }
+        .var-label { font-size: 0.8rem; color: var(--text-muted); }
+        .var-val { font-size: 1.5rem; font-family: 'JetBrains Mono'; color: var(--accent); transition: 0.3s; }
+        .var-val.changed { color: var(--mark); transform: scale(1.1); text-shadow: 0 0 10px var(--mark); }
+
+        .msg-box { background: rgba(56, 214, 196, 0.1); border-left: 4px solid var(--accent); padding: 15px; border-radius: 8px; font-size: 0.95rem; }
+
+        /* Pitfalls */
+        .pitfall-box { padding: 20px; border-radius: 12px; border: 1px solid; }
+        .pitfall-bad { background: rgba(255, 107, 107, 0.05); border-color: rgba(255, 107, 107, 0.3); }
+        .pitfall-good { background: rgba(74, 222, 128, 0.05); border-color: rgba(74, 222, 128, 0.3); }
+
+        /* Quiz */
+        .quiz-opt { 
+            display: block; width: 100%; text-align: left; background: var(--bg2); 
+            border: var(--border); padding: 15px; margin-bottom: 10px; border-radius: 8px;
+            transition: 0.2s; cursor: pointer; color: var(--text-main); font-family: 'Inter';
+        }
+        .quiz-opt:hover { background: var(--panel); border-color: var(--accent); }
+        .quiz-opt.correct { background: rgba(74, 222, 128, 0.1); border-color: var(--green); }
+        .quiz-opt.wrong { background: rgba(255, 107, 107, 0.1); border-color: var(--red); }
+        #quiz-explanation { margin-top: 15px; padding: 15px; background: var(--bg2); border-radius: 8px; display: none; }
+    </style>
+</head>
+<body>
+
+    <section id="hero">
+        <div class="container">
+            <div class="prereq-box">⚡ Cần biết trước: Mảng, Vòng lặp cơ bản</div>
+            <h1>Trốn Tìm Trên Trục Số</h1>
+            <p style="font-size: 1.3rem; max-width: 800px;">Hướng dẫn giải bài toán <strong>LIARCNT</strong> bằng cách tư duy logic về tọa độ và biến đổi bài toán tối ưu. Học cách máy tính "quét" qua các khả năng một cách thông minh.</p>
+            
+            <div class="mini-lab card">
+                <h3 style="margin-bottom: 10px;">Mini-Lab: Thế nào là nói dối?</h3>
+                <p>Cuội đang trốn. Bờm nhận được 2 lời khai. Thử click vào các vị trí $x$ (nơi bạn đoán Cuội trốn) để xem ai đang nói dối!</p>
+                <div class="mini-number-line" id="mini-line">
+                    <div class="mini-node" data-val="1">1</div>
+                    <div class="mini-node" data-val="2">2</div>
+                    <div class="mini-node" data-val="3">3</div>
+                    <div class="mini-node" data-val="4">4</div>
+                    <div class="mini-node" data-val="5">5</div>
+                </div>
+                <div class="grid2">
+                    <div class="logic-card" id="logic-L">
+                        <strong>Bạn A nói:</strong> "Cuội ở tọa độ $x \le 2$" (L 2)
+                        <div id="res-L" class="mono" style="margin-top:10px; font-size:1.2rem;">-</div>
+                    </div>
+                    <div class="logic-card" id="logic-G">
+                        <strong>Bạn B nói:</strong> "Cuội ở tọa độ $x \ge 4$" (G 4)
+                        <div id="res-G" class="mono" style="margin-top:10px; font-size:1.2rem;">-</div>
+                    </div>
+                </div>
+                <p id="mini-total" style="margin-top: 15px; font-weight: bold; color: var(--mark);">-</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="motivation">
+        <div class="container">
+            <h2>Tại sao cần tư duy lại?</h2>
+            <div class="grid2">
+                <div>
+                    <p>Bài toán yêu cầu tìm một tọa độ $x$ sao cho <strong>số người nói dối là ít nhất</strong>.</p>
+                    <p>Tọa độ $x$ có thể là số thực bất kỳ! Nếu ta thử chạy vòng lặp kiểm tra từng giá trị $x = 1, 1.1, 1.2, ...$ thì sẽ <span class="red-text">không bao giờ xong (Vô hạn)</span>.</p>
+                    <p><strong>💡 Điểm mấu chốt:</strong> Sự thật/Dối trá chỉ thay đổi khi $x$ vượt qua các điểm mốc (các giá trị $p$ được cung cấp trong input). Giữa các mốc, số lượng người nói dối là không đổi!</p>
+                    <p>Do đó, ta chỉ cần thử các ứng viên $x$ <strong>chính là các tọa độ $p$</strong> đã cho.</p>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom: 15px;">Định nghĩa "Kẻ Nói Dối"</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 15px;">
+                            <span style="background: rgba(56, 214, 196, 0.2); padding: 4px 8px; border-radius: 4px; font-family: 'JetBrains Mono';">L p</span> (Khai $x \le p$): <br>
+                            Sẽ là nói dối <strong>NẾU</strong> thực tế Cuội ở $x > p$.<br>
+                            👉 Viết ngược lại: Khi ta chọn tọa độ $x$, những người khai `L p` mà có <strong>$p &lt; x$</strong> là kẻ nói dối!
+                        </li>
+                        <li>
+                            <span style="background: rgba(91, 140, 255, 0.2); padding: 4px 8px; border-radius: 4px; font-family: 'JetBrains Mono';">G p</span> (Khai $x \ge p$): <br>
+                            Sẽ là nói dối <strong>NẾU</strong> thực tế Cuội ở $x &lt; p$.<br>
+                            👉 Viết ngược lại: Khi ta chọn tọa độ $x$, những người khai `G p` mà có <strong>$p &gt; x$</strong> là kẻ nói dối!
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="theory">
+        <div class="container">
+            <h2>Thuật toán cốt lõi</h2>
+            <p>Ta sẽ thu thập tất cả các tọa độ xuất hiện trong Input vào một mảng `points`. Sau đó, ta dùng vòng lặp thử đặt Cuội vào từng vị trí $x$ trong `points` và đếm số người nói dối.</p>
+            <pre><code><span class="kw">int</span> <span class="fn">solve</span>() {
+    <span class="kw">int</span> min_liars = INF;
+
+    <span class="cm">// Thử đặt Cuội vào từng vị trí x có khả năng</span>
+    <span class="kw">for</span> (<span class="kw">int</span> x : points) {
+        <span class="cm">// Đếm số người khai L p (<= p) nhưng thực tế p < x</span>
+        <span class="kw">int</span> lie_L = <span class="fn">count_if</span>(L_statements, p &lt; x);
+        
+        <span class="cm">// Đếm số người khai G p (>= p) nhưng thực tế p > x</span>
+        <span class="kw">int</span> lie_G = <span class="fn">count_if</span>(G_statements, p &gt; x);
+        
+        <span class="kw">int</span> total_liars = lie_L + lie_G;
+        
+        <span class="cm">// Cập nhật kết quả nhỏ nhất</span>
+        min_liars = <span class="fn">min</span>(min_liars, total_liars);
+    }
+    
+    <span class="kw">return</span> min_liars;
+}</code></pre>
+            <p style="margin-top: 10px; font-size: 0.9rem;"><i>*Lưu ý: Để đạt $O(N \log N)$ cho Subtask 2, hàm `count_if` cần được thay thế bằng Binary Search (`lower_bound`, `upper_bound`) hoặc mảng cộng dồn. Trong bài giảng này, ta tập trung hiểu logic với $O(N^2)$ trước.</i></p>
+        </div>
+    </section>
+
+    <section id="lab">
+        <div class="container">
+            <h2>Phòng thí nghiệm tương tác (Simulator)</h2>
+            <p>Dữ liệu mẫu: <code>G 3</code>, <code>G 4</code>, <code>G 8</code>, <code>L 2</code>, <code>L 5</code>, <code>L 6</code>, <code>L 9</code>. Các mốc cần kiểm tra: $x \in \{2, 3, 4, 5, 6, 8, 9\}$.</p>
+            
+            <div id="lab-container">
+                <div class="lab-toolbar">
+                    <button id="btn-play">▶ Chạy tự động</button>
+                    <button id="btn-step" class="btn-outline">⏭ Từng bước</button>
+                    <button id="btn-reset" class="btn-outline">🔄 Khôi phục</button>
+                    <div class="lab-speed">
+                        Tốc độ: 
+                        <select id="speed-select" style="background: var(--panel); color: #fff; border: 1px solid var(--text-muted); padding: 5px; border-radius: 4px;">
+                            <option value="1500">Chậm</option>
+                            <option value="800" selected>Vừa</option>
+                            <option value="300">Nhanh</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="lab-main">
+                    <!-- Left: Visual -->
+                    <div class="visual-panel">
+                        <!-- Arrows will be injected by JS -->
+                        <div id="statements-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
+                        
+                        <div class="main-number-line">
+                            <div class="main-node" style="left: 20%;">2</div>
+                            <div class="main-node" style="left: 30%;">3</div>
+                            <div class="main-node" style="left: 40%;">4</div>
+                            <div class="main-node" style="left: 50%;">5</div>
+                            <div class="main-node" style="left: 60%;">6</div>
+                            <div class="main-node" style="left: 80%;">8</div>
+                            <div class="main-node" style="left: 90%;">9</div>
+                            
+                            <div id="cuoi-avatar" class="cuoi-marker" style="left: 0%; opacity: 0;">🕵️</div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Code & Data -->
+                    <div class="state-panel">
+                        <div class="code-runner">
+                            <div class="codeline" id="cl-1"><span class="kw">int</span> min_liars = INF;</div>
+                            <div class="codeline" id="cl-2"><span class="kw">for</span> (<span class="kw">int</span> x : [2, 3, 4, 5, 6, 8, 9]) {</div>
+                            <div class="codeline" id="cl-3">&nbsp;&nbsp;<span class="kw">int</span> lie_L = <span class="fn">count</span>(L, p &lt; x);</div>
+                            <div class="codeline" id="cl-4">&nbsp;&nbsp;<span class="kw">int</span> lie_G = <span class="fn">count</span>(G, p &gt; x);</div>
+                            <div class="codeline" id="cl-5">&nbsp;&nbsp;min_liars = <span class="fn">min</span>(min_liars, lie_L + lie_G);</div>
+                            <div class="codeline" id="cl-6">}</div>
+                        </div>
+
+                        <div class="vars-box">
+                            <div class="var-item">
+                                <div class="var-label">Đang xét (x)</div>
+                                <div class="var-val" id="var-x">?</div>
+                            </div>
+                            <div class="var-item">
+                                <div class="var-label">Số người nói dối (lie_L + lie_G)</div>
+                                <div class="var-val" id="var-total">?</div>
+                            </div>
+                            <div class="var-item" style="grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center;">
+                                <div class="var-label">Kết quả tối ưu (min_liars)</div>
+                                <div class="var-val" id="var-min" style="color: var(--mark); font-size: 2rem;">INF</div>
+                            </div>
+                        </div>
+
+                        <div class="msg-box" id="lab-msg">
+                            Nhấn "Chạy tự động" hoặc "Từng bước" để bắt đầu mô phỏng thuật toán.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pitfalls">
+        <div class="container">
+            <h2>Cạm bẫy thường gặp (Pitfalls)</h2>
+            <div class="grid2">
+                <div class="pitfall-box pitfall-bad">
+                    <h3 class="red-text">✕ Sai lầm</h3>
+                    <p>Nhầm lẫn dấu bằng khi kiểm tra điều kiện nói dối.</p>
+                    <pre style="background: rgba(0,0,0,0.3); border: none;"><code><span class="cm">// L p nghĩa là Cuội <= p.</span>
+<span class="cm">// KHI NÀO là nói dối?</span>
+<span class="kw">if</span> (p <= x) { lie_L++; } <span class="cm">// SAI!</span></code></pre>
+                    <p style="font-size: 0.9rem; margin-top: 10px;">Nếu $x = p$, thì Cuội ở tại $p$, mệnh đề $x \le p$ vẫn là SỰ THẬT, không phải nói dối.</p>
+                </div>
+                <div class="pitfall-box pitfall-good">
+                    <h3 style="color: var(--green);">✓ Cách Đúng</h3>
+                    <p>Phủ định logic cẩn thận. Mệnh đề $x \le p$ sai khi $x > p$.</p>
+                    <pre style="background: rgba(0,0,0,0.3); border: none;"><code><span class="cm">// L p sai khi thực tế x > p</span>
+<span class="cm">// (hay p < x)</span>
+<span class="kw">if</span> (p &lt; x) { lie_L++; } <span class="cm">// ĐÚNG!</span></code></pre>
+                    <p style="font-size: 0.9rem; margin-top: 10px;">Chỉ đếm khi mốc $p$ nhỏ hơn hẳn $x$ (đối với `L`), hoặc lớn hơn hẳn $x$ (đối với `G`).</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="quiz">
+        <div class="container">
+            <h2>Kiểm tra nhanh (Quiz)</h2>
+            <div class="card">
+                <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 20px;">Giả sử có 1 người khai <code>L 10</code> và 1 người khai <code>G 10</code>. Nếu ta chọn $x = 10$, có bao nhiêu người nói dối?</p>
+                <div id="quiz-options">
+                    <button class="quiz-opt" onclick="checkQuiz(0)">A. 2 người (Cả hai đều nói dối)</button>
+                    <button class="quiz-opt" onclick="checkQuiz(1)">B. 0 người (Cả hai đều nói thật)</button>
+                    <button class="quiz-opt" onclick="checkQuiz(2)">C. 1 người nói thật, 1 người nói dối</button>
+                </div>
+                <div id="quiz-explanation"></div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Mini Lab Logic
+        const miniNodes = document.querySelectorAll('.mini-node');
+        const resL = document.getElementById('res-L');
+        const resG = document.getElementById('res-G');
+        const miniTotal = document.getElementById('mini-total');
+        const logicL = document.getElementById('logic-L');
+        const logicG = document.getElementById('logic-G');
+
+        miniNodes.forEach(node => {
+            node.addEventListener('click', () => {
+                miniNodes.forEach(n => n.classList.remove('active'));
+                node.classList.add('active');
+                
+                let x = parseInt(node.getAttribute('data-val'));
+                let liars = 0;
+                
+                // L 2 (x <= 2)
+                if (x <= 2) {
+                    resL.innerHTML = "✓ Sự thật (x ≤ 2 đúng)";
+                    resL.style.color = "var(--green)";
+                    logicL.style.boxShadow = "inset 4px 0 0 var(--green)";
+                } else {
+                    resL.innerHTML = "✕ Nói dối! (x > 2)";
+                    resL.style.color = "var(--red)";
+                    logicL.style.boxShadow = "inset 4px 0 0 var(--red)";
+                    liars++;
+                }
+
+                // G 4 (x >= 4)
+                if (x >= 4) {
+                    resG.innerHTML = "✓ Sự thật (x ≥ 4 đúng)";
+                    resG.style.color = "var(--green)";
+                    logicG.style.boxShadow = "inset 4px 0 0 var(--green)";
+                } else {
+                    resG.innerHTML = "✕ Nói dối! (x < 4)";
+                    resG.style.color = "var(--red)";
+                    logicG.style.boxShadow = "inset 4px 0 0 var(--red)";
+                    liars++;
+                }
+
+                miniTotal.innerText = `Tổng số kẻ nói dối tại x = ${x} là: ${liars}`;
+            });
+        });
+
+        // ==========================================
+        // Interactive Lab (State Machine Architecture)
+        // ==========================================
+        const data = {
+            points: [2, 3, 4, 5, 6, 8, 9],
+            L: [2, 5, 6, 9],
+            G: [3, 4, 8]
+        };
+        
+        let steps = [];
+        let sp = 0; // Step pointer
+        let intervalId = null;
+
+        // Generate Steps Logic
+        function make() {
+            steps = [];
+            let min_liars = 999;
+            
+            steps.push({ line: 1, x: '?', total: '?', min: 'INF', msg: "Khởi tạo kết quả tối ưu min_liars = Vô cực.", hl_arrow: [] });
+
+            for (let i = 0; i < data.points.length; i++) {
+                let x = data.points[i];
+                let percent = x * 10; // mapping to 0-100% based on scale 10
+                
+                steps.push({ line: 2, x: x, total: '?', min: min_liars, msg: `Thử đặt Cuội tại tọa độ x = ${x}.`, cx: percent, hl_arrow: [] });
+
+                let lie_L = 0;
+                let lie_G = 0;
+                let bad_arrows = [];
+                let good_arrows = [];
+
+                // Check L statements
+                data.L.forEach(p => {
+                    if (p < x) { lie_L++; bad_arrows.push(`L${p}`); }
+                    else { good_arrows.push(`L${p}`); }
+                });
+                steps.push({ line: 3, x: x, total: '?', min: min_liars, msg: `Tại x=${x}, có ${lie_L} người khai L nói dối (vì họ nói <=${p_list(data.L)} mà thực tế x lớn hơn).`, cx: percent, hl_arrow: bad_arrows.concat(good_arrows), bad: bad_arrows, good: good_arrows });
+
+                // Check G statements
+                data.G.forEach(p => {
+                    if (p > x) { lie_G++; bad_arrows.push(`G${p}`); }
+                    else { good_arrows.push(`G${p}`); }
+                });
+                steps.push({ line: 4, x: x, total: '?', min: min_liars, msg: `Tại x=${x}, có ${lie_G} người khai G nói dối.`, cx: percent, hl_arrow: bad_arrows.concat(good_arrows), bad: bad_arrows, good: good_arrows });
+
+                let total = lie_L + lie_G;
+                steps.push({ line: 5, x: x, total: total, min: min_liars, msg: `Tổng số người nói dối tại x=${x} là ${total}.`, cx: percent, hl_arrow: bad_arrows.concat(good_arrows), bad: bad_arrows, good: good_arrows });
+
+                if (total < min_liars) {
+                    min_liars = total;
+                    steps.push({ line: 5, x: x, total: total, min: min_liars, updated: true, msg: `🎉 Tìm thấy kết quả tốt hơn! Cập nhật min_liars = ${min_liars}.`, cx: percent, hl_arrow: bad_arrows.concat(good_arrows), bad: bad_arrows, good: good_arrows });
+                }
+            }
+            steps.push({ line: 6, x: '-', total: '-', min: min_liars, msg: `Hoàn tất! Số người nói dối tối thiểu là ${min_liars}.`, cx: -10, hl_arrow: [], bad: [], good: [] });
+        }
+        
+        // Helper to format string
+        function p_list(arr) { return arr.join(','); }
+
+        // Setup Visual UI (Arrows)
+        function setupVisuals() {
+            const layer = document.getElementById('statements-layer');
+            layer.innerHTML = '';
+            
+            // Draw L arrows (points left)
+            data.L.forEach((p, idx) => {
+                let left_pct = 0; // Arrow starts from left
+                let right_pct = p * 10; // ends at p
+                let top = 20 + idx * 30; // Stack arrows neatly
+                layer.innerHTML += `<div id="arr-L${p}" class="statement-arrow arrow-L" style="top: ${top}px; left: ${left_pct}%; width: ${right_pct - left_pct}%; background: rgba(56, 214, 196, 0.1); color: var(--accent); border-color: var(--accent);">L ${p}</div>`;
+            });
+
+            // Draw G arrows (points right)
+            data.G.forEach((p, idx) => {
+                let left_pct = p * 10; // starts at p
+                let right_pct = 100; // ends at right
+                let top = 180 + idx * 30; // Stack arrows neatly below
+                layer.innerHTML += `<div id="arr-G${p}" class="statement-arrow arrow-G" style="top: ${top}px; left: ${left_pct}%; width: ${right_pct - left_pct}%; background: rgba(91, 140, 255, 0.1); color: var(--accent2); border-color: var(--accent2);">G ${p}</div>`;
+            });
+        }
+
+        // DOM Elements
+        const cl_lines = [null, document.getElementById('cl-1'), document.getElementById('cl-2'), document.getElementById('cl-3'), document.getElementById('cl-4'), document.getElementById('cl-5'), document.getElementById('cl-6')];
+        const v_x = document.getElementById('var-x');
+        const v_tot = document.getElementById('var-total');
+        const v_min = document.getElementById('var-min');
+        const msg = document.getElementById('lab-msg');
+        const cuoi = document.getElementById('cuoi-avatar');
+        
+        function updateVar(el, val, triggerGlow = false) {
+            if (el.innerText != val) {
+                el.innerText = val;
+                if (triggerGlow) {
+                    el.classList.add('changed');
+                    setTimeout(() => el.classList.remove('changed'), 500);
+                }
+            }
+        }
+
+        function paint(index) {
+            if (index < 0 || index >= steps.length) return;
+            let st = steps[index];
+
+            // 1. Highlight Code
+            cl_lines.forEach(l => l && l.classList.remove('hot'));
+            if (cl_lines[st.line]) cl_lines[st.line].classList.add('hot');
+
+            // 2. Update Variables
+            updateVar(v_x, st.x);
+            updateVar(v_tot, st.total);
+            updateVar(v_min, st.min, st.updated);
+
+            // 3. Update Message
+            msg.innerHTML = st.msg;
+
+            // 4. Update Visualizer (Cuội marker)
+            if (st.cx !== undefined) {
+                if (st.cx >= 0) {
+                    cuoi.style.opacity = 1;
+                    cuoi.style.left = `${st.cx}%`;
+                } else {
+                    cuoi.style.opacity = 0;
+                }
+            }
+
+            // 5. Update Arrows colors
+            document.querySelectorAll('.statement-arrow').forEach(arr => {
+                arr.style.filter = 'grayscale(100%) opacity(0.3)';
+                arr.style.backgroundColor = 'transparent';
+            });
+            
+            if (st.bad) {
+                st.bad.forEach(id => {
+                    let el = document.getElementById('arr-' + id);
+                    if (el) {
+                        el.style.filter = 'none';
+                        el.style.backgroundColor = 'rgba(255, 107, 107, 0.2)';
+                        el.style.borderColor = 'var(--red)';
+                        el.style.color = 'var(--red)';
+                    }
+                });
+            }
+            if (st.good) {
+                st.good.forEach(id => {
+                    let el = document.getElementById('arr-' + id);
+                    if (el) {
+                        el.style.filter = 'none';
+                        el.style.backgroundColor = 'rgba(74, 222, 128, 0.1)';
+                        el.style.borderColor = 'var(--green)';
+                        el.style.color = 'var(--green)';
+                    }
+                });
+            }
+        }
+
+        // Controls
+        const btnPlay = document.getElementById('btn-play');
+        const btnStep = document.getElementById('btn-step');
+        const btnReset = document.getElementById('btn-reset');
+        const speedSel = document.getElementById('speed-select');
+
+        function stopAuto() {
+            if(intervalId) { clearInterval(intervalId); intervalId = null; }
+            btnPlay.innerText = "▶ Chạy tự động";
+        }
+
+        btnStep.addEventListener('click', () => {
+            stopAuto();
+            if (sp < steps.length - 1) { sp++; paint(sp); }
+        });
+
+        btnPlay.addEventListener('click', () => {
+            if (intervalId) { stopAuto(); return; }
+            if (sp >= steps.length - 1) sp = 0; // restart if at end
+            
+            btnPlay.innerText = "⏸ Tạm dừng";
+            let speed = parseInt(speedSel.value);
+            paint(sp);
+            
+            intervalId = setInterval(() => {
+                if (sp < steps.length - 1) {
+                    sp++;
+                    paint(sp);
+                } else {
+                    stopAuto();
+                }
+            }, speed);
+        });
+
+        btnReset.addEventListener('click', () => {
+            stopAuto();
+            sp = 0;
+            setupVisuals(); // reset colors
+            paint(sp);
+        });
+
+        // Init Lab
+        make();
+        setupVisuals();
+        paint(sp);
+
+        function checkQuiz(ans) {
+            const opts = document.querySelectorAll('.quiz-opt');
+            opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.style.pointerEvents = 'none'; });
+            
+            const exp = document.getElementById('quiz-explanation');
+            exp.style.display = 'block';
+
+            if (ans === 1) { // B is correct
+                opts[1].classList.add('correct');
+                exp.innerHTML = `<strong style="color: var(--green)">✓ Chính xác!</strong><br>L 10 nghĩa là $x \\le 10$. G 10 nghĩa là $x \\ge 10$.<br>Khi chọn $x = 10$, mệnh đề $10 \\le 10$ là <strong>ĐÚNG</strong>, và $10 \\ge 10$ cũng là <strong>ĐÚNG</strong>.<br>Cả hai đều nói thật! Do đó cẩn thận dấu bằng khi đếm người nói dối nhé.`;
+                exp.style.borderLeft = "4px solid var(--green)";
+            } else {
+                opts[ans].classList.add('wrong');
+                opts[1].classList.add('correct');
+                exp.innerHTML = `<strong class="red-text">✕ Chưa đúng rồi.</strong><br>L 10 nghĩa là $x \\le 10$. G 10 nghĩa là $x \\ge 10$.<br>Khi chọn $x = 10$, mệnh đề $10 \\le 10$ là <strong>ĐÚNG</strong>, và $10 \\ge 10$ cũng là <strong>ĐÚNG</strong>.<br>Suy ra không ai nói dối cả (0 người).`;
+                exp.style.borderLeft = "4px solid var(--red)";
+            }
+            
+            // Re-render toán học cho đoạn nội dung động vừa thêm
+            if (window.MathJax) {
+                MathJax.typesetPromise([exp]);
+            }
+        }
+    </script>
+</body>
+</html>
