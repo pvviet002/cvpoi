@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LCA — Nâng nhị phân (Binary Lifting)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B1220;          /* nền xanh mực đêm */
+    --bg2:#0F1A2E;
+    --panel:#111E36;
+    --panel2:#15254A;
+    --line:#22304C;
+    --line2:#2E3F60;
+    --ink:#E6ECF7;
+    --ink-soft:#8FA1C4;
+    --ink-dim:#5A6B8F;
+    --accent:#38D6C4;      /* xanh ngọc — đường đi / đúng */
+    --accent2:#5B8CFF;     /* xanh dương — cấu trúc / up[][] */
+    --jump:#FFB454;        /* hổ phách — bước nhảy 2^j */
+    --lca:#FF6B9D;         /* hồng — đỉnh LCA */
+    --shadow:0 20px 60px -30px rgba(0,0,0,.9);
+    --glow-a:0 0 0 1px rgba(56,214,196,.4), 0 0 22px -4px rgba(56,214,196,.55);
+    --glow-j:0 0 0 1px rgba(255,180,84,.5), 0 0 22px -4px rgba(255,180,84,.6);
+    --glow-l:0 0 0 1px rgba(255,107,157,.55), 0 0 26px -4px rgba(255,107,157,.7);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:
+      radial-gradient(1200px 700px at 78% -8%, rgba(91,140,255,.14), transparent 60%),
+      radial-gradient(900px 600px at 12% 8%, rgba(56,214,196,.10), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size:15.5px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px 100px}
+
+  /* ---------- Thanh nav trên cùng ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    background:rgba(11,18,32,.82);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-in{max-width:1120px;margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .home-btn{
+    display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+    background:rgba(255,255,255,.03);border:1px solid var(--line2);border-radius:9px;
+    padding:7px 14px;color:var(--ink);font-weight:600;font-size:.86rem;transition:border-color .2s,background .2s
+  }
+  .home-btn:hover{border-color:var(--accent);background:rgba(56,214,196,.07);color:#fff}
+  .home-btn svg{width:15px;height:15px;stroke:var(--accent);fill:none;stroke-width:2}
+  .crumb{font-family:"JetBrains Mono",monospace;font-size:.76rem;color:var(--ink-dim);letter-spacing:.03em}
+  .crumb b{color:var(--ink-soft);font-weight:500}
+  .visits{
+    margin-left:auto;display:inline-flex;align-items:center;gap:8px;
+    font-family:"JetBrains Mono",monospace;font-size:.78rem;color:var(--ink-soft);
+    background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:100px;padding:5px 13px
+  }
+  .visits svg{width:14px;height:14px;stroke:var(--ink-soft);fill:none;stroke-width:2}
+  .visits .vn{color:var(--jump);font-weight:700;font-variant-numeric:tabular-nums}
+  .visits .vn.pulse{animation:vpulse .5s ease}
+  @keyframes vpulse{0%{transform:scale(1)}45%{transform:scale(1.28);color:#fff}100%{transform:scale(1)}}
+  @media (max-width:560px){ .crumb{display:none} }
+  /* topbar responsive extra */
+  @media (max-width:480px){ .visits{margin-left:0;width:100%;justify-content:center} .home-btn{flex:1;justify-content:center} }
+
+  h1,h2,h3,.display{font-family:"Space Grotesk", system-ui, sans-serif;letter-spacing:-.02em;line-height:1.1}
+  h1{font-size:clamp(2.2rem,6vw,4rem);font-weight:700}
+  h2{font-size:clamp(1.5rem,3.2vw,2.15rem);font-weight:600;margin-bottom:.3em}
+  h3{font-size:1.08rem;font-weight:600;margin-bottom:.4em;letter-spacing:-.01em}
+  p{margin-bottom:.85em;max-width:66ch;color:#D3DCEC}
+  .mono,code{font-family:"JetBrains Mono", ui-monospace, Consolas, monospace}
+  p code, li code, td code, .card code{
+    background:rgba(91,140,255,.14);color:#A9C4FF;padding:.06em .4em;border-radius:5px;
+    font-size:.86em;font-weight:500;border:1px solid rgba(91,140,255,.18);
+  }
+  strong{color:#fff;font-weight:600}
+  em{color:var(--accent);font-style:normal;font-weight:500}
+  .eyebrow{font-family:"JetBrains Mono",monospace;font-size:.72rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)}
+  .lead{font-size:1.1rem;color:var(--ink-soft);max-width:60ch}
+  a{color:var(--accent)}
+
+  /* ---------- HERO ---------- */
+  header{padding:60px 0 40px;position:relative}
+  .kicker{display:flex;gap:12px;align-items:center;margin-bottom:22px;flex-wrap:wrap}
+  .chip{
+    font-family:"JetBrains Mono",monospace;font-size:.72rem;font-weight:500;
+    border:1px solid var(--line2);border-radius:100px;padding:5px 13px;color:var(--ink-soft);
+    background:rgba(255,255,255,.02);
+  }
+  h1 .g{background:linear-gradient(100deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero-sub{margin-top:18px;max-width:60ch;font-size:1.12rem;color:var(--ink-soft)}
+
+  /* Chữ ký: thước nhảy lũy thừa 2 */
+  .ruler{
+    margin-top:40px;background:linear-gradient(180deg,var(--panel),var(--bg2));
+    border:1px solid var(--line);border-radius:16px;padding:26px 24px 20px;box-shadow:var(--shadow);
+    position:relative;overflow:hidden;
+  }
+  .ruler h3{color:var(--ink);margin-bottom:4px}
+  .ruler .sub{color:var(--ink-soft);font-size:.92rem;margin-bottom:22px}
+  .track{position:relative;height:118px;margin:0 6px}
+  .track .base{position:absolute;left:0;right:0;bottom:34px;height:2px;background:var(--line2)}
+  .node-dot{
+    position:absolute;bottom:29px;width:12px;height:12px;border-radius:50%;
+    background:var(--bg);border:2px solid var(--ink-dim);transform:translateX(-50%);
+    transition:border-color .3s, box-shadow .3s, background .3s;
+  }
+  .node-dot .nl{position:absolute;top:16px;left:50%;transform:translateX(-50%);font-family:"JetBrains Mono",monospace;font-size:.66rem;color:var(--ink-dim);white-space:nowrap}
+  .node-dot.start{border-color:var(--accent);background:var(--accent);box-shadow:var(--glow-a)}
+  .node-dot.landed{border-color:var(--jump);background:var(--jump);box-shadow:var(--glow-j)}
+  .arc{position:absolute;bottom:35px;height:60px;border:2px solid var(--jump);border-bottom:none;border-radius:60px 60px 0 0;opacity:0;transition:opacity .35s;pointer-events:none}
+  .arc .al{position:absolute;top:-13px;left:50%;transform:translateX(-50%);font-family:"JetBrains Mono",monospace;font-size:.72rem;font-weight:700;color:var(--jump);white-space:nowrap;background:var(--bg);padding:0 5px}
+  .arc.show{opacity:1}
+  .ruler-ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+  .ruler-read{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:.82rem;color:var(--ink-soft)}
+  .ruler-read b{color:var(--jump)}
+
+  /* ---------- Buttons ---------- */
+  button{font-family:inherit;cursor:pointer;font-weight:600}
+  .btn{background:linear-gradient(180deg,var(--accent),#25b6a6);color:#052b27;border:none;border-radius:9px;padding:9px 16px;font-size:.88rem;transition:transform .12s,filter .2s}
+  .btn:hover{filter:brightness(1.08)}
+  .btn:active{transform:translateY(1px)}
+  .btn-j{background:linear-gradient(180deg,var(--jump),#e79b34);color:#3a2200}
+  .btn-b{background:linear-gradient(180deg,var(--accent2),#3f6fe0);color:#eaf1ff}
+  .ghost{background:rgba(255,255,255,.03);color:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:8px 14px;font-size:.85rem;font-weight:500;transition:border-color .2s,background .2s}
+  .ghost:hover{border-color:var(--accent);background:rgba(56,214,196,.06)}
+  .ghost.on{border-color:var(--accent);color:var(--accent)}
+  :focus-visible{outline:2.5px solid var(--jump);outline-offset:3px;border-radius:6px}
+
+  /* ---------- Sections ---------- */
+  section{padding:56px 0;border-top:1px solid var(--line);margin-top:6px}
+  .sec-head{margin-bottom:30px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.025),transparent);border:1px solid var(--line);border-radius:14px;padding:22px 24px;box-shadow:var(--shadow)}
+  .card.hi{border-color:var(--line2)}
+  ul.tick{list-style:none;margin:.5em 0 .9em}
+  ul.tick li{padding-left:24px;position:relative;margin-bottom:.42em;color:#D3DCEC}
+  ul.tick li::before{content:"→";position:absolute;left:2px;color:var(--accent);font-weight:700}
+  ol.steps{list-style:none;counter-reset:s;margin:.4em 0}
+  ol.steps li{counter-increment:s;padding-left:38px;position:relative;margin-bottom:.9em;color:#D3DCEC}
+  ol.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:26px;height:26px;border-radius:7px;background:rgba(91,140,255,.14);border:1px solid var(--accent2);color:#A9C4FF;font-family:"JetBrains Mono",monospace;font-size:.78rem;font-weight:700;display:grid;place-items:center}
+
+  .formula{
+    font-family:"JetBrains Mono",monospace;background:var(--bg2);border:1px solid var(--line2);
+    border-left:4px solid var(--accent2);border-radius:8px;padding:12px 16px;margin:.7em 0;
+    font-size:.92rem;color:#BFD0F0;overflow-x:auto;
+  }
+  .formula b{color:var(--jump);font-weight:700}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;margin:.6em 0}
+  th,td{border:1px solid var(--line);padding:8px 12px;text-align:left}
+  th{background:rgba(91,140,255,.1);color:#BFD0F0;font-weight:600}
+  td code{background:rgba(56,214,196,.1);color:#8FE9DE;border-color:rgba(56,214,196,.2)}
+
+  pre{background:#0A1220;border:1px solid var(--line);border-radius:12px;padding:16px 4px 16px 0;overflow-x:auto;margin:.7em 0}
+  pre code{background:none;border:none;padding:0;color:#C7D3EA;font-size:.82rem;line-height:1.85;display:block}
+  .cl{display:block;padding:0 16px 0 52px;position:relative;white-space:pre}
+  .cl::before{content:attr(data-n);position:absolute;left:0;width:38px;text-align:right;color:var(--ink-dim);font-size:.72rem;padding-right:8px}
+  .k{color:var(--accent2);font-weight:500}.t{color:#7DE0D2}.n{color:#FFB454}.c{color:#5A6B8F;font-style:italic}.s{color:#8FE39A}.f{color:#C792EA}
+
+  /* ---------- SIM chung ---------- */
+  .sim{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line2);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+  .sim-bar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;padding:14px 20px;background:rgba(0,0,0,.22);border-bottom:1px solid var(--line)}
+  .sim-bar .tt{font-family:"JetBrains Mono",monospace;font-size:.74rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+  .sel{display:flex;align-items:center;gap:6px;font-size:.82rem;color:var(--ink-soft)}
+  select,input[type=range]{font-family:inherit}
+  select{background:var(--bg2);color:var(--ink);border:1px solid var(--line2);border-radius:7px;padding:5px 8px;font-family:"JetBrains Mono",monospace;font-size:.82rem}
+  input[type=range]{accent-color:var(--jump);width:96px}
+  .sim-body{display:grid;grid-template-columns:1.25fr .95fr}
+  .stage{padding:18px;border-right:1px solid var(--line);position:relative;min-height:430px}
+  .side{padding:18px 20px;background:rgba(0,0,0,.16)}
+
+  /* SVG cây */
+  svg .edge{stroke:var(--line2);stroke-width:2}
+  svg .edge.path{stroke:var(--accent);stroke-width:3.5;filter:drop-shadow(0 0 4px rgba(56,214,196,.6))}
+  .tnode{cursor:pointer}
+  .tnode circle{fill:var(--panel);stroke:var(--ink-dim);stroke-width:2;transition:all .25s}
+  .tnode text{fill:var(--ink);font-family:"JetBrains Mono",monospace;font-weight:700;font-size:14px;pointer-events:none}
+  .tnode:hover circle{stroke:var(--accent)}
+  .tnode.u circle{fill:#0d3b39;stroke:var(--accent);stroke-width:3;filter:drop-shadow(0 0 8px rgba(56,214,196,.7))}
+  .tnode.v circle{fill:#0d2b4a;stroke:var(--accent2);stroke-width:3;filter:drop-shadow(0 0 8px rgba(91,140,255,.7))}
+  .tnode.lca circle{fill:#3d1029;stroke:var(--lca);stroke-width:3.5;filter:drop-shadow(0 0 10px rgba(255,107,157,.8))}
+  .tnode.ghost circle{fill:var(--jump);stroke:#e79b34;filter:drop-shadow(0 0 8px rgba(255,180,84,.7))}
+  .tnode.dim{opacity:.32}
+  .tnode.sel circle{stroke:var(--jump);stroke-width:3}
+  .depth-line{stroke:var(--line);stroke-width:1;stroke-dasharray:3 5}
+  .depth-lbl{fill:var(--ink-dim);font-family:"JetBrains Mono",monospace;font-size:10px}
+  .badge-uv{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700}
+
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.75rem;color:var(--ink-soft);margin-top:10px;padding-top:12px;border-top:1px solid var(--line)}
+  .legend i{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:-1px}
+  .lg-u{background:var(--accent)}.lg-v{background:var(--accent2)}.lg-l{background:var(--lca)}.lg-g{background:var(--jump)}
+
+  /* code panel động */
+  .cpanel{background:#0A1220;border:1px solid var(--line);border-radius:11px;padding:12px 4px 12px 0;margin-bottom:14px}
+  .cline{display:block;padding:1px 14px 1px 44px;position:relative;white-space:pre;font-family:"JetBrains Mono",monospace;font-size:.76rem;line-height:1.62;color:#B9C6E0;border-radius:5px;transition:background .15s}
+  .cline::before{content:attr(data-n);position:absolute;left:0;width:32px;text-align:right;color:#3a4a6b;font-size:.68rem;padding-right:7px}
+  .cline.hot{background:rgba(255,180,84,.14);box-shadow:inset 3px 0 0 var(--jump)}
+  .cline.hot2{background:rgba(56,214,196,.12);box-shadow:inset 3px 0 0 var(--accent)}
+
+  .regs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  .reg{background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:8px 11px}
+  .reg .rk{font-family:"JetBrains Mono",monospace;font-size:.66rem;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.06em}
+  .reg .rv{font-family:"JetBrains Mono",monospace;font-size:1.05rem;font-weight:700;color:var(--ink);line-height:1.35}
+  .reg.u .rv{color:var(--accent)}.reg.v .rv{color:var(--accent2)}.reg.j .rv{color:var(--jump)}
+  .say{background:var(--bg2);border:1px solid var(--line2);border-left:4px solid var(--accent);border-radius:9px;padding:11px 13px;font-size:.86rem;min-height:76px;color:#D3DCEC}
+  .say b{color:#fff}
+  .say .hl{color:var(--jump);font-weight:600}
+
+  /* bảng up[][] cho SIM build */
+  .uptbl{overflow:auto;max-height:300px;border:1px solid var(--line);border-radius:10px}
+  .uptbl table{margin:0;font-size:.78rem}
+  .uptbl th,.uptbl td{border-color:var(--line);padding:5px 9px;text-align:center;font-family:"JetBrains Mono",monospace}
+  .uptbl th{position:sticky;top:0;background:#13213b;z-index:1}
+  .uptbl td.filled{color:var(--accent);background:rgba(56,214,196,.07)}
+  .uptbl td.now{background:var(--jump);color:#3a2200;font-weight:700;box-shadow:inset 0 0 0 2px #e79b34}
+  .uptbl td.src{background:rgba(91,140,255,.22);color:#cfe0ff}
+  .uptbl td.empty{color:#3a4a6b}
+  .colhint{font-size:.76rem;color:var(--ink-soft);margin:10px 0 6px}
+  .colhint code{font-size:.85em}
+
+  /* callout */
+  .note{background:rgba(255,180,84,.08);border:1px solid rgba(255,180,84,.25);border-left:4px solid var(--jump);border-radius:10px;padding:14px 16px;margin:.6em 0}
+  .note h3{color:var(--jump)}
+  .note.blue{background:rgba(91,140,255,.08);border-color:rgba(91,140,255,.25);border-left-color:var(--accent2)}
+  .note.blue h3{color:#A9C4FF}
+
+  footer{border-top:1px solid var(--line);padding:28px 0 0;color:var(--ink-dim);font-size:.84rem}
+  footer b{color:var(--ink-soft)}
+
+  @media (max-width:920px){
+    .grid2{grid-template-columns:1fr}
+    .sim-body{grid-template-columns:1fr}
+    .stage{border-right:none;border-bottom:1px solid var(--line);min-height:360px}
+    .regs{grid-template-columns:1fr 1fr}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition-duration:.01ms!important;animation-duration:.01ms!important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="home-btn" href="/index.html" aria-label="Về trang chủ">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
+      Trang chủ
+    </a>
+    <a class="home-btn" href="https://cvpoi.id.vn" target="_blank" rel="noopener" aria-label="Đến cvpoi.id.vn">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg>
+      cvpoi.id.vn
+    </a>
+    <span class="crumb"><b>Chuyên đề</b> / LCA — Nâng nhị phân</span>
+    <span class="visits" title="Tổng lượt truy cập trang này">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      Lượt xem: <span class="vn" id="visitCount">…</span>
+    </span>
+  </div>
+</div>
+<div class="wrap">
+
+<header>
+  <div class="kicker">
+    <span class="eyebrow">Chuyên đề · Lập trình thi đấu</span>
+    <span class="chip">Cây có gốc</span>
+    <span class="chip">Quy hoạch động</span>
+    <span class="chip">O(log N) / truy vấn</span>
+  </div>
+  <h1>Tổ tiên chung gần nhất<br><span class="g">bằng nâng nhị phân.</span></h1>
+  <p class="hero-sub">Thay vì bò từng bước lên cây, ta nhảy <em>2⁰, 2¹, 2², …</em> bước một lần. Mọi số nguyên đều viết được thành tổng các luỹ thừa của 2 — nên mọi quãng đường lên cây đều ghép được từ vài cú nhảy.</p>
+
+  <div class="ruler">
+    <h3>Vì sao là luỹ thừa của 2?</h3>
+    <div class="sub">Cần đi lên <span id="rTarget" style="color:var(--jump);font-weight:700">13</span> bước. Xem nó được ghép từ những cú nhảy nào — chính là các bit 1 trong biểu diễn nhị phân.</div>
+    <div class="track" id="rTrack"></div>
+    <div class="ruler-ctl">
+      <button class="btn-j btn" id="rGo">Phân tích &amp; nhảy</button>
+      <button class="ghost" id="rNew">Đổi số bước</button>
+      <span class="ruler-read" id="rRead">13 = <b>8 + 4 + 1</b> &nbsp;→&nbsp; 3 cú nhảy thay vì 13 bước</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ 1. BÀI TOÁN ============ -->
+<section id="bai-toan">
+  <div class="sec-head">
+    <div class="eyebrow">Phần 1</div>
+    <h2>Bài toán</h2>
+    <p class="lead">Cho cây có gốc. LCA của <code>u</code> và <code>v</code> là tổ tiên chung nằm ở độ sâu lớn nhất — tổ tiên chung "thấp nhất", gần hai đỉnh nhất.</p>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Định nghĩa</h3>
+      <p>Đỉnh <code>w</code> là <strong>LCA(u, v)</strong> nếu <code>w</code> là tổ tiên của cả <code>u</code> lẫn <code>v</code>, và trong mọi tổ tiên chung thì <code>w</code> có độ sâu lớn nhất.</p>
+      <p>LCA hiếm khi là đích cuối. Nó là bước trung gian: có LCA rồi thì khoảng cách hai đỉnh tính ngay được bằng</p>
+      <div class="formula">dist(u,v) = depth[u] + depth[v] − <b>2</b>·depth[LCA]</div>
+      <p style="margin-bottom:0">Còn nhiều bài khác quy về LCA: đỉnh trên đường đi, truy vấn cây con, k-th ancestor…</p>
+    </div>
+    <div class="card hi">
+      <h3>Cách ngây thơ và giới hạn của nó</h3>
+      <p>Đưa hai đỉnh về cùng độ sâu, rồi cho cùng bò lên từng bước tới khi gặp nhau.</p>
+      <ul class="tick">
+        <li>Đúng, dễ cài, nhưng mỗi truy vấn tốn <strong>O(N)</strong> ở trường hợp cây suy biến thành đường thẳng.</li>
+        <li>Với <code>Q</code> truy vấn thì thành <strong>O(N·Q)</strong> — thường là TLE.</li>
+      </ul>
+      <p style="margin-bottom:0">Ý tưởng cứu vãn: nếu bò 1 bước là chậm, hãy cho phép <em>nhảy 2ʲ bước</em>. Đó là nâng nhị phân.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. up[][] ============ -->
+<section id="bang-up">
+  <div class="sec-head">
+    <div class="eyebrow">Phần 2</div>
+    <h2>Bảng nâng nhị phân <code>up[u][j]</code></h2>
+    <p class="lead"><code>up[u][j]</code> = tổ tiên cách <code>u</code> đúng <strong>2ʲ</strong> bước lên phía gốc. Đây là toàn bộ "bộ nhớ" cho phép nhảy nhanh.</p>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Quy hoạch động hai dòng</h3>
+      <p><strong>Cơ sở</strong> — nhảy 2⁰ = 1 bước chính là đi tới cha trực tiếp:</p>
+      <div class="formula">up[u][<b>0</b>] = cha của u</div>
+      <p><strong>Chuyển trạng thái</strong> — nhảy 2ʲ bước = nhảy 2ʲ⁻¹ bước, rồi từ chỗ đó nhảy tiếp 2ʲ⁻¹ bước nữa:</p>
+      <div class="formula">up[u][j] = up[ up[u][j−1] ][ j−1 ]</div>
+      <p style="margin-bottom:0">Nửa đầu đưa <code>u</code> tới điểm giữa; nửa sau đi nốt. Hai lần nhảy <code>2ʲ⁻¹</code> ghép lại đúng <code>2ʲ</code>.</p>
+    </div>
+    <div class="card hi">
+      <h3>Chọn hằng số LOG</h3>
+      <p>Cần <code>LOG</code> sao cho <code>2^LOG</code> vượt chiều cao cây tối đa. Với <code>N ≤ 10⁵</code>:</p>
+      <div class="formula">2¹⁷ = 131072 &gt; 10⁵ &nbsp;⟹&nbsp; LOG = 20 <b>(dư ra cho an toàn)</b></div>
+      <p>Bảng có kích thước <code>N × LOG</code>, tốn <strong>O(N log N)</strong> bộ nhớ.</p>
+      <div class="note blue" style="margin-bottom:0">
+        <h3>Thứ tự tính rất quan trọng</h3>
+        <p style="margin-bottom:0">Vòng ngoài chạy theo <code>j</code> (cột), vòng trong theo <code>i</code> (đỉnh). Khi tính cột <code>j</code>, mọi giá trị ở cột <code>j−1</code> đã sẵn sàng cho <em>mọi</em> đỉnh — đó là điều kiện để công thức chuyển trạng thái dùng được.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIM 1: xây bảng up -->
+  <div style="margin-top:26px">
+    <div class="sim">
+      <div class="sim-bar">
+        <span class="tt" style="color:var(--accent2)">◆ Mô phỏng 1 — Điền bảng up[][]</span>
+        <span style="flex:1"></span>
+        <span class="sel">Tốc độ <input type="range" id="b_spd" min="90" max="900" value="360" step="30"></span>
+        <button class="ghost" id="b_step">Từng bước</button>
+        <button class="btn btn-b" id="b_run">▶ Điền bảng</button>
+        <button class="ghost" id="b_reset">Đặt lại</button>
+      </div>
+      <div class="sim-body">
+        <div class="stage">
+          <svg id="b_svg" viewBox="0 0 460 420" width="100%" style="max-height:420px"></svg>
+          <div class="legend">
+            <span><i style="background:var(--jump)"></i>đỉnh đang tính up</span>
+            <span><i style="background:var(--accent2)"></i>đỉnh nguồn (điểm giữa)</span>
+            <span><i style="background:var(--accent)"></i>đích của cú nhảy 2ʲ</span>
+          </div>
+        </div>
+        <div class="side">
+          <div class="colhint" id="b_hint">Đang tính cột <code>j = 1</code> — nhảy <code>2</code> bước.</div>
+          <div class="uptbl" id="b_tbl"></div>
+          <div class="say" id="b_say" style="margin-top:12px">Bấm <b>▶ Điền bảng</b>. Cột <code>j=0</code> (cha trực tiếp) đã có sẵn từ DFS; các cột sau được suy ra bằng công thức chuyển trạng thái.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. TRUY VẤN ============ -->
+<section id="truy-van">
+  <div class="sec-head">
+    <div class="eyebrow">Phần 3</div>
+    <h2>Truy vấn LCA(u, v)</h2>
+    <p class="lead">Ba nhịp: cân bằng độ sâu → kiểm tra trùng → nhảy đồng thời tới sát dưới LCA.</p>
+  </div>
+
+  <div class="grid2" style="margin-bottom:26px">
+    <div class="card">
+      <ol class="steps">
+        <li><strong>Cân bằng độ sâu.</strong> Giả sử <code>depth[u] &gt; depth[v]</code>. Nâng <code>u</code> lên đúng <code>depth[u]−depth[v]</code> bước, phân tích hiệu này thành tổng các <code>2ʲ</code> (duyệt các bit 1). Xong bước này hai đỉnh cùng độ sâu.</li>
+        <li><strong>Trùng nhau?</strong> Nếu giờ <code>u == v</code> thì <code>v</code> là tổ tiên của <code>u</code> — trả về luôn.</li>
+        <li><strong>Nhảy đồng thời.</strong> Cho <code>j</code> chạy từ lớn về 0. Nếu <code>up[u][j] ≠ up[v][j]</code>, hai đỉnh còn nằm dưới LCA sau cú nhảy → nhảy cả hai. Nếu bằng nhau → có thể vọt qua LCA → bỏ qua.</li>
+        <li><strong>Kết luận.</strong> Hết vòng lặp, <code>u</code> và <code>v</code> đứng sát ngay dưới LCA. Đáp án là cha chung: <code>up[u][0]</code>.</li>
+      </ol>
+    </div>
+    <div class="card hi">
+      <div class="note">
+        <h3>Vì sao nhảy khi <em>khác nhau</em>, dừng khi <em>giống nhau</em>?</h3>
+        <p>Nghe ngược trực giác, nhưng đây là mấu chốt. Ta muốn dừng ở <strong>hai đỉnh con của LCA</strong>, cao nhất có thể mà vẫn chưa chạm LCA.</p>
+        <p style="margin-bottom:0"><code>up[u][j] == up[v][j]</code> nghĩa là cú nhảy <code>2ʲ</code> đưa cả hai về <em>một</em> tổ tiên chung — có thể chính là LCA hoặc cao hơn. Nhảy vào đó là mất dấu ranh giới. Nên ta chỉ nhảy khi kết quả <strong>vẫn khác nhau</strong> (chắc chắn còn dưới LCA), dồn dần khoảng cách tới LCA về 0 theo kiểu nhị phân.</p>
+      </div>
+      <p style="margin:14px 0 0">Sau vòng lặp, khoảng cách từ <code>u</code> tới LCA đúng bằng 1 bước — mọi bước lớn hơn đều đã bị "khác nhau" ăn hết.</p>
+    </div>
+  </div>
+
+  <!-- SIM 2: truy vấn LCA -->
+  <div class="sim">
+    <div class="sim-bar">
+      <span class="tt" style="color:var(--accent)">● Mô phỏng 2 — Truy vấn LCA từng bước</span>
+      <span class="sel">u <select id="q_u"></select></span>
+      <span class="sel">v <select id="q_v"></select></span>
+      <span style="flex:1"></span>
+      <span class="sel">Tốc độ <input type="range" id="q_spd" min="140" max="1500" value="640" step="20"></span>
+      <button class="ghost" id="q_step">Từng bước</button>
+      <button class="btn" id="q_run">▶ Tìm LCA</button>
+      <button class="ghost" id="q_reset">Đặt lại</button>
+    </div>
+    <div class="sim-body">
+      <div class="stage">
+        <svg id="q_svg" viewBox="0 0 460 420" width="100%" style="max-height:420px"></svg>
+        <div class="legend">
+          <span><i class="lg-u"></i>đỉnh u</span>
+          <span><i class="lg-v"></i>đỉnh v</span>
+          <span><i class="lg-g"></i>vị trí sau khi nhảy</span>
+          <span><i class="lg-l"></i>LCA</span>
+        </div>
+      </div>
+      <div class="side">
+        <div class="cpanel" id="q_code"></div>
+        <div class="regs">
+          <div class="reg u"><div class="rk">u</div><div class="rv" id="q_ru">–</div></div>
+          <div class="reg v"><div class="rk">v</div><div class="rv" id="q_rv">–</div></div>
+          <div class="reg j"><div class="rk">j (2^j bước)</div><div class="rv" id="q_rj">–</div></div>
+          <div class="reg"><div class="rk">giai đoạn</div><div class="rv" id="q_rp" style="font-size:.8rem">sẵn sàng</div></div>
+        </div>
+        <div class="say" id="q_say">Chọn <b>u</b>, <b>v</b> rồi bấm <b>▶ Tìm LCA</b>. Thử <code>u=11, v=8</code> — đúng ví dụ trong tài liệu.</div>
+      </div>
+    </div>
+  </div>
+  <p style="margin-top:14px;color:var(--ink-soft);font-size:.9rem">Cây mẫu 11 đỉnh, gốc là đỉnh 1. Con trỏ nhảy được tô hổ phách; hai đường từ <code>u</code>, <code>v</code> lên LCA sáng xanh ngọc khi kết thúc.</p>
+</section>
+
+<!-- ============ 4. CODE ============ -->
+<section id="cai-dat">
+  <div class="sec-head">
+    <div class="eyebrow">Phần 4</div>
+    <h2>Cài đặt đầy đủ</h2>
+    <p class="lead">Ba khối: <code>dfs</code> lấy độ sâu và cột <code>j=0</code>, <code>build</code> điền phần còn lại, <code>get_lca</code> trả lời truy vấn.</p>
+  </div>
+  <pre><code id="fullcode"></code></pre>
+  <div class="note blue">
+    <h3>Chi tiết dễ vấp</h3>
+    <p style="margin-bottom:0">Gốc quy ước <code>up[root][0] = root</code> (cha của gốc là chính nó) để công thức không vượt mảng. Trong <code>get_lca</code>, bước cân bằng độ sâu đọc các bit của <code>diff</code> bằng <code>(diff &gt;&gt; j) &amp; 1</code>; bước nhảy đồng thời chạy <code>j</code> từ cao xuống 0 và chỉ nhảy khi hai tổ tiên <strong>khác nhau</strong>.</p>
+  </div>
+</section>
+
+<!-- ============ 5. ĐỘ PHỨC TẠP ============ -->
+<section id="do-phuc-tap">
+  <div class="sec-head">
+    <div class="eyebrow">Phần 5</div>
+    <h2>Độ phức tạp</h2>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <h3>Thời gian</h3>
+      <table>
+        <tr><th>Giai đoạn</th><th>Chi phí</th></tr>
+        <tr><td>DFS (độ sâu, cột j=0)</td><td><code>O(N)</code></td></tr>
+        <tr><td>build() điền up[][]</td><td><code>O(N log N)</code></td></tr>
+        <tr><td>Mỗi truy vấn LCA</td><td><code>O(log N)</code></td></tr>
+        <tr><td><strong>Tổng với Q truy vấn</strong></td><td><code>O((N+Q) log N)</code></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Bộ nhớ</h3>
+      <p>Mảng tĩnh <code>up[100005][20]</code> cùng danh sách kề chiếm <strong>O(N log N)</strong>.</p>
+      <p style="margin-bottom:0">Với <code>N = 10⁵</code>, <code>LOG = 20</code>: bảng <code>up</code> có <code>2·10⁶</code> số nguyên ≈ 8 MB — an toàn trên hầu hết hệ chấm. So với cách ngây thơ <code>O(N)</code>/truy vấn, nâng nhị phân đổi một chút bộ nhớ lấy tốc độ truy vấn theo logarit.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Chuyên đề <b>LCA — Nâng nhị phân</b> · Biên soạn theo tài liệu của thầy Phan Văn Việt, THPT Chuyên Vĩnh Phúc · Trang tương tác chạy hoàn toàn trong trình duyệt, không cần internet.
+</footer>
+</div>
+
+<script>
+/* =====================================================================
+   BỘ ĐẾM TRUY CẬP
+   - Online: đếm chung mọi khách qua CountAPI (một lần mỗi lần tải trang).
+   - Offline / API lỗi: lùi về đếm cục bộ bằng localStorage trên máy này.
+   ===================================================================== */
+(function(){
+  const el=document.getElementById('visitCount');
+  const label=el.closest('.visits');
+  const fmt=n=>Number(n).toLocaleString('vi-VN');
+  function show(n,localOnly){
+    el.textContent=fmt(n);
+    el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');
+    if(localOnly) label.title='Lượt xem trên thiết bị này (không kết nối được máy chủ đếm)';
+  }
+  function localFallback(){
+    try{
+      const k='lca_visits';
+      const n=(parseInt(localStorage.getItem(k)||'0',10)||0)+1;
+      localStorage.setItem(k,n);
+      show(n,true);
+    }catch(e){ el.textContent='—'; }
+  }
+  // namespace + key riêng cho trang này
+  const url='https://api.countapi.xyz/hit/cvpoi.vercel.app/lca';
+  const ctrl=('AbortController'in window)?new AbortController():null;
+  const to=ctrl?setTimeout(()=>ctrl.abort(),4000):null;
+  fetch(url,{signal:ctrl?ctrl.signal:undefined})
+    .then(r=>{ if(!r.ok) throw new Error('bad'); return r.json(); })
+    .then(d=>{ if(to)clearTimeout(to); if(d&&typeof d.value==='number') show(d.value,false); else localFallback(); })
+    .catch(()=>{ if(to)clearTimeout(to); localFallback(); });
+})();
+
+
+/* =====================================================================
+   CÂY MẪU (theo tài liệu): gốc 1
+   1─2(─4─8, ─5─9─11), 1─3(─6,─7)
+   ===================================================================== */
+const PAR = {1:1, 2:1, 3:1, 4:2, 5:2, 6:3, 7:3, 8:4, 9:5, 11:9};
+const NODES = [1,2,3,4,5,6,7,8,9,11];
+const CHILD = {}; NODES.forEach(n=>CHILD[n]=[]);
+NODES.forEach(n=>{ if(PAR[n]!==n) CHILD[PAR[n]].push(n); });
+const DEPTH = {}; (function setD(u,d){ DEPTH[u]=d; CHILD[u].forEach(c=>setD(c,d+1)); })(1,0);
+const MAXD = Math.max(...Object.values(DEPTH));
+const LOGV = 4; // đủ cho cây cao 4
+
+// bảng up thật
+const UP = {};
+NODES.forEach(u=>{ UP[u]=[]; UP[u][0]=PAR[u]; });
+for(let j=1;j<LOGV;j++) NODES.forEach(u=>{ UP[u][j]=UP[UP[u][j-1]][j-1]; });
+
+/* ---- toạ độ vẽ cây (viewBox 460x420) ---- */
+const POS = {
+  1:[230,44], 2:[140,130], 3:[330,130],
+  4:[90,216], 5:[195,216], 6:[300,216], 7:[380,216],
+  8:[90,302], 9:[195,302], 11:[195,388]
+};
+const DEPTH_Y = [44,130,216,302,388];
+
+function buildTreeSVG(svg, opts={}){
+  const NS='http://www.w3.org/2000/svg';
+  svg.innerHTML='';
+  // đường độ sâu
+  for(let d=0; d<=MAXD; d++){
+    const y=DEPTH_Y[d];
+    const ln=document.createElementNS(NS,'line');
+    ln.setAttribute('x1',20);ln.setAttribute('x2',400);
+    ln.setAttribute('y1',y);ln.setAttribute('y2',y);
+    ln.setAttribute('class','depth-line');svg.appendChild(ln);
+    const tx=document.createElementNS(NS,'text');
+    tx.setAttribute('x',406);tx.setAttribute('y',y+3);
+    tx.setAttribute('class','depth-lbl');tx.textContent='d='+d;svg.appendChild(tx);
+  }
+  // cạnh
+  NODES.forEach(u=>{
+    if(PAR[u]===u) return;
+    const [x1,y1]=POS[u],[x2,y2]=POS[PAR[u]];
+    const e=document.createElementNS(NS,'line');
+    e.setAttribute('x1',x1);e.setAttribute('y1',y1);
+    e.setAttribute('x2',x2);e.setAttribute('y2',y2);
+    e.setAttribute('class','edge');e.setAttribute('id',(opts.pfx||'')+'e-'+u);
+    svg.appendChild(e);
+  });
+  // đỉnh
+  NODES.forEach(u=>{
+    const [x,y]=POS[u];
+    const g=document.createElementNS(NS,'g');
+    g.setAttribute('class','tnode');g.setAttribute('id',(opts.pfx||'')+'n-'+u);
+    g.setAttribute('transform',`translate(${x},${y})`);
+    const c=document.createElementNS(NS,'circle');c.setAttribute('r',16);
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('text-anchor','middle');t.setAttribute('dy',5);t.textContent=u;
+    g.appendChild(c);g.appendChild(t);
+    if(opts.onClick) g.addEventListener('click',()=>opts.onClick(u));
+    svg.appendChild(g);
+  });
+}
+
+/* =====================================================================
+   HERO — thước nhảy luỹ thừa 2
+   ===================================================================== */
+(function(){
+  const track=document.getElementById('rTrack');
+  const read=document.getElementById('rRead');
+  const tgt=document.getElementById('rTarget');
+  let TARGET=13, timer=null;
+  const W=()=>track.clientWidth;
+
+  function bits(x){const b=[];for(let j=0;x>0;j++){if(x&1)b.push(j);x>>=1;}return b;}
+  function draw(){
+    track.innerHTML='';
+    const w=W(), pad=24, span=w-pad*2, step=span/16;
+    // các mốc 0..16 (chấm mờ)
+    for(let k=0;k<=16;k++){
+      const d=document.createElement('div');d.className='node-dot';
+      d.style.left=(pad+k*step)+'px';
+      if(k===0){d.classList.add('start');const l=document.createElement('span');l.className='nl';l.textContent='u';d.appendChild(l);}
+      if(k===TARGET){const l=document.createElement('span');l.className='nl';l.textContent='+'+TARGET;d.appendChild(l);}
+      d.id='rd-'+k;track.appendChild(d);
+    }
+  }
+  function reset(){draw();
+    const bs=bits(TARGET);
+    read.innerHTML=TARGET+' = <b>'+bs.slice().reverse().map(j=>Math.pow(2,j)).join(' + ')+'</b> &nbsp;→&nbsp; '+bs.length+' cú nhảy thay vì '+TARGET+' bước';
+    tgt.textContent=TARGET;
+  }
+  function go(){
+    clearTimeout(timer);draw();
+    const w=W(),pad=24,span=w-pad*2,step=span/16;
+    const bs=bits(TARGET).sort((a,b)=>b-a); // nhảy từ bit cao xuống, giống code
+    let pos=0,idx=0;
+    function hop(){
+      if(idx>=bs.length){
+        document.getElementById('rd-'+pos)?.classList.add('landed');
+        return;
+      }
+      const j=bs[idx], len=Math.pow(2,j), from=pos, to=pos+len;
+      // vẽ vòng cung
+      const arc=document.createElement('div');arc.className='arc';
+      const x1=pad+from*step, x2=pad+to*step;
+      arc.style.left=x1+'px';arc.style.width=(x2-x1)+'px';
+      const scale=Math.min(1,(x2-x1)/120);
+      arc.style.height=(40+40*scale)+'px';
+      const al=document.createElement('span');al.className='al';al.textContent='2^'+j+' = '+len;
+      arc.appendChild(al);track.appendChild(arc);
+      document.getElementById('rd-'+from)?.classList.add('landed');
+      requestAnimationFrame(()=>arc.classList.add('show'));
+      pos=to;idx++;
+      document.getElementById('rd-'+pos)?.classList.add('landed');
+      timer=setTimeout(hop,620);
+    }
+    document.getElementById('rd-0')?.classList.add('landed');
+    hop();
+  }
+  document.getElementById('rGo').addEventListener('click',go);
+  document.getElementById('rNew').addEventListener('click',()=>{
+    const opts=[13,11,7,10,14,9,6];TARGET=opts[Math.floor(Math.random()*opts.length)];reset();
+  });
+  window.addEventListener('resize',reset);
+  reset();
+})();
+
+/* =====================================================================
+   SIM 1 — điền bảng up[][]
+   ===================================================================== */
+(function(){
+  const svg=document.getElementById('b_svg');
+  const tblBox=document.getElementById('b_tbl');
+  const hint=document.getElementById('b_hint');
+  const say=document.getElementById('b_say');
+  const spd=document.getElementById('b_spd');
+  let steps=[],sp=-1,timer=null,running=false;
+  const cur={}; // trạng thái bảng đang hiển thị
+
+  buildTreeSVG(svg,{pfx:'b_'});
+
+  function drawTable(){
+    let h='<table><tr><th>đỉnh u</th>';
+    for(let j=0;j<LOGV;j++) h+='<th>up[u]['+j+']<br><span style="color:#5A6B8F">2^'+j+'</span></th>';
+    h+='</tr>';
+    NODES.forEach(u=>{
+      h+='<tr><td style="color:#BFD0F0">'+u+'</td>';
+      for(let j=0;j<LOGV;j++){
+        const id='c-'+u+'-'+j;
+        const val=(cur[u]&&cur[u][j]!==undefined)?cur[u][j]:'·';
+        const cls=(cur[u]&&cur[u][j]!==undefined)?(j===0?'filled':'filled'):'empty';
+        h+='<td id="b_'+id+'" class="'+cls+'">'+val+'</td>';
+      }
+      h+='</tr>';
+    });
+    h+='</table>';
+    tblBox.innerHTML=h;
+  }
+  function initCur(){
+    NODES.forEach(u=>{cur[u]=[];cur[u][0]=UP[u][0];});
+  }
+  function makeSteps(){
+    steps=[];
+    steps.push({type:'base',msg:'Cột <code>j=0</code> = cha trực tiếp, đã có từ DFS. Giờ điền các cột sau theo <span class="hl">up[u][j] = up[ up[u][j−1] ][ j−1 ]</span>.'});
+    for(let j=1;j<LOGV;j++){
+      NODES.forEach(u=>{
+        const mid=UP[u][j-1], val=UP[mid][j-1];
+        steps.push({type:'cell',u,j,mid,val,
+          msg:`<b>up[${u}][${j}]</b>: từ ${u} nhảy 2^${j-1}=${Math.pow(2,j-1)} bước tới <span style="color:var(--accent2)">${mid}</span>, rồi từ ${mid} nhảy 2^${j-1} bước nữa tới <span style="color:var(--accent)">${val}</span>. Vậy tổ tiên 2^${j}=${Math.pow(2,j)} bước của ${u} là <span class="hl">${val}</span>.`});
+      });
+    }
+    steps.push({type:'done',msg:'Bảng đã đầy. Mỗi ô là một cú nhảy dựng sẵn — truy vấn giờ chỉ việc ghép chúng lại.'});
+  }
+  function clearMarks(){
+    document.querySelectorAll('#b_svg .tnode').forEach(n=>n.classList.remove('ghost','u','v'));
+    document.querySelectorAll('#b_tbl td').forEach(td=>td.classList.remove('now','src'));
+  }
+  function paint(k){
+    const s=steps[k];
+    clearMarks();
+    if(s.type==='cell'){
+      hint.innerHTML=`Đang tính cột <code>j = ${s.j}</code> — nhảy <code>${Math.pow(2,s.j)}</code> bước.`;
+      cur[s.u][s.j]=s.val;
+      drawTable();
+      const cell=document.getElementById('b_c-'+s.u+'-'+s.j);
+      if(cell) cell.classList.add('now');
+      const mcell=document.getElementById('b_c-'+s.u+'-'+(s.j-1));
+      if(mcell) mcell.classList.add('src');
+      document.getElementById('b_n-'+s.u)?.classList.add('u');
+      document.getElementById('b_n-'+s.mid)?.classList.add('v');
+      document.getElementById('b_n-'+s.val)?.classList.add('ghost');
+    } else {
+      drawTable();
+    }
+    say.innerHTML=s.msg;
+  }
+  function step(){ if(!steps.length)makeSteps(); if(sp>=steps.length-1){stop();return false;} sp++;paint(sp);return true;}
+  function stop(){running=false;clearTimeout(timer);document.getElementById('b_run').textContent='▶ Điền bảng';}
+  function run(){ if(running){stop();return;} if(sp>=steps.length-1)reset();
+    running=true;document.getElementById('b_run').textContent='❚❚ Dừng';
+    const tick=()=>{if(!step())return;if(running)timer=setTimeout(tick,+spd.value);};tick();
+  }
+  function reset(){stop();initCur();makeSteps();sp=-1;clearMarks();drawTable();
+    hint.innerHTML='Đang tính cột <code>j = 1</code> — nhảy <code>2</code> bước.';
+    say.innerHTML='Bấm <b>▶ Điền bảng</b>. Cột <code>j=0</code> (cha trực tiếp) đã có sẵn từ DFS; các cột sau được suy ra bằng công thức chuyển trạng thái.';
+  }
+  document.getElementById('b_run').addEventListener('click',run);
+  document.getElementById('b_step').addEventListener('click',()=>{stop();step();});
+  document.getElementById('b_reset').addEventListener('click',reset);
+  reset();
+})();
+
+/* =====================================================================
+   SIM 2 — truy vấn LCA(u,v)
+   ===================================================================== */
+(function(){
+  const svg=document.getElementById('q_svg');
+  const codeBox=document.getElementById('q_code');
+  const say=document.getElementById('q_say');
+  const spd=document.getElementById('q_spd');
+  const selU=document.getElementById('q_u'),selV=document.getElementById('q_v');
+  const rU=document.getElementById('q_ru'),rV=document.getElementById('q_rv'),
+        rJ=document.getElementById('q_rj'),rP=document.getElementById('q_rp');
+  let steps=[],sp=-1,timer=null,running=false;
+  let U0=11,V0=8;
+
+  NODES.forEach(n=>{
+    selU.insertAdjacentHTML('beforeend',`<option value="${n}">${n}</option>`);
+    selV.insertAdjacentHTML('beforeend',`<option value="${n}">${n}</option>`);
+  });
+  selU.value=11;selV.value=8;
+
+  const CODE=[
+    ['int get_lca(int u, int v){',[]],
+    ['  if(depth[u]<depth[v]) swap(u,v);',['bal']],
+    ['  int diff = depth[u]-depth[v];',['bal']],
+    ['  for(int j=0;j<LOG;j++)',['bal']],
+    ['    if((diff>>j)&1) u=up[u][j];',['bal']],
+    ['  if(u==v) return u;',['eq']],
+    ['  for(int j=LOG-1;j>=0;j--)',['jump']],
+    ['    if(up[u][j]!=up[v][j]){',['jump']],
+    ['      u=up[u][j]; v=up[v][j];',['jumphit']],
+    ['    }',['jump']],
+    ['  return up[u][0];',['fin']]
+  ];
+  const escH=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const QKW=new Set(['int','for','if','return','swap']);
+  const QFN=new Set(['get_lca','up','depth']);
+  function colorLine(raw){
+    let out='';
+    const re=/("(?:[^"\\]|\\.)*")|([A-Za-z_]\w*)|(\d+)|(\s+)|([^\sA-Za-z0-9_"]+)/g;
+    let m;
+    while((m=re.exec(raw))!==null){
+      if(m[1]) out+='<span class="s">'+escH(m[1])+'</span>';
+      else if(m[2]){
+        if(m[2]==='LOG') out+='<span class="n">LOG</span>';
+        else if(QKW.has(m[2])) out+='<span class="k">'+m[2]+'</span>';
+        else if(QFN.has(m[2])) out+='<span class="f">'+m[2]+'</span>';
+        else out+=m[2];
+      }
+      else if(m[3]) out+='<span class="n">'+m[3]+'</span>';
+      else if(m[4]) out+=m[4];
+      else if(m[5]) out+=escH(m[5]);
+    }
+    return out;
+  }
+  function drawCode(){
+    codeBox.innerHTML=CODE.map((r,i)=>
+      `<span class="cline" id="q_L${i}" data-n="${i+1}">${colorLine(r[0])}</span>`
+    ).join('');
+  }
+  drawCode();
+
+  function highlight(lines,cls){
+    document.querySelectorAll('#q_code .cline').forEach(e=>e.classList.remove('hot','hot2'));
+    CODE.forEach((r,i)=>{ if(r[1].some(t=>lines.includes(t))) document.getElementById('q_L'+i)?.classList.add(cls); });
+  }
+
+  function makeSteps(u0,v0){
+    steps=[];
+    let u=u0,v=v0;
+    const pathU=new Set(),pathV=new Set();
+    steps.push({u,v,j:null,phase:'Bắt đầu',code:[],
+      msg:`Tìm <b>LCA(${u0}, ${v0})</b>. depth[${u0}]=${DEPTH[u0]}, depth[${v0}]=${DEPTH[v0]}.`});
+
+    if(DEPTH[u]<DEPTH[v]){ [u,v]=[v,u];
+      steps.push({u,v,j:null,phase:'Cân bằng',code:['bal'],swap:true,
+        msg:`depth[u] &lt; depth[v] nên <b>hoán đổi</b> để u luôn là đỉnh sâu hơn. Giờ u=${u}, v=${v}.`});
+    }
+    let diff=DEPTH[u]-DEPTH[v];
+    steps.push({u,v,j:null,phase:'Cân bằng',code:['bal'],
+      msg:`Chênh lệch độ sâu <b>diff = ${DEPTH[u]} − ${DEPTH[v]} = ${diff}</b>. Nâng u lên đúng ${diff} bước = tổng các 2^j với bit 1 của ${diff} (nhị phân ${diff.toString(2)}).`});
+    for(let j=0;j<LOGV;j++){
+      if((diff>>j)&1){
+        const nu=UP[u][j];
+        steps.push({u:nu,v,j,phase:'Cân bằng',code:['bal'],ghost:u,from:u,to:nu,
+          msg:`Bit ${j} của diff là 1 → nâng u lên 2^${j}=${Math.pow(2,j)} bước: <span class="hl">${u} → ${nu}</span>.`});
+        u=nu;
+      }
+    }
+    steps.push({u,v,j:null,phase:'Cân bằng xong',code:['bal'],
+      msg:`Sau cân bằng: u=${u}, v=${v}, cùng độ sâu ${DEPTH[u]}.`});
+
+    if(u===v){
+      steps.push({u,v,j:null,phase:'Trùng nhau',code:['eq'],lca:u,
+        msg:`<b>u == v = ${u}</b> → một đỉnh là tổ tiên của đỉnh kia. LCA = <span style="color:var(--lca)">${u}</span>.`});
+      return steps;
+    }
+    steps.push({u,v,j:null,phase:'Kiểm tra',code:['eq'],
+      msg:`u=${u} ≠ v=${v} → chưa trùng. Chuyển sang nhảy đồng thời từ bước lớn nhất.`});
+
+    for(let j=LOGV-1;j>=0;j--){
+      const au=UP[u][j],av=UP[v][j];
+      if(au!==av){
+        steps.push({u,v,j,phase:'Nhảy đồng thời',code:['jump'],testPair:[au,av],
+          msg:`j=${j}: up[u][${j}]=${au}, up[v][${j}]=${av} → <b>khác nhau</b>. Cả hai vẫn dưới LCA sau cú nhảy 2^${j}=${Math.pow(2,j)} → <span class="hl">nhảy cả u và v</span>.`});
+        u=au;v=av;
+        steps.push({u,v,j,phase:'Nhảy đồng thời',code:['jumphit'],ghost2:[u,v],
+          msg:`Sau nhảy: u=${u}, v=${v}. Vẫn khác nhau, tiếp tục với bước nhỏ hơn.`});
+      } else {
+        steps.push({u,v,j,phase:'Nhảy đồng thời',code:['jump'],testPair:[au,av],skip:true,
+          msg:`j=${j}: up[u][${j}] = up[v][${j}] = ${au} → <b>giống nhau</b>. Cú nhảy này có thể vọt qua LCA → <span style="color:var(--jump)">bỏ qua</span>.`});
+      }
+    }
+    const lca=UP[u][0];
+    steps.push({u,v,j:0,phase:'Kết luận',code:['fin'],lca,
+      msg:`Hết vòng lặp. u=${u}, v=${v} là hai con của LCA. Đáp án = cha chung = up[u][0] = <span style="color:var(--lca)">${lca}</span>.`});
+    return steps;
+  }
+
+  function clearTree(){
+    document.querySelectorAll('#q_svg .tnode').forEach(n=>n.classList.remove('u','v','lca','ghost','dim','sel'));
+    document.querySelectorAll('#q_svg .edge').forEach(e=>e.classList.remove('path'));
+    // xoá badge cũ
+    svg.querySelectorAll('.badge-uv').forEach(b=>b.remove());
+  }
+  function markPath(a,anc,cls){
+    // tô cạnh từ a lên anc
+    let x=a;
+    while(x!==anc && PAR[x]!==x){
+      document.getElementById('q_e-'+x)?.classList.add('path');
+      x=PAR[x];
+    }
+  }
+  function paint(k){
+    const s=steps[k];
+    clearTree();
+    highlight(s.code,'hot');
+    document.getElementById('q_n-'+s.u)?.classList.add('u');
+    document.getElementById('q_n-'+s.v)?.classList.add('v');
+    if(s.ghost!==undefined) document.getElementById('q_n-'+s.ghost)?.classList.add('sel');
+    if(s.lca!==undefined){
+      document.getElementById('q_n-'+s.lca)?.classList.add('lca');
+      markPath(U0,s.lca,'path'); markPath(V0,s.lca,'path');
+    }
+    rU.textContent=s.u;rV.textContent=s.v;
+    rJ.textContent=s.j===null?'–':s.j+'  (2^'+s.j+'='+Math.pow(2,s.j)+')';
+    rP.textContent=s.phase;
+    say.innerHTML=s.msg;
+  }
+  function step(){ if(!steps.length)steps=makeSteps(U0,V0); if(sp>=steps.length-1){stop();return false;} sp++;paint(sp);return true;}
+  function stop(){running=false;clearTimeout(timer);document.getElementById('q_run').textContent='▶ Tìm LCA';}
+  function run(){ if(running){stop();return;} if(sp>=steps.length-1)reset();
+    running=true;document.getElementById('q_run').textContent='❚❚ Dừng';
+    const tick=()=>{if(!step())return;if(running)timer=setTimeout(tick,+spd.value);};tick();
+  }
+  function reset(){stop();U0=+selU.value;V0=+selV.value;steps=makeSteps(U0,V0);sp=-1;
+    clearTree();
+    document.getElementById('q_n-'+U0)?.classList.add('u');
+    document.getElementById('q_n-'+V0)?.classList.add('v');
+    document.querySelectorAll('#q_code .cline').forEach(e=>e.classList.remove('hot','hot2'));
+    rU.textContent=U0;rV.textContent=V0;rJ.textContent='–';rP.textContent='sẵn sàng';
+    say.innerHTML=`Sẵn sàng tìm <b>LCA(${U0}, ${V0})</b>. Bấm <b>▶ Tìm LCA</b> để chạy từng nhịp.`;
+  }
+  buildTreeSVG(svg,{pfx:'q_',onClick:(u)=>{ selU.value=u; reset(); }});
+  document.getElementById('q_run').addEventListener('click',run);
+  document.getElementById('q_step').addEventListener('click',()=>{stop();step();});
+  document.getElementById('q_reset').addEventListener('click',reset);
+  selU.addEventListener('change',reset);selV.addEventListener('change',reset);
+  reset();
+})();
+
+/* =====================================================================
+   CODE ĐẦY ĐỦ (tô màu)
+   ===================================================================== */
+(function(){
+  const lines=[
+    ['#include <bits/stdc++.h>','pp'],
+    ['using namespace std;','pp'],
+    ['',''],
+    ['int n, q, u, v, diff, up[100005][20], depth[100005];','d'],
+    ['vector<int> adj[100005];','d'],
+    ['',''],
+    ['// DFS: tính depth và cột j=0 (cha trực tiếp)','c'],
+    ['void dfs(int u, int p){','d'],
+    ['    up[u][0] = p;','d'],
+    ['    for(int v : adj[u]) if(v != p){','d'],
+    ['        depth[v] = depth[u] + 1;','d'],
+    ['        dfs(v, u);','d'],
+    ['    }','d'],
+    ['}','d'],
+    ['',''],
+    ['// Điền bảng nâng nhị phân','c'],
+    ['void build(){','d'],
+    ['    for(int j = 1; j < 20; j++)','d'],
+    ['        for(int i = 1; i <= n; i++)','d'],
+    ['            up[i][j] = up[ up[i][j-1] ][ j-1 ];','d'],
+    ['}','d'],
+    ['',''],
+    ['// Truy vấn LCA','c'],
+    ['int get_lca(int u, int v){','d'],
+    ['    if(depth[u] < depth[v]) swap(u, v);','d'],
+    ['    diff = depth[u] - depth[v];','d'],
+    ['    for(int j = 0; j < 20; j++)              // cân bằng độ sâu','d'],
+    ['        if((diff >> j) & 1) u = up[u][j];','d'],
+    ['    if(u == v) return u;','d'],
+    ['    for(int j = 19; j >= 0; j--)             // nhảy tới sát dưới LCA','d'],
+    ['        if(up[u][j] != up[v][j]){','d'],
+    ['            u = up[u][j];','d'],
+    ['            v = up[v][j];','d'],
+    ['        }','d'],
+    ['    return up[u][0];','d'],
+    ['}','d'],
+    ['',''],
+    ['int main(){','d'],
+    ['    ios_base::sync_with_stdio(false); cin.tie(0);','d'],
+    ['    cin >> n >> q;','d'],
+    ['    for(int i = 1; i < n; i++){','d'],
+    ['        cin >> u >> v;','d'],
+    ['        adj[u].push_back(v);','d'],
+    ['        adj[v].push_back(u);','d'],
+    ['    }','d'],
+    ['    depth[1] = 0; dfs(1, 1); build();','d'],
+    ['    while(q--){','d'],
+    ['        cin >> u >> v;','d'],
+    ['        cout << get_lca(u, v) << "\\n";','d'],
+    ['    }','d'],
+    ['    return 0;','d'],
+    ['}','d']
+  ];
+  const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const KW=new Set(['int','void','for','if','return','while','using','namespace','vector']);
+  const FN=new Set(['dfs','build','get_lca','main','depth','adj','push_back','swap']);
+  function color(raw,type){
+    if(type==='c'||type==='pp') return '<span class="c">'+esc(raw)+'</span>';
+    // tách comment cuối dòng trước khi tô
+    let code=raw, comment='';
+    const ci=raw.indexOf('//');
+    if(ci>=0){ code=raw.slice(0,ci); comment='<span class="c">'+esc(raw.slice(ci))+'</span>'; }
+    // tokenize: chuỗi "..."  |  định danh/số  |  ký tự khác
+    let out='';
+    const re=/("(?:[^"\\]|\\.)*")|([A-Za-z_]\w*)|(\d+)|(\s+)|([^\sA-Za-z0-9_"]+)/g;
+    let m;
+    while((m=re.exec(code))!==null){
+      if(m[1]) out+='<span class="s">'+esc(m[1])+'</span>';
+      else if(m[2]){
+        if(KW.has(m[2])) out+='<span class="k">'+m[2]+'</span>';
+        else if(FN.has(m[2])) out+='<span class="f">'+m[2]+'</span>';
+        else out+=m[2];
+      }
+      else if(m[3]) out+='<span class="n">'+m[3]+'</span>';
+      else if(m[4]) out+=m[4];
+      else if(m[5]) out+=esc(m[5]);
+    }
+    return out+comment;
+  }
+  document.getElementById('fullcode').innerHTML=lines.map((r,i)=>{
+    if(r[0]==='') return `<span class="cl" data-n="${i+1}"> </span>`;
+    return `<span class="cl" data-n="${i+1}">${color(r[0],r[1])}</span>`;
+  }).join('');
+})();
+</script>
+</body>
+</html>
