@@ -152,7 +152,8 @@
 const TOPICS = [
   {slug:'mix_inout_ifelse_loop', name:'Nhập/xuất, rẽ nhánh, lặp', desc:'Nền tảng: cin/cout, if/else, vòng lặp.', group:'basic', ready:false, icon:'terminal'},
   {slug:'loop',   name:'Vòng lặp', desc:'Vòng lồng nhau, bất biến vòng lặp.', group:'basic', ready:false, icon:'repeat'},
-  {slug:'array',  name:'Mảng',     desc:'Mảng 1D, 2D, cờ hiệu và lính canh.', group:'basic', ready:true,  icon:'grid', href:'/array/'},
+  {slug:'array-1d', name:'Mảng 1 chiều', desc:'Duyệt, tìm kiếm tuyến tính, lính canh, hai con trỏ.', group:'basic', ready:true, icon:'row',  href:'/array-1d/'},
+  {slug:'array-2d', name:'Mảng 2 chiều', desc:'Lưới hàng × cột, cờ hiệu, lính canh max1/max2.',     group:'basic', ready:true, icon:'grid', href:'/array-2d/'},
 
   {slug:'monotonic-stack', name:'Ngăn xếp đơn điệu', desc:'Phần tử lớn/nhỏ kế tiếp bằng stack.', group:'ds', ready:false, icon:'stack'},
 
@@ -182,6 +183,7 @@ const GROUPS = [
 
 const ICONS = {
   grid:    '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  row:     '<rect x="2" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/><rect x="16" y="9" width="6" height="6" rx="1"/>',
   tree:    '<circle cx="12" cy="5" r="2.4"/><circle cx="6" cy="14" r="2.4"/><circle cx="18" cy="14" r="2.4"/><circle cx="18" cy="20" r="1.8"/><path d="M12 7.4l-4.4 4.4M12 7.4l4.4 4.4M18 16.4v1.4"/>',
   coin:    '<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
   hash:    '<path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/>',
