@@ -42,7 +42,7 @@
 
   /* ---------- Thanh nav ---------- */
   .topbar{position:sticky;top:0;z-index:50;background:rgba(11,18,32,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-  .topbar-in{max-width:1080px;margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:14px}
+  .topbar-in{max-width:1080px;margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .home-btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;background:rgba(255,255,255,.03);border:1px solid var(--line2);border-radius:9px;padding:7px 14px;color:var(--ink);font-weight:600;font-size:.86rem;transition:border-color .2s,background .2s}
   .home-btn:hover{border-color:var(--accent);background:rgba(56,214,196,.07);color:#fff}
   .home-btn svg{width:15px;height:15px;stroke:var(--accent);fill:none;stroke-width:2}
@@ -54,6 +54,8 @@
   .visits .vn.pulse{animation:vpulse .5s ease}
   @keyframes vpulse{0%{transform:scale(1)}45%{transform:scale(1.28);color:#fff}100%{transform:scale(1)}}
   @media (max-width:560px){ .crumb{display:none} }
+  /* topbar responsive extra */
+  @media (max-width:480px){ .visits{margin-left:0;width:100%;justify-content:center} .home-btn{flex:1;justify-content:center} }
 
   /* ---------- Chữ ---------- */
   h1,h2,h3,.display{font-family:"Space Grotesk", system-ui, sans-serif;letter-spacing:-.02em;line-height:1.1}
@@ -251,6 +253,10 @@
     <a class="home-btn" href="/index.html" aria-label="Về trang chủ">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
       Trang chủ
+    </a>
+    <a class="home-btn" href="https://cvpoi.id.vn" target="_blank" rel="noopener" aria-label="Đến cvpoi.id.vn">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg>
+      cvpoi.id.vn
     </a>
     <span class="crumb"><b>Bài học</b> / Mảng 2 chiều C++</span>
     <span class="visits" title="Tổng lượt truy cập trang này">
