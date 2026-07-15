@@ -296,28 +296,44 @@
 
     <section id="theory">
         <div class="container">
-            <h2>Thuật toán cốt lõi</h2>
-            <p>Ta sẽ thu thập tất cả các tọa độ xuất hiện trong Input vào một mảng `points`. Sau đó, ta dùng vòng lặp thử đặt Cuội vào từng vị trí $x$ trong `points` và đếm số người nói dối.</p>
-            <pre><code><span class="kw">int</span> <span class="fn">solve</span>() {
-    <span class="kw">int</span> min_liars = INF;
-
-    <span class="cm">// Thử đặt Cuội vào từng vị trí x có khả năng</span>
-    <span class="kw">for</span> (<span class="kw">int</span> x : points) {
-        <span class="cm">// Đếm số người khai L p (<= p) nhưng thực tế p < x</span>
-        <span class="kw">int</span> lie_L = <span class="fn">count_if</span>(L_statements, p &lt; x);
-        
-        <span class="cm">// Đếm số người khai G p (>= p) nhưng thực tế p > x</span>
-        <span class="kw">int</span> lie_G = <span class="fn">count_if</span>(G_statements, p &gt; x);
-        
-        <span class="kw">int</span> total_liars = lie_L + lie_G;
-        
-        <span class="cm">// Cập nhật kết quả nhỏ nhất</span>
-        min_liars = <span class="fn">min</span>(min_liars, total_liars);
-    }
+            <h2>Thuật toán cốt lõi & Tối ưu</h2>
+            <p>Ta sẽ thu thập tất cả các tọa độ xuất hiện trong Input vào một mảng `points`. Do sự thật chỉ thay đổi ở các "cột mốc" nên ta chỉ cần đặt Cuội vào từng vị trí $x$ trong `points`.</p>
+            
+            <div class="grid2" style="margin-top: 30px;">
+                <!-- Cách cơ bản -->
+                <div class="card" style="padding: 20px;">
+                    <h3 style="color: var(--mark); margin-bottom: 15px;">Cách 1: Duyệt mảng (Subtask 1)</h3>
+                    <p style="font-size: 0.95rem;">Kiểm tra từng $x$, rồi lặp qua toàn bộ mảng <code>L</code> và <code>G</code> để đếm. Độ phức tạp là $O(N^2)$, chỉ phù hợp $N \le 1000$.</p>
+                    <pre style="margin: 0; padding: 15px;"><code><span class="kw">int</span> min_liars = INF;
+<span class="kw">for</span> (<span class="kw">int</span> x : points) {
+    <span class="cm">// Đếm trâu (vòng lặp)</span>
+    <span class="kw">int</span> lie_L = <span class="fn">count_if</span>(L, p &lt; x);
+    <span class="kw">int</span> lie_G = <span class="fn">count_if</span>(G, p &gt; x);
     
-    <span class="kw">return</span> min_liars;
+    min_liars = <span class="fn">min</span>(min_liars, lie_L + lie_G);
 }</code></pre>
-            <p style="margin-top: 10px; font-size: 0.9rem;"><i>*Lưu ý: Để đạt $O(N \log N)$ cho Subtask 2, hàm `count_if` cần được thay thế bằng Binary Search (`lower_bound`, `upper_bound`) hoặc mảng cộng dồn. Trong bài giảng này, ta tập trung hiểu logic với $O(N^2)$ trước.</i></p>
+                </div>
+
+                <!-- Cách tối ưu -->
+                <div class="card" style="padding: 20px; border-color: var(--accent);">
+                    <h3 style="color: var(--accent); margin-bottom: 15px;">Cách 2: Tìm kiếm nhị phân (Subtask 2)</h3>
+                    <p style="font-size: 0.95rem;">Sắp xếp mảng <code>L</code> và <code>G</code>. Dùng <code>lower_bound</code> để tìm nhanh số lượng phần tử $< x$ và <code>upper_bound</code> tìm phần tử $> x$. Độ phức tạp giảm còn $O(N \log N)$.</p>
+                    <pre style="margin: 0; padding: 15px;"><code><span class="cm">// 1. Sắp xếp 2 mảng</span>
+<span class="fn">sort</span>(L.begin(), L.end());
+<span class="fn">sort</span>(G.begin(), G.end());
+
+<span class="kw">int</span> min_liars = INF;
+<span class="kw">for</span> (<span class="kw">int</span> x : points) {
+    <span class="cm">// 2. Đếm số lượng p < x trong mảng L</span>
+    <span class="kw">int</span> lie_L = <span class="fn">lower_bound</span>(L.begin(), L.end(), x) - L.begin();
+    
+    <span class="cm">// 3. Đếm số lượng p > x trong mảng G</span>
+    <span class="kw">int</span> lie_G = G.end() - <span class="fn">upper_bound</span>(G.begin(), G.end(), x);
+    
+    min_liars = <span class="fn">min</span>(min_liars, lie_L + lie_G);
+}</code></pre>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -422,14 +438,45 @@
     <section id="quiz">
         <div class="container">
             <h2>Kiểm tra nhanh (Quiz)</h2>
-            <div class="card">
-                <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 20px;">Giả sử có 1 người khai <code>L 10</code> và 1 người khai <code>G 10</code>. Nếu ta chọn $x = 10$, có bao nhiêu người nói dối?</p>
-                <div id="quiz-options">
-                    <button class="quiz-opt" onclick="checkQuiz(0)">A. 2 người (Cả hai đều nói dối)</button>
-                    <button class="quiz-opt" onclick="checkQuiz(1)">B. 0 người (Cả hai đều nói thật)</button>
-                    <button class="quiz-opt" onclick="checkQuiz(2)">C. 1 người nói thật, 1 người nói dối</button>
+            <div class="grid2" style="grid-template-columns: 1fr;">
+                
+                <!-- Quiz 1 -->
+                <div class="card">
+                    <h3 style="margin-bottom: 15px; font-size: 1.3rem;">Câu 1: Xử lý mệnh đề mâu thuẫn</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 20px;">Giả sử có 1 người khai <code>L 10</code> và 1 người khai <code>G 10</code>. Nếu ta đoán Cuội đang trốn ở đúng tọa độ $x = 10$, có bao nhiêu người trong số 2 người này nói dối?</p>
+                    <div id="quiz-options-1">
+                        <button class="quiz-opt q1" onclick="checkQuiz(1, 0)">A. 2 người (Cả hai đều nói dối)</button>
+                        <button class="quiz-opt q1" onclick="checkQuiz(1, 1)">B. 0 người (Cả hai đều nói thật)</button>
+                        <button class="quiz-opt q1" onclick="checkQuiz(1, 2)">C. 1 người nói thật, 1 người nói dối</button>
+                    </div>
+                    <div id="quiz-explanation-1" style="margin-top: 15px; padding: 15px; background: var(--bg2); border-radius: 8px; display: none;"></div>
                 </div>
-                <div id="quiz-explanation"></div>
+
+                <!-- Quiz 2 -->
+                <div class="card">
+                    <h3 style="margin-bottom: 15px; font-size: 1.3rem;">Câu 2: Dấu vết của Cuội</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 20px;">Bờm nhận được 3 thông tin: <br>1. Bạn A nói: <code>G 3</code> (Cuội ở $x \ge 3$)<br>2. Bạn B nói: <code>L 5</code> (Cuội ở $x \le 5$)<br>3. Bạn C nói: <code>G 8</code> (Cuội ở $x \ge 8$)<br><br>Nếu Bờm quyết định lục soát tại bụi cây ở vị trí $x = 4$, ai là kẻ nói dối trong tình huống này?</p>
+                    <div id="quiz-options-2">
+                        <button class="quiz-opt q2" onclick="checkQuiz(2, 0)">A. Chỉ bạn A nói dối</button>
+                        <button class="quiz-opt q2" onclick="checkQuiz(2, 1)">B. Chỉ bạn B nói dối</button>
+                        <button class="quiz-opt q2" onclick="checkQuiz(2, 2)">C. Chỉ bạn C nói dối</button>
+                        <button class="quiz-opt q2" onclick="checkQuiz(2, 3)">D. Bạn A và B nói dối</button>
+                    </div>
+                    <div id="quiz-explanation-2" style="margin-top: 15px; padding: 15px; background: var(--bg2); border-radius: 8px; display: none;"></div>
+                </div>
+
+                <!-- Quiz 3 -->
+                <div class="card">
+                    <h3 style="margin-bottom: 15px; font-size: 1.3rem;">Câu 3: Chọn vũ khí thuật toán</h3>
+                    <p style="font-size: 1.1rem; margin-bottom: 20px;">Ta đã biết ở thuật toán Tối ưu ($O(N \log N)$), ta phải tìm <strong>số lượng những người có $p < x$</strong> trong mảng L. Hàm C++ nào làm được điều này nhanh nhất trên một mảng đã sắp xếp?</p>
+                    <div id="quiz-options-3">
+                        <button class="quiz-opt q3" onclick="checkQuiz(3, 0)">A. Vòng lặp `for` chạy từ đầu đếm đến khi gặp phần tử lớn hơn x.</button>
+                        <button class="quiz-opt q3" onclick="checkQuiz(3, 1)">B. `std::upper_bound(L.begin(), L.end(), x)`</button>
+                        <button class="quiz-opt q3" onclick="checkQuiz(3, 2)">C. `std::lower_bound(L.begin(), L.end(), x)`</button>
+                    </div>
+                    <div id="quiz-explanation-3" style="margin-top: 15px; padding: 15px; background: var(--bg2); border-radius: 8px; display: none;"></div>
+                </div>
+
             </div>
         </div>
     </section>
@@ -680,25 +727,60 @@
         setupVisuals();
         paint(sp);
 
-        function checkQuiz(ans) {
-            const opts = document.querySelectorAll('.quiz-opt');
+        // Quiz Logic System
+        function checkQuiz(quizId, ans) {
+            const opts = document.querySelectorAll(`.quiz-opt.q${quizId}`);
             opts.forEach(o => { o.classList.remove('correct', 'wrong'); o.style.pointerEvents = 'none'; });
             
-            const exp = document.getElementById('quiz-explanation');
+            const exp = document.getElementById(`quiz-explanation-${quizId}`);
             exp.style.display = 'block';
 
-            if (ans === 1) { // B is correct
-                opts[1].classList.add('correct');
-                exp.innerHTML = `<strong style="color: var(--green)">✓ Chính xác!</strong><br>L 10 nghĩa là $x \\le 10$. G 10 nghĩa là $x \\ge 10$.<br>Khi chọn $x = 10$, mệnh đề $10 \\le 10$ là <strong>ĐÚNG</strong>, và $10 \\ge 10$ cũng là <strong>ĐÚNG</strong>.<br>Cả hai đều nói thật! Do đó cẩn thận dấu bằng khi đếm người nói dối nhé.`;
-                exp.style.borderLeft = "4px solid var(--green)";
-            } else {
-                opts[ans].classList.add('wrong');
-                opts[1].classList.add('correct');
-                exp.innerHTML = `<strong class="red-text">✕ Chưa đúng rồi.</strong><br>L 10 nghĩa là $x \\le 10$. G 10 nghĩa là $x \\ge 10$.<br>Khi chọn $x = 10$, mệnh đề $10 \\le 10$ là <strong>ĐÚNG</strong>, và $10 \\ge 10$ cũng là <strong>ĐÚNG</strong>.<br>Suy ra không ai nói dối cả (0 người).`;
-                exp.style.borderLeft = "4px solid var(--red)";
+            if (quizId === 1) {
+                if (ans === 1) { // B is correct
+                    opts[1].classList.add('correct');
+                    exp.innerHTML = `<strong style="color: var(--green)">✓ Chính xác!</strong><br>L 10 nghĩa là $x \\le 10$. G 10 nghĩa là $x \\ge 10$.<br>Khi chọn $x = 10$, mệnh đề $10 \\le 10$ là <strong>ĐÚNG</strong>, và $10 \\ge 10$ cũng là <strong>ĐÚNG</strong>.<br>Cả hai đều nói thật! Do đó cẩn thận dấu bằng khi đếm người nói dối nhé.`;
+                    exp.style.borderLeft = "4px solid var(--green)";
+                } else {
+                    opts[ans].classList.add('wrong');
+                    opts[1].classList.add('correct');
+                    exp.innerHTML = `<strong class="red-text">✕ Chưa đúng rồi.</strong><br>L 10 nghĩa là $x \\le 10$. G 10 nghĩa là $x \\ge 10$.<br>Khi chọn $x = 10$, mệnh đề $10 \\le 10$ là <strong>ĐÚNG</strong>, và $10 \\ge 10$ cũng là <strong>ĐÚNG</strong>.<br>Suy ra không ai nói dối cả (0 người).`;
+                    exp.style.borderLeft = "4px solid var(--red)";
+                }
+            }
+            else if (quizId === 2) {
+                if (ans === 2) { // C is correct
+                    opts[2].classList.add('correct');
+                    exp.innerHTML = `<strong style="color: var(--green)">✓ Rất chuẩn!</strong><br>Thử thế $x = 4$ vào các lời khai:<br>
+                    - Bạn A: $x \\ge 3 \\Rightarrow 4 \\ge 3$ (Thật)<br>
+                    - Bạn B: $x \\le 5 \\Rightarrow 4 \\le 5$ (Thật)<br>
+                    - Bạn C: $x \\ge 8 \\Rightarrow 4 \\ge 8$ (<span class="red-text">Dối trá!</span>)<br>
+                    Vậy chỉ có bạn C nói dối.`;
+                    exp.style.borderLeft = "4px solid var(--green)";
+                } else {
+                    opts[ans].classList.add('wrong');
+                    opts[2].classList.add('correct');
+                    exp.innerHTML = `<strong class="red-text">✕ Tính sai rồi.</strong><br>Thử thế $x = 4$ vào các lời khai:<br>
+                    - Bạn A: $x \\ge 3 \\Rightarrow 4 \\ge 3$ (Thật)<br>
+                    - Bạn B: $x \\le 5 \\Rightarrow 4 \\le 5$ (Thật)<br>
+                    - Bạn C: $x \\ge 8 \\Rightarrow 4 \\ge 8$ (<span class="red-text">Dối trá!</span>)<br>
+                    Vậy chỉ có bạn C nói dối.`;
+                    exp.style.borderLeft = "4px solid var(--red)";
+                }
+            }
+            else if (quizId === 3) {
+                if (ans === 2) { // C is correct
+                    opts[2].classList.add('correct');
+                    exp.innerHTML = `<strong style="color: var(--green)">✓ Chuẩn xác!</strong><br>Hàm <code>std::lower_bound(..., x)</code> trả về con trỏ tới phần tử đầu tiên <strong>lớn hơn hoặc bằng</strong> $x$. Do mảng đã sắp xếp, nên khoảng cách từ đầu mảng đến con trỏ đó chính xác là <strong>số lượng các phần tử có giá trị bé hơn hẳn $x$</strong>!`;
+                    exp.style.borderLeft = "4px solid var(--green)";
+                } else {
+                    opts[ans].classList.add('wrong');
+                    opts[2].classList.add('correct');
+                    exp.innerHTML = `<strong class="red-text">✕ Coi chừng nhầm lẫn!</strong><br>- Vòng lặp for là $O(N)$, không tối ưu.<br>- <code>upper_bound</code> tìm phần tử <strong>lớn hơn hẳn</strong> $x$.<br>- <code>lower_bound</code> tìm phần tử đầu tiên <strong>lớn hơn hoặc bằng</strong> $x$. Vị trí của nó trong mảng cũng chính là số lượng các phần tử <strong>nhỏ hơn hẳn</strong> $x$. Mới là đáp án đúng!`;
+                    exp.style.borderLeft = "4px solid var(--red)";
+                }
             }
             
-            // Re-render toán học cho đoạn nội dung động vừa thêm
+            // Re-render toán học
             if (window.MathJax) {
                 MathJax.typesetPromise([exp]);
             }
