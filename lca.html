@@ -40,6 +40,33 @@
   }
   .wrap{max-width:1120px;margin:0 auto;padding:0 22px 100px}
 
+  /* ---------- Thanh nav trên cùng ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    background:rgba(11,18,32,.82);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-in{max-width:1120px;margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:14px}
+  .home-btn{
+    display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+    background:rgba(255,255,255,.03);border:1px solid var(--line2);border-radius:9px;
+    padding:7px 14px;color:var(--ink);font-weight:600;font-size:.86rem;transition:border-color .2s,background .2s
+  }
+  .home-btn:hover{border-color:var(--accent);background:rgba(56,214,196,.07);color:#fff}
+  .home-btn svg{width:15px;height:15px;stroke:var(--accent);fill:none;stroke-width:2}
+  .crumb{font-family:"JetBrains Mono",monospace;font-size:.76rem;color:var(--ink-dim);letter-spacing:.03em}
+  .crumb b{color:var(--ink-soft);font-weight:500}
+  .visits{
+    margin-left:auto;display:inline-flex;align-items:center;gap:8px;
+    font-family:"JetBrains Mono",monospace;font-size:.78rem;color:var(--ink-soft);
+    background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:100px;padding:5px 13px
+  }
+  .visits svg{width:14px;height:14px;stroke:var(--ink-soft);fill:none;stroke-width:2}
+  .visits .vn{color:var(--jump);font-weight:700;font-variant-numeric:tabular-nums}
+  .visits .vn.pulse{animation:vpulse .5s ease}
+  @keyframes vpulse{0%{transform:scale(1)}45%{transform:scale(1.28);color:#fff}100%{transform:scale(1)}}
+  @media (max-width:560px){ .crumb{display:none} }
+
   h1,h2,h3,.display{font-family:"Space Grotesk", system-ui, sans-serif;letter-spacing:-.02em;line-height:1.1}
   h1{font-size:clamp(2.2rem,6vw,4rem);font-weight:700}
   h2{font-size:clamp(1.5rem,3.2vw,2.15rem);font-weight:600;margin-bottom:.3em}
@@ -217,6 +244,19 @@
 </style>
 </head>
 <body>
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="home-btn" href="/index.html" aria-label="Về trang chủ">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
+      Trang chủ
+    </a>
+    <span class="crumb"><b>Chuyên đề</b> / LCA — Nâng nhị phân</span>
+    <span class="visits" title="Tổng lượt truy cập trang này">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      Lượt xem: <span class="vn" id="visitCount">…</span>
+    </span>
+  </div>
+</div>
 <div class="wrap">
 
 <header>
@@ -435,6 +475,39 @@
 </div>
 
 <script>
+/* =====================================================================
+   BỘ ĐẾM TRUY CẬP
+   - Online: đếm chung mọi khách qua CountAPI (một lần mỗi lần tải trang).
+   - Offline / API lỗi: lùi về đếm cục bộ bằng localStorage trên máy này.
+   ===================================================================== */
+(function(){
+  const el=document.getElementById('visitCount');
+  const label=el.closest('.visits');
+  const fmt=n=>Number(n).toLocaleString('vi-VN');
+  function show(n,localOnly){
+    el.textContent=fmt(n);
+    el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');
+    if(localOnly) label.title='Lượt xem trên thiết bị này (không kết nối được máy chủ đếm)';
+  }
+  function localFallback(){
+    try{
+      const k='lca_visits';
+      const n=(parseInt(localStorage.getItem(k)||'0',10)||0)+1;
+      localStorage.setItem(k,n);
+      show(n,true);
+    }catch(e){ el.textContent='—'; }
+  }
+  // namespace + key riêng cho trang này
+  const url='https://api.countapi.xyz/hit/cvpoi.vercel.app/lca';
+  const ctrl=('AbortController'in window)?new AbortController():null;
+  const to=ctrl?setTimeout(()=>ctrl.abort(),4000):null;
+  fetch(url,{signal:ctrl?ctrl.signal:undefined})
+    .then(r=>{ if(!r.ok) throw new Error('bad'); return r.json(); })
+    .then(d=>{ if(to)clearTimeout(to); if(d&&typeof d.value==='number') show(d.value,false); else localFallback(); })
+    .catch(()=>{ if(to)clearTimeout(to); localFallback(); });
+})();
+
+
 /* =====================================================================
    CÂY MẪU (theo tài liệu): gốc 1
    1─2(─4─8, ─5─9─11), 1─3(─6,─7)
