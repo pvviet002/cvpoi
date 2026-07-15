@@ -46,7 +46,7 @@
     background:rgba(11,18,32,.82);backdrop-filter:blur(10px);
     border-bottom:1px solid var(--line);
   }
-  .topbar-in{max-width:1120px;margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:14px}
+  .topbar-in{max-width:1120px;margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .home-btn{
     display:inline-flex;align-items:center;gap:8px;text-decoration:none;
     background:rgba(255,255,255,.03);border:1px solid var(--line2);border-radius:9px;
@@ -66,6 +66,8 @@
   .visits .vn.pulse{animation:vpulse .5s ease}
   @keyframes vpulse{0%{transform:scale(1)}45%{transform:scale(1.28);color:#fff}100%{transform:scale(1)}}
   @media (max-width:560px){ .crumb{display:none} }
+  /* topbar responsive extra */
+  @media (max-width:480px){ .visits{margin-left:0;width:100%;justify-content:center} .home-btn{flex:1;justify-content:center} }
 
   h1,h2,h3,.display{font-family:"Space Grotesk", system-ui, sans-serif;letter-spacing:-.02em;line-height:1.1}
   h1{font-size:clamp(2.2rem,6vw,4rem);font-weight:700}
@@ -249,6 +251,10 @@
     <a class="home-btn" href="/index.html" aria-label="Về trang chủ">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
       Trang chủ
+    </a>
+    <a class="home-btn" href="https://cvpoi.id.vn" target="_blank" rel="noopener" aria-label="Đến cvpoi.id.vn">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg>
+      cvpoi.id.vn
     </a>
     <span class="crumb"><b>Chuyên đề</b> / LCA — Nâng nhị phân</span>
     <span class="visits" title="Tổng lượt truy cập trang này">
