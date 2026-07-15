@@ -308,27 +308,27 @@
 <span class="kw">for</span> (<span class="kw">int</span> x : points) {
     <span class="cm">// Đếm trâu (vòng lặp)</span>
     <span class="kw">int</span> lie_L = <span class="fn">count_if</span>(L, p &lt; x);
-    <span class="kw">int</span> lie_G = <span class="fn">count_if</span>(G, p &gt; x);
-    
-    min_liars = <span class="fn">min</span>(min_liars, lie_L + lie_G);
+                    min_liars = <span class="fn">min</span>(min_liars, lie_L + lie_G);
 }</code></pre>
                 </div>
 
                 <!-- Cách tối ưu -->
                 <div class="card" style="padding: 20px; border-color: var(--accent);">
-                    <h3 style="color: var(--accent); margin-bottom: 15px;">Cách 2: Tìm kiếm nhị phân (Subtask 2)</h3>
-                    <p style="font-size: 0.95rem;">Sắp xếp mảng <code>L</code> và <code>G</code>. Dùng <code>lower_bound</code> để tìm nhanh số lượng phần tử $< x$ và <code>upper_bound</code> tìm phần tử $> x$. Độ phức tạp giảm còn $O(N \log N)$.</p>
-                    <pre style="margin: 0; padding: 15px;"><code><span class="cm">// 1. Sắp xếp 2 mảng</span>
-<span class="fn">sort</span>(L.begin(), L.end());
-<span class="fn">sort</span>(G.begin(), G.end());
+                    <h3 style="color: var(--accent); margin-bottom: 15px;">Cách 2: Mảng cộng dồn (Prefix Sum)</h3>
+                    <p style="font-size: 0.95rem;">Lọc các tọa độ duy nhất và sắp xếp thành mảng <code>U</code>. Dùng mảng cộng dồn đếm số lượng khai $L \le x$ và mảng hậu tố đếm $G \ge x$. Tránh việc duyệt lại mảng nhiều lần, cho phép tính số người nói dối tại mọi mốc trong $O(1)$.</p>
+                    <pre style="margin: 0; padding: 15px;"><code><span class="cm">// 1. Tiền xử lý mảng cộng dồn và hậu tố</span>
+<span class="kw">for</span>(<span class="kw">int</span> i = 0; i &lt; m; ++i) {
+    pref_L[i] = (i &gt; 0 ? pref_L[i-1] : 0) + count_L[U[i]];
+}
+<span class="kw">for</span>(<span class="kw">int</span> i = m - 1; i &gt;= 0; --i) {
+    suff_G[i] = (i &lt; m-1 ? suff_G[i+1] : 0) + count_G[U[i]];
+}
 
+<span class="cm">// 2. Tính số lượng nói dối tại từng mốc</span>
 <span class="kw">int</span> min_liars = INF;
-<span class="kw">for</span> (<span class="kw">int</span> x : points) {
-    <span class="cm">// 2. Đếm số lượng p < x trong mảng L</span>
-    <span class="kw">int</span> lie_L = <span class="fn">lower_bound</span>(L.begin(), L.end(), x) - L.begin();
-    
-    <span class="cm">// 3. Đếm số lượng p > x trong mảng G</span>
-    <span class="kw">int</span> lie_G = G.end() - <span class="fn">upper_bound</span>(G.begin(), G.end(), x);
+<span class="kw">for</span> (<span class="kw">int</span> i = 0; i &lt; m; ++i) {
+    <span class="kw">int</span> lie_L = (i &gt; 0 ? pref_L[i-1] : 0); <span class="cm">// Số người nói L có p < x</span>
+    <span class="kw">int</span> lie_G = (i &lt; m-1 ? suff_G[i+1] : 0); <span class="cm">// Số người nói G có p > x</span>
     
     min_liars = <span class="fn">min</span>(min_liars, lie_L + lie_G);
 }</code></pre>
@@ -468,11 +468,11 @@
                 <!-- Quiz 3 -->
                 <div class="card">
                     <h3 style="margin-bottom: 15px; font-size: 1.3rem;">Câu 3: Chọn vũ khí thuật toán</h3>
-                    <p style="font-size: 1.1rem; margin-bottom: 20px;">Ta đã biết ở thuật toán Tối ưu ($O(N \log N)$), ta phải tìm <strong>số lượng những người có $p < x$</strong> trong mảng L. Hàm C++ nào làm được điều này nhanh nhất trên một mảng đã sắp xếp?</p>
+                    <p style="font-size: 1.1rem; margin-bottom: 20px;">Trong thuật toán Mảng cộng dồn (Prefix Sum), công thức tính số người khai L nói dối (điều kiện $p < x$) tại tọa độ $x = U[i]$ là gì?</p>
                     <div id="quiz-options-3">
-                        <button class="quiz-opt q3" onclick="checkQuiz(3, 0)">A. Vòng lặp `for` chạy từ đầu đếm đến khi gặp phần tử lớn hơn x.</button>
-                        <button class="quiz-opt q3" onclick="checkQuiz(3, 1)">B. `std::upper_bound(L.begin(), L.end(), x)`</button>
-                        <button class="quiz-opt q3" onclick="checkQuiz(3, 2)">C. `std::lower_bound(L.begin(), L.end(), x)`</button>
+                        <button class="quiz-opt q3" onclick="checkQuiz(3, 0)">A. pref_L[i]</button>
+                        <button class="quiz-opt q3" onclick="checkQuiz(3, 1)">B. pref_L[i - 1]</button>
+                        <button class="quiz-opt q3" onclick="checkQuiz(3, 2)">C. pref_L[i] + count_L[i]</button>
                     </div>
                     <div id="quiz-explanation-3" style="margin-top: 15px; padding: 15px; background: var(--bg2); border-radius: 8px; display: none;"></div>
                 </div>
@@ -768,14 +768,14 @@
                 }
             }
             else if (quizId === 3) {
-                if (ans === 2) { // C is correct
-                    opts[2].classList.add('correct');
-                    exp.innerHTML = `<strong style="color: var(--green)">✓ Chuẩn xác!</strong><br>Hàm <code>std::lower_bound(..., x)</code> trả về con trỏ tới phần tử đầu tiên <strong>lớn hơn hoặc bằng</strong> $x$. Do mảng đã sắp xếp, nên khoảng cách từ đầu mảng đến con trỏ đó chính xác là <strong>số lượng các phần tử có giá trị bé hơn hẳn $x$</strong>!`;
+                if (ans === 1) { // B is correct
+                    opts[1].classList.add('correct');
+                    exp.innerHTML = `<strong style="color: var(--green)">✓ Chuẩn xác!</strong><br><code>pref_L[i]</code> lưu tổng số người khai L có $p \\le U[i]$. Kẻ nói dối là những người có $p < U[i]$, tức là $p \\le U[i-1]$. Do đó ta phải dùng <code>pref_L[i-1]</code>.`;
                     exp.style.borderLeft = "4px solid var(--green)";
                 } else {
                     opts[ans].classList.add('wrong');
-                    opts[2].classList.add('correct');
-                    exp.innerHTML = `<strong class="red-text">✕ Coi chừng nhầm lẫn!</strong><br>- Vòng lặp for là $O(N)$, không tối ưu.<br>- <code>upper_bound</code> tìm phần tử <strong>lớn hơn hẳn</strong> $x$.<br>- <code>lower_bound</code> tìm phần tử đầu tiên <strong>lớn hơn hoặc bằng</strong> $x$. Vị trí của nó trong mảng cũng chính là số lượng các phần tử <strong>nhỏ hơn hẳn</strong> $x$. Mới là đáp án đúng!`;
+                    opts[1].classList.add('correct');
+                    exp.innerHTML = `<strong class="red-text">✕ Coi chừng nhầm lẫn!</strong><br><code>pref_L[i]</code> chứa cả những người khai $p = U[i]$ (những người này nói thật). Để chỉ đếm những người nói dối ($p < U[i]$), ta phải dùng tổng cộng dồn của phần tử liền trước là <code>pref_L[i-1]</code>.`;
                     exp.style.borderLeft = "4px solid var(--red)";
                 }
             }
