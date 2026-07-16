@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tìm khu vực hỏa hoạn lớn nhất - EduCode Master</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #0B1220; 
+            --bg2: #0F1A2E; 
+            --panel: #111E36;
+            --accent: #38D6C4;   
+            --accent2: #5B8CFF;  
+            --mark: #FFB454;     
+            --red: #FF6B6B;      
+            --green: #4ADE80;
+            --text-main: #E2E8F0; 
+            --text-muted: #94A3B8;
+            --glow: 0 0 20px rgba(56,214,196,0.4);
+            --shadow: 0 20px 60px -30px rgba(0,0,0,0.9);
+            --border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.03em; }
+        code, .code-font { font-family: 'JetBrains Mono', monospace; }
+
+        .topnav {
+            position: sticky; top: 0; z-index: 100;
+            display: flex; gap: 12px; align-items: center;
+            padding: 12px 20px;
+            background: rgba(11,18,32,0.85); backdrop-filter: blur(10px);
+            border-bottom: var(--border);
+        }
+        .nav-btn {
+            text-decoration: none; color: #000;
+            background: linear-gradient(135deg, var(--accent2), var(--accent));
+            padding: 8px 18px; border-radius: 8px; font-weight: 600;
+            box-shadow: var(--glow); transition: all 0.3s ease;
+        }
+        .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
+        .nav-btn.outline:hover { background: rgba(56,214,196,0.1); box-shadow: var(--glow); }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        
+        /* Cấu trúc các section */
+        section { margin-bottom: 60px; }
+        
+        .hero-title {
+            font-size: 3rem; margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent2), var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(56,214,196,0.2);
+        }
+        .hero-subtitle { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 20px; }
+        .badge {
+            display: inline-block; padding: 6px 12px; border-radius: 20px;
+            background: rgba(91,140,255,0.1); border: 1px solid var(--accent2);
+            color: var(--accent2); font-size: 0.9rem; font-weight: 500;
+        }
+
+        .card {
+            background: linear-gradient(180deg, var(--panel), var(--bg2));
+            border: var(--border); border-radius: 16px;
+            padding: 30px; box-shadow: var(--shadow);
+            margin-top: 20px;
+        }
+
+        .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media (max-width: 768px) { .grid-2col { grid-template-columns: 1fr; } }
+
+        /* Code block styles */
+        .code-container {
+            background: #0A1220; border: var(--border); border-radius: 12px;
+            padding: 20px; overflow-x: auto;
+        }
+        .codeline {
+            font-family: 'JetBrains Mono', monospace; font-size: 14px;
+            white-space: pre-wrap; padding: 4px 8px; border-radius: 4px;
+            border-left: 3px solid transparent; transition: all 0.2s;
+            color: #E2E8F0;
+        }
+        .codeline.hot {
+            background: rgba(255,180,84,0.1); border-left: 3px solid var(--mark);
+        }
+        
+        /* Syntax highlighting */
+        .c-kw { color: #C678DD; font-weight: bold; } /* Keyword */
+        .c-num { color: #D19A66; } /* Number */
+        .c-cm { color: #5C6370; font-style: italic; } /* Comment */
+        .c-str { color: #98C379; } /* String */
+        .c-fn { color: #61AFEF; } /* Function */
+        .c-op { color: #56B6C2; } /* Operator */
+
+        .lab-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        @media (max-width: 900px) { .lab-layout { grid-template-columns: 1fr; } }
+        
+        .topbar { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
+        .btn-lab {
+            background: var(--panel); border: 1px solid rgba(255,255,255,0.2);
+            color: var(--text-main); padding: 8px 16px; border-radius: 8px;
+            cursor: pointer; font-weight: 500; transition: all 0.2s;
+        }
+        .btn-lab:hover:not(:disabled) { background: rgba(56,214,196,0.1); border-color: var(--accent); }
+        .btn-lab:disabled { opacity: 0.5; cursor: not-allowed; }
+        .step-counter { font-family: 'JetBrains Mono', monospace; color: var(--accent); margin-left: auto; }
+
+        .lab-visual {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: #0A1220; border-radius: 12px; padding: 20px; min-height: 300px;
+        }
+        
+        .fire-grid {
+            display: grid; gap: 4px;
+        }
+        .f-cell {
+            width: 45px; height: 45px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'JetBrains Mono', monospace; font-weight: bold; font-size: 1.2rem;
+            transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .f-cell[data-val="0"] { background: #1E293B; color: #475569; } /* Đất trống */
+        .f-cell[data-val="1"] { background: var(--red); color: white; box-shadow: 0 0 15px rgba(255,107,107,0.5); } /* Lửa */
+        .f-cell[data-val="2"] { background: var(--accent2); color: white; opacity: 0.8; } /* Đã thăm */
+        .f-cell.active-cell { border: 3px solid white; transform: scale(1.15); z-index: 10; box-shadow: 0 0 20px white; }
+
+        .lab-panel { display: flex; flex-direction: column; gap: 16px; }
+        .msg-box {
+            background: rgba(56,214,196,0.05); border-left: 4px solid var(--accent);
+            padding: 16px; border-radius: 0 8px 8px 0; font-size: 15px; min-height: 80px;
+        }
+        
+        .var-table {
+            width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace;
+            background: var(--bg); border-radius: 8px; overflow: hidden;
+        }
+        .var-table th, .var-table td { padding: 10px; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .var-table th { background: rgba(255,255,255,0.05); color: var(--accent); }
+
+        /* Quiz & Cạm bẫy */
+        .trap-col { padding: 20px; border-radius: 12px; border: 1px solid; }
+        .trap-wrong { border-color: rgba(255,107,107,0.3); background: rgba(255,107,107,0.05); }
+        .trap-right { border-color: rgba(74,222,128,0.3); background: rgba(74,222,128,0.05); }
+        .trap-title { font-size: 1.2rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .wrong-icon { color: var(--red); }
+        .right-icon { color: var(--green); }
+
+        .quiz-option {
+            display: block; width: 100%; text-align: left; background: var(--panel);
+            border: 1px solid rgba(255,255,255,0.1); padding: 16px; border-radius: 8px;
+            margin-bottom: 12px; cursor: pointer; transition: all 0.2s; color: var(--text-main);
+        }
+        .quiz-option:hover { background: rgba(255,255,255,0.05); }
+        .quiz-option.correct { background: rgba(74,222,128,0.1); border-color: var(--green); }
+        .quiz-option.wrong { background: rgba(255,107,107,0.1); border-color: var(--red); }
+        .quiz-exp { margin-top: 16px; padding: 16px; border-radius: 8px; display: none; background: #1E293B; }
+    </style>
+</head>
+<body>
+
+    <nav class="topnav">
+        <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
+        <a class="nav-btn outline" href="https://cvpoi.id.vn/" target="_blank" rel="noopener">cvpoi.id.vn ↗</a>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1 class="hero-title">Tìm khu vực hỏa hoạn lớn nhất</h1>
+            <p class="hero-subtitle">Mô phỏng ngọn lửa lan rộng bằng thuật toán Vết Dầu Loang (Flood Fill)</p>
+            <span class="badge">Cần biết trước: Mảng 2D, Đệ quy hoặc Hàng đợi</span>
+            
+            <div class="card" style="text-align: center; max-width: 400px; margin: 30px auto; padding: 20px;">
+                <p style="margin-bottom: 15px; font-size: 0.9rem; color: var(--text-muted);">Mini-Lab: Chạm vào ô lửa (màu đỏ) để xem cách ngọn lửa lập tức lan ra các ô bên cạnh!</p>
+                <div class="fire-grid" id="mini-lab-grid" style="grid-template-columns: repeat(4, 1fr); justify-content: center; gap: 4px;">
+                    <!-- Sẽ render bằng JS -->
+                </div>
+            </div>
+        </header>
+
+        <section id="summary">
+            <h2>1. Tóm tắt đề bài</h2>
+            <div class="card grid-2col">
+                <div>
+                    <h3 style="color: var(--accent); margin-bottom: 12px;">Đề bài</h3>
+                    <p>Cho ma trận N × M gồm các số <strong>0 (đất trống)</strong> và <strong>1 (đang cháy)</strong>.</p>
+                    <p>Lửa có thể lan sang các ô kề cạnh (trên, dưới, trái, phải). Các ô 1 nối với nhau tạo thành một "đám cháy". Hãy tìm số ô của đám cháy <strong>lớn nhất</strong>.</p>
+                    
+                    <h3 style="color: var(--accent); margin-top: 20px; margin-bottom: 12px;">Ràng buộc</h3>
+                    <p class="code-font">1 ≤ N, M ≤ 1000</p>
+                    <p>Vì kích thước lớn, thuật toán cần tối ưu O(N·M).</p>
+                </div>
+                <div>
+                    <h3 style="color: var(--mark); margin-bottom: 12px;">Hướng giải (Logic cốt lõi)</h3>
+                    <ul style="padding-left: 20px; list-style-type: square; space-y: 10px;">
+                        <li style="margin-bottom: 10px;"><strong>Ta muốn gì?</strong> Gom tất cả các số 1 nằm cạnh nhau thành từng cụm riêng biệt và đếm kích thước.</li>
+                        <li style="margin-bottom: 10px;"><strong>Quan sát then chốt:</strong> Khi đứng ở 1 ô lửa, ta không biết cụm này bự cỡ nào trừ khi "lan" thử ra xung quanh. Nhưng nếu đi không khéo, ta sẽ quay vòng tròn và đếm lặp 1 ô nhiều lần.</li>
+                        <li style="margin-bottom: 10px;"><strong>Cách giải quyết:</strong> Quét từ trên xuống dưới. Gặp ô số 1, ta bắt đầu đếm, gọi đệ quy loang ra 4 hướng. <em>Và quan trọng nhất:</em> Đi tới đâu, ta lập tức <strong>đổi số 1 thành số 2 (Đã thăm)</strong>.</li>
+                        <li style="margin-bottom: 10px;"><strong>Vì sao đúng?</strong> Việc "phá hủy" ngọn lửa (đổi 1 thành 2) ngay khi đếm xong giúp thuật toán bị "chặn" lại, không bao giờ quay ngược về ô cũ. Mỗi ô lửa chỉ được tính đúng 1 lần cho cụm của nó.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="motivation">
+            <h2>2. Vì sao cần thuật toán Flood Fill?</h2>
+            <div class="card">
+                <p style="margin-bottom: 15px;">Thử tưởng tượng nếu ta KHÔNG dùng Flood Fill (Vết Dầu Loang):</p>
+                <p style="margin-bottom: 15px;">Em sẽ phải duyệt từng dòng, cố gắng "nhớ" xem ô 1 ở dòng trên có nối với ô 1 ở dòng dưới hay không. Sẽ ra sao nếu đám cháy có hình chữ <strong>U</strong>, hoặc hình xoắn ốc? Logic gom nhóm thủ công sẽ trở thành một "ác mộng" với hàng tá biến trạng thái và rất dễ sai.</p>
+                <p><strong>Flood Fill</strong> tận dụng <strong>Đệ quy (Recursion)</strong> để mô phỏng chính xác hiện tượng tự nhiên: đứng ở tâm, lửa lan ra 4 hướng, các hướng đó lại tiếp tục lan ra tiếp cho đến khi chạm vách hoặc đất trống. Code ngắn gọn, logic tự nhiên, không bao giờ bỏ sót ngóc ngách nào!</p>
+            </div>
+        </section>
+
+        <section id="theory">
+            <h2>3. Mã giả & Cú pháp cốt lõi</h2>
+            <div class="card grid-2col">
+                <div>
+                    <p>Khung thuật toán chuẩn (viết theo phong cách C++) gồm 2 phần:</p>
+                    <ol style="padding-left: 20px; margin-top: 10px; margin-bottom: 20px;">
+                        <li style="margin-bottom: 8px;"><strong>Hàm đệ quy loang:</strong> Nhận tọa độ <span class="code-font">(r, c)</span>, đánh dấu đã thăm, và lan ra 4 hướng.</li>
+                        <li><strong>Vòng lặp chính:</strong> Quét cạn bản đồ để tìm những "đốm lửa" chưa bị loang tới.</li>
+                    </ol>
+                    <p style="color: var(--accent2); font-weight: 500;">⏳ Độ phức tạp thời gian: O(N·M)</p>
+                    <p style="font-size: 0.95rem; margin-top: 5px;">Mặc dù có đệ quy lồng nhau, nhưng vì lệnh <span class="code-font">grid[r][c] = 2</span>, mỗi ô trên lưới chỉ được xử lý bên trong hàm đệ quy <strong>tối đa 1 lần</strong>. Do đó, tổng thời gian tỷ lệ thuận với số lượng ô của ma trận.</p>
+                </div>
+                <div class="code-container">
+<div class="codeline"><span class="c-kw">int</span> <span class="c-fn">dfs</span>(<span class="c-kw">int</span> r, <span class="c-kw">int</span> c) {</div>
+<div class="codeline">    <span class="c-cm">// Dừng nếu ra ngoài mảng hoặc không phải lửa</span></div>
+<div class="codeline">    <span class="c-kw">if</span> (r &lt; <span class="c-num">0</span> || r >= N || c &lt; <span class="c-num">0</span> || c >= M || grid[r][c] != <span class="c-num">1</span>) <span class="c-kw">return</span> <span class="c-num">0</span>;</div>
+<div class="codeline">    </div>
+<div class="codeline">    grid[r][c] = <span class="c-num">2</span>; <span class="c-cm">// Đánh dấu ĐÃ THĂM tránh lặp vô tận</span></div>
+<div class="codeline">    <span class="c-kw">int</span> area = <span class="c-num">1</span>;   <span class="c-cm">// Tính cả ô hiện tại là 1 đơn vị</span></div>
+<div class="codeline">    </div>
+<div class="codeline">    <span class="c-cm">// Đệ quy cộng dồn kết quả từ 4 hướng</span></div>
+<div class="codeline">    area += dfs(r - <span class="c-num">1</span>, c); <span class="c-cm">// Lên</span></div>
+<div class="codeline">    area += dfs(r + <span class="c-num">1</span>, c); <span class="c-cm">// Xuống</span></div>
+<div class="codeline">    area += dfs(r, c - <span class="c-num">1</span>); <span class="c-cm">// Trái</span></div>
+<div class="codeline">    area += dfs(r, c + <span class="c-num">1</span>); <span class="c-cm">// Phải</span></div>
+<div class="codeline">    </div>
+<div class="codeline">    <span class="c-kw">return</span> area;</div>
+<div class="codeline">}</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="lab">
+            <h2>4. Interactive Lab: Từng bước ngọn lửa lan tràn</h2>
+            <div class="card">
+                <div class="topbar">
+                    <button class="btn-lab" id="btn-reset">↺ Reset</button>
+                    <button class="btn-lab" id="btn-prev">« Lùi bước</button>
+                    <button class="btn-lab" id="btn-next">Tiến bước »</button>
+                    <button class="btn-lab" id="btn-auto" style="background: rgba(56,214,196,0.2); border-color: var(--accent);">⏯ Tự chạy</button>
+                    <div class="step-counter">Bước: <span id="lbl-step">0</span> / <span id="lbl-total">0</span></div>
+                </div>
+
+                <div class="lab-layout">
+                    <!-- Trực quan hóa Grid -->
+                    <div class="lab-visual">
+                        <div class="fire-grid" id="main-lab-grid" style="grid-template-columns: repeat(5, 1fr);">
+                            <!-- Sinh bằng JS -->
+                        </div>
+                        <div style="margin-top: 20px; display: flex; gap: 15px; font-size: 0.9rem;">
+                            <span style="display:flex; align-items:center; gap:5px;"><div style="width:15px;height:15px;background:#1E293B;"></div> Đất (0)</span>
+                            <span style="display:flex; align-items:center; gap:5px;"><div style="width:15px;height:15px;background:var(--red);"></div> Lửa chưa thăm (1)</span>
+                            <span style="display:flex; align-items:center; gap:5px;"><div style="width:15px;height:15px;background:var(--accent2);"></div> Đã thăm (2)</span>
+                        </div>
+                    </div>
+
+                    <!-- Lời thoại & Bảng biến số & Code -->
+                    <div class="lab-panel">
+                        <div class="msg-box" id="lab-msg">
+                            Nhấn "Tiến bước" để xem cách máy tính tìm ra đám cháy lớn nhất.
+                        </div>
+
+                        <table class="var-table">
+                            <thead>
+                                <tr>
+                                    <th>Biến (Main)</th>
+                                    <th>Biến (Đệ quy)</th>
+                                    <th>Area Tạm</th>
+                                    <th>Max Area</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>i=<span id="v-i">-</span>, j=<span id="v-j">-</span></td>
+                                    <td>r=<span id="v-r">-</span>, c=<span id="v-c">-</span></td>
+                                    <td id="v-cur">-</td>
+                                    <td id="v-max" style="color: var(--mark); font-weight: bold;">0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="code-container" style="padding: 10px;">
+<div class="codeline" id="l_dfs1"><span class="c-kw">int</span> <span class="c-fn">dfs</span>(<span class="c-kw">int</span> r, <span class="c-kw">int</span> c) {</div>
+<div class="codeline" id="l_dfs2">    <span class="c-kw">if</span> (r &lt; <span class="c-num">0</span> || r >= N || c &lt; <span class="c-num">0</span> || c >= M || grid[r][c] != <span class="c-num">1</span>) <span class="c-kw">return</span> <span class="c-num">0</span>;</div>
+<div class="codeline" id="l_dfs3">    grid[r][c] = <span class="c-num">2</span>;</div>
+<div class="codeline" id="l_dfs4">    <span class="c-kw">int</span> area = <span class="c-num">1</span>;</div>
+<div class="codeline" id="l_dfs5">    area += dfs(r - <span class="c-num">1</span>, c);</div>
+<div class="codeline" id="l_dfs6">    area += dfs(r + <span class="c-num">1</span>, c);</div>
+<div class="codeline" id="l_dfs7">    area += dfs(r, c - <span class="c-num">1</span>);</div>
+<div class="codeline" id="l_dfs8">    area += dfs(r, c + <span class="c-num">1</span>);</div>
+<div class="codeline" id="l_dfs9">    <span class="c-kw">return</span> area;</div>
+<div class="codeline" id="l_dfs10">}</div>
+<div class="codeline"> </div>
+<div class="codeline" id="l_main1"><span class="c-kw">int</span> maxArea = <span class="c-num">0</span>;</div>
+<div class="codeline" id="l_main2"><span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">0</span>; i &lt; N; i++) {</div>
+<div class="codeline" id="l_main3">    <span class="c-kw">for</span> (<span class="c-kw">int</span> j = <span class="c-num">0</span>; j &lt; M; j++) {</div>
+<div class="codeline" id="l_main4">        <span class="c-kw">if</span> (grid[i][j] == <span class="c-num">1</span>) {</div>
+<div class="codeline" id="l_main5">            <span class="c-kw">int</span> currentArea = dfs(i, j);</div>
+<div class="codeline" id="l_main6">            <span class="c-kw">if</span> (currentArea &gt; maxArea) maxArea = currentArea;</div>
+<div class="codeline" id="l_main7">        }</div>
+<div class="codeline" id="l_main8">    }</div>
+<div class="codeline" id="l_main9">}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="traps">
+            <h2>5. Cạm bẫy thường gặp (Lỗi kinh điển)</h2>
+            <div class="grid-2col">
+                <div class="trap-col trap-wrong">
+                    <h3 class="trap-title"><span class="wrong-icon">✕</span> Quên cộng dồn kết quả đệ quy</h3>
+                    <div class="code-container" style="margin: 10px 0; background: rgba(0,0,0,0.2);">
+<div class="codeline" style="color: #bbb;">dfs(r - 1, c);</div>
+<div class="codeline" style="color: #bbb;">dfs(r + 1, c);</div>
+<div class="codeline" style="color: #bbb;">...</div>
+<div class="codeline">return 1; <span class="c-cm">// SAI</span></div>
+                    </div>
+                    <p><strong>Hậu quả:</strong> Thuật toán vẫn loang hết đám cháy, NHƯNG kết quả luôn báo diện tích = 1. Lý do vì bạn "giao việc" cho các nhánh con đi đếm, nhưng lại không thèm thu thập kết quả của chúng để cộng vào biến tổng!</p>
+                </div>
+                
+                <div class="trap-col trap-right">
+                    <h3 class="trap-title"><span class="right-icon">✓</span> Tích lũy diện tích đúng chuẩn</h3>
+                    <div class="code-container" style="margin: 10px 0; background: rgba(0,0,0,0.2);">
+<div class="codeline">int area = 1;</div>
+<div class="codeline">area += dfs(r - 1, c);</div>
+<div class="codeline">area += dfs(r + 1, c);</div>
+<div class="codeline">...</div>
+<div class="codeline">return area; <span class="c-cm">// ĐÚNG</span></div>
+                    </div>
+                    <p><strong>Vì sao đúng?</strong> Khi nhánh con loang xong và đếm được bao nhiêu ô, nó trả về số lượng đó. Lệnh <span class="code-font">+=</span> giúp gom góp toàn bộ diện tích của 4 hướng lại, cộng với 1 (là chính ô hiện tại) rồi mới gửi lên trên.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="quiz">
+            <h2>6. Kiểm tra nhanh (Quiz)</h2>
+            <div class="card" id="quiz-card">
+                <h3 style="margin-bottom: 15px;">Câu hỏi: Tại sao dòng lệnh <span class="code-font">grid[r][c] = 2;</span> lại mang tính sống còn đối với thuật toán này?</h3>
+                
+                <button class="quiz-option" onclick="handleQuiz(this, false)">
+                    A. Để màu sắc in ra màn hình đẹp hơn.
+                </button>
+                <button class="quiz-option" onclick="handleQuiz(this, true)">
+                    B. Để đánh dấu ô này đã thuộc về 1 đám cháy, chặn quá trình đệ quy quay ngược lại, tránh vòng lặp vô tận (Tràn bộ nhớ / Stack Overflow).
+                </button>
+                <button class="quiz-option" onclick="handleQuiz(this, false)">
+                    C. Để nhân đôi diện tích đám cháy lên.
+                </button>
+
+                <div class="quiz-exp" id="quiz-exp">
+                    <strong>Giải thích:</strong> Đáp án đúng là <strong>B</strong>. <br>
+                    Hãy tưởng tượng: Lửa từ ô A lan sang ô B kề bên. Nếu không đánh dấu ô A đã cháy xong, thì từ ô B, thuật toán lại thấy ô A là "lửa (1)" và lan ngược về A. A lại gọi B, B gọi A... Vòng lặp đệ quy này kéo dài vô tận cho đến khi chương trình sập do hết bộ nhớ (Stack Overflow). Việc đổi 1 thành 2 giống như dập tắt lửa ở ô đó sau khi đếm xong!
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        /* Logic Mini-Lab Hero */
+        const miniGrid = [
+            [1, 1, 0, 0],
+            [1, 0, 0, 1],
+            [0, 0, 1, 1]
+        ];
+        const mR = 3, mC = 4;
+        const miniContainer = document.getElementById('mini-lab-grid');
+        
+        function renderMiniGrid() {
+            miniContainer.innerHTML = '';
+            for(let r=0; r<mR; r++) {
+                for(let c=0; c<mC; c++) {
+                    let div = document.createElement('div');
+                    div.className = 'f-cell';
+                    div.dataset.val = miniGrid[r][c];
+                    div.innerText = miniGrid[r][c];
+                    div.style.cursor = miniGrid[r][c] === 1 ? 'pointer' : 'default';
+                    div.onclick = () => floodFillMini(r, c);
+                    miniContainer.appendChild(div);
+                }
+            }
+        }
+
+        function floodFillMini(r, c) {
+            if(r < 0 || r >= mR || c < 0 || c >= mC || miniGrid[r][c] !== 1) return;
+            miniGrid[r][c] = 2; // Marked
+            renderMiniGrid();
+            // Delay next frames to animate
+            setTimeout(() => floodFillMini(r - 1, c), 150);
+            setTimeout(() => floodFillMini(r + 1, c), 150);
+            setTimeout(() => floodFillMini(r, c - 1), 150);
+            setTimeout(() => floodFillMini(r, c + 1), 150);
+        }
+        renderMiniGrid();
+
+        /* Quiz Logic */
+        function handleQuiz(btn, isCorrect) {
+            const btns = document.querySelectorAll('.quiz-option');
+            btns.forEach(b => { b.disabled = true; b.style.pointerEvents = 'none'; });
+            
+            if (isCorrect) {
+                btn.classList.add('correct');
+            } else {
+                btn.classList.add('wrong');
+                btns[1].classList.add('correct'); // Highlight the correct one
+            }
+            document.getElementById('quiz-exp').style.display = 'block';
+        }
+
+        /* --- STATE MACHINE CHO LAB --- */
+        let steps = [];
+        let sp = 0;
+        let autoTimer = null;
+        
+        const initGrid = [
+            [1, 1, 0, 0, 1],
+            [1, 0, 0, 1, 1],
+            [0, 0, 1, 1, 0],
+            [0, 0, 0, 0, 1]
+        ];
+        const R = 4, C = 5;
+
+        // Hàm helper clone ma trận
+        function cloneGrid(g) { return g.map(row => [...row]); }
+
+        // Tiền tính toán toàn bộ các bước
+        function makeSteps() {
+            steps = [];
+            let grid = cloneGrid(initGrid);
+            let maxArea = 0;
+
+            steps.push({
+                board: cloneGrid(grid), line: 'l_main1',
+                vars: { i: '-', j: '-', r: '-', c: '-', cur: '-', max: maxArea },
+                msg: "Bắt đầu chương trình. Khởi tạo diện tích kỷ lục maxArea = 0.",
+                activeCell: null
+            });
+
+            for (let i = 0; i < R; i++) {
+                for (let j = 0; j < C; j++) {
+                    // Bước kiểm tra ô
+                    steps.push({
+                        board: cloneGrid(grid), line: 'l_main4',
+                        vars: { i, j, r: '-', c: '-', cur: '-', max: maxArea },
+                        msg: `Đang quét ở vòng lặp chính: Xét ô (${i}, ${j}). Giá trị hiện tại là ${grid[i][j]}.`,
+                        activeCell: {r: i, c: j}
+                    });
+
+                    if (grid[i][j] === 1) {
+                        steps.push({
+                            board: cloneGrid(grid), line: 'l_main5',
+                            vars: { i, j, r: '-', c: '-', cur: '-', max: maxArea },
+                            msg: `Tuyệt! Ô (${i}, ${j}) là số 1 (Đám cháy mới). Bắt đầu gọi đệ quy dfs(${i}, ${j}) để đo kích thước đám cháy này.`,
+                            activeCell: {r: i, c: j}
+                        });
+
+                        let areaFound = traceDFS(i, j, grid, i, j, maxArea);
+
+                        steps.push({
+                            board: cloneGrid(grid), line: 'l_main5',
+                            vars: { i, j, r: '-', c: '-', cur: areaFound, max: maxArea },
+                            msg: `Đệ quy kết thúc. Hàm dfs(${i}, ${j}) trả về diện tích là ${areaFound}. So sánh với kỷ lục hiện tại...`,
+                            activeCell: {r: i, c: j}
+                        });
+
+                        steps.push({
+                            board: cloneGrid(grid), line: 'l_main6',
+                            vars: { i, j, r: '-', c: '-', cur: areaFound, max: maxArea },
+                            msg: `Kiểm tra: ${areaFound} > ${maxArea}?`,
+                            activeCell: null
+                        });
+
+                        if (areaFound > maxArea) {
+                            maxArea = areaFound;
+                            steps.push({
+                                board: cloneGrid(grid), line: 'l_main6',
+                                vars: { i, j, r: '-', c: '-', cur: areaFound, max: maxArea },
+                                msg: `Kỷ lục mới! Cập nhật maxArea thành ${maxArea}.`,
+                                activeCell: null
+                            });
+                        }
+                    } else {
+                        // Bỏ qua nếu không phải 1. Để đỡ dài lab, ta gộp logic bỏ qua.
+                    }
+                }
+            }
+
+            steps.push({
+                board: cloneGrid(grid), line: null,
+                vars: { i: 'Xong', j: 'Xong', r: '-', c: '-', cur: '-', max: maxArea },
+                msg: `Đã quét cạn toàn bộ ma trận. Diện tích đám cháy lớn nhất tìm được là ${maxArea}. Thuật toán kết thúc chính xác!`,
+                activeCell: null
+            });
+        }
+
+        // Hàm mô phỏng đệ quy thu thập steps
+        function traceDFS(r, c, gridState, mainI, mainJ, maxA) {
+            steps.push({
+                board: cloneGrid(gridState), line: 'l_dfs2',
+                vars: { i: mainI, j: mainJ, r, c, cur: '-', max: maxA },
+                msg: `Bên trong dfs(${r}, ${c}): Kiểm tra tọa độ có nằm ngoài bản đồ, hoặc ô này không phải lửa (0 hoặc 2) hay không?`,
+                activeCell: {r, c}
+            });
+
+            if (r < 0 || r >= R || c < 0 || c >= C || gridState[r][c] !== 1) {
+                let reason = (r < 0 || r >= R || c < 0 || c >= C) ? "ngoài biên bản đồ" : `đã thăm hoặc là đất (giá trị = ${gridState[r][c]})`;
+                steps.push({
+                    board: cloneGrid(gridState), line: 'l_dfs2',
+                    vars: { i: mainI, j: mainJ, r, c, cur: 0, max: maxA },
+                    msg: `Ô (${r}, ${c}) bị loại VÌ ${reason}. Dừng nhánh này và trả về 0.`,
+                    activeCell: {r, c}
+                });
+                return 0;
+            }
+
+            gridState[r][c] = 2; // Đánh dấu
+            steps.push({
+                board: cloneGrid(gridState), line: 'l_dfs3',
+                vars: { i: mainI, j: mainJ, r, c, cur: 1, max: maxA },
+                msg: `Tọa độ hợp lệ! Lập tức đánh dấu ô (${r}, ${c}) thành 2 (Đã thăm) VÌ ta muốn ngắt đường lui, không cho đệ quy lặp lại ô này.`,
+                activeCell: {r, c}
+            });
+
+            steps.push({
+                board: cloneGrid(gridState), line: 'l_dfs4',
+                vars: { i: mainI, j: mainJ, r, c, cur: 1, max: maxA },
+                msg: `Tính chính ô (${r}, ${c}) là 1 đơn vị diện tích. Bắt đầu lan ra 4 hướng...`,
+                activeCell: {r, c}
+            });
+
+            let area = 1;
+            
+            steps.push({ board: cloneGrid(gridState), line: 'l_dfs5', vars: { i: mainI, j: mainJ, r, c, cur: area, max: maxA }, msg: `Từ (${r}, ${c}), loang LÊN TRÊN (r-1, c)...`, activeCell: {r, c} });
+            area += traceDFS(r - 1, c, gridState, mainI, mainJ, maxA);
+            
+            steps.push({ board: cloneGrid(gridState), line: 'l_dfs6', vars: { i: mainI, j: mainJ, r, c, cur: area, max: maxA }, msg: `Từ (${r}, ${c}), loang XUỐNG DƯỚI (r+1, c)...`, activeCell: {r, c} });
+            area += traceDFS(r + 1, c, gridState, mainI, mainJ, maxA);
+            
+            steps.push({ board: cloneGrid(gridState), line: 'l_dfs7', vars: { i: mainI, j: mainJ, r, c, cur: area, max: maxA }, msg: `Từ (${r}, ${c}), loang TRÁI (r, c-1)...`, activeCell: {r, c} });
+            area += traceDFS(r, c - 1, gridState, mainI, mainJ, maxA);
+            
+            steps.push({ board: cloneGrid(gridState), line: 'l_dfs8', vars: { i: mainI, j: mainJ, r, c, cur: area, max: maxA }, msg: `Từ (${r}, ${c}), loang PHẢI (r, c+1)...`, activeCell: {r, c} });
+            area += traceDFS(r, c + 1, gridState, mainI, mainJ, maxA);
+
+            steps.push({
+                board: cloneGrid(gridState), line: 'l_dfs9',
+                vars: { i: mainI, j: mainJ, r, c, cur: area, max: maxA },
+                msg: `Hoàn thành loang 4 hướng từ (${r}, ${c}). Tổng diện tích nhánh này gom được là ${area}. Trả kết quả lên trên!`,
+                activeCell: {r, c}
+            });
+
+            return area;
+        }
+
+        // --- HÀM RENDER (THUẦN TÚY) ---
+        function paint(stepIndex) {
+            const st = steps[stepIndex];
+            
+            // 1. Render Grid
+            const container = document.getElementById('main-lab-grid');
+            container.innerHTML = '';
+            for(let r=0; r<R; r++) {
+                for(let c=0; c<C; c++) {
+                    let div = document.createElement('div');
+                    div.className = 'f-cell';
+                    div.dataset.val = st.board[r][c];
+                    div.innerText = st.board[r][c];
+                    
+                    if (st.activeCell && st.activeCell.r === r && st.activeCell.c === c) {
+                        div.classList.add('active-cell');
+                    }
+                    container.appendChild(div);
+                }
+            }
+
+            // 2. Render Variables
+            document.getElementById('v-i').innerText = st.vars.i;
+            document.getElementById('v-j').innerText = st.vars.j;
+            document.getElementById('v-r').innerText = st.vars.r;
+            document.getElementById('v-c').innerText = st.vars.c;
+            document.getElementById('v-cur').innerText = st.vars.cur;
+            document.getElementById('v-max').innerText = st.vars.max;
+
+            // 3. Render Msg
+            document.getElementById('lab-msg').innerHTML = st.msg;
+
+            // 4. Highlight Code
+            document.querySelectorAll('.codeline').forEach(el => el.classList.remove('hot'));
+            if (st.line) {
+                const lineEl = document.getElementById(st.line);
+                if (lineEl) lineEl.classList.add('hot');
+            }
+
+            // 5. Update Counters & Buttons
+            document.getElementById('lbl-step').innerText = stepIndex;
+            document.getElementById('btn-prev').disabled = (stepIndex === 0);
+            document.getElementById('btn-next').disabled = (stepIndex === steps.length - 1);
+            
+            if (stepIndex === steps.length - 1 && autoTimer) {
+                clearInterval(autoTimer);
+                autoTimer = null;
+                document.getElementById('btn-auto').innerText = '⏯ Tự chạy';
+            }
+        }
+
+        // --- Gắn Sự Kiện ---
+        document.getElementById('btn-prev').onclick = () => {
+            if (sp > 0) paint(--sp);
+        };
+        
+        document.getElementById('btn-next').onclick = () => {
+            if (sp < steps.length - 1) paint(++sp);
+        };
+        
+        document.getElementById('btn-reset').onclick = () => {
+            if (autoTimer) { clearInterval(autoTimer); autoTimer = null; document.getElementById('btn-auto').innerText = '⏯ Tự chạy'; }
+            sp = 0;
+            paint(sp);
+        };
+        
+        document.getElementById('btn-auto').onclick = () => {
+            if (autoTimer) {
+                clearInterval(autoTimer);
+                autoTimer = null;
+                document.getElementById('btn-auto').innerText = '⏯ Tự chạy';
+            } else {
+                if (sp === steps.length - 1) sp = 0; // Reset nếu đang ở cuối
+                document.getElementById('btn-auto').innerText = '⏸ Dừng';
+                autoTimer = setInterval(() => {
+                    if (sp < steps.length - 1) {
+                        paint(++sp);
+                    }
+                }, 400); // 400ms mỗi bước
+            }
+        };
+
+        // --- Khởi chạy ---
+        window.onload = () => {
+            makeSteps();
+            document.getElementById('lbl-total').innerText = steps.length - 1;
+            paint(0);
+        };
+    </script>
+</body>
+</html>
