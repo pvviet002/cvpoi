@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tối ưu Điểm Họp Làng (Rerooting DP)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0B1220; 
+            --bg2: #0F1A2E; 
+            --panel: #111E36;
+            --accent: #38D6C4;   
+            --accent2: #5B8CFF;  
+            --mark: #FFB454;     
+            --red: #FF6B6B;      
+            --text-main: #E2E8F0; 
+            --text-muted: #94A3B8;
+            --glow: 0 0 20px rgba(56,214,196,.4);
+            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
+            --border: 1px solid rgba(255,255,255,.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        h1, h2, h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -0.03em;
+            margin-bottom: 1rem;
+        }
+        p { margin-bottom: 1rem; }
+        
+        .topnav {
+            position: sticky; 
+            top: 0; 
+            z-index: 100;
+            display: flex; 
+            gap: 12px; 
+            align-items: center;
+            padding: 12px 20px;
+            background: rgba(11,18,32,.85); 
+            backdrop-filter: blur(10px);
+            border-bottom: var(--border);
+        }
+        .nav-btn {
+            text-decoration: none; 
+            color: #000;
+            background: linear-gradient(135deg, var(--accent2), var(--accent));
+            padding: 8px 18px; 
+            border-radius: 8px; 
+            font-weight: 600;
+            box-shadow: var(--glow); 
+            transition: all .3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .nav-btn.outline { 
+            background: transparent; 
+            border: 1px solid var(--accent); 
+            color: var(--accent); 
+            box-shadow: none; 
+        }
+        .nav-btn.outline:hover { 
+            background: rgba(56,214,196,.1); 
+            box-shadow: var(--glow); 
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+        
+        .hero { text-align: center; margin-bottom: 50px; }
+        .hero h1 { 
+            font-size: 3.2rem; 
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: var(--glow);
+            margin-bottom: 0.5rem;
+        }
+        .hero p { font-size: 1.2rem; color: var(--text-muted); }
+        .badge {
+            display: inline-block; padding: 4px 12px; border-radius: 20px;
+            background: rgba(91,140,255,.1); border: 1px solid var(--accent2);
+            color: var(--accent2); font-size: 0.85rem; font-weight: 600; margin-top: 10px;
+        }
+
+        .card {
+            background: linear-gradient(180deg, var(--panel), var(--bg2));
+            border: var(--border); border-radius: 16px;
+            padding: 30px; margin-bottom: 40px;
+            box-shadow: var(--shadow);
+        }
+        .card-title { color: var(--accent); font-size: 1.5rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+        
+        .trap-card { border: 1px solid var(--red); padding: 20px; border-radius: 12px; background: rgba(255,107,107,.05); }
+        .trap-card.good { border: 1px solid var(--accent); background: rgba(56,214,196,.05); }
+        .trap-card h3 { color: var(--red); margin-top: 0; }
+        .trap-card.good h3 { color: var(--accent); }
+
+        code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.95em; }
+        .inline-code {
+            background: rgba(0,0,0,.3); padding: 2px 6px; border-radius: 4px;
+            color: var(--accent); font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .code-block {
+            background: #0A1220; border: var(--border); border-radius: 12px;
+            padding: 20px 0; font-family: 'JetBrains Mono', monospace;
+            overflow-x: auto; margin-bottom: 20px; font-size: 0.9rem;
+        }
+        .codeline {
+            padding: 2px 20px; white-space: pre-wrap; border-left: 3px solid transparent;
+        }
+        .codeline.hot {
+            background: rgba(255,180,84,.1); border-left: 3px solid var(--mark);
+        }
+        .c-kw { color: #C678DD; } /* Keyword */
+        .c-num { color: #D19A66; } /* Number */
+        .c-cm { color: #5C6370; font-style: italic; } /* Comment */
+        .c-fn { color: #61AFEF; } /* Function */
+        .c-op { color: #ABB2BF; } /* Operator */
+        .c-var { color: #E06C75; } /* Variable/Type */
+
+        .lab-container {
+            display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px;
+            background: #0A1220; border-radius: 16px; border: var(--border); overflow: hidden;
+        }
+        @media (max-width: 900px) { .lab-container { grid-template-columns: 1fr; } }
+        
+        .lab-visual {
+            padding: 20px; position: relative; min-height: 400px;
+            border-right: var(--border); display: flex; flex-direction: column; align-items: center;
+        }
+        .lab-panel { padding: 20px; display: flex; flex-direction: column; }
+        
+        .topbar { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+        .btn {
+            background: rgba(56,214,196,.1); border: 1px solid var(--accent);
+            color: var(--accent); padding: 6px 12px; border-radius: 6px; cursor: pointer;
+            font-family: 'Inter', sans-serif; font-weight: 600; transition: all .2s;
+        }
+        .btn:hover:not(:disabled) { background: var(--accent); color: #000; box-shadow: var(--glow); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        
+        .step-counter { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--text-muted); }
+        
+        .msg-box {
+            background: rgba(11,18,32,.8); border: 1px solid var(--accent2);
+            padding: 15px; border-radius: 8px; margin-bottom: 20px; min-height: 80px;
+            color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,.5);
+        }
+        
+        .var-table {
+            width: 100%; border-collapse: collapse; margin-bottom: 20px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+        }
+        .var-table th, .var-table td {
+            padding: 8px; text-align: center; border: 1px solid rgba(255,255,255,.1);
+        }
+        .var-table th { color: var(--accent2); background: rgba(255,255,255,.05); }
+
+        .tree-canvas { width: 100%; height: 320px; position: relative; margin-top: 20px; }
+        .edge {
+            position: absolute; background: #333; transform-origin: 0 50%;
+            height: 4px; border-radius: 2px; transition: background 0.3s;
+        }
+        .edge.active { background: var(--mark); box-shadow: 0 0 10px var(--mark); }
+        
+        .node {
+            position: absolute; width: 40px; height: 40px; border-radius: 50%;
+            background: var(--panel); border: 2px solid var(--text-muted);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'JetBrains Mono', monospace; font-weight: bold;
+            transform: translate(-50%, -50%); transition: all 0.3s; z-index: 2;
+        }
+        .node.active { border-color: var(--mark); background: rgba(255,180,84,.2); box-shadow: 0 0 15px var(--mark); color: #fff; }
+        .node.root-cand { border-color: var(--accent); background: rgba(56,214,196,.2); box-shadow: 0 0 15px var(--accent); }
+        
+        .node-info {
+            position: absolute; background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 4px;
+            font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; white-space: nowrap;
+            pointer-events: none; border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-muted); z-index: 3;
+        }
+        
+        .quiz-opt {
+            display: block; width: 100%; text-align: left; background: rgba(255,255,255,.05);
+            border: 1px solid rgba(255,255,255,.1); padding: 12px 20px; margin-bottom: 10px;
+            border-radius: 8px; color: var(--text-main); cursor: pointer; transition: all .2s;
+        }
+        .quiz-opt:hover { background: rgba(255,255,255,.1); }
+        .quiz-opt.correct { background: rgba(56,214,196,.1); border-color: var(--accent); }
+        .quiz-opt.wrong { background: rgba(255,107,107,.1); border-color: var(--red); }
+        .quiz-exp { margin-top: 15px; padding: 15px; border-radius: 8px; display: none; background: rgba(0,0,0,.3); border-left: 3px solid var(--accent); }
+
+        /* Mini lab */
+        .mini-lab { display: flex; justify-content: center; align-items: center; gap: 20px; margin-top: 20px; }
+        .mini-node { width: 50px; height: 50px; border-radius: 50%; background: var(--panel); border: 2px solid var(--accent2); display: flex; align-items: center; justify-content: center; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-weight: bold; transition: .2s; }
+        .mini-node:hover { transform: scale(1.1); box-shadow: var(--glow); }
+        .mini-node.sel { background: var(--accent); color: #000; }
+        .mini-edge { width: 40px; height: 4px; background: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
+    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+</nav>
+
+<div class="container">
+    <div class="hero">
+        <h1>Họp Làng</h1>
+        <p>Tìm tâm của cây với kỹ thuật Quy hoạch động thay rễ (Rerooting DP)</p>
+        <span class="badge">Cần biết trước: Cấu trúc Cây, DFS cơ bản</span>
+        
+        <!-- Mini Lab -->
+        <div style="margin-top: 30px;">
+            <p style="font-size: 0.9rem; color: var(--text-muted);">Mini-Lab: Bấm vào một ngôi nhà (A, B, C) để xem tổng quãng đường nếu mọi người họp ở đó.</p>
+            <div class="mini-lab">
+                <div class="mini-node" id="mn-0" onclick="clickMini(0)">A</div>
+                <div class="mini-edge"></div>
+                <div class="mini-node" id="mn-1" onclick="clickMini(1)">B</div>
+                <div class="mini-edge"></div>
+                <div class="mini-node" id="mn-2" onclick="clickMini(2)">C</div>
+            </div>
+            <p id="mini-res" style="margin-top: 15px; font-weight: bold; color: var(--accent); height: 24px;"></p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">1. Tóm tắt đề bài</h2>
+        <p><strong>Đề bài:</strong> Làng có n ngôi nhà nối bằng n-1 con đường (tạo thành một Đồ thị dạng Cây). Mọi con đường dài 1 đơn vị. Cần tìm 1 ngôi nhà làm nơi tổ chức họp sao cho <strong>tổng quãng đường</strong> từ tất cả các nhà khác tới đó là <strong>nhỏ nhất</strong>.</p>
+        
+        <div class="grid-2">
+            <div>
+                <h3>Input / Output</h3>
+                <p>- <strong>Input:</strong> Dòng đầu tiên n. n-1 dòng sau là các cạnh (u, v).</p>
+                <p>- <strong>Output:</strong> Node được chọn (chỉ số nhỏ nhất nếu có nhiều lựa chọn) và tổng khoảng cách.</p>
+                <p>- <strong>Ràng buộc:</strong> n ≤ 50,000.</p>
+            </div>
+            <div>
+                <h3>Ví dụ</h3>
+                <p>Cây đường thẳng: 1 - 2 - 3 - 4</p>
+                <p>Nếu họp ở 1: 1→1 (0) + 2→1 (1) + 3→1 (2) + 4→1 (3) = 6.</p>
+                <p>Nếu họp ở 2: 1→2 (1) + 2→2 (0) + 3→2 (1) + 4→2 (2) = 4.</p>
+                <p>Nhà 2 và 3 đều cho tổng là 4 (nhỏ nhất). Ưu tiên chỉ số nhỏ → Chọn 2.</p>
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,.1);">
+            <p><strong>Hướng giải:</strong> Thay vì tính tổng khoảng cách cho từng điểm một cách độc lập (rất chậm), ta nhận ra: Nếu ta biết tổng khoảng cách khi họp ở nhà U, ta có thể suy ra CỰC NHANH tổng khoảng cách nếu dời điểm họp sang nhà V (hàng xóm của U). Kỹ thuật này gọi là <strong>Rerooting DP</strong> (Dời gốc).</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">2. Vì sao cần Rerooting DP?</h2>
+        <div class="grid-2">
+            <div class="trap-card" style="border-color: var(--text-muted); background: rgba(255,255,255,.05);">
+                <h3 style="color: var(--text-muted);">Cách ngây thơ (Brute Force)</h3>
+                <p>Với MỖI đỉnh i, chạy một vòng DFS/BFS để tính khoảng cách từ mọi đỉnh khác tới i.</p>
+                <p>• Thời gian 1 lần chạy: O(n).</p>
+                <p>• Phải chạy n lần → Tổng thời gian: <strong>O(n<sup>2</sup>)</strong>.</p>
+                <p>• Với n = 50,000, n<sup>2</sup> = 2,500,000,000 phép toán → <strong>Quá thời gian (TLE)</strong>.</p>
+            </div>
+            <div class="trap-card good">
+                <h3>Cách dùng Rerooting DP</h3>
+                <p>Chỉ cần quét đồ thị đúng <strong>2 lần</strong>:</p>
+                <p>• DFS lần 1: Tính kết quả cho một đỉnh bất kỳ (ví dụ đỉnh 1) làm gốc.</p>
+                <p>• DFS lần 2: Trượt (dời) gốc từ đỉnh 1 sang các đỉnh kề nó, dùng kết quả cũ để tính kết quả mới trong O(1).</p>
+                <p>• Tổng thời gian: <strong>O(n)</strong> → Chạy mượt mà trong nháy mắt!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">3. Khám phá công thức "Dời điểm họp"</h2>
+        <p>Giả sử ta đã biết tổng quãng đường nếu mọi người tụ tập ở nhà <span class="inline-code">u</span> là <span class="inline-code">f[u]</span>. Bây giờ, trưởng làng muốn dời địa điểm sang nhà <span class="inline-code">v</span> (nhà hàng xóm của u).</p>
+        <p>Chuyện gì sẽ xảy ra với quãng đường đi của từng người?</p>
+        <ul style="margin-left: 20px; margin-bottom: 15px; color: var(--text-muted);">
+            <li>Những người ở <strong>phía nhà v</strong> (tức là thuộc nhánh con của v): Điểm họp đã tiến lại gần họ 1 bước! Vậy tổng đường của nhóm này sẽ <strong>giảm đi</strong> một lượng chính bằng số người trong nhánh v. Ký hiệu số người này là <span class="inline-code">sz[v]</span>.</li>
+            <li>Những người ở <strong>phần còn lại của làng</strong>: Điểm họp đã lùi xa họ 1 bước! Tổng đường của nhóm này sẽ <strong>tăng thêm</strong> 1 lượng bằng số người còn lại, tức là <span class="inline-code">n - sz[v]</span>.</li>
+        </ul>
+        <p>Ta có công thức chuyển dịch kỳ diệu trong O(1):</p>
+        <div style="background: rgba(56,214,196,.1); padding: 15px; border-radius: 8px; text-align: center; font-size: 1.2rem; font-family: 'JetBrains Mono', monospace; color: var(--accent); margin-bottom: 20px; border: 1px dashed var(--accent);">
+            f[v] = f[u] - sz[v] + (n - sz[v])
+        </div>
+
+        <div class="code-block">
+            <div class="codeline"><span class="c-kw">void</span> <span class="c-fn">dfs1</span>(<span class="c-kw">int</span> u, <span class="c-kw">int</span> p) { <span class="c-cm">// Tính sz (kích thước nhánh) và f (tổng khoảng cách) cho gốc 1</span></div>
+            <div class="codeline">    sz[u] = <span class="c-num">1</span>;</div>
+            <div class="codeline">    <span class="c-kw">for</span> (<span class="c-kw">int</span> v : adj[u]) {</div>
+            <div class="codeline">        <span class="c-kw">if</span> (v != p) {</div>
+            <div class="codeline">            <span class="c-fn">dfs1</span>(v, u);</div>
+            <div class="codeline">            sz[u] += sz[v];            <span class="c-cm">// Cộng dồn số người từ nhánh con v</span></div>
+            <div class="codeline">            f[u] += f[v] + sz[v];      <span class="c-cm">// Khoảng cách = Khoảng cách trong nhánh v + 1 bước đi cho toàn bộ nhánh v</span></div>
+            <div class="codeline">        }</div>
+            <div class="codeline">    }</div>
+            <div class="codeline">}</div>
+            <div class="codeline"></div>
+            <div class="codeline"><span class="c-kw">void</span> <span class="c-fn">dfs2</span>(<span class="c-kw">int</span> u, <span class="c-kw">int</span> p) { <span class="c-cm">// Dời gốc từ u sang các đỉnh con v</span></div>
+            <div class="codeline">    <span class="c-kw">for</span> (<span class="c-kw">int</span> v : adj[u]) {</div>
+            <div class="codeline">        <span class="c-kw">if</span> (v != p) {</div>
+            <div class="codeline">            f[v] = f[u] - sz[v] + (n - sz[v]); <span class="c-cm">// Áp dụng công thức dời điểm họp</span></div>
+            <div class="codeline">            <span class="c-fn">dfs2</span>(v, u);                        <span class="c-cm">// Tiếp tục dời gốc xuống các con của v</span></div>
+            <div class="codeline">        }</div>
+            <div class="codeline">    }</div>
+            <div class="codeline">}</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">4. Lab Thực Hành (Rerooting Simulator)</h2>
+        <p>Hãy chạy từng bước để xem thuật toán xử lý cây ví dụ: <strong>1 - 2 - 3 - 4</strong> (n = 4).</p>
+        
+        <div class="lab-container">
+            <!-- Vùng đồ họa -->
+            <div class="lab-visual">
+                <div class="tree-canvas" id="canvas">
+                    <!-- Nodes & Edges will be injected here via JS -->
+                </div>
+            </div>
+            
+            <!-- Vùng điều khiển & Code -->
+            <div class="lab-panel">
+                <div class="topbar">
+                    <button class="btn" id="btn-reset" onclick="resetLab()">Reset</button>
+                    <button class="btn" id="btn-prev" onclick="changeStep(-1)">« Lùi</button>
+                    <button class="btn" id="btn-next" onclick="changeStep(1)">Tiến »</button>
+                    <button class="btn" id="btn-auto" onclick="toggleAuto()">Tự chạy ⏯</button>
+                    <div class="step-counter">Bước: <span id="lbl-step">0</span>/<span id="lbl-total">0</span></div>
+                </div>
+                
+                <div class="msg-box" id="msg-box">Sẵn sàng. Nhấn Tiến để bắt đầu!</div>
+                
+                <table class="var-table">
+                    <tr>
+                        <th>Đỉnh (i)</th>
+                        <th>1</th><th>2</th><th>3</th><th>4</th>
+                    </tr>
+                    <tr>
+                        <td>sz[i]</td>
+                        <td id="v-sz-1">-</td><td id="v-sz-2">-</td><td id="v-sz-3">-</td><td id="v-sz-4">-</td>
+                    </tr>
+                    <tr>
+                        <td>f[i]</td>
+                        <td id="v-f-1">-</td><td id="v-f-2">-</td><td id="v-f-3">-</td><td id="v-f-4">-</td>
+                    </tr>
+                </table>
+                
+                <div class="code-block" style="padding: 10px 0; margin-bottom: 0;">
+                    <div class="codeline" id="l1"><span class="c-kw">void</span> <span class="c-fn">dfs1</span>(u, p):</div>
+                    <div class="codeline" id="l2">  sz[u] = <span class="c-num">1</span>, f[u] = <span class="c-num">0</span></div>
+                    <div class="codeline" id="l3">  <span class="c-kw">for</span> v <span class="c-kw">in</span> adj[u]:</div>
+                    <div class="codeline" id="l4">    <span class="c-kw">if</span> v != p:</div>
+                    <div class="codeline" id="l5">      <span class="c-fn">dfs1</span>(v, u)</div>
+                    <div class="codeline" id="l6">      sz[u] += sz[v]</div>
+                    <div class="codeline" id="l7">      f[u] += f[v] + sz[v]</div>
+                    <div class="codeline"> </div>
+                    <div class="codeline" id="l8"><span class="c-kw">void</span> <span class="c-fn">dfs2</span>(u, p):</div>
+                    <div class="codeline" id="l9">  <span class="c-kw">for</span> v <span class="c-kw">in</span> adj[u]:</div>
+                    <div class="codeline" id="l10">    <span class="c-kw">if</span> v != p:</div>
+                    <div class="codeline" id="l11">      f[v] = f[u] - sz[v] + (n - sz[v])</div>
+                    <div class="codeline" id="l12">      <span class="c-fn">dfs2</span>(v, u)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="card-title">5. Cạm Bẫy Thường Gặp</h2>
+        <div class="grid-2">
+            <div class="trap-card">
+                <h3>✕ Sai lầm: Tính thiếu f[u] trong DFS1</h3>
+                <p>Nhiều bạn viết: <span class="inline-code">f[u] += f[v] + 1;</span></p>
+                <p><strong>Hậu quả:</strong> Sai hoàn toàn! Cộng thêm 1 chỉ có nghĩa là cộng thêm khoảng cách cho đúng 1 người đứng ở v. Trong khi đó, <strong>TOÀN BỘ nhánh v</strong> (gồm sz[v] người) đều bị đẩy xa thêm 1 bước khi đi lên u.</p>
+            </div>
+            <div class="trap-card good">
+                <h3>✓ Đúng: Cộng độ lớn nhánh</h3>
+                <p>Phải viết: <span class="inline-code">f[u] += f[v] + sz[v];</span></p>
+                <p><strong>Vì sao:</strong> Khoảng cách từ nhánh v tới v là f[v]. Để đi tiếp từ v lên u, mất 1 con đường, và có sz[v] người phải đi qua con đường này. Nên phải cộng thêm sz[v].</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 0;">
+        <h2 class="card-title">6. Kiểm tra nhanh</h2>
+        <p>Trong công thức <span class="inline-code">f[v] = f[u] - sz[v] + (n - sz[v])</span>, đại lượng <span class="inline-code">(n - sz[v])</span> đại diện cho điều gì?</p>
+        
+        <button class="quiz-opt" onclick="checkQuiz(this, false)">A. Số người nằm trong nhánh của u nhưng không nằm trong nhánh v.</button>
+        <button class="quiz-opt" onclick="checkQuiz(this, true)">B. Số người nằm ngoài nhánh con v, những người sẽ bị xa thêm 1 bước khi dời điểm họp từ u xuống v.</button>
+        <button class="quiz-opt" onclick="checkQuiz(this, false)">C. Tổng khoảng cách ban đầu của những người ở nhánh v.</button>
+        
+        <div class="quiz-exp" id="quiz-exp">
+            <strong>B là đáp án đúng!</strong><br>
+            Khi dời điểm họp từ <code>u</code> sang <code>v</code>, nhóm người trong nhánh <code>v</code> (số lượng <code>sz[v]</code>) sẽ rút ngắn được 1 bước (trừ đi <code>sz[v]</code>). Còn tất cả những người còn lại trong làng (tổng số n trừ đi sz[v]) sẽ phải đi xa thêm 1 bước (cộng thêm <code>n - sz[v]</code>).
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- MINI LAB ---
+    function clickMini(idx) {
+        document.querySelectorAll('.mini-node').forEach(el => el.classList.remove('sel'));
+        document.getElementById('mn-' + idx).classList.add('sel');
+        
+        let res = "";
+        if (idx === 0) res = "Họp ở A: A đi 0, B đi 1, C đi 2. Tổng = 3";
+        else if (idx === 1) res = "Họp ở B: A đi 1, B đi 0, C đi 2. Tổng = 2 (Tối ưu)";
+        else res = "Họp ở C: A đi 2, B đi 1, C đi 0. Tổng = 3";
+        
+        document.getElementById('mini-res').innerText = res;
+    }
+    
+    // --- QUIZ ---
+    function checkQuiz(btn, isCorrect) {
+        document.querySelectorAll('.quiz-opt').forEach(el => {
+            el.disabled = true; 
+            el.style.opacity = '0.7';
+            el.style.cursor = 'default';
+        });
+        if (isCorrect) {
+            btn.classList.add('correct');
+        } else {
+            btn.classList.add('wrong');
+            // Highlight đáp án đúng
+            document.querySelectorAll('.quiz-opt')[1].classList.add('correct');
+        }
+        document.getElementById('quiz-exp').style.display = 'block';
+    }
+
+    // --- MAIN LAB STATE MACHINE ---
+    // Graph config: 1 - 2 - 3 - 4
+    const positions = [
+        { id: 1, x: 50, y: 15 },
+        { id: 2, x: 50, y: 40 },
+        { id: 3, x: 50, y: 65 },
+        { id: 4, x: 50, y: 90 }
+    ];
+    // Connections: 1-2, 2-3, 3-4
+    
+    let steps = [];
+    let sp = 0;
+    let autoInterval = null;
+
+    function makeSteps() {
+        steps = [];
+        const n = 4;
+        // Trạng thái ban đầu: sz = -, f = -
+        steps.push({
+            line: null, activeNode: null, activeEdge: null,
+            sz: ['-', '-', '-', '-'], f: ['-', '-', '-', '-'],
+            msg: "Đồ thị mẫu là đường thẳng: 1 - 2 - 3 - 4. Mục tiêu là tìm đỉnh có tổng đường đi tới các đỉnh khác nhỏ nhất.",
+            labelSz: ['','','',''], labelF: ['','','','']
+        });
+        
+        // --- DFS 1 (Gốc 1) ---
+        // Tại đỉnh 4 (lá)
+        steps.push({
+            line: 'l1', activeNode: 4, activeEdge: null,
+            sz: ['-', '-', '-', 1], f: ['-', '-', '-', 0],
+            msg: "Bắt đầu DFS lần 1 từ đỉnh 1, đi sâu xuống đỉnh lá 4. Khởi tạo sz[4] = 1 (chính nó) và f[4] = 0.",
+            labelSz: ['','','','sz=1'], labelF: ['','','','f=0']
+        });
+        
+        // Tại đỉnh 3
+        steps.push({
+            line: 'l2', activeNode: 3, activeEdge: null,
+            sz: ['-', '-', 1, 1], f: ['-', '-', 0, 0],
+            msg: "Lùi về đỉnh 3. Khởi tạo nhánh của 3: sz[3] = 1, f[3] = 0. Chuẩn bị tính gộp con của nó (đỉnh 4).",
+            labelSz: ['','','sz=1','sz=1'], labelF: ['','','f=0','f=0']
+        });
+        steps.push({
+            line: 'l6', activeNode: 3, activeEdge: '3-4',
+            sz: ['-', '-', 2, 1], f: ['-', '-', 0, 0],
+            msg: "Cộng dồn số người từ nhánh 4 lên: sz[3] = sz[3] + sz[4] = 1 + 1 = 2.",
+            labelSz: ['','','sz=2','sz=1'], labelF: ['','','f=0','f=0']
+        });
+        steps.push({
+            line: 'l7', activeNode: 3, activeEdge: '3-4',
+            sz: ['-', '-', 2, 1], f: ['-', '-', 1, 0],
+            msg: "Tính tổng quãng đường trong nhánh 3. Khoảng cách = Khoảng cách trong nhánh 4 (f[4]=0) cộng thêm 1 bước cho mỗi người trong nhánh 4 (sz[4]=1). Vậy f[3] = 0 + 1 = 1.",
+            labelSz: ['','','sz=2','sz=1'], labelF: ['','','f=1','f=0']
+        });
+
+        // Tại đỉnh 2
+        steps.push({
+            line: 'l2', activeNode: 2, activeEdge: null,
+            sz: ['-', 1, 2, 1], f: ['-', 0, 1, 0],
+            msg: "Lùi về đỉnh 2. Khởi tạo sz[2] = 1, f[2] = 0. Chuẩn bị gom nhánh 3 vào.",
+            labelSz: ['','sz=1','sz=2','sz=1'], labelF: ['','f=0','f=1','f=0']
+        });
+        steps.push({
+            line: 'l6', activeNode: 2, activeEdge: '2-3',
+            sz: ['-', 3, 2, 1], f: ['-', 0, 1, 0],
+            msg: "Gom nhánh 3: sz[2] += sz[3]. Vậy sz[2] = 1 + 2 = 3.",
+            labelSz: ['','sz=3','sz=2','sz=1'], labelF: ['','f=0','f=1','f=0']
+        });
+        steps.push({
+            line: 'l7', activeNode: 2, activeEdge: '2-3',
+            sz: ['-', 3, 2, 1], f: ['-', 3, 1, 0],
+            msg: "Tính quãng đường nhánh 2: f[2] += f[3] + sz[3]. Tính bằng 0 + 1 + 2 = 3. Giải thích: để kéo 2 người từ nhánh 3 lên 2, ta tốn thêm 2x1=2 đơn vị đường.",
+            labelSz: ['','sz=3','sz=2','sz=1'], labelF: ['','f=3','f=1','f=0']
+        });
+
+        // Tại đỉnh 1
+        steps.push({
+            line: 'l2', activeNode: 1, activeEdge: null,
+            sz: [1, 3, 2, 1], f: [0, 3, 1, 0],
+            msg: "Lùi về gốc 1. Khởi tạo sz[1] = 1, f[1] = 0. Chuẩn bị gom nhánh 2 vào.",
+            labelSz: ['sz=1','sz=3','sz=2','sz=1'], labelF: ['f=0','f=3','f=1','f=0']
+        });
+        steps.push({
+            line: 'l6', activeNode: 1, activeEdge: '1-2',
+            sz: [4, 3, 2, 1], f: [0, 3, 1, 0],
+            msg: "Gom nhánh 2: sz[1] += sz[2] = 1 + 3 = 4 (bằng tổng số dân làng N).",
+            labelSz: ['sz=4','sz=3','sz=2','sz=1'], labelF: ['f=0','f=3','f=1','f=0']
+        });
+        steps.push({
+            line: 'l7', activeNode: 1, activeEdge: '1-2',
+            sz: [4, 3, 2, 1], f: [6, 3, 1, 0],
+            msg: "Hoàn tất f[1]: f[1] += f[2] + sz[2] = 0 + 3 + 3 = 6. Vậy nếu họp ở đỉnh 1, tổng quãng đường của cả làng là 6! DFS 1 đã xong.",
+            labelSz: ['sz=4','sz=3','sz=2','sz=1'], labelF: ['f=6','f=3','f=1','f=0'],
+            isRoot: 1
+        });
+
+        // --- DFS 2 (Dời gốc) ---
+        // Dời 1 -> 2
+        steps.push({
+            line: 'l8', activeNode: 2, activeEdge: '1-2',
+            sz: [4, 3, 2, 1], f: [6, '-', 1, 0],
+            msg: "Bắt đầu Rerooting! Dời điểm họp từ nhà 1 sang nhà 2. Chú ý: giá trị f[2] cũ (là 3) chỉ tính trong nội bộ nhánh 2. Bây giờ ta sẽ tính f[2] ĐẠI DIỆN CHO CẢ CÂY.",
+            labelSz: ['sz=4','sz=3','sz=2','sz=1'], labelF: ['f=6 (toàn cục)','f=3 (nội bộ)','f=1','f=0'],
+            isRoot: 2
+        });
+        steps.push({
+            line: 'l11', activeNode: 2, activeEdge: '1-2',
+            sz: [4, 3, 2, 1], f: [6, 4, 1, 0],
+            msg: "f[2] = f[1] - sz[2] + (n - sz[2]) = 6 - 3 + (4 - 3) = 4. Vì sao? 3 người ở nhánh 2 xích lại gần 1 bước (-3). 1 người ở gốc 1 bị đẩy xa ra 1 bước (+1).",
+            labelSz: ['sz=4','sz=3','sz=2','sz=1'], labelF: ['f=6','f=4','f=1','f=0'],
+            isRoot: 2
+        });
+
+        // Dời 2 -> 3
+        steps.push({
+            line: 'l8', activeNode: 3, activeEdge: '2-3',
+            sz: [4, 3, 2, 1], f: [6, 4, '-', 0],
+            msg: "Tiếp tục dời điểm họp từ 2 sang 3. Ta dùng ngay giá trị f[2] toàn cục vừa tính để suy ra f[3].",
+            labelSz: ['sz=4','sz=3','sz=2','sz=1'], labelF: ['f=6','f=4','f=1 (nội bộ)','f=0'],
+            isRoot: 3
+        });
+        steps.push({
+            line: 'l11', activeNode: 3, activeEdge: '2-3',
+            sz: [4, 3, 2, 1], f: [6, 4, 4, 0],
+            msg: "f[3] = f[2] - sz[3] + (n - sz[3]) = 4 - 2 + (4 - 2) = 4. Nghĩa là: 2 người nhánh 3 gần lại (-2), 2 người còn lại bị xa ra (+2). Tổng quãng đường không đổi!",
+            labelSz: ['sz=4','sz=3','sz=2','sz=1'], labelF: ['f=6','f=4','f=4','f=0'],
+            isRoot: 3
+        });
+
+        // Dời 3 -> 4
+        steps.push({
+            line: 'l8', activeNode: 4, activeEdge: '3-4',
+            sz: [4, 3, 2, 1], f: [6, 4, 4, '-'],
+            msg: "Cuối cùng, dời điểm họp từ 3 sang lá 4.",
+            labelSz: ['sz=4','sz=3','sz=2','sz=1'], labelF: ['f=6','f=4','f=4','f=0 (nội bộ)'],
+            isRoot: 4
+        });
+        steps.push({
+            line: 'l11', activeNode: 4, activeEdge: '3-4',
+            sz: [4, 3, 2, 1], f: [6, 4, 4, 6],
+            msg: "f[4] = f[3] - sz[4] + (n - sz[4]) = 4 - 1 + (4 - 1) = 6. 1 người (nhà 4) gần lại, nhưng 3 người kia xa ra. Quyết định rất tệ!",
+            labelSz: ['sz=4','sz=3','sz=2','sz=1'], labelF: ['f=6','f=4','f=4','f=6'],
+            isRoot: 4
+        });
+
+        // Kết luận
+        steps.push({
+            line: null, activeNode: null, activeEdge: null,
+            sz: [4, 3, 2, 1], f: [6, 4, 4, 6],
+            msg: "Hoàn tất! Mảng f = [6, 4, 4, 6]. Tổng khoảng cách nhỏ nhất là 4, đạt được khi họp ở nhà 2 hoặc nhà 3. Do ưu tiên số tự nhà nhỏ nhất → Trưởng làng chọn nhà số 2. Đáp án: 2 4.",
+            labelSz: ['sz=4','sz=3','sz=2','sz=1'], labelF: ['f=6','f=4*','f=4*','f=6'],
+            isRoot: 2
+        });
+    }
+
+    function initCanvas() {
+        const cvs = document.getElementById('canvas');
+        cvs.innerHTML = '';
+        const width = cvs.clientWidth;
+        const height = cvs.clientHeight;
+        
+        // Vẽ Edges
+        const edges = [['1-2', 1, 2], ['2-3', 2, 3], ['3-4', 3, 4]];
+        edges.forEach(e => {
+            const p1 = positions[e[1]-1];
+            const p2 = positions[e[2]-1];
+            
+            const x1 = p1.x * width / 100;
+            const y1 = p1.y * height / 100;
+            const x2 = p2.x * width / 100;
+            const y2 = p2.y * height / 100;
+            
+            const length = Math.sqrt((x2-x1)**2 + (y2-y1)**2);
+            const angle = Math.atan2(y2-y1, x2-x1) * 180 / Math.PI;
+            
+            const edge = document.createElement('div');
+            edge.className = 'edge';
+            edge.id = 'e-' + e[0];
+            edge.style.width = length + 'px';
+            edge.style.left = x1 + 'px';
+            edge.style.top = y1 + 'px';
+            edge.style.transform = `rotate(${angle}deg)`;
+            cvs.appendChild(edge);
+        });
+
+        // Vẽ Nodes
+        positions.forEach(p => {
+            const node = document.createElement('div');
+            node.className = 'node';
+            node.id = 'n-' + p.id;
+            node.style.left = p.x + '%';
+            node.style.top = p.y + '%';
+            node.innerText = p.id;
+            cvs.appendChild(node);
+            
+            // Labels
+            const lbl = document.createElement('div');
+            lbl.className = 'node-info';
+            lbl.id = 'l-' + p.id;
+            lbl.style.left = (p.x + 8) + '%';
+            lbl.style.top = (p.y - 5) + '%';
+            cvs.appendChild(lbl);
+        });
+    }
+
+    function paint(idx) {
+        const state = steps[idx];
+        
+        // Update Table
+        for(let i=1; i<=4; i++) {
+            document.getElementById('v-sz-'+i).innerText = state.sz[i-1];
+            // Highlight min value in end state
+            const fCell = document.getElementById('v-f-'+i);
+            fCell.innerText = state.f[i-1];
+            if(idx === steps.length - 1 && state.f[i-1] === 4) {
+                fCell.style.color = 'var(--accent)';
+                fCell.style.fontWeight = 'bold';
+            } else {
+                fCell.style.color = '';
+                fCell.style.fontWeight = 'normal';
+            }
+        }
+        
+        // Update Code Highlight
+        document.querySelectorAll('.codeline').forEach(el => el.classList.remove('hot'));
+        if (state.line) {
+            const lineEl = document.getElementById(state.line);
+            if (lineEl) lineEl.classList.add('hot');
+        }
+        
+        // Update Message
+        document.getElementById('msg-box').innerText = state.msg;
+        
+        // Update Counters & Buttons
+        document.getElementById('lbl-step').innerText = idx;
+        document.getElementById('btn-prev').disabled = (idx === 0);
+        document.getElementById('btn-next').disabled = (idx === steps.length - 1);
+        
+        // Update Canvas (Graph)
+        document.querySelectorAll('.node').forEach(el => {
+            el.classList.remove('active');
+            el.classList.remove('root-cand');
+        });
+        document.querySelectorAll('.edge').forEach(el => el.classList.remove('active'));
+        
+        if (state.activeNode) {
+            document.getElementById('n-' + state.activeNode).classList.add('active');
+        }
+        if (state.activeEdge) {
+            document.getElementById('e-' + state.activeEdge).classList.add('active');
+        }
+        if (state.isRoot) {
+            document.getElementById('n-' + state.isRoot).classList.add('root-cand');
+        }
+        
+        // Labels trên Cây
+        for(let i=1; i<=4; i++) {
+            const lText = [];
+            if(state.labelSz[i-1]) lText.push(state.labelSz[i-1]);
+            if(state.labelF[i-1]) lText.push(state.labelF[i-1]);
+            document.getElementById('l-'+i).innerText = lText.join(' | ');
+        }
+    }
+
+    function changeStep(dir) {
+        let nextSp = sp + dir;
+        if (nextSp >= 0 && nextSp < steps.length) {
+            sp = nextSp;
+            paint(sp);
+        }
+        if (sp === steps.length - 1 && autoInterval) {
+            toggleAuto(); // Tự dừng ở bước cuối
+        }
+    }
+
+    function toggleAuto() {
+        const btn = document.getElementById('btn-auto');
+        if (autoInterval) {
+            clearInterval(autoInterval);
+            autoInterval = null;
+            btn.innerText = "Tự chạy ⏯";
+        } else {
+            if (sp === steps.length - 1) sp = -1; // Reset nếu đang ở cuối
+            btn.innerText = "Dừng ⏸";
+            autoInterval = setInterval(() => {
+                changeStep(1);
+            }, 2500); // 2.5s mỗi bước để đọc giải thích
+        }
+    }
+
+    function resetLab() {
+        if (autoInterval) toggleAuto();
+        sp = 0;
+        paint(sp);
+    }
+
+    // Khởi chạy khi load
+    window.onload = function() {
+        makeSteps();
+        document.getElementById('lbl-total').innerText = steps.length - 1;
+        initCanvas();
+        paint(0);
+        
+        // Resize handle
+        window.addEventListener('resize', initCanvas);
+    };
+</script>
+
+</body>
+</html>
