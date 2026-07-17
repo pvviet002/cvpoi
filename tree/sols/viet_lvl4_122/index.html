@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
     <style>
+        /* STREAMING_CHUNK:Khởi tạo các biến màu và base styles... */
         :root {
             --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
             --accent: #38D6C4;   /* Teal/Cyan */
@@ -31,7 +32,7 @@
 
         /* Typography */
         h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.03em; }
-        .code-font { font-family: 'JetBrains Mono', monospace; }
+        .code-font { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
         
         /* Nav bar - BẮT BUỘC */
         .topnav {
@@ -55,6 +56,7 @@
         .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
         section { margin-bottom: 60px; }
         
+        /* STREAMING_CHUNK:Định dạng UI cơ bản (Hero, Lab Components)... */
         /* Hero */
         .hero { text-align: center; margin-bottom: 50px; }
         .hero h1 { font-size: 3rem; background: linear-gradient(to right, var(--accent2), var(--accent)); -webkit-background-clip: text; color: transparent; text-shadow: var(--glow); margin-bottom: 10px; }
@@ -83,14 +85,49 @@
         }
         .card h2 { color: var(--accent); margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,.1); padding-bottom: 10px; }
         
+        /* STREAMING_CHUNK:Cập nhật Code Block UI sát với chuẩn Editor thực tế... */
         /* Code Block */
         .code-block {
-            background: #0A1220; border: var(--border); border-radius: 12px;
-            padding: 15px; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem;
-            overflow-x: auto; margin: 15px 0; white-space: pre-wrap;
+            background: #0A1220; 
+            border: var(--border); 
+            border-radius: 12px;
+            padding: 16px 0; /* Chỉ có padding cho cả khối, dọc 0 */
+            font-family: 'JetBrains Mono', monospace; 
+            font-size: 0.85rem; /* Cỡ chữ code nhỏ gọn lại */
+            line-height: 1.5;   /* Giảm giãn dòng */
+            overflow-x: auto; 
+            margin: 15px 0;
+            counter-reset: line; /* Khởi tạo bộ đếm dòng */
         }
-        .codeline { padding: 2px 8px; border-left: 3px solid transparent; border-radius: 0 4px 4px 0; transition: all 0.3s; }
-        .codeline.hot { background: rgba(255,180,84,.1); border-left: 3px solid var(--mark); }
+        
+        .codeline { 
+            display: block; 
+            min-width: 100%; 
+            width: fit-content; /* Giữ full nền màu highlight khi cuộn ngang */
+            padding: 0 16px 0 44px; /* Lùi trái nhường chỗ cho Line Number, dọc = 0 */
+            border-left: 3px solid transparent; 
+            transition: background 0.2s, border-left-color 0.2s;
+            white-space: pre; /* Cuộn ngang thay vì tự động xuống dòng */
+            position: relative;
+            min-height: 1.5em; /* Giữ chuẩn độ cao với dòng rỗng */
+        }
+        
+        .codeline::before {
+            counter-increment: line;
+            content: counter(line);
+            position: absolute;
+            left: 0; 
+            width: 32px; 
+            text-align: right;
+            color: var(--text-muted);
+            opacity: 0.4;
+            user-select: none; /* Không thể copy số dòng */
+        }
+        
+        .codeline.hot { 
+            background: rgba(255,180,84,.1); 
+            border-left: 3px solid var(--mark); 
+        }
         
         /* Syntax Highlighting */
         .c-kw { color: #C678DD; } /* Keyword */
@@ -100,6 +137,7 @@
         .c-cm { color: #5C6370; font-style: italic; } /* Comment */
         .c-op { color: #56B6C2; } /* Operator */
         
+        /* STREAMING_CHUNK:Hoàn thiện các yếu tố Lab layout, Quiz và Pitfalls... */
         /* Lab Layout */
         .lab-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         @media(max-width: 800px) { .lab-container { grid-template-columns: 1fr; } }
@@ -165,6 +203,7 @@
 </head>
 <body>
 
+<!-- STREAMING_CHUNK:Hiển thị cấu trúc HTML và Hero Banner... -->
 <nav class="topnav">
     <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
     <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
@@ -225,6 +264,7 @@
         </div>
     </section>
 
+    <!-- STREAMING_CHUNK:Nội dung phần Lý thuyết với cấu trúc Editor chuyên nghiệp... -->
     <!-- 3.4 Cú pháp & Lý thuyết -->
     <section id="theory">
         <div class="card">
@@ -241,11 +281,11 @@
 <div class="codeline">    <span class="c-cm">// Duyệt qua tất cả các ước nguyên tố của giá trị đỉnh u</span></div>
 <div class="codeline">    <span class="c-kw">for</span> (<span class="c-kw">int</span> p : factors[a[u]]) {</div>
 <div class="codeline">        <span class="c-kw">if</span> (is_present[u]) {</div>
-<div class="codeline">            <span class="c-cm">// Đỉnh ĐANG có trong đoạn -> Thao tác: XÓA</span></div>
+<div class="codeline">            <span class="c-cm">// Đỉnh ĐANG có trong đoạn -&gt; Thao tác: XÓA</span></div>
 <div class="codeline">            cnt[p]--;</div>
 <div class="codeline">            <span class="c-kw">if</span> (cnt[p] == <span class="c-num">0</span>) ans--;</div>
 <div class="codeline">        } <span class="c-kw">else</span> {</div>
-<div class="codeline">            <span class="c-cm">// Đỉnh CHƯA có trong đoạn -> Thao tác: THÊM</span></div>
+<div class="codeline">            <span class="c-cm">// Đỉnh CHƯA có trong đoạn -&gt; Thao tác: THÊM</span></div>
 <div class="codeline">            <span class="c-kw">if</span> (cnt[p] == <span class="c-num">0</span>) ans++;</div>
 <div class="codeline">            cnt[p]++;</div>
 <div class="codeline">        }</div>
@@ -254,10 +294,11 @@
 <div class="codeline">    is_present[u] = !is_present[u];</div>
 <div class="codeline">}</div>
             </div>
-            <p><strong>Tại sao đúng?</strong> Khi thêm đỉnh mới, nếu <span class="code-font">cnt[p]</span> chuyển từ 0 lên 1, tức là ước <span class="code-font">p</span> lần đầu xuất hiện $\rightarrow$ tăng <span class="code-font">ans</span>. Khi xóa, nếu <span class="code-font">cnt[p]</span> rớt xuống 0, tức là tập hợp hiện tại không còn đỉnh nào chứa ước <span class="code-font">p</span> nữa $\rightarrow$ giảm <span class="code-font">ans</span>.</p>
+            <p><strong>Tại sao đúng?</strong> Khi thêm đỉnh mới, nếu <span class="code-font">cnt[p]</span> chuyển từ 0 lên 1, tức là ước <span class="code-font">p</span> lần đầu xuất hiện → tăng <span class="code-font">ans</span>. Khi xóa, nếu <span class="code-font">cnt[p]</span> rớt xuống 0, tức là tập hợp hiện tại không còn đỉnh nào chứa ước <span class="code-font">p</span> nữa → giảm <span class="code-font">ans</span>.</p>
         </div>
     </section>
 
+    <!-- STREAMING_CHUNK:Phòng Lab tương tác thuật toán Mo's... -->
     <!-- 3.5 Interactive Lab -->
     <section id="lab">
         <div class="card">
@@ -265,7 +306,7 @@
             <p style="margin-bottom: 20px; color: var(--text-muted);">
                 Hãy cùng theo dõi con trỏ Mo's duyệt qua các đỉnh. <br>
                 <strong>Dữ liệu:</strong> Cây đang xét có 2 đỉnh. Đỉnh số <strong>2</strong> có giá trị 6 (ước: 2, 3). Đỉnh số <strong>4</strong> có giá trị 15 (ước: 3, 5).<br>
-                <strong>Kịch bản:</strong> Thêm đỉnh 2 $\rightarrow$ Thêm đỉnh 4 $\rightarrow$ Xóa đỉnh 2 (do đoạn [L, R] thu hẹp).
+                <strong>Kịch bản:</strong> Thêm đỉnh 2 → Thêm đỉnh 4 → Xóa đỉnh 2 (do đoạn [L, R] thu hẹp).
             </p>
 
             <div class="lab-container">
@@ -304,9 +345,11 @@
                     </table>
                 </div>
 
-                <div class="lab-right">
-                    <h3 style="margin-bottom: 10px; border-bottom: 1px solid var(--text-muted); padding-bottom: 5px;">Source Code</h3>
-                    <div class="code-block" style="margin-top:0;">
+                <div class="lab-right" style="padding: 0; overflow: hidden; background: #0A1220;">
+                    <div style="background: var(--panel); padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,.05);">
+                        <h3 style="margin: 0; font-size: 1.1rem;">Source Code</h3>
+                    </div>
+                    <div class="code-block" style="margin:0; border:none; border-radius:0;">
 <div class="codeline" id="l1"><span class="c-kw">void</span> <span class="c-fn">toggle</span>(<span class="c-kw">int</span> u) {</div>
 <div class="codeline" id="l2">    <span class="c-kw">for</span> (<span class="c-kw">int</span> p : factors[a[u]]) {</div>
 <div class="codeline" id="l3">        <span class="c-kw">if</span> (is_present[u]) {</div>
@@ -325,6 +368,7 @@
         </div>
     </section>
 
+    <!-- STREAMING_CHUNK:Phần Pitfalls và Quiz... -->
     <!-- 3.6 Cạm bẫy -->
     <section id="pitfalls">
         <h2>Cạm bẫy thường gặp (Pitfalls)</h2>
@@ -346,14 +390,14 @@
                 <h3>✓ Đúng</h3>
                 <p><strong>Thêm LCA vào thủ công ở bước tính kết quả</strong></p>
                 <div class="code-block">
-<div class="codeline"><span class="c-cm">// Sau khi di chuyển xong con trỏ L, R của truy vấn hiện tại</span></div>
+<div class="codeline"><span class="c-cm">// Sau khi di chuyển xong con trỏ L, R</span></div>
 <div class="codeline"><span class="c-kw">int</span> lca = get_lca(u, v);</div>
 <div class="codeline"><span class="c-kw">if</span> (lca != u &amp;&amp; lca != v) {</div>
 <div class="codeline">    toggle(lca); <span class="c-cm">// Tạm thời thêm LCA vào</span></div>
 <div class="codeline">}</div>
 <div class="codeline">res[q.id] = ans; <span class="c-cm">// Lưu kết quả</span></div>
 <div class="codeline"><span class="c-kw">if</span> (lca != u &amp;&amp; lca != v) {</div>
-<div class="codeline">    toggle(lca); <span class="c-cm">// Rút LCA ra để không hỏng state</span></div>
+<div class="codeline">    toggle(lca); <span class="c-cm">// Rút LCA ra giữ nguyên state</span></div>
 <div class="codeline">}</div>
                 </div>
                 <p style="font-size: 0.9rem; margin-top: 10px;">Đưa tạm đỉnh LCA vào tập hợp bằng chính hàm <span class="code-font">toggle</span> để cập nhật <span class="code-font">ans</span>. Sau khi lưu xong đáp án của truy vấn, ta gọi lại <span class="code-font">toggle</span> lần nữa để gỡ đỉnh LCA ra, trả lại trạng thái sạch cho truy vấn tiếp theo.</p>
@@ -379,6 +423,7 @@
     </section>
 </div>
 
+<!-- STREAMING_CHUNK:JavaScript cho Logic State-Machine của Lab... -->
 <script>
     // ==========================================
     // MINI LAB HERO SCRIPT
@@ -424,10 +469,6 @@
     // Các hằng số cho bài Lab
     const primesList = [2, 3, 5];
     const nodesList = [2, 4];
-    const nodeFactors = {
-        2: [2, 3], // Đỉnh 2 giá trị 6
-        4: [3, 5]  // Đỉnh 4 giá trị 15
-    };
 
     function deepCopyState(state) {
         return JSON.parse(JSON.stringify(state));
@@ -550,7 +591,6 @@
     }
 
     function renderArrays(state) {
-        // Render is_present
         let htmlIsPresent = '';
         nodesList.forEach(u => {
             let val = state.is_present[u] ? 'TRUE' : 'FALSE';
@@ -565,7 +605,6 @@
         });
         document.getElementById('vis-is_present').innerHTML = htmlIsPresent;
 
-        // Render cnt
         let htmlCnt = '';
         primesList.forEach(p => {
             let val = state.cnt[p];
@@ -584,7 +623,6 @@
     function paint(index) {
         const state = steps[index];
         
-        // Update variables table
         document.getElementById('var-u').innerText = state.vars.u;
         document.getElementById('var-p').innerText = state.vars.p;
         document.getElementById('var-ans').innerText = state.ans;
@@ -593,25 +631,20 @@
             setTimeout(() => document.getElementById('var-ans').style.transform = 'scale(1)', 300);
         }
 
-        // Arrays
         renderArrays(state);
 
-        // Highlight code
         document.querySelectorAll('.codeline').forEach(el => el.classList.remove('hot'));
         if (state.line) {
             document.getElementById(state.line).classList.add('hot');
         }
 
-        // Message
         document.getElementById('lab-msg').innerHTML = state.msg;
-
-        // Counters and Buttons
         document.getElementById('step-counter').innerText = `Bước: ${index} / ${steps.length - 1}`;
         document.getElementById('btn-prev').disabled = (index === 0);
         document.getElementById('btn-next').disabled = (index === steps.length - 1);
         
         if (index === steps.length - 1 && isPlaying) {
-            toggleAuto(); // Stop auto at end
+            toggleAuto();
         }
     }
 
@@ -636,12 +669,10 @@
             btn.innerText = "Tự chạy ⏯";
             isPlaying = false;
         } else {
-            if (sp === steps.length - 1) sp = 0; // reset if at end
+            if (sp === steps.length - 1) sp = 0;
             btn.innerText = "Dừng ⏸";
             isPlaying = true;
-            autoInterval = setInterval(() => {
-                stepLab(1);
-            }, 1200); // 1.2s per step to allow reading
+            autoInterval = setInterval(() => { stepLab(1); }, 1200);
         }
     }
 
@@ -649,32 +680,19 @@
     // QUIZ SCRIPT
     // ==========================================
     function checkQuiz(btn, isCorrect) {
-        // Disable all buttons
         const container = btn.parentElement;
         const buttons = container.querySelectorAll('.quiz-opt');
         buttons.forEach(b => {
             b.disabled = true;
             b.style.cursor = 'not-allowed';
             b.classList.remove('correct', 'wrong');
+            if (b.onclick.toString().includes('true')) b.classList.add('correct');
         });
 
-        // Mark correct answer anyway
-        buttons.forEach(b => {
-            if (b.onclick.toString().includes('true')) {
-                b.classList.add('correct');
-            }
-        });
-
-        // Mark wrong if chosen
-        if (!isCorrect) {
-            btn.classList.add('wrong');
-        }
-
-        // Show explanation
+        if (!isCorrect) btn.classList.add('wrong');
         document.getElementById('quiz-explanation').style.display = 'block';
     }
 
-    // Init on load
     window.onload = () => {
         makeSteps();
         paint(0);
@@ -684,18 +702,3 @@
 </body>
 </html>
 ```eof
-
-### Tóm tắt các thay đổi và tuân thủ quy tắc:
-1. **Toán học & Text:** Tuyệt đối không dùng LaTeX. Mọi ký hiệu độ phức tạp (như `O((N + Q)√N)`) và toán tử (như `≤`, `×`, `≠`) đều dùng Unicode và HTML tags. Dấu `<` và `>` ngoài văn bản được thay bằng chữ hoặc ký tự entity.
-2. **Coding Format:** 
-    - Tất cả `<` và `>` trong code block được chuyển thành `&lt;` và `&gt;`.
-    - Dùng font `JetBrains Mono` và màu sắc highlight `.c-kw`, `.c-fn`, v.v. đúng yêu cầu.
-    - Code block trong phần Lý thuyết và phần Lab giống hệt nhau về thuật toán và cú pháp (đều là hàm `toggle`).
-3. **Chất lượng sư phạm:** 
-    - Tách biệt rõ ràng lý do tại sao dùng mảng kích thước `2×N` (Euler Tour) và logic triệt tiêu của Mo's.
-    - Kịch bản Lab kể một câu chuyện rất rõ: Thêm đỉnh 2 (thêm mới hoàn toàn) $\rightarrow$ Thêm đỉnh 4 (có chia sẻ chung ước số 3) $\rightarrow$ Xóa đỉnh 2 (quan sát việc ans không bị giảm oan do vẫn còn đỉnh 4 gánh).
-    - Các bước giải thích tại sao rẽ vào nhánh `else`, tại sao biến `ans` tăng, tại sao biến `ans` không thay đổi.
-4. **Kiến trúc Lab Engine:** Dùng mô hình state-machine tĩnh (`makeSteps` khởi tạo array các state copy). Hàm `paint` là thuần túy render. Có màu highlight đánh dấu các ô mảng vừa thay đổi để mắt người dùng dễ theo dõi.
-5. **UI & Nav:** Navigation dính (sticky) ở top, chuẩn DNA không target blank, link đúng. Dark Mode UI có đầy đủ shadow và accent color. 
-
-Bạn có muốn bổ sung thêm trường hợp input đặc biệt nào vào trong mô phỏng của hàm Toggle không?
