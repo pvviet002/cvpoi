@@ -3,19 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mo's Algorithm Trên Cây - EduCode Master</title>
+    <title>Lời giải: Đếm số ước nguyên tố trên đường đi</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* STREAMING_CHUNK:Khởi tạo các biến màu và base styles... */
         :root {
             --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
-            --accent: #38D6C4;   /* Teal/Cyan */
-            --accent2: #5B8CFF;  /* Blue */
-            --mark: #FFB454;     /* Orange */
-            --red: #FF6B6B;      /* Red */
-            --green: #4ADE80;    /* Green */
+            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
             --text-main: #E2E8F0; --text-muted: #94A3B8;
             --glow: 0 0 20px rgba(56,214,196,.4);
             --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
@@ -30,672 +25,776 @@
             line-height: 1.6;
         }
 
-        /* Typography */
-        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.03em; }
-        .code-font { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
-        
-        /* Nav bar - BẮT BUỘC */
+        h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.03em; color: #fff; }
+        h1 { font-size: 2.2rem; margin-bottom: 0.5rem; }
+        h2 { font-size: 1.5rem; margin: 2.5rem 0 1rem; border-bottom: var(--border); padding-bottom: 0.5rem; }
+        h3 { font-size: 1.2rem; margin: 1.5rem 0 0.5rem; color: var(--accent); }
+        p { margin-bottom: 1rem; }
+        ul, ol { margin-bottom: 1rem; padding-left: 1.5rem; }
+        li { margin-bottom: 0.25rem; }
+        strong { color: #fff; font-weight: 600; }
+
         .topnav {
-            position: sticky; top: 0; z-index: 100;
-            display: flex; gap: 12px; align-items: center;
-            padding: 12px 20px;
-            background: rgba(11,18,32,.85); backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center;
+            padding: 12px 20px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px);
             border-bottom: var(--border);
         }
         .nav-btn {
-            text-decoration: none; color: #000;
-            background: linear-gradient(135deg, var(--accent2), var(--accent));
-            padding: 8px 18px; border-radius: 8px; font-weight: 600;
-            box-shadow: var(--glow); transition: all .3s ease;
+            text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent));
+            padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease;
         }
         .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
         .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
 
-        /* Container & Layout */
-        .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
-        section { margin-bottom: 60px; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 24px 40px; display: flex; flex-direction: column; gap: 1rem; }
         
-        /* STREAMING_CHUNK:Định dạng UI cơ bản (Hero, Lab Components)... */
-        /* Hero */
-        .hero { text-align: center; margin-bottom: 50px; }
-        .hero h1 { font-size: 3rem; background: linear-gradient(to right, var(--accent2), var(--accent)); -webkit-background-clip: text; color: transparent; text-shadow: var(--glow); margin-bottom: 10px; }
-        .hero p { color: var(--text-muted); font-size: 1.2rem; margin-bottom: 20px; }
-        .badge { display: inline-block; background: rgba(56,214,196,.1); border: 1px solid var(--accent); color: var(--accent); padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 500; }
+        .hero { margin-top: 2rem; text-align: center; }
+        .badge-group { display: flex; justify-content: center; gap: 10px; margin-bottom: 1rem; }
+        .badge { background: rgba(91, 140, 255, 0.15); color: var(--accent2); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; border: 1px solid rgba(91, 140, 255, 0.3); }
+        .hero-desc { font-size: 1.1rem; color: var(--text-muted); max-width: 800px; margin: 0 auto; }
+
+        .card { background: linear-gradient(180deg, var(--panel), var(--bg2)); border: var(--border); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); margin-bottom: 1rem; }
         
-        /* Mini Lab */
-        .mini-lab {
-            margin-top: 30px; padding: 20px;
-            background: var(--panel); border: var(--border); border-radius: 12px;
-            display: inline-block; text-align: left; box-shadow: var(--shadow);
-        }
-        .mini-lab-flex { display: flex; align-items: center; gap: 20px; margin-bottom: 15px; }
-        .node-btn {
-            background: var(--bg2); border: 2px solid var(--text-muted); color: var(--text-main);
-            width: 60px; height: 60px; border-radius: 50%; font-size: 1.2rem; font-weight: bold;
-            cursor: pointer; transition: all 0.2s;
-        }
-        .node-btn.active { border-color: var(--accent); background: rgba(56,214,196,.2); box-shadow: var(--glow); }
+        /* Typography for Math/Code */
+        .math { font-family: 'JetBrains Mono', monospace; color: var(--mark); background: rgba(255, 180, 84, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
         
-        /* Card */
-        .card {
-            background: linear-gradient(145deg, var(--panel), var(--bg2));
-            border: var(--border); border-radius: 16px; padding: 30px;
-            box-shadow: var(--shadow); margin-bottom: 30px;
-        }
-        .card h2 { color: var(--accent); margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,.1); padding-bottom: 10px; }
-        
-        /* STREAMING_CHUNK:Cập nhật Code Block UI sát với chuẩn Editor thực tế... */
-        /* Code Block */
-        .code-block {
-            background: #0A1220; 
-            border: var(--border); 
-            border-radius: 12px;
-            padding: 16px 0; /* Chỉ có padding cho cả khối, dọc 0 */
-            font-family: 'JetBrains Mono', monospace; 
-            font-size: 0.85rem; /* Cỡ chữ code nhỏ gọn lại */
-            line-height: 1.5;   /* Giảm giãn dòng */
-            overflow-x: auto; 
-            margin: 15px 0;
-            counter-reset: line; /* Khởi tạo bộ đếm dòng */
-        }
-        
-        .codeline { 
-            display: block; 
-            min-width: 100%; 
-            width: fit-content; /* Giữ full nền màu highlight khi cuộn ngang */
-            padding: 0 16px 0 44px; /* Lùi trái nhường chỗ cho Line Number, dọc = 0 */
-            border-left: 3px solid transparent; 
-            transition: background 0.2s, border-left-color 0.2s;
-            white-space: pre; /* Cuộn ngang thay vì tự động xuống dòng */
-            position: relative;
-            min-height: 1.5em; /* Giữ chuẩn độ cao với dòng rỗng */
-        }
-        
-        .codeline::before {
-            counter-increment: line;
-            content: counter(line);
-            position: absolute;
-            left: 0; 
-            width: 32px; 
-            text-align: right;
-            color: var(--text-muted);
-            opacity: 0.4;
-            user-select: none; /* Không thể copy số dòng */
-        }
-        
-        .codeline.hot { 
-            background: rgba(255,180,84,.1); 
-            border-left: 3px solid var(--mark); 
-        }
+        /* Code Block Styling */
+        .code-container { background: #0A1220; border: var(--border); border-radius: 12px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6; padding: 16px 0; margin: 1rem 0; }
+        .codeline { padding: 0 16px; white-space: pre-wrap; display: flex; }
+        .codeline.hot { background: rgba(255, 180, 84, 0.1); border-left: 3px solid var(--mark); padding-left: 13px; }
         
         /* Syntax Highlighting */
-        .c-kw { color: #C678DD; } /* Keyword */
-        .c-fn { color: #61AFEF; } /* Function */
-        .c-num { color: #D19A66; } /* Number */
-        .c-str { color: #98C379; } /* String */
-        .c-cm { color: #5C6370; font-style: italic; } /* Comment */
-        .c-op { color: #56B6C2; } /* Operator */
-        
-        /* STREAMING_CHUNK:Hoàn thiện các yếu tố Lab layout, Quiz và Pitfalls... */
-        /* Lab Layout */
-        .lab-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media(max-width: 800px) { .lab-container { grid-template-columns: 1fr; } }
-        .lab-left, .lab-right { background: var(--panel); border: var(--border); border-radius: 12px; padding: 20px; }
-        
-        /* Lab Visuals */
-        .lab-topbar { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
-        .btn {
-            background: var(--bg2); border: 1px solid var(--text-muted); color: var(--text-main);
-            padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-weight: 500;
-        }
-        .btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+        .c-kw { color: #FF7B72; } /* Keyword */
+        .c-num { color: #79C0FF; } /* Number */
+        .c-cm { color: #8B949E; font-style: italic; } /* Comment */
+        .c-str { color: #A5D6FF; } /* String */
+        .c-fn { color: #D2A8FF; } /* Function */
+        .c-op { color: #C9D1D9; } /* Operator */
+        .c-ty { color: #FF7B72; } /* Type */
+
+        /* Interactive Lab Styles */
+        .lab-container { margin: 1.5rem 0; background: var(--bg); border: var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+        .lab-header { padding: 12px 16px; background: rgba(255,255,255,0.03); border-bottom: var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .lab-controls { display: flex; gap: 8px; }
+        .btn { background: var(--panel); border: var(--border); color: var(--text-main); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: 'Inter', sans-serif; transition: all .2s; }
+        .btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-primary { background: linear-gradient(135deg, var(--accent2), var(--accent)); border: none; color: #000; font-weight: 600; }
-        .btn-primary:hover:not(:disabled) { box-shadow: var(--glow); transform: translateY(-2px); }
+        .lab-body { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+        .lab-msg { min-height: 48px; padding: 12px; background: rgba(56, 214, 196, 0.1); border-left: 3px solid var(--accent); border-radius: 4px; font-weight: 500; }
         
-        .var-table {
-            width: 100%; border-collapse: collapse; margin-bottom: 15px; font-family: 'JetBrains Mono', monospace;
-        }
-        .var-table th, .var-table td { border: 1px solid rgba(255,255,255,.1); padding: 8px; text-align: center; }
-        .var-table th { color: var(--text-muted); font-size: 0.9rem; }
-        .var-table td { color: var(--accent); font-weight: bold; }
+        /* Visualizer Elements */
+        .viz-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; justify-content: center;}
+        .viz-node { width: 44px; height: 44px; flex: none; display: flex; align-items: center; justify-content: center; background: var(--panel); border: 2px solid #333; border-radius: 50%; font-family: 'JetBrains Mono'; font-weight: bold; position: relative; transition: all .3s; }
+        .viz-node.active { background: rgba(56, 214, 196, 0.2); border-color: var(--accent); box-shadow: 0 0 10px rgba(56, 214, 196, 0.4); }
+        .viz-array-box { width: 44px; height: 44px; flex: none; display: flex; align-items: center; justify-content: center; background: var(--panel); border: 1px solid #444; border-radius: 8px; font-family: 'JetBrains Mono'; transition: all .3s; position: relative; }
+        .viz-array-box.in-range { background: rgba(255, 180, 84, 0.2); border-color: var(--mark); }
+        .viz-array-box.toggled { border-bottom: 4px solid var(--accent); }
+        .viz-label { position: absolute; bottom: -20px; font-size: 0.75rem; color: var(--text-muted); font-family: 'JetBrains Mono'; }
         
-        .array-vis { display: flex; gap: 5px; margin: 10px 0 20px; flex-wrap: wrap; }
-        .array-cell {
-            width: 45px; height: 50px; background: var(--bg); border: 1px solid var(--text-muted);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            border-radius: 6px; font-family: 'JetBrains Mono', monospace; position: relative;
-        }
-        .array-cell.active { border-color: var(--accent); box-shadow: var(--glow); }
-        .array-cell.changed { background: rgba(255,180,84,.2); border-color: var(--mark); }
-        .cell-idx { font-size: 0.7rem; color: var(--text-muted); position: absolute; top: 2px; }
-        .cell-val { font-size: 1.1rem; font-weight: bold; margin-top: 8px; }
-        
-        .msg-box {
-            background: rgba(56,214,196,.1); border-left: 4px solid var(--accent);
-            padding: 15px; border-radius: 0 8px 8px 0; margin-bottom: 20px; font-size: 0.95rem;
+        /* Table/Dict for state */
+        .state-table { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; }
+        .state-item { background: var(--bg); padding: 8px 16px; border-radius: 8px; border: var(--border); display: flex; gap: 10px; align-items: center; }
+        .state-val { font-family: 'JetBrains Mono'; font-weight: bold; color: var(--accent); }
+
+        /* Quiz Styles */
+        .quiz { background: rgba(15, 26, 46, 0.5); border: 1px solid rgba(255,255,255,0.05); padding: 16px; border-radius: 12px; margin-top: 16px; }
+        .quiz-q { font-weight: 600; margin-bottom: 12px; }
+        .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+        .quiz-opt { text-align: left; background: var(--panel); border: var(--border); padding: 10px 16px; border-radius: 8px; color: var(--text-main); cursor: pointer; transition: all .2s; }
+        .quiz-opt:hover:not(:disabled) { background: rgba(255,255,255,0.1); }
+        .quiz-opt.correct { background: rgba(56, 214, 196, 0.2); border-color: var(--accent); }
+        .quiz-opt.wrong { background: rgba(255, 107, 107, 0.2); border-color: var(--red); }
+        .quiz-opt:disabled { cursor: default; }
+        .quiz-exp { margin-top: 12px; font-size: 0.95rem; color: var(--text-muted); display: none; padding-left: 12px; border-left: 2px solid var(--text-muted); }
+
+        /* Columns for traps */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .trap-card { background: rgba(255, 107, 107, 0.05); border: 1px solid rgba(255, 107, 107, 0.2); padding: 16px; border-radius: 12px; }
+        .trap-card.good { background: rgba(56, 214, 196, 0.05); border-color: rgba(56, 214, 196, 0.2); }
+        .trap-title { display: flex; align-items: center; gap: 8px; font-weight: 600; margin-bottom: 8px; }
+        .c-red { color: var(--red); } .c-green { color: var(--accent); }
+
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .topnav { flex-wrap: wrap; }
         }
 
-        /* Pitfalls */
-        .pitfalls { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .pitfall-card { background: var(--panel); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
-        .pitfall-wrong { border-top: 4px solid var(--red); }
-        .pitfall-right { border-top: 4px solid var(--green); }
-        .pitfall-wrong h3 { color: var(--red); margin-bottom: 10px; }
-        .pitfall-right h3 { color: var(--green); margin-bottom: 10px; }
-
-        /* Quiz */
-        .quiz-opt {
-            display: block; width: 100%; text-align: left; padding: 15px; margin-bottom: 10px;
-            background: var(--bg2); border: 1px solid var(--text-muted); border-radius: 8px;
-            color: var(--text-main); cursor: pointer; transition: all 0.2s;
-        }
-        .quiz-opt:hover:not(:disabled) { border-color: var(--accent); background: rgba(56,214,196,.05); }
-        .quiz-opt.correct { border-color: var(--green); background: rgba(74,222,128,.1); }
-        .quiz-opt.wrong { border-color: var(--red); background: rgba(255,107,107,.1); }
-        .quiz-expl { display: none; margin-top: 15px; padding: 15px; background: var(--panel); border-radius: 8px; border-left: 4px solid var(--accent); }
-
-        ul, ol { margin-left: 20px; margin-bottom: 10px; }
-        li { margin-bottom: 5px; }
-        .highlight { color: var(--mark); }
+        /* Helpers */
+        .mt-4 { margin-top: 1rem; } .mb-2 { margin-bottom: 0.5rem; }
+        .text-center { text-align: center; }
     </style>
 </head>
 <body>
 
-<!-- STREAMING_CHUNK:Hiển thị cấu trúc HTML và Hero Banner... -->
+<!-- 3.0. Thanh Nav -->
 <nav class="topnav">
     <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
     <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
 </nav>
 
 <div class="container">
-    <header class="hero">
-        <h1>Mo's Algorithm Trên Cây</h1>
-        <p>Bẻ cong cành lá thành đường thẳng — Xử lý siêu tốc truy vấn trên cây</p>
-        <span class="badge">Cần biết trước: Mo's Algorithm cơ bản, Euler Tour, Sàng nguyên tố</span>
+    <!-- 3.1. Hero -->
+    <div class="hero">
+        <div class="badge-group">
+            <span class="badge">Graph/Tree</span>
+            <span class="badge">Mo's Algorithm</span>
+            <span class="badge">Number Theory</span>
+        </div>
+        <h1>Đếm số ước nguyên tố trên đường đi</h1>
+        <p class="hero-desc">Thay vì duyệt cây tốn kém cho mỗi truy vấn, ta biến đổi cấu trúc cây thành mảng 1D bằng <strong>Dãy Euler (Euler Tour)</strong>, sau đó dùng <strong>Thuật toán Mo</strong> trượt trên mảng để đếm số lượng thừa số nguyên tố phân biệt với tốc độ chớp nhoáng.</p>
+    </div>
+
+    <!-- 3.2. TÓM TẮT ĐỀ BÀI -->
+    <div class="card">
+        <h2>Tóm tắt đề bài</h2>
+        <p>Cho một cây gồm <span class="math">n</span> đỉnh. Đỉnh <span class="math">i</span> có trọng số <span class="math">a<sub>i</sub></span>. Giả sử mỗi ước nguyên tố của <span class="math">a<sub>i</sub></span> là một "công ty".</p>
+        <p>Có <span class="math">q</span> truy vấn dạng <span class="math">(u, v)</span>. Với mỗi truy vấn, hãy đếm số lượng công ty (ước nguyên tố) <strong>phân biệt</strong> trên đường đi từ đỉnh <span class="math">u</span> đến đỉnh <span class="math">v</span>.</p>
         
-        <div class="mini-lab">
-            <p style="margin-bottom: 10px; font-weight: 500; color: var(--text-muted);">Mini-Lab: Khái niệm "Tập hợp các ước nguyên tố"</p>
-            <div class="mini-lab-flex">
-                <button class="node-btn" id="mn-btn-1" onclick="toggleMiniNode(1, [2, 3])">N1<br><span style="font-size:0.7rem; font-weight:normal">v=6</span></button>
-                <button class="node-btn" id="mn-btn-2" onclick="toggleMiniNode(2, [3, 5])">N2<br><span style="font-size:0.7rem; font-weight:normal">v=15</span></button>
-                <button class="node-btn" id="mn-btn-3" onclick="toggleMiniNode(3, [2])">N3<br><span style="font-size:0.7rem; font-weight:normal">v=4</span></button>
-            </div>
-            <div style="font-family: 'JetBrains Mono', monospace;">
-                Tập hợp ước: <span id="mn-set" style="color: var(--accent);">{ }</span> <br>
-                Số lượng ước phân biệt: <span id="mn-ans" style="color: var(--mark); font-size: 1.2rem; font-weight: bold;">0</span>
-            </div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 10px;">Thử click bật/tắt các đỉnh để thấy cách hợp tập hợp diễn ra. Việc thêm đỉnh 3 (có ước 2) khi đỉnh 1 (có ước 2) đang bật sẽ KHÔNG làm tăng tổng số ước phân biệt.</p>
+        <h3>Ràng buộc:</h3>
+        <ul>
+            <li><span class="math">n, q &le; 5 &times; 10<sup>4</sup></span></li>
+            <li><span class="math">a<sub>i</sub> &le; 10<sup>5</sup></span></li>
+        </ul>
+
+        <h3>Ví dụ ngẫu nhiên:</h3>
+        <div class="code-container" style="padding: 12px; margin-top: 8px;">
+            <div class="codeline">Cây 3 đỉnh: a = [7, 2, 1]</div>
+            <div class="codeline">Cạnh: (1, 2), (1, 3)</div>
+            <div class="codeline">Truy vấn: (2, 3)</div>
+            <div class="codeline c-cm">Đường đi 2 &rarr; 1 &rarr; 3 có các đỉnh mang giá trị [2, 7, 1].</div>
+            <div class="codeline c-cm">Thừa số nguyên tố: của 2 là {2}, của 7 là {7}, của 1 là rỗng.</div>
+            <div class="codeline c-cm">Tổng hợp lại có tập {2, 7} &rarr; Đáp án: 2.</div>
         </div>
-    </header>
+    </div>
 
-    <!-- 3.2 Tóm tắt đề bài -->
-    <section id="summary">
-        <div class="card">
-            <h2>Tóm tắt đề bài</h2>
-            <ul>
-                <li><strong>Đề bài:</strong> Cho một cây gồm <span class="code-font">N</span> đỉnh, đỉnh thứ <span class="code-font">i</span> có giá trị <span class="code-font">A<sub>i</sub></span>. Cho <span class="code-font">Q</span> truy vấn dạng <span class="code-font">(u, v)</span>, hãy đếm số lượng ước nguyên tố <em>phân biệt</em> của tất cả các giá trị trên đường đi ngắn nhất từ <span class="code-font">u</span> đến <span class="code-font">v</span>.</li>
-                <li><strong>Giới hạn:</strong> 1 ≤ N, Q ≤ 50,000; 1 ≤ A<sub>i</sub> ≤ 100,000.</li>
-                <li><strong>Ví dụ:</strong> Đường đi đi qua 3 đỉnh có giá trị lần lượt là 12, 10, 5. 
-                    <br> Phân tích thừa số: 12={2, 3}, 10={2, 5}, 5={5}. 
-                    <br> Tập hợp tất cả các ước: {2, 3} ∪ {2, 5} ∪ {5} = {2, 3, 5}. 
-                    <br> <strong>Output:</strong> 3.</li>
-                <li><strong>Hướng giải:</strong> 
-                    <br>1. <strong>Ta muốn gì?</strong> Cần trả lời cực nhanh <span class="code-font">Q</span> truy vấn trên các đường đi của cây.
-                    <br>2. <strong>Quan sát:</strong> Việc hợp nhất các tập hợp nguyên tố nếu làm từng bước sẽ rất chậm. Nhưng nếu ta có thể tái sử dụng kết quả của truy vấn trước cho truy vấn sau (thêm/bớt 1 đỉnh ở mép) thì sẽ rất nhanh. Đây chính là đặc điểm của Mo's Algorithm.
-                    <br>3. <strong>Cách làm:</strong> Cây không phải mảng 1D, nên ta dùng <strong>Euler Tour</strong> để "kéo thẳng" cây thành một mảng tuyến tính độ dài <span class="code-font">2×N</span>. Mỗi đường đi <span class="code-font">(u, v)</span> giờ đây biến thành một đoạn <span class="code-font">[L, R]</span> trên mảng này. Sau đó, ta áp dụng thuật toán Mo's bình thường với cấu trúc dữ liệu mảng đếm <span class="code-font">cnt[]</span>.
-                </li>
-            </ul>
-        </div>
-    </section>
+    <!-- 3.3. PHÂN TÍCH BAN ĐẦU -->
+    <div class="card">
+        <h2>Phân tích ban đầu</h2>
+        <p><strong>Ta muốn gì?</strong> Cần tìm số nguyên tố phân biệt xuất hiện trong các số <span class="math">a<sub>i</sub></span> trên một đường đi bất kỳ.</p>
+        <p><strong>Cách ngây thơ:</strong> Với mỗi truy vấn <span class="math">(u, v)</span>, ta dùng DFS/BFS duyệt tìm đường đi (mất <span class="math">O(n)</span> đỉnh). Tại mỗi đỉnh, ta phân tích <span class="math">a<sub>i</sub></span> ra thừa số nguyên tố và bỏ vào tập hợp (Set). Cuối cùng đếm kích thước tập hợp.</p>
+        <p><strong>Vì sao thất bại?</strong> Có <span class="math">q = 50000</span> truy vấn. Nếu đường đi dài <span class="math">50000</span> đỉnh, thời gian cho toàn bộ sẽ là <span class="math">O(q &times; n &times; (thời_gian_phân_tích)) &approx; 2.5 &times; 10<sup>9</sup></span> phép toán. Chắc chắn quá thời gian (TLE)!</p>
+        <p><strong>Hướng giải quyết:</strong> Khi bài toán yêu cầu trả lời <em>nhiều truy vấn trên một cấu trúc tĩnh</em> (cây không bị thay đổi), và việc <em>gộp/bỏ</em> một phần tử vào kết quả rất dễ, ta phải nghĩ ngay đến <strong>Thuật toán Mo</strong> kết hợp với kỹ thuật <strong>Trải phẳng cây</strong>.</p>
+    </div>
 
-    <!-- 3.3 Motivation -->
-    <section id="motivation">
-        <div class="card">
-            <h2>Vì sao cần kỹ thuật này?</h2>
-            <p>Giả sử ta dùng cách <strong>Naive (Ngây thơ)</strong>: Với mỗi truy vấn <span class="code-font">(u, v)</span>, ta chạy DFS/BFS để gom mọi đỉnh trên đường đi, rồi đếm số ước. Chi phí mỗi truy vấn là O(N). Tổng thời gian cho Q truy vấn là <strong>O(Q × N)</strong>. Với N = 50,000 và Q = 50,000, số phép tính lên tới 2.5 × 10<sup>9</sup> — chắc chắn bị Time Limit Exceeded (TLE)!</p>
-            <p style="margin-top: 15px;">Khi dùng <strong>Mo's trên cây</strong>:</p>
-            <ul>
-                <li>Ta sắp xếp lại các đoạn truy vấn sao cho con trỏ <span class="code-font">L</span> và <span class="code-font">R</span> di chuyển ít nhất có thể.</li>
-                <li>Độ phức tạp di chuyển hai con trỏ giảm xuống chỉ còn <strong>O((N + Q)√N)</strong>.</li>
-                <li>Với N = 50,000, (N+Q)√N ≈ 100,000 × 223 ≈ 2.2 × 10<sup>7</sup> phép tính. Rất mượt mà để pass giới hạn 1 giây!</li>
-            </ul>
-        </div>
-    </section>
-
-    <!-- STREAMING_CHUNK:Nội dung phần Lý thuyết với cấu trúc Editor chuyên nghiệp... -->
-    <!-- 3.4 Cú pháp & Lý thuyết -->
-    <section id="theory">
-        <div class="card">
-            <h2>Cơ chế hoạt động & Khung thuật toán</h2>
-            <p>Trọng tâm của Mo's Algorithm là hàm <span class="code-font">toggle(u)</span> — thao tác xử lý khi con trỏ quét qua một đỉnh <span class="code-font">u</span>. Vì mảng Euler Tour chứa mỗi đỉnh đúng 2 lần (lúc bắt đầu vào nhánh DFS và lúc thoát ra), ta có một quy tắc vàng:</p>
-            <p style="background: rgba(56,214,196,.1); padding: 10px; border-left: 3px solid var(--accent); margin: 10px 0;">
-                <strong>Nếu một đỉnh xuất hiện 1 lần trong khoảng [L, R]:</strong> Nó ĐANG nằm trên đường đi.<br>
-                <strong>Nếu xuất hiện 2 lần:</strong> Ta đã đi xuống nhánh đó và quay lên, tức là đỉnh đó KHÔNG nằm trên đường đi ngắn nhất. Nó sẽ tự triệt tiêu lẫn nhau.
-            </p>
-            <p>Do đó, hàm <span class="code-font">toggle(u)</span> hoạt động như một công tắc: Đỉnh đang có thì lấy ra, chưa có thì nạp vào. Đồng thời, ta duy trì mảng <span class="code-font">cnt[p]</span> để đếm số lần xuất hiện của ước nguyên tố <span class="code-font">p</span>, và biến <span class="code-font">ans</span> để lưu đáp án.</p>
-            
-            <div class="code-block">
-<div class="codeline"><span class="c-kw">void</span> <span class="c-fn">toggle</span>(<span class="c-kw">int</span> u) {</div>
-<div class="codeline">    <span class="c-cm">// Duyệt qua tất cả các ước nguyên tố của giá trị đỉnh u</span></div>
-<div class="codeline">    <span class="c-kw">for</span> (<span class="c-kw">int</span> p : factors[a[u]]) {</div>
-<div class="codeline">        <span class="c-kw">if</span> (is_present[u]) {</div>
-<div class="codeline">            <span class="c-cm">// Đỉnh ĐANG có trong đoạn -&gt; Thao tác: XÓA</span></div>
-<div class="codeline">            cnt[p]--;</div>
-<div class="codeline">            <span class="c-kw">if</span> (cnt[p] == <span class="c-num">0</span>) ans--;</div>
-<div class="codeline">        } <span class="c-kw">else</span> {</div>
-<div class="codeline">            <span class="c-cm">// Đỉnh CHƯA có trong đoạn -&gt; Thao tác: THÊM</span></div>
-<div class="codeline">            <span class="c-kw">if</span> (cnt[p] == <span class="c-num">0</span>) ans++;</div>
-<div class="codeline">            cnt[p]++;</div>
-<div class="codeline">        }</div>
-<div class="codeline">    }</div>
-<div class="codeline">    <span class="c-cm">// Đảo ngược trạng thái của đỉnh u (công tắc bật/tắt)</span></div>
-<div class="codeline">    is_present[u] = !is_present[u];</div>
-<div class="codeline">}</div>
-            </div>
-            <p><strong>Tại sao đúng?</strong> Khi thêm đỉnh mới, nếu <span class="code-font">cnt[p]</span> chuyển từ 0 lên 1, tức là ước <span class="code-font">p</span> lần đầu xuất hiện → tăng <span class="code-font">ans</span>. Khi xóa, nếu <span class="code-font">cnt[p]</span> rớt xuống 0, tức là tập hợp hiện tại không còn đỉnh nào chứa ước <span class="code-font">p</span> nữa → giảm <span class="code-font">ans</span>.</p>
-        </div>
-    </section>
-
-    <!-- STREAMING_CHUNK:Phòng Lab tương tác thuật toán Mo's... -->
-    <!-- 3.5 Interactive Lab -->
-    <section id="lab">
-        <div class="card">
-            <h2>Phòng thí nghiệm: Mổ xẻ hàm Toggle()</h2>
-            <p style="margin-bottom: 20px; color: var(--text-muted);">
-                Hãy cùng theo dõi con trỏ Mo's duyệt qua các đỉnh. <br>
-                <strong>Dữ liệu:</strong> Cây đang xét có 2 đỉnh. Đỉnh số <strong>2</strong> có giá trị 6 (ước: 2, 3). Đỉnh số <strong>4</strong> có giá trị 15 (ước: 3, 5).<br>
-                <strong>Kịch bản:</strong> Thêm đỉnh 2 → Thêm đỉnh 4 → Xóa đỉnh 2 (do đoạn [L, R] thu hẹp).
-            </p>
-
-            <div class="lab-container">
-                <div class="lab-left">
-                    <div class="lab-topbar">
-                        <button class="btn" id="btn-reset" onclick="resetLab()">Reset</button>
-                        <button class="btn" id="btn-prev" onclick="stepLab(-1)">« Lùi</button>
-                        <button class="btn" id="btn-next" onclick="stepLab(1)">Tiến »</button>
-                        <button class="btn btn-primary" id="btn-auto" onclick="toggleAuto()">Tự chạy ⏯</button>
-                        <span style="margin-left: auto; font-family: 'JetBrains Mono', monospace;" id="step-counter">Bước: 0 / 0</span>
-                    </div>
-
-                    <div class="msg-box" id="lab-msg">Bấm "Tiến" hoặc "Tự chạy" để bắt đầu mô phỏng thuật toán.</div>
-
-                    <h4 style="margin-bottom:10px; font-family: 'Space Grotesk';">Trạng thái đỉnh (is_present)</h4>
-                    <div class="array-vis" id="vis-is_present">
-                        <!-- Gen by JS -->
-                    </div>
-
-                    <h4 style="margin-bottom:10px; font-family: 'Space Grotesk';">Mảng đếm ước (cnt)</h4>
-                    <div class="array-vis" id="vis-cnt">
-                        <!-- Gen by JS -->
-                    </div>
-
-                    <table class="var-table">
-                        <tr>
-                            <th>Đỉnh xét (u)</th>
-                            <th>Ước xét (p)</th>
-                            <th>Số ước phân biệt (ans)</th>
-                        </tr>
-                        <tr>
-                            <td id="var-u">-</td>
-                            <td id="var-p">-</td>
-                            <td id="var-ans" style="color: var(--mark); font-size:1.2rem;">0</td>
-                        </tr>
-                    </table>
+    <!-- 3.4. CÁC MÔ-ĐUN LỜI GIẢI -->
+    
+    <!-- MÔ-ĐUN 1 -->
+    <div class="card">
+        <h2>Bước 1: Tiền xử lý thừa số nguyên tố</h2>
+        <p><strong>Ta muốn gì?</strong> Tách mọi <span class="math">a<sub>i</sub></span> thành danh sách các ước nguyên tố một cách nhanh nhất, và không lưu trùng lặp tại một đỉnh (vd <span class="math">12 = 2 &times; 2 &times; 3</span> ta chỉ quan tâm nó mang công ty số 2 và 3).</p>
+        <p><strong>Quan sát:</strong> Giá trị <span class="math">a<sub>i</sub> &le; 10<sup>5</sup></span> rất nhỏ. Ta có thể dùng <strong>Sàng Eratosthenes</strong> để tìm <em>Ước nguyên tố nhỏ nhất</em> (Smallest Prime Factor - SPF) của mọi số từ 1 đến <span class="math">10<sup>5</sup></span> trong thời gian <span class="math">O(M \log \log M)</span> với <span class="math">M = 10<sup>5</sup></span>.</p>
+        <p><strong>Cách làm:</strong> Tại mỗi đỉnh, dùng mảng SPF chia liên tục <span class="math">a<sub>i</sub></span> để lấy các nguyên tố. Mỗi đỉnh sẽ được thay thế bằng một mảng nhỏ chứa các số nguyên tố (tối đa khoảng 7 số vì <span class="math">2 &times; 3 &times; 5 &times; 7 &times; 11 &times; 13 &times; 17 &gt; 10^{5}</span>).</p>
+        
+        <!-- LAB 1 -->
+        <div class="lab-container" id="mod1-lab">
+            <div class="lab-header">
+                <strong>Minh họa: Phân tích a<sub>i</sub> bằng Sàng SPF</strong>
+                <div class="lab-controls">
+                    <button class="btn" id="mod1-btn-next">Tiếp tục &rarr;</button>
+                    <button class="btn" id="mod1-btn-reset">Reset</button>
                 </div>
-
-                <div class="lab-right" style="padding: 0; overflow: hidden; background: #0A1220;">
-                    <div style="background: var(--panel); padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,.05);">
-                        <h3 style="margin: 0; font-size: 1.1rem;">Source Code</h3>
+            </div>
+            <div class="lab-body">
+                <div class="lab-msg" id="mod1-msg">Nhấn Tiếp tục để phân tích số a = 36.</div>
+                
+                <div style="display: flex; gap: 30px; align-items: center; justify-content: center;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.9rem; color: var(--text-muted);">Giá trị a</div>
+                        <div class="viz-node active" style="font-size: 1.5rem; width: 60px; height: 60px;" id="mod1-val">36</div>
                     </div>
-                    <div class="code-block" style="margin:0; border:none; border-radius:0;">
-<div class="codeline" id="l1"><span class="c-kw">void</span> <span class="c-fn">toggle</span>(<span class="c-kw">int</span> u) {</div>
-<div class="codeline" id="l2">    <span class="c-kw">for</span> (<span class="c-kw">int</span> p : factors[a[u]]) {</div>
-<div class="codeline" id="l3">        <span class="c-kw">if</span> (is_present[u]) {</div>
-<div class="codeline" id="l4">            cnt[p]--;</div>
-<div class="codeline" id="l5">            <span class="c-kw">if</span> (cnt[p] == <span class="c-num">0</span>) ans--;</div>
-<div class="codeline" id="l6">        } <span class="c-kw">else</span> {</div>
-<div class="codeline" id="l7">            <span class="c-kw">if</span> (cnt[p] == <span class="c-num">0</span>) ans++;</div>
-<div class="codeline" id="l8">            cnt[p]++;</div>
-<div class="codeline" id="l9">        }</div>
-<div class="codeline" id="l10">    }</div>
-<div class="codeline" id="l11">    is_present[u] = !is_present[u];</div>
-<div class="codeline" id="l12">}</div>
+                    <div style="font-size: 2rem; color: var(--text-muted);">&rarr;</div>
+                    <div>
+                        <div style="font-size: 0.9rem; color: var(--text-muted);">Các công ty (Ước nguyên tố)</div>
+                        <div class="viz-row" id="mod1-primes-container" style="min-width: 150px; min-height: 50px; border: 1px dashed #555; border-radius: 8px; padding: 10px; justify-content: flex-start;">
+                            <!-- Primes will appear here -->
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- STREAMING_CHUNK:Phần Pitfalls và Quiz... -->
-    <!-- 3.6 Cạm bẫy -->
-    <section id="pitfalls">
-        <h2>Cạm bẫy thường gặp (Pitfalls)</h2>
-        <div class="pitfalls">
-            <div class="pitfall-card pitfall-wrong">
-                <h3>✕ Sai</h3>
-                <p><strong>Quên xử lý LCA khi truy vấn đường đi</strong></p>
-                <div class="code-block">
-<div class="codeline">L = last_idx[u];</div>
-<div class="codeline">R = first_idx[v];</div>
-<div class="codeline"><span class="c-cm">// Chạy Mo's luôn với [L, R]</span></div>
-<div class="codeline">solve_mos(L, R);</div>
-<div class="codeline"><span class="c-cm">// In kết quả luôn</span></div>
-                </div>
-                <p style="font-size: 0.9rem; margin-top: 10px;">Khi u và v không nằm trên cùng một đường thẳng (nhánh tổ tiên - con cháu), đoạn Euler Tour từ <span class="code-font">last[u]</span> đến <span class="code-font">first[v]</span> sẽ <strong>KHÔNG</strong> bao gồm đỉnh LCA (Tổ tiên chung gần nhất) của chúng. Nếu in ngay kết quả, đáp án sẽ bị thiếu ước của đỉnh LCA!</p>
+        <div class="quiz">
+            <div class="quiz-q">Câu hỏi: Vì sao ta không cần lưu lại số lượng của cùng một nguyên tố tại một đỉnh (ví dụ 36 có hai số 2, nhưng ta chỉ lưu số 2 một lần)?</div>
+            <div class="quiz-opts">
+                <button class="quiz-opt" onclick="checkQuiz(this, false, 'Sai. Thuật toán Mo hoàn toàn có thể xử lý việc đếm nhiều phần tử trùng lặp, nhưng ở đây có lý do logic tốt hơn.')">A. Vì thuật toán Mo không thể xử lý việc thêm trùng lặp.</button>
+                <button class="quiz-opt" onclick="checkQuiz(this, true, 'Chính xác! Đề hỏi số lượng công ty (ước nguyên tố) <b>phân biệt</b>. Nếu đỉnh u được xây bởi công ty X nhiều lần thì bản chất nó vẫn chỉ là công ty X. Việc rút gọn sớm giúp giảm số lượng phần tử cần xử lý.')">B. Vì đề chỉ quan tâm có bao nhiêu công ty <b>phân biệt</b> tham gia xây dựng, tần suất tại một đỉnh không thay đổi số lượng công ty phân biệt.</button>
+                <button class="quiz-opt" onclick="checkQuiz(this, false, 'Sai. Số lượng ước nguyên tố kể cả lặp lại tối đa cũng chỉ khoảng 16 (2^16 > 10^5), mảng vẫn chứa dư sức.')">C. Vì mảng không đủ chỗ chứa nếu lưu nhiều số nguyên tố trùng nhau.</button>
             </div>
-            
-            <div class="pitfall-card pitfall-right">
-                <h3>✓ Đúng</h3>
-                <p><strong>Thêm LCA vào thủ công ở bước tính kết quả</strong></p>
-                <div class="code-block">
-<div class="codeline"><span class="c-cm">// Sau khi di chuyển xong con trỏ L, R</span></div>
-<div class="codeline"><span class="c-kw">int</span> lca = get_lca(u, v);</div>
-<div class="codeline"><span class="c-kw">if</span> (lca != u &amp;&amp; lca != v) {</div>
-<div class="codeline">    toggle(lca); <span class="c-cm">// Tạm thời thêm LCA vào</span></div>
-<div class="codeline">}</div>
-<div class="codeline">res[q.id] = ans; <span class="c-cm">// Lưu kết quả</span></div>
-<div class="codeline"><span class="c-kw">if</span> (lca != u &amp;&amp; lca != v) {</div>
-<div class="codeline">    toggle(lca); <span class="c-cm">// Rút LCA ra giữ nguyên state</span></div>
-<div class="codeline">}</div>
+            <div class="quiz-exp"></div>
+        </div>
+    </div>
+
+    <!-- MÔ-ĐUN 2 -->
+    <div class="card">
+        <h2>Bước 2: Trải phẳng cây (Euler Tour)</h2>
+        <p><strong>Ta muốn gì?</strong> Thuật toán Mo chỉ hoạt động trên <strong>mảng 1 chiều</strong>. Nhưng dữ liệu của ta là một cái <strong>cây</strong>. Ta cần biến các đường đi ngoằn ngoèo trên cây thành các đoạn liên tiếp <span class="math">[L, R]</span> trên mảng.</p>
+        <p><strong>Ý tưởng (Euler Tour):</strong> Ta duyệt DFS cây. Mỗi đỉnh sẽ được ghi vào mảng đúng <strong>2 lần</strong>: lần đầu khi đi vào đỉnh (<span class="math">ST</span>) và lần cuối khi thoát khỏi đỉnh đó (<span class="math">EN</span>). Mảng kết quả có kích thước <span class="math">2n</span>.</p>
+        <p><strong>Sự kỳ diệu:</strong> Giả sử cần truy vấn đường đi từ <span class="math">u</span> đến <span class="math">v</span> (quy ước <span class="math">ST<sub>u</sub> &le; ST<sub>v</sub></span>).
+            <br>- Nếu <span class="math">u</span> là tổ tiên của <span class="math">v</span>: Đường đi tương ứng với đoạn <span class="math">[ST<sub>u</sub>, ST<sub>v</sub>]</span>.
+            <br>- Nếu <span class="math">u</span> không phải tổ tiên của <span class="math">v</span>: Đường đi tương ứng với đoạn <span class="math">[EN<sub>u</sub>, ST<sub>v</sub>]</span>. <strong>Quan trọng:</strong> đoạn này chưa chứa LCA(u, v) nên ta phải gộp thêm đỉnh LCA vào kết quả.
+        </p>
+        <p>Đặc biệt: Bất kỳ đỉnh nào xuất hiện <strong>chính xác 2 lần</strong> trong đoạn truy vấn có nghĩa là ta đã đi vào nhanh nhánh đó và quay ra, nó KHÔNG nằm trên đường đi trực tiếp! Ta sẽ <strong>triệt tiêu</strong> (bỏ qua) các đỉnh xuất hiện 2 lần.</p>
+
+        <!-- LAB 2 -->
+        <div class="lab-container" id="mod2-lab">
+            <div class="lab-header">
+                <strong>Minh họa: Xây dựng mảng Euler</strong>
+                <div class="lab-controls">
+                    <button class="btn" id="mod2-btn-next">Tiếp tục &rarr;</button>
+                    <button class="btn" id="mod2-btn-reset">Reset</button>
                 </div>
-                <p style="font-size: 0.9rem; margin-top: 10px;">Đưa tạm đỉnh LCA vào tập hợp bằng chính hàm <span class="code-font">toggle</span> để cập nhật <span class="code-font">ans</span>. Sau khi lưu xong đáp án của truy vấn, ta gọi lại <span class="code-font">toggle</span> lần nữa để gỡ đỉnh LCA ra, trả lại trạng thái sạch cho truy vấn tiếp theo.</p>
+            </div>
+            <div class="lab-body">
+                <div class="lab-msg" id="mod2-msg">Nhấn Tiếp tục để bắt đầu duyệt DFS từ đỉnh 1. Cây có dạng 1-2, 2-3, 1-4.</div>
+                
+                <div class="viz-row" style="align-items: center; justify-content: center; gap: 40px;">
+                    <!-- Pseudo Tree Layout -->
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+                        <div class="viz-node" id="mod2-n1">1</div>
+                        <div style="display: flex; gap: 30px;">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+                                <div class="viz-node" id="mod2-n2">2</div>
+                                <div class="viz-node" id="mod2-n3">3</div>
+                            </div>
+                            <div class="viz-node" id="mod2-n4">4</div>
+                        </div>
+                    </div>
+                    
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px;">Mảng Euler Tour:</div>
+                        <div class="viz-row" id="mod2-array-container" style="justify-content: flex-start; min-height: 60px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                            <!-- Array elements push here -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
 
-    <!-- 3.7 Quiz -->
-    <section id="quiz">
-        <div class="card">
-            <h2>Kiểm tra nhanh</h2>
-            <p style="margin-bottom: 20px;">Vì sao mảng Euler Tour lại có kích thước <span class="code-font">2 × N</span> thay vì <span class="code-font">N</span>?</p>
-            
-            <button class="quiz-opt" onclick="checkQuiz(this, false)">A. Để dự phòng bộ nhớ cho thuật toán Mo's, tránh bị tràn mảng (Out of bounds) khi hai con trỏ di chuyển.</button>
-            <button class="quiz-opt" onclick="checkQuiz(this, true)">B. Vì mỗi đỉnh được ghi nhận 2 lần: một lần khi DFS bước vào (first_idx) và một lần khi DFS thoát ra (last_idx).</button>
-            <button class="quiz-opt" onclick="checkQuiz(this, false)">C. Vì mỗi cạnh trong cây là đường hai chiều, nên cần gấp đôi mảng để lưu cả hai chiều đi và về.</button>
+        <div class="quiz">
+            <div class="quiz-q">Câu hỏi: Trên mảng Euler, nếu ta xét truy vấn từ u đến v bằng đoạn [EN<sub>u</sub>, ST<sub>v</sub>]. Đỉnh x nào đó xuất hiện đủ 2 lần (ST<sub>x</sub> và EN<sub>x</sub> đều nằm trong đoạn này). Điều này có nghĩa là gì?</div>
+            <div class="quiz-opts">
+                <button class="quiz-opt" onclick="checkQuiz(this, false, 'Sai. Nếu nó nằm trên đường đi trực tiếp, ta chỉ thấy nó 1 lần trong đoạn này (thấy lúc thoát ra hoặc lúc đi vào).')">A. Đỉnh x nằm trên đường đi từ u đến v.</button>
+                <button class="quiz-opt" onclick="checkQuiz(this, true, 'Đúng! Khi ta đi từ nhánh chứa u sang nhánh chứa v, ta đã đi vào toàn bộ cây con gốc x rồi thoát ra. Do đó x không đóng góp vào đường đi cuối cùng.')">B. Cây con gốc x đã được duyệt qua toàn bộ khi ta đi vòng từ u sang v, nhưng x KHÔNG nằm trên đường đi trực tiếp.</button>
+                <button class="quiz-opt" onclick="checkQuiz(this, false, 'Sai. Đỉnh x hợp lệ, chỉ là đặc tính duyệt cây DFS dẫn tới điều này.')">C. Mảng bị lỗi vì mỗi đỉnh chỉ được phép xuất hiện tối đa 1 lần.</button>
+            </div>
+            <div class="quiz-exp"></div>
+        </div>
+    </div>
 
-            <div class="quiz-expl" id="quiz-explanation">
-                <strong>Giải thích:</strong> Đáp án đúng là <strong>B</strong>.<br><br>
-                Kỹ thuật làm phẳng cây bằng Euler Tour yêu cầu ta lưu mốc thời gian bắt đầu thăm một đỉnh và thời gian rời khỏi cây con của đỉnh đó. Việc này giúp ta biết được chính xác những đỉnh nào nằm trên đường đi giữa hai đỉnh thông qua thuộc tính "triệt tiêu lẫn nhau" (đỉnh được gọi 2 lần trong đoạn [L, R] nghĩa là ta đi xuống rồi lại đi lên, nên nó không thuộc đường đi ngắn nhất).
+    <!-- MÔ-ĐUN 3 -->
+    <div class="card">
+        <h2>Bước 3: Thuật toán Mo trên mảng trải phẳng</h2>
+        <p><strong>Ta muốn gì?</strong> Giờ ta có mảng <span class="math">E</span> kích thước <span class="math">2n</span>. Các truy vấn được đổi thành <span class="math">[L, R]</span>. Ta cần đếm số nguyên tố phân biệt.</p>
+        <p><strong>Cách làm:</strong>
+            <br>1. Sắp xếp các truy vấn <span class="math">[L, R]</span> theo khối (block size <span class="math">B &approx; N/\sqrt{Q}</span>) để tối ưu việc di chuyển con trỏ.
+            <br>2. Dùng 2 con trỏ <span class="math">l</span> và <span class="math">r</span> trượt dọc mảng <span class="math">E</span>.
+            <br>3. <strong>Quy tắc Toggle (Bật/Tắt):</strong> Khi con trỏ mở rộng/thu hẹp gặp đỉnh <span class="math">u</span>, ta đổi trạng thái của <span class="math">u</span>. Nếu <span class="math">u</span> từ "tắt" thành "bật", ta xét các ước nguyên tố của nó: thêm vào mảng đếm tần suất. Nếu một nguyên tố chuyển từ 0 lên 1, tổng số lượng công ty <span class="math">ans</span> tăng lên. Nếu <span class="math">u</span> từ "bật" thành "tắt", ta trừ tần suất đi.
+        </p>
+        <p>Nhờ quy tắc Toggle, những đỉnh nằm hoàn toàn trong đoạn <span class="math">[L, R]</span> nhưng xuất hiện 2 lần sẽ bị "bật" rồi lại "tắt", cuối cùng không ảnh hưởng đến kết quả! Đúng chuẩn xác yêu cầu đường đi.</p>
+
+        <!-- LAB 3 -->
+        <div class="lab-container" id="mod3-lab">
+            <div class="lab-header">
+                <strong>Minh họa: Di chuyển con trỏ Mo & Quy tắc Toggle</strong>
+                <div class="lab-controls">
+                    <button class="btn" id="mod3-btn-prev" disabled>&larr; Lùi</button>
+                    <button class="btn" id="mod3-btn-next">Tiếp &rarr;</button>
+                    <button class="btn" id="mod3-btn-auto">Tự chạy</button>
+                    <button class="btn" id="mod3-btn-reset">Reset</button>
+                </div>
+            </div>
+            <div class="lab-body">
+                <div class="lab-msg" id="mod3-msg">Khởi tạo. Trượt cửa sổ [L, R] từ rỗng đến đoạn truy vấn [1, 4].</div>
+                
+                <div style="overflow-x: auto; padding: 20px 0;">
+                    <div class="viz-row" id="mod3-array" style="position: relative; padding-bottom: 20px;">
+                        <!-- Mảng Euler: E = [1, 2, 2, 3, 3, 1] -->
+                    </div>
+                </div>
+
+                <div class="state-table">
+                    <div class="state-item">Tổng phân biệt (ans): <span class="state-val" id="mod3-ans">0</span></div>
+                    <div class="state-item">L: <span class="state-val" id="mod3-L">0</span></div>
+                    <div class="state-item">R: <span class="state-val" id="mod3-R">-1</span></div>
+                </div>
+
+                <div style="font-size: 0.9rem; margin-top: 10px;">Tần suất nguyên tố (chỉ tính những đỉnh đang BẬT):</div>
+                <div class="state-table" id="mod3-freq">
+                    <!-- Freq counters -->
+                </div>
             </div>
         </div>
-    </section>
+
+        <div class="quiz">
+            <div class="quiz-q">Câu hỏi: Khi di chuyển hai con trỏ [l, r], vì sao ta KHÔNG CẦN quan tâm mình đang mở rộng (thêm đỉnh) hay thu hẹp (bớt đỉnh) mà chỉ cần gọi chung hàm <code>toggle(u)</code>?</div>
+            <div class="quiz-opts">
+                <button class="quiz-opt" onclick="checkQuiz(this, true, 'Rất thông minh! Do tính chất mảng Euler, đỉnh u có đúng 2 trạng thái: Trong hoặc Ngoài đường đi. Việc gặp u (khi kéo giãn hay thu hẹp cửa sổ) đều mang nghĩa đảo ngược trạng thái hiện tại của nó. Nếu nó đang Tắt -> Bật, nếu đang Bật -> Tắt.')">A. Vì trạng thái của đỉnh chỉ có Bật (1 lần) hoặc Tắt (0 hoặc 2 lần). Gặp nó ta chỉ việc đảo ngược trạng thái hiện tại của nó, dù là do mở rộng hay thu hẹp.</button>
+                <button class="quiz-opt" onclick="checkQuiz(this, false, 'Sai. Phép cộng trừ tần suất vẫn phải phân biệt rõ ràng: Bật thì +, Tắt thì -.')">B. Vì thuật toán không quan tâm đến đỉnh, nó chỉ quan tâm các số nguyên tố, và phép cộng/trừ số lượng là như nhau.</button>
+                <button class="quiz-opt" onclick="checkQuiz(this, false, 'Sai. Số lượng thao tác giảm là kết quả của việc sắp xếp block Mo, không liên quan đến logic Toggle.')">C. Để giảm một nửa số thao tác viết code.</button>
+            </div>
+            <div class="quiz-exp"></div>
+        </div>
+    </div>
+
+    <!-- 3.5. CÀI ĐẶT -->
+    <div class="card">
+        <h2>Cài đặt</h2>
+        <p>Toàn bộ lời giải bằng C++. Chú ý cách cài đặt hàm <code>toggle</code> và cách thêm tạm <code>LCA</code> vào kết quả.</p>
+        <div class="code-container">
+<div class="codeline" id="l1"><span class="c-cm">// Cấu trúc lệnh: O(N * sqrt(Q))</span></div>
+<div class="codeline" id="l2"><span class="c-kw">#include</span> <span class="c-str">&lt;bits/stdc++.h&gt;</span></div>
+<div class="codeline" id="l3"><span class="c-kw">using namespace</span> std;</div>
+<div class="codeline" id="l4"></div>
+<div class="codeline" id="l5"><span class="c-kw">const int</span> MAXN = <span class="c-num">50005</span>;</div>
+<div class="codeline" id="l6"><span class="c-kw">const int</span> MAXA = <span class="c-num">100005</span>;</div>
+<div class="codeline" id="l7"></div>
+<div class="codeline" id="l8"><span class="c-kw">int</span> n, q, a[MAXN], B;</div>
+<div class="codeline" id="l9">vector&lt;<span class="c-kw">int</span>&gt; adj[MAXN];</div>
+<div class="codeline" id="l10">vector&lt;<span class="c-kw">int</span>&gt; primes_of[MAXN]; <span class="c-cm">// Mảng chứa các ước nguyên tố phân biệt của từng đỉnh</span></div>
+<div class="codeline" id="l11"></div>
+<div class="codeline" id="l12"><span class="c-cm">// Sàng nguyên tố (SPF)</span></div>
+<div class="codeline" id="l13"><span class="c-kw">int</span> spf[MAXA];</div>
+<div class="codeline" id="l14"><span class="c-kw">void</span> sieve() {</div>
+<div class="codeline" id="l15">    <span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">1</span>; i &lt; MAXA; i++) spf[i] = i;</div>
+<div class="codeline" id="l16">    <span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">2</span>; i * i &lt; MAXA; i++) {</div>
+<div class="codeline" id="l17">        <span class="c-kw">if</span> (spf[i] == i) {</div>
+<div class="codeline" id="l18">            <span class="c-kw">for</span> (<span class="c-kw">int</span> j = i * i; j &lt; MAXA; j += i)</div>
+<div class="codeline" id="l19">                <span class="c-kw">if</span> (spf[j] == j) spf[j] = i;</div>
+<div class="codeline" id="l20">        }</div>
+<div class="codeline" id="l21">    }</div>
+<div class="codeline" id="l22">}</div>
+<div class="codeline" id="l23"></div>
+<div class="codeline" id="l24"><span class="c-cm">// Euler Tour & LCA Variables</span></div>
+<div class="codeline" id="l25"><span class="c-kw">int</span> st[MAXN], en[MAXN], timer = <span class="c-num">0</span>, E[MAXN * <span class="c-num">2</span>];</div>
+<div class="codeline" id="l26"><span class="c-kw">int</span> up[MAXN][<span class="c-num">17</span>], depth[MAXN];</div>
+<div class="codeline" id="l27"></div>
+<div class="codeline" id="l28"><span class="c-kw">void</span> dfs(<span class="c-kw">int</span> u, <span class="c-kw">int</span> p = <span class="c-num">0</span>) {</div>
+<div class="codeline" id="l29">    st[u] = ++timer; </div>
+<div class="codeline" id="l30">    E[timer] = u;</div>
+<div class="codeline" id="l31">    up[u][<span class="c-num">0</span>] = p;</div>
+<div class="codeline" id="l32">    <span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">1</span>; i &lt; <span class="c-num">17</span>; i++) up[u][i] = up[up[u][i-<span class="c-num">1</span>]][i-<span class="c-num">1</span>];</div>
+<div class="codeline" id="l33">    </div>
+<div class="codeline" id="l34">    <span class="c-kw">for</span> (<span class="c-kw">int</span> v : adj[u]) {</div>
+<div class="codeline" id="l35">        <span class="c-kw">if</span> (v != p) {</div>
+<div class="codeline" id="l36">            depth[v] = depth[u] + <span class="c-num">1</span>;</div>
+<div class="codeline" id="l37">            dfs(v, u);</div>
+<div class="codeline" id="l38">        }</div>
+<div class="codeline" id="l39">    }</div>
+<div class="codeline" id="l40">    en[u] = ++timer;</div>
+<div class="codeline" id="l41">    E[timer] = u; <span class="c-cm">// Ghi u lần 2 khi thoát</span></div>
+<div class="codeline" id="l42">}</div>
+<div class="codeline" id="l43"></div>
+<div class="codeline" id="l44"><span class="c-kw">int</span> getLCA(<span class="c-kw">int</span> u, <span class="c-kw">int</span> v) {</div>
+<div class="codeline" id="l45">    <span class="c-kw">if</span> (depth[u] &lt; depth[v]) swap(u, v);</div>
+<div class="codeline" id="l46">    <span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">16</span>; i &gt;= <span class="c-num">0</span>; i--)</div>
+<div class="codeline" id="l47">        <span class="c-kw">if</span> (depth[u] - (<span class="c-num">1</span> &lt;&lt; i) &gt;= depth[v]) u = up[u][i];</div>
+<div class="codeline" id="l48">    <span class="c-kw">if</span> (u == v) <span class="c-kw">return</span> u;</div>
+<div class="codeline" id="l49">    <span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">16</span>; i &gt;= <span class="c-num">0</span>; i--)</div>
+<div class="codeline" id="l50">        <span class="c-kw">if</span> (up[u][i] != up[v][i]) u = up[u][i], v = up[v][i];</div>
+<div class="codeline" id="l51">    <span class="c-kw">return</span> up[u][<span class="c-num">0</span>];</div>
+<div class="codeline" id="l52">}</div>
+<div class="codeline" id="l53"></div>
+<div class="codeline" id="l54"><span class="c-cm">// Cấu trúc Query cho Mo</span></div>
+<div class="codeline" id="l55"><span class="c-kw">struct</span> Query {</div>
+<div class="codeline" id="l56">    <span class="c-kw">int</span> l, r, lca, id;</div>
+<div class="codeline" id="l57">    <span class="c-kw">bool operator</span>&lt;(<span class="c-kw">const</span> Query &amp;other) <span class="c-kw">const</span> {</div>
+<div class="codeline" id="l58">        <span class="c-kw">if</span> (l / B != other.l / B) <span class="c-kw">return</span> l / B &lt; other.l / B;</div>
+<div class="codeline" id="l59">        <span class="c-cm">// Tối ưu chạy dích dắc của r</span></div>
+<div class="codeline" id="l60">        <span class="c-kw">return</span> ((l / B) &amp; <span class="c-num">1</span>) ? r &lt; other.r : r &gt; other.r;</div>
+<div class="codeline" id="l61">    }</div>
+<div class="codeline" id="l62">};</div>
+<div class="codeline" id="l63"></div>
+<div class="codeline" id="l64"><span class="c-kw">int</span> active[MAXN], cnt[MAXA], cur_ans = <span class="c-num">0</span>;</div>
+<div class="codeline" id="l65"></div>
+<div class="codeline" id="l66"><span class="c-cm">// Hàm Toggle thần thánh</span></div>
+<div class="codeline" id="l67"><span class="c-kw">void</span> toggle(<span class="c-kw">int</span> u) {</div>
+<div class="codeline" id="l68">    <span class="c-kw">if</span> (active[u]) { <span class="c-cm">// Nếu đang Bật &rarr; Tắt đi</span></div>
+<div class="codeline" id="l69">        <span class="c-kw">for</span> (<span class="c-kw">int</span> p : primes_of[u]) {</div>
+<div class="codeline" id="l70">            cnt[p]--;</div>
+<div class="codeline" id="l71">            <span class="c-kw">if</span> (cnt[p] == <span class="c-num">0</span>) cur_ans--;</div>
+<div class="codeline" id="l72">        }</div>
+<div class="codeline" id="l73">    } <span class="c-kw">else</span> { <span class="c-cm">// Nếu đang Tắt &rarr; Bật lên</span></div>
+<div class="codeline" id="l74">        <span class="c-kw">for</span> (<span class="c-kw">int</span> p : primes_of[u]) {</div>
+<div class="codeline" id="l75">            <span class="c-kw">if</span> (cnt[p] == <span class="c-num">0</span>) cur_ans++;</div>
+<div class="codeline" id="l76">            cnt[p]++;</div>
+<div class="codeline" id="l77">        }</div>
+<div class="codeline" id="l78">    }</div>
+<div class="codeline" id="l79">    active[u] ^= <span class="c-num">1</span>; <span class="c-cm">// Đảo trạng thái</span></div>
+<div class="codeline" id="l80">}</div>
+<div class="codeline" id="l81"></div>
+<div class="codeline" id="l82"><span class="c-kw">int</span> main() {</div>
+<div class="codeline" id="l83">    ios_base::sync_with_stdio(<span class="c-kw">false</span>); cin.tie(NULL);</div>
+<div class="codeline" id="l84">    sieve();</div>
+<div class="codeline" id="l85">    </div>
+<div class="codeline" id="l86">    cin &gt;&gt; n &gt;&gt; q;</div>
+<div class="codeline" id="l87">    <span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">1</span>; i &lt;= n; i++) {</div>
+<div class="codeline" id="l88">        <span class="c-kw">int</span> val; cin &gt;&gt; val;</div>
+<div class="codeline" id="l89">        <span class="c-cm">// Tách thừa số nguyên tố cho a[i]</span></div>
+<div class="codeline" id="l90">        <span class="c-kw">while</span> (val &gt; <span class="c-num">1</span>) {</div>
+<div class="codeline" id="l91">            <span class="c-kw">int</span> p = spf[val];</div>
+<div class="codeline" id="l92">            <span class="c-kw">if</span> (primes_of[i].empty() || primes_of[i].back() != p)</div>
+<div class="codeline" id="l93">                primes_of[i].push_back(p);</div>
+<div class="codeline" id="l94">            <span class="c-kw">while</span> (val % p == <span class="c-num">0</span>) val /= p;</div>
+<div class="codeline" id="l95">        }</div>
+<div class="codeline" id="l96">    }</div>
+<div class="codeline" id="l97">    </div>
+<div class="codeline" id="l98">    <span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">1</span>; i &lt; n; i++) {</div>
+<div class="codeline" id="l99">        <span class="c-kw">int</span> u, v; cin &gt;&gt; u &gt;&gt; v;</div>
+<div class="codeline" id="l100">        adj[u].push_back(v); adj[v].push_back(u);</div>
+<div class="codeline" id="l101">    }</div>
+<div class="codeline" id="l102">    </div>
+<div class="codeline" id="l103">    dfs(<span class="c-num">1</span>);</div>
+<div class="codeline" id="l104">    </div>
+<div class="codeline" id="l105">    B = timer / sqrt(q) + <span class="c-num">1</span>;</div>
+<div class="codeline" id="l106">    vector&lt;Query&gt; Q(q);</div>
+<div class="codeline" id="l107">    <span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">0</span>; i &lt; q; i++) {</div>
+<div class="codeline" id="l108">        <span class="c-kw">int</span> u, v; cin &gt;&gt; u &gt;&gt; v;</div>
+<div class="codeline" id="l109">        <span class="c-kw">if</span> (st[u] &gt; st[v]) swap(u, v);</div>
+<div class="codeline" id="l110">        <span class="c-kw">int</span> lca = getLCA(u, v);</div>
+<div class="codeline" id="l111">        <span class="c-kw">if</span> (lca == u) {</div>
+<div class="codeline" id="l112">            Q[i] = {st[u], st[v], -<span class="c-num">1</span>, i}; <span class="c-cm">// Không cần LCA</span></div>
+<div class="codeline" id="l113">        } <span class="c-kw">else</span> {</div>
+<div class="codeline" id="l114">            Q[i] = {en[u], st[v], lca, i}; <span class="c-cm">// Nhớ gắn thêm LCA</span></div>
+<div class="codeline" id="l115">        }</div>
+<div class="codeline" id="l116">    }</div>
+<div class="codeline" id="l117">    </div>
+<div class="codeline" id="l118">    sort(Q.begin(), Q.end());</div>
+<div class="codeline" id="l119">    </div>
+<div class="codeline" id="l120">    vector&lt;<span class="c-kw">int</span>&gt; ans(q);</div>
+<div class="codeline" id="l121">    <span class="c-kw">int</span> L = <span class="c-num">1</span>, R = <span class="c-num">0</span>;</div>
+<div class="codeline" id="l122">    <span class="c-kw">for</span> (Query qry : Q) {</div>
+<div class="codeline" id="l123">        <span class="c-kw">while</span> (L &gt; qry.l) toggle(E[--L]);</div>
+<div class="codeline" id="l124">        <span class="c-kw">while</span> (R &lt; qry.r) toggle(E[++R]);</div>
+<div class="codeline" id="l125">        <span class="c-kw">while</span> (L &lt; qry.l) toggle(E[L++]);</div>
+<div class="codeline" id="l126">        <span class="c-kw">while</span> (R &gt; qry.r) toggle(E[R--]);</div>
+<div class="codeline" id="l127">        </div>
+<div class="codeline" id="l128">        <span class="c-kw">int</span> temp_lca = qry.lca;</div>
+<div class="codeline" id="l129">        <span class="c-kw">if</span> (temp_lca != -<span class="c-num">1</span>) toggle(temp_lca); <span class="c-cm">// Thêm LCA vào đường đi</span></div>
+<div class="codeline" id="l130">        ans[qry.id] = cur_ans;</div>
+<div class="codeline" id="l131">        <span class="c-kw">if</span> (temp_lca != -<span class="c-num">1</span>) toggle(temp_lca); <span class="c-cm">// Xong thì bỏ LCA ra</span></div>
+<div class="codeline" id="l132">    }</div>
+<div class="codeline" id="l133">    </div>
+<div class="codeline" id="l134">    <span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">0</span>; i &lt; q; i++) cout &lt;&lt; ans[i] &lt;&lt; <span class="c-str">"\n"</span>;</div>
+<div class="codeline" id="l135">    <span class="c-kw">return</span> <span class="c-num">0</span>;</div>
+<div class="codeline" id="l136">}</div>
+        </div>
+    </div>
+
+    <!-- 3.6. ĐỘ PHỨC TẠP -->
+    <div class="card">
+        <h2>Độ phức tạp</h2>
+        <ul>
+            <li><strong>Thời gian:</strong> 
+                <br> Sàng nguyên tố mất <span class="math">O(M \log \log M)</span>. 
+                <br> Phân tích các <span class="math">a<sub>i</sub></span> mất <span class="math">O(N \log A)</span>.
+                <br> Duyệt DFS + LCA cấu trúc bảng thưa: <span class="math">O(N \log N)</span>.
+                <br> Thuật toán Mo: Con trỏ <span class="math">L</span>, <span class="math">R</span> trượt tối đa <span class="math">O(N \sqrt{Q})</span> bước. Mỗi bước thao tác <code>toggle</code> mất <span class="math">O(k)</span> (với <span class="math">k</span> là số ước nguyên tố tối đa của <span class="math">10<sup>5</sup></span>, <span class="math">k \le 7</span>).
+                <br>&rarr; Tổng cộng <span class="math">O(k &times; N \sqrt{Q} + N \log N)</span>. Với <span class="math">N, Q = 50000</span>, <span class="math">N \sqrt{Q} &approx; 1.1 &times; 10<sup>7</sup></span>, tổng phép toán khoảng <span class="math">8 \times 10<sup>7</sup></span>. Hoàn toàn <strong>vừa vặn</strong> vượt qua giới hạn thời gian 1-2 giây!
+            </li>
+            <li><strong>Không gian bộ nhớ:</strong> 
+                <br> Mảng LCA <span class="math">17 &times; 50000</span>, mảng Euler <span class="math">100000</span>, Mảng đếm nguyên tố <code>cnt</code> <span class="math">100000</span>.
+                <br>&rarr; Tổng bộ nhớ: <span class="math">O(N \log N + \max(a_i))</span>. Chiếm dưới 10MB, cực kỳ tối ưu.
+            </li>
+        </ul>
+    </div>
+
+    <!-- 3.7. CẠM BẪY KHI CÀI -->
+    <div class="card">
+        <h2>Cạm bẫy khi cài đặt (Edge Cases)</h2>
+        <div class="grid-2">
+            <div class="trap-card">
+                <div class="trap-title c-red">✕ Lỗi dễ bỏ sót</div>
+                <p>Quên xử lý đỉnh LCA! Khi u không phải tổ tiên của v, đoạn Euler từ <code>EN[u]</code> đến <code>ST[v]</code> sẽ <strong>chưa hề chứa LCA</strong> của u và v. Nếu bỏ qua bước này sẽ đếm thiếu các nguyên tố nằm tại đỉnh LCA.</p>
+            </div>
+            <div class="trap-card good">
+                <div class="trap-title c-green">✓ Cách xử lý đúng</div>
+                <p>Trước khi ghi nhận đáp án <code>cur_ans</code>, kiểm tra nếu Query có LCA riêng (khác u). Ta gọi <code>toggle(LCA)</code> một lần để tạm bật nó. Ghi đáp án xong, phải <code>toggle(LCA)</code> lại lần nữa để tắt nó đi, không làm hỏng trạng thái cho các Query sau.</p>
+            </div>
+        </div>
+        <div class="grid-2 mt-4">
+            <div class="trap-card">
+                <div class="trap-title c-red">✕ Lỗi Time Limit</div>
+                <p>Sử dụng <code>std::set</code> hoặc <code>std::map</code> để đếm số lượng nguyên tố phân biệt trong hàm <code>toggle</code>. Cấu trúc cây đỏ đen có hằng số rất lớn, làm <span class="math">O(\log N)</span> dội lên nhiều lần dẫn tới TLE.</p>
+            </div>
+            <div class="trap-card good">
+                <div class="trap-title c-green">✓ Cách xử lý đúng</div>
+                <p>Các nguyên tố đều <span class="math">&le; 10^{5}</span>. Hãy dùng mảng tĩnh <code>cnt[100005]</code> làm bản đồ băm (Hash map) hoàn hảo với truy xuất <span class="math">O(1)</span>. Cập nhật biến nguyên <code>cur_ans</code> khi có phần tử thay đổi giữa mức 0 và mức 1.</p>
+            </div>
+        </div>
+    </div>
+
 </div>
 
-<!-- STREAMING_CHUNK:JavaScript cho Logic State-Machine của Lab... -->
 <script>
-    // ==========================================
-    // MINI LAB HERO SCRIPT
-    // ==========================================
-    let mnState = {
-        activeNodes: new Set(),
-        primeCounts: {}
-    };
-
-    function toggleMiniNode(nodeId, primes) {
-        const btn = document.getElementById(`mn-btn-${nodeId}`);
-        const isActive = mnState.activeNodes.has(nodeId);
+    // Utility for Quizzes
+    function checkQuiz(btn, isCorrect, expText) {
+        const parent = btn.closest('.quiz');
+        const opts = parent.querySelectorAll('.quiz-opt');
+        const exp = parent.querySelector('.quiz-exp');
         
-        if (isActive) {
-            mnState.activeNodes.delete(nodeId);
-            btn.classList.remove('active');
-            primes.forEach(p => {
-                mnState.primeCounts[p]--;
-                if(mnState.primeCounts[p] === 0) delete mnState.primeCounts[p];
+        opts.forEach(o => { o.disabled = true; });
+        btn.classList.add(isCorrect ? 'correct' : 'wrong');
+        
+        exp.innerHTML = expText;
+        exp.style.display = 'block';
+    }
+
+    // ==========================================
+    // MODULE 1 LAB: Sieve & Factorization
+    // ==========================================
+    const mod1 = (function(){
+        let sp = 0;
+        const targetVal = 36;
+        const spf = 2; // Simulation
+        const steps = [
+            { msg: "Giá trị ban đầu là 36. SPF(36) = 2. Lấy số 2 ra.", val: 36, primes: [] },
+            { msg: "36 chia 2 = 18. SPF(18) = 2. Nhưng tập hợp đã có 2 rồi nên bỏ qua số 2 này.", val: 18, primes: [2] },
+            { msg: "18 chia 2 = 9. SPF(9) = 3. Thêm số 3 vào danh sách.", val: 9, primes: [2] },
+            { msg: "9 chia 3 = 3. SPF(3) = 3. Số 3 đã tồn tại, bỏ qua.", val: 3, primes: [2, 3] },
+            { msg: "3 chia 3 = 1. Kết thúc phân tích! Đỉnh này đóng góp 2 công ty: {2, 3}.", val: 1, primes: [2, 3] }
+        ];
+
+        const btnNext = document.getElementById('mod1-btn-next');
+        const btnReset = document.getElementById('mod1-btn-reset');
+        const msgEl = document.getElementById('mod1-msg');
+        const valEl = document.getElementById('mod1-val');
+        const primesC = document.getElementById('mod1-primes-container');
+
+        function paint(p) {
+            msgEl.innerHTML = steps[p].msg;
+            valEl.innerHTML = steps[p].val;
+            
+            primesC.innerHTML = '';
+            steps[p].primes.forEach(pr => {
+                const b = document.createElement('div');
+                b.className = 'viz-node';
+                b.style.background = 'rgba(255, 180, 84, 0.2)';
+                b.style.borderColor = 'var(--mark)';
+                b.innerHTML = pr;
+                primesC.appendChild(b);
             });
-        } else {
-            mnState.activeNodes.add(nodeId);
-            btn.classList.add('active');
-            primes.forEach(p => {
-                mnState.primeCounts[p] = (mnState.primeCounts[p] || 0) + 1;
-            });
+
+            btnNext.disabled = (p === steps.length - 1);
+            if(p === steps.length - 1) valEl.classList.remove('active');
+            else valEl.classList.add('active');
         }
+
+        btnNext.onclick = () => { if(sp < steps.length - 1) paint(++sp); };
+        btnReset.onclick = () => { sp = 0; paint(sp); };
+
+        return { init: () => paint(0) };
+    })();
+
+    // ==========================================
+    // MODULE 2 LAB: Euler Tour
+    // ==========================================
+    const mod2 = (function(){
+        let sp = 0;
+        const steps = [
+            { msg: "Bắt đầu tại đỉnh 1. Đi vào nhánh 1, ghi ST(1).", arr: [1], node: 1 },
+            { msg: "Từ 1 đi vào nhánh trái, gặp 2, ghi ST(2).", arr: [1, 2], node: 2 },
+            { msg: "Từ 2 đi tiếp xuống 3, ghi ST(3).", arr: [1, 2, 3], node: 3 },
+            { msg: "Đỉnh 3 là lá, quay lui ra khỏi 3. Ghi EN(3).", arr: [1, 2, 3, 3], node: 3 },
+            { msg: "Quay lui ra khỏi 2. Ghi EN(2).", arr: [1, 2, 3, 3, 2], node: 2 },
+            { msg: "Về lại 1, đi sang nhánh phải gặp 4, ghi ST(4).", arr: [1, 2, 3, 3, 2, 4], node: 4 },
+            { msg: "Đỉnh 4 là lá, quay lui ra khỏi 4. Ghi EN(4).", arr: [1, 2, 3, 3, 2, 4, 4], node: 4 },
+            { msg: "Quay lui ra khỏi 1, hoàn tất DFS. Ghi EN(1).", arr: [1, 2, 3, 3, 2, 4, 4, 1], node: 1 }
+        ];
+
+        const btnNext = document.getElementById('mod2-btn-next');
+        const btnReset = document.getElementById('mod2-btn-reset');
+        const msgEl = document.getElementById('mod2-msg');
+        const arrC = document.getElementById('mod2-array-container');
         
-        // Update UI
-        const distinctPrimes = Object.keys(mnState.primeCounts);
-        document.getElementById('mn-set').innerText = `{ ${distinctPrimes.join(', ')} }`;
-        document.getElementById('mn-ans').innerText = distinctPrimes.length;
-    }
+        function highlightNode(nId) {
+            [1,2,3,4].forEach(i => {
+                const el = document.getElementById('mod2-n'+i);
+                el.classList.remove('active');
+            });
+            if(nId) document.getElementById('mod2-n'+nId).classList.add('active');
+        }
+
+        function paint(p) {
+            msgEl.innerHTML = steps[p].msg;
+            highlightNode(steps[p].node);
+            
+            arrC.innerHTML = '';
+            steps[p].arr.forEach((v, idx) => {
+                const box = document.createElement('div');
+                box.className = 'viz-array-box';
+                box.innerHTML = v;
+                
+                const count = steps[p].arr.filter(x => x === v).length;
+                const label = document.createElement('div');
+                label.className = 'viz-label';
+                label.innerHTML = count === 1 ? 'ST' : 'EN';
+                box.appendChild(label);
+                
+                arrC.appendChild(box);
+            });
+
+            btnNext.disabled = (p === steps.length - 1);
+        }
+
+        btnNext.onclick = () => { if(sp < steps.length - 1) paint(++sp); };
+        btnReset.onclick = () => { sp = 0; highlightNode(0); paint(sp); };
+
+        return { init: () => paint(0) };
+    })();
 
     // ==========================================
-    // INTERACTIVE LAB SCRIPT (STATE MACHINE)
+    // MODULE 3 LAB: Mo's Algorithm Main State Machine
     // ==========================================
-    let steps = [];
-    let sp = 0;
-    let autoInterval = null;
-    let isPlaying = false;
+    const mod3 = (function(){
+        let sp = 0;
+        let autoInterval = null;
+        
+        // Tree: 1-2, 2-3. Array: [1, 2, 3, 3, 2, 1]
+        // Weights: a1 = 6 (2,3), a2 = 10 (2,5), a3 = 7 (7)
+        // Nodes array E:
+        const E = [1, 2, 3, 3, 2, 1];
+        const primes = {
+            1: [2, 3],
+            2: [2, 5],
+            3: [7]
+        };
+        const targetL = 1; // index of ST_2 (val 2)
+        const targetR = 4; // index of EN_2 (val 2)
+        // This query: Path between 2 and 2? No, let's just show pointers moving over [1, 2, 3, 3, 2]. Wait.
+        // Let's do query from L=1 to R=3. Window [2, 3, 3].
+        
+        const steps = [];
+        
+        function makeSteps() {
+            // Initial state
+            let st = {
+                L: 0, R: -1, ans: 0, 
+                active: {1:0, 2:0, 3:0}, 
+                cnt: {2:0, 3:0, 5:0, 7:0},
+                msg: "Bắt đầu: Mảng Euler E. Các đỉnh ban đầu đều ĐÃ TẮT."
+            };
+            steps.push(JSON.parse(JSON.stringify(st)));
 
-    // Các hằng số cho bài Lab
-    const primesList = [2, 3, 5];
-    const nodesList = [2, 4];
+            // Query: L=1, R=4 (Đoạn [2, 3, 3, 2] -> cuối cùng chả còn gì ngoài các số chập đôi)
+            // Let's do L=0, R=2. (E[0]=1, E[1]=2, E[2]=3). Path 1->3
+            const qL = 0, qR = 2;
+            let cL = 0, cR = -1;
 
-    function deepCopyState(state) {
-        return JSON.parse(JSON.stringify(state));
-    }
+            // Move R to 2
+            while(cR < qR) {
+                cR++;
+                let u = E[cR];
+                let nSt = JSON.parse(JSON.stringify(st));
+                nSt.R = cR;
+                
+                // Toggle logic
+                nSt.active[u] ^= 1;
+                let verb = nSt.active[u] ? "BẬT" : "TẮT";
+                nSt.msg = `R tiến lên ô ${cR}. Đỉnh ${u} bị ${verb}. `;
+                
+                primes[u].forEach(p => {
+                    if (nSt.active[u]) {
+                        if(nSt.cnt[p] === 0) nSt.ans++;
+                        nSt.cnt[p]++;
+                    } else {
+                        nSt.cnt[p]--;
+                        if(nSt.cnt[p] === 0) nSt.ans--;
+                    }
+                });
+                
+                nSt.msg += `Nguyên tố {${primes[u].join(',')}} được cộng vào biến đếm.`;
+                st = nSt;
+                steps.push(JSON.parse(JSON.stringify(st)));
+            }
+        }
 
-    function makeSteps() {
-        steps = [];
-        let state = {
-            is_present: {2: false, 4: false},
-            cnt: {2: 0, 3: 0, 5: 0},
-            vars: { u: '-', p: '-' },
-            ans: 0,
-            changed: { is_present: null, cnt: null }, // Để hightlight UI
-            line: null,
-            msg: ""
+        const btnPrev = document.getElementById('mod3-btn-prev');
+        const btnNext = document.getElementById('mod3-btn-next');
+        const btnAuto = document.getElementById('mod3-btn-auto');
+        const btnReset = document.getElementById('mod3-btn-reset');
+        
+        const msgEl = document.getElementById('mod3-msg');
+        const arrC = document.getElementById('mod3-array');
+        const lEl = document.getElementById('mod3-L');
+        const rEl = document.getElementById('mod3-R');
+        const ansEl = document.getElementById('mod3-ans');
+        const freqC = document.getElementById('mod3-freq');
+
+        function paint(p) {
+            const state = steps[p];
+            msgEl.innerHTML = state.msg;
+            lEl.innerHTML = state.L;
+            rEl.innerHTML = state.R;
+            ansEl.innerHTML = state.ans;
+
+            // Draw array
+            arrC.innerHTML = '';
+            E.forEach((u, idx) => {
+                const box = document.createElement('div');
+                box.className = 'viz-array-box';
+                box.innerHTML = u;
+                
+                if(idx >= state.L && idx <= state.R) box.classList.add('in-range');
+                if(state.active[u] && box.classList.contains('in-range')) {
+                    // This is an active node in range
+                    box.classList.add('toggled');
+                }
+                
+                // Labels for Pointers
+                if (idx === state.L && idx === state.R) {
+                    const l = document.createElement('div'); l.className = 'viz-label'; l.innerHTML = 'L, R'; box.appendChild(l);
+                } else if (idx === state.L) {
+                    const l = document.createElement('div'); l.className = 'viz-label'; l.innerHTML = 'L'; box.appendChild(l);
+                } else if (idx === state.R) {
+                    const l = document.createElement('div'); l.className = 'viz-label'; l.innerHTML = 'R'; box.appendChild(l);
+                }
+
+                arrC.appendChild(box);
+            });
+
+            // Draw freqs
+            freqC.innerHTML = '';
+            [2, 3, 5, 7].forEach(pr => {
+                if(state.cnt[pr] > 0) {
+                    const fi = document.createElement('div');
+                    fi.className = 'state-item';
+                    fi.innerHTML = `p=${pr}: <span class="state-val">${state.cnt[pr]}</span>`;
+                    freqC.appendChild(fi);
+                }
+            });
+
+            btnPrev.disabled = (p === 0);
+            btnNext.disabled = (p === steps.length - 1);
+            if(p === steps.length - 1) {
+                clearInterval(autoInterval); autoInterval = null;
+                btnAuto.disabled = true;
+            } else {
+                btnAuto.disabled = false;
+            }
+        }
+
+        btnNext.onclick = () => { if(sp < steps.length - 1) paint(++sp); };
+        btnPrev.onclick = () => { if(sp > 0) paint(--sp); };
+        btnReset.onclick = () => { 
+            clearInterval(autoInterval); autoInterval = null; 
+            sp = 0; paint(sp); 
+        };
+        btnAuto.onclick = () => {
+            if(autoInterval) return;
+            autoInterval = setInterval(() => {
+                if(sp < steps.length - 1) paint(++sp);
+                else { clearInterval(autoInterval); autoInterval = null; }
+            }, 800);
         };
 
-        function pushStep(lineId, msg, changes = {}) {
-            let nextState = deepCopyState(state);
-            nextState.line = lineId;
-            nextState.msg = msg;
-            nextState.changed = { is_present: null, cnt: null, ...changes };
-            steps.push(nextState);
-        }
-
-        // Bước 0: Init
-        pushStep(null, "Hệ thống đã sẵn sàng. Bạn có thể thấy mảng is_present và cnt đều đang rỗng (hoặc 0), ans = 0.");
-
-        // ================= KỊCH BẢN 1: THÊM ĐỈNH 2 =================
-        state.vars.u = 2;
-        pushStep("l1", "Hành động 1: Gọi hàm toggle(2) để con trỏ Mo's duyệt qua đỉnh 2. Giá trị của đỉnh 2 là 6.");
-        
-        pushStep("l2", "Giá trị 6 phân tích thành các ước nguyên tố là {2, 3}. Ta bắt đầu vòng lặp duyệt qua từng ước này.");
-        
-        // Xét p = 2 của đỉnh 2
-        state.vars.p = 2;
-        pushStep("l2", "Xét ước nguyên tố đầu tiên: p = 2.");
-        pushStep("l3", "Kiểm tra is_present[2]. Hiện tại đang là FALSE (chưa nằm trong đường đi).");
-        pushStep("l6", "Vì chưa có, ta rẽ vào nhánh else để THÊM nó vào tập hợp.");
-        pushStep("l7", "Kiểm tra cnt[2]. Đang bằng 0, nghĩa là trước đó chưa có số nào trên đường đi chia hết cho 2 cả. Đây là phát hiện mới!");
-        state.ans++;
-        pushStep("l7", "Vì là lần đầu tiên xuất hiện, ta tăng số lượng ước phân biệt (ans) lên 1.", { ans_changed: true });
-        state.cnt[2]++;
-        pushStep("l8", "Ta cập nhật ghi nhận rằng ước 2 vừa xuất hiện thêm 1 lần (cnt[2] = 1).", { cnt: 2 });
-        
-        // Xét p = 3 của đỉnh 2
-        state.vars.p = 3;
-        pushStep("l2", "Vòng lặp tiếp tục với ước nguyên tố thứ hai: p = 3.");
-        pushStep("l3", "Đỉnh 2 vẫn đang được xử lý, bản thân đỉnh này chưa đổi is_present nên vẫn là FALSE.");
-        pushStep("l6", "Tiếp tục rẽ vào nhánh else để thêm ước 3 vào.");
-        pushStep("l7", "Kiểm tra cnt[3]. Đang bằng 0, lại là một ước nguyên tố mới chưa từng có.");
-        state.ans++;
-        pushStep("l7", "Ans tiếp tục tăng lên 2.", { ans_changed: true });
-        state.cnt[3]++;
-        pushStep("l8", "Ghi nhận ước 3 xuất hiện 1 lần (cnt[3] = 1).", { cnt: 3 });
-
-        pushStep("l11", "Đã duyệt xong mọi ước của đỉnh 2. Cuối cùng, ta lật công tắc trạng thái của đỉnh 2 (từ FALSE thành TRUE).");
-        state.is_present[2] = true;
-        pushStep("l11", "Đỉnh 2 nay đã chính thức nằm trong đoạn đường đi của Mo's.", { is_present: 2 });
-
-        // ================= KỊCH BẢN 2: THÊM ĐỈNH 4 =================
-        state.vars.u = 4;
-        state.vars.p = '-';
-        pushStep("l1", "Hành động 2: Con trỏ di chuyển, gọi toggle(4). Đỉnh 4 có giá trị 15 (ước là 3, 5). Chú ý ước 3 đã có mặt từ trước do đỉnh 2.");
-        
-        // Xét p = 3 của đỉnh 4
-        state.vars.p = 3;
-        pushStep("l2", "Bắt đầu với ước p = 3 của đỉnh 4.");
-        pushStep("l3", "is_present[4] đang là FALSE (đỉnh 4 chưa có).");
-        pushStep("l6", "Vào nhánh else để thêm vào.");
-        pushStep("l7", "Kiểm tra cnt[3]. Bất ngờ chưa, cnt[3] lúc này đang là 1 (nhờ đỉnh 2 đóng góp). Nghĩa là tập hợp ĐÃ CÓ sẵn ước 3 rồi.");
-        pushStep("l8", "Do cnt[3] ≠ 0, ta bỏ qua lệnh ans++. Số ước phân biệt (ans) không thay đổi. Ta chỉ việc tăng số lượng xuất hiện của ước 3 lên (cnt[3] = 2).", { cnt: 3 });
-        state.cnt[3]++;
-
-        // Xét p = 5 của đỉnh 4
-        state.vars.p = 5;
-        pushStep("l2", "Tiếp tục với ước p = 5 của đỉnh 4.");
-        pushStep("l6", "Vào nhánh else.");
-        pushStep("l7", "cnt[5] đang là 0. Đây là ước mới!");
-        state.ans++;
-        pushStep("l7", "Do đó ans tăng lên 3.", { ans_changed: true });
-        state.cnt[5]++;
-        pushStep("l8", "Cập nhật cnt[5] = 1.", { cnt: 5 });
-
-        pushStep("l11", "Lật công tắc trạng thái của đỉnh 4.");
-        state.is_present[4] = true;
-        pushStep("l11", "Đỉnh 4 đã vào tập hợp.", { is_present: 4 });
-
-        // ================= KỊCH BẢN 3: XÓA ĐỈNH 2 =================
-        state.vars.u = 2;
-        state.vars.p = '-';
-        pushStep("l1", "Hành động 3: Con trỏ thu hẹp lại, ta cần loại bỏ đỉnh 2 ra khỏi đoạn đang xét. Gọi toggle(2) lần nữa.");
-        
-        // Xét p = 2 của đỉnh 2
-        state.vars.p = 2;
-        pushStep("l2", "Duyệt lại ước p = 2 của đỉnh 2.");
-        pushStep("l3", "Kiểm tra is_present[2]. Lần này nó là TRUE (đỉnh đang nằm trong tập hợp).");
-        pushStep("l4", "Vì là TRUE, ta hiểu hành động bây giờ là XÓA. Trước hết, giảm cnt[2] đi 1.");
-        state.cnt[2]--;
-        pushStep("l4", "cnt[2] giảm từ 1 về 0.", { cnt: 2 });
-        pushStep("l5", "Kiểm tra cnt[2]. Vì nó đã bằng 0, nghĩa là sau khi đỉnh 2 rời đi, không còn đỉnh nào khác chứa ước 2 nữa.");
-        state.ans--;
-        pushStep("l5", "Ta bị mất đi 1 ước phân biệt. ans giảm xuống còn 2.", { ans_changed: true });
-
-        // Xét p = 3 của đỉnh 2
-        state.vars.p = 3;
-        pushStep("l2", "Tiếp tục với ước p = 3 của đỉnh 2.");
-        pushStep("l3", "is_present[2] vẫn là TRUE (đang xóa).");
-        pushStep("l4", "Giảm cnt[3] đi 1.");
-        state.cnt[3]--;
-        pushStep("l4", "cnt[3] giảm từ 2 xuống 1.", { cnt: 3 });
-        pushStep("l5", "Kiểm tra cnt[3]. Nó bằng 1 (≠ 0). Nghĩa là dù đỉnh 2 bị xóa, nhưng ước 3 vẫn còn được 'bảo kê' bởi đỉnh 4.");
-        pushStep("l5", "Vì vậy, lệnh ans-- bị bỏ qua. Tổng số ước phân biệt không bị suy giảm!");
-
-        pushStep("l11", "Duyệt xong, lật công tắc đỉnh 2.");
-        state.is_present[2] = false;
-        pushStep("l11", "Đỉnh 2 quay về trạng thái FALSE, hoàn tất việc loại bỏ.", { is_present: 2 });
-        
-        pushStep(null, "Kết thúc kịch bản mô phỏng. Thuật toán hoạt động hoàn hảo: thêm chính xác, chia sẻ ước chung không đếm trùng, xóa đi không làm mất ước của người ở lại!");
-    }
-
-    function renderArrays(state) {
-        let htmlIsPresent = '';
-        nodesList.forEach(u => {
-            let val = state.is_present[u] ? 'TRUE' : 'FALSE';
-            let extraClass = state.is_present[u] ? 'active' : '';
-            if (state.changed.is_present === u) extraClass += ' changed';
-            htmlIsPresent += `
-                <div class="array-cell ${extraClass}" style="width: 60px;">
-                    <span class="cell-idx">u=${u}</span>
-                    <span class="cell-val" style="font-size:0.9rem">${val}</span>
-                </div>
-            `;
-        });
-        document.getElementById('vis-is_present').innerHTML = htmlIsPresent;
-
-        let htmlCnt = '';
-        primesList.forEach(p => {
-            let val = state.cnt[p];
-            let extraClass = (val > 0) ? 'active' : '';
-            if (state.changed.cnt === p) extraClass += ' changed';
-            htmlCnt += `
-                <div class="array-cell ${extraClass}">
-                    <span class="cell-idx">p=${p}</span>
-                    <span class="cell-val">${val}</span>
-                </div>
-            `;
-        });
-        document.getElementById('vis-cnt').innerHTML = htmlCnt;
-    }
-
-    function paint(index) {
-        const state = steps[index];
-        
-        document.getElementById('var-u').innerText = state.vars.u;
-        document.getElementById('var-p').innerText = state.vars.p;
-        document.getElementById('var-ans').innerText = state.ans;
-        if (state.changed.ans_changed) {
-            document.getElementById('var-ans').style.transform = 'scale(1.3)';
-            setTimeout(() => document.getElementById('var-ans').style.transform = 'scale(1)', 300);
-        }
-
-        renderArrays(state);
-
-        document.querySelectorAll('.codeline').forEach(el => el.classList.remove('hot'));
-        if (state.line) {
-            document.getElementById(state.line).classList.add('hot');
-        }
-
-        document.getElementById('lab-msg').innerHTML = state.msg;
-        document.getElementById('step-counter').innerText = `Bước: ${index} / ${steps.length - 1}`;
-        document.getElementById('btn-prev').disabled = (index === 0);
-        document.getElementById('btn-next').disabled = (index === steps.length - 1);
-        
-        if (index === steps.length - 1 && isPlaying) {
-            toggleAuto();
-        }
-    }
-
-    function stepLab(dir) {
-        let nextSp = sp + dir;
-        if (nextSp >= 0 && nextSp < steps.length) {
-            sp = nextSp;
-            paint(sp);
-        }
-    }
-
-    function resetLab() {
-        if (isPlaying) toggleAuto();
-        sp = 0;
-        paint(sp);
-    }
-
-    function toggleAuto() {
-        const btn = document.getElementById('btn-auto');
-        if (isPlaying) {
-            clearInterval(autoInterval);
-            btn.innerText = "Tự chạy ⏯";
-            isPlaying = false;
-        } else {
-            if (sp === steps.length - 1) sp = 0;
-            btn.innerText = "Dừng ⏸";
-            isPlaying = true;
-            autoInterval = setInterval(() => { stepLab(1); }, 1200);
-        }
-    }
-
-    // ==========================================
-    // QUIZ SCRIPT
-    // ==========================================
-    function checkQuiz(btn, isCorrect) {
-        const container = btn.parentElement;
-        const buttons = container.querySelectorAll('.quiz-opt');
-        buttons.forEach(b => {
-            b.disabled = true;
-            b.style.cursor = 'not-allowed';
-            b.classList.remove('correct', 'wrong');
-            if (b.onclick.toString().includes('true')) b.classList.add('correct');
-        });
-
-        if (!isCorrect) btn.classList.add('wrong');
-        document.getElementById('quiz-explanation').style.display = 'block';
-    }
+        return { init: () => { makeSteps(); paint(0); } };
+    })();
 
     window.onload = () => {
-        makeSteps();
-        paint(0);
+        mod1.init();
+        mod2.init();
+        mod3.init();
     };
 </script>
 
