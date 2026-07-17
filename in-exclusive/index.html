@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-width=1.0">
+    <title>Bao hàm - Loại trừ (PIE) | Chuyên đề Lập trình thi đấu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
+            --line: #22304C; --line2: #2E3F60;
+            --ink: #E6ECF7; --ink-soft: #8FA1C4; --ink-dim: #5A6B8F;
+            --accent: #38D6C4; --accent-dim: rgba(56, 214, 196, 0.2);
+            --accent2: #5B8CFF; --accent2-dim: rgba(91, 140, 255, 0.2);
+            --amber: #FFB454; --amber-dim: rgba(255, 180, 84, 0.2);
+            --pink: #FF6B9D; --pink-dim: rgba(255, 107, 157, 0.2);
+            --red: #FF6B6B; --red-dim: rgba(255, 107, 107, 0.2);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg); color: var(--ink);
+            font-family: 'Inter', sans-serif; line-height: 1.6;
+            background-image: 
+                radial-gradient(circle at 15% 0%, var(--accent-dim) 0%, transparent 40%),
+                radial-gradient(circle at 85% 0%, var(--accent2-dim) 0%, transparent 40%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        /* Container & Typography */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        @media (max-width: 768px) { .container { padding: 0 16px; } }
+        
+        h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; color: var(--ink); margin-bottom: 1rem; }
+        h1 { font-size: 2.5rem; letter-spacing: -0.02em; margin-top: 2rem; color: var(--accent); }
+        h2 { font-size: 1.75rem; border-bottom: 1px solid var(--line); padding-bottom: 0.5rem; margin-top: 3rem; }
+        h3 { font-size: 1.25rem; color: var(--accent2); margin-top: 1.5rem; }
+        p { margin-bottom: 1rem; color: var(--ink-soft); }
+        ul, ol { margin: 0 0 1rem 1.5rem; color: var(--ink-soft); }
+        li { margin-bottom: 0.5rem; }
+        strong { color: var(--ink); font-weight: 600; }
+        a { color: var(--accent2); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* Nav */
+        .nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(11, 18, 32, 0.85); backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--line); padding: 12px 0;
+        }
+        .nav .container { display: flex; justify-content: space-between; align-items: center; }
+        .nav-links { display: flex; gap: 1rem; }
+        .nav-btn {
+            background: var(--line); color: var(--ink); padding: 6px 12px;
+            border-radius: 6px; font-size: 0.875rem; font-weight: 500; transition: 0.2s;
+        }
+        .nav-btn:hover { background: var(--line2); color: var(--accent); text-decoration: none; }
+        .breadcrumb { font-family: 'Space Grotesk', sans-serif; font-size: 0.875rem; color: var(--ink-dim); }
+        .breadcrumb span { color: var(--ink); }
+
+        /* Cards & Grids */
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 1.5rem 0; }
+        .card {
+            background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+            padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            position: relative; overflow: hidden;
+        }
+        .card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, var(--accent2), var(--accent)); opacity: 0.5;
+        }
+        .card-title { font-family: 'Space Grotesk'; font-size: 1.1rem; color: var(--ink); margin-bottom: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 8px;}
+        .card-title.bad { color: var(--red); }
+        .card-title.good { color: var(--accent); }
+
+        /* Table */
+        .table-wrap { overflow-x: auto; margin: 1.5rem 0; border: 1px solid var(--line); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; background: var(--panel); min-width: 800px; }
+        th, td { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+        th { background: var(--bg2); color: var(--accent2); font-family: 'Space Grotesk'; font-weight: 600; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+
+        /* Math & Code */
+        .math { font-family: 'JetBrains Mono', monospace; color: var(--amber); background: rgba(255, 180, 84, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+        .pre-wrap { margin: 1.5rem 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); background: #0A1220; }
+        .pre-header { background: var(--line); padding: 8px 16px; font-family: 'Space Grotesk'; font-size: 0.85rem; color: var(--ink-soft); display: flex; justify-content: space-between; }
+        pre { overflow-x: auto; padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.6; }
+        .line { display: block; white-space: pre; padding: 0 8px; border-left: 2px solid transparent; }
+        .line.active { background: var(--line2); border-left-color: var(--amber); color: var(--ink); }
+        
+        /* Syntax Highlight Colors */
+        .syn-kw { color: #FF6B9D; } /* Keyword */
+        .syn-ty { color: #5B8CFF; } /* Type */
+        .syn-fn { color: #38D6C4; } /* Function */
+        .syn-nu { color: #FFB454; } /* Number */
+        .syn-st { color: #9ece6a; } /* String */
+        .syn-cm { color: #5A6B8F; font-style: italic; } /* Comment */
+        .syn-op { color: #8FA1C4; } /* Operator */
+
+        /* Interactive Simulation Base */
+        .sim-container { background: var(--panel); border: 1px solid var(--line2); border-radius: 8px; margin: 2rem 0; overflow: hidden; display: flex; flex-direction: column; }
+        .sim-stage { padding: 24px; min-height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; border-bottom: 1px solid var(--line); background: var(--bg); }
+        .sim-controls { padding: 16px; background: var(--bg2); display: flex; gap: 12px; align-items: center; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+        .sim-log { padding: 12px 24px; background: rgba(56, 214, 196, 0.1); color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; text-align: center; border-bottom: 1px solid var(--line); min-height: 48px; display: flex; align-items: center; justify-content: center; }
+        
+        /* Sim 1: Grid */
+        .num-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; width: 100%; max-width: 600px; }
+        @media(max-width: 600px){ .num-grid { grid-template-columns: repeat(6, 1fr); } }
+        .num-cell { background: var(--line); border: 1px solid var(--line2); border-radius: 4px; text-align: center; padding: 8px 4px; font-family: 'JetBrains Mono'; color: var(--ink-dim); transition: 0.3s; position: relative; font-size: 0.9rem;}
+        .num-cell.active-1 { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+        .num-cell.active-2 { background: var(--amber-dim); color: var(--amber); border-color: var(--amber); }
+        .num-cell.active-3 { background: var(--pink-dim); color: var(--pink); border-color: var(--pink); }
+        .num-cell .badge { position: absolute; top: -6px; right: -6px; background: var(--ink); color: var(--bg); font-size: 0.7rem; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-weight: bold; opacity: 0; transition: 0.2s;}
+        .num-cell.has-badge .badge { opacity: 1; }
+        
+        /* Sim 2: Registers & Layout */
+        .sim-split { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+        @media(max-width: 900px){ .sim-split { grid-template-columns: 1fr; } }
+        .registers { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 400px; margin: 0 auto; }
+        .reg-row { display: flex; justify-content: space-between; background: var(--line); padding: 8px 16px; border-radius: 6px; font-family: 'JetBrains Mono'; border-left: 3px solid var(--line2); }
+        .reg-row .val { color: var(--accent); font-weight: bold; }
+        .reg-row.changed { border-left-color: var(--amber); background: rgba(255, 180, 84, 0.1); }
+        .sim-split .pre-wrap { margin: 0; border: none; border-radius: 0; border-left: 1px solid var(--line); }
+
+        /* Buttons & Inputs */
+        button { cursor: pointer; border: none; font-family: 'Inter', sans-serif; font-weight: 500; }
+        .btn { padding: 8px 16px; border-radius: 6px; background: var(--line2); color: var(--ink); transition: 0.2s; border: 1px solid transparent; }
+        .btn:hover:not(:disabled) { background: var(--accent2); color: #fff; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: var(--accent); color: var(--bg); font-weight: 600; }
+        .btn-primary:hover:not(:disabled) { background: #2CB3A3; }
+        .speed-ctrl { display: flex; align-items: center; gap: 8px; margin-left: auto; font-size: 0.85rem; color: var(--ink-soft); }
+        input[type="range"] { accent-color: var(--accent2); cursor: pointer; }
+
+        /* Problems Section */
+        .prob-card { background: var(--bg2); border-left: 4px solid var(--line2); padding: 1rem 1.5rem; margin-bottom: 1rem; border-radius: 0 8px 8px 0; }
+        .prob-card.easy { border-left-color: var(--accent); }
+        .prob-card.med { border-left-color: var(--amber); }
+        .prob-card.hard { border-left-color: var(--pink); }
+        .prob-tag { font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; font-family: 'Space Grotesk'; font-weight: 600; text-transform: uppercase; margin-right: 8px; }
+        .prob-card.easy .prob-tag { background: var(--accent-dim); color: var(--accent); }
+        .prob-card.med .prob-tag { background: var(--amber-dim); color: var(--amber); }
+        .prob-card.hard .prob-tag { background: var(--pink-dim); color: var(--pink); }
+
+        /* Quiz */
+        .quiz-item { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; transition: 0.3s; }
+        .quiz-item.correct { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-dim); }
+        .quiz-item.wrong { border-color: var(--red); box-shadow: 0 0 15px var(--red-dim); }
+        .quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-top: 1rem; }
+        .quiz-opt { padding: 10px 16px; background: var(--bg2); border: 1px solid var(--line); border-radius: 6px; cursor: pointer; transition: 0.2s; display: flex; gap: 12px; align-items: center; }
+        .quiz-opt:hover { background: var(--line); border-color: var(--ink-soft); }
+        .quiz-opt.selected-correct { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+        .quiz-opt.selected-wrong { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+        .quiz-opt.show-correct { background: var(--accent-dim); border-color: var(--accent); }
+        .quiz-exp { margin-top: 1rem; padding: 1rem; background: var(--bg); border-left: 3px solid var(--accent2); border-radius: 4px; display: none; font-size: 0.95rem; }
+        .quiz-score { position: sticky; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--panel); border: 2px solid var(--accent); color: var(--accent); padding: 12px 24px; border-radius: 30px; font-weight: bold; font-family: 'Space Grotesk'; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 10; display: inline-block; margin-top: 2rem;}
+
+        /* Arrays/Flex non-wrap rules */
+        .array-wrap { display: flex; overflow-x: auto; gap: 8px; padding: 12px 0; max-width: 100%; scrollbar-width: thin; scrollbar-color: var(--line2) var(--bg); }
+        .array-item { flex: none; width: 40px; height: 40px; background: var(--line); border: 1px solid var(--line2); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono'; border-radius: 4px; }
+        
+        footer { margin-top: 4rem; padding: 2rem 0; border-top: 1px solid var(--line); text-align: center; color: var(--ink-dim); font-size: 0.9rem; }
+        
+        /* Utils */
+        .hidden { display: none !important; }
+        .hl-math { color: var(--pink); font-family: 'JetBrains Mono'; }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <div class="container">
+        <div class="breadcrumb">
+            Toán rời rạc / <span>Bao hàm - Loại trừ (PIE)</span>
+        </div>
+        <div class="nav-links">
+            <a href="/index.html" class="nav-btn">Trang chủ</a>
+            <a href="https://cvpoi.id.vn" target="_blank" class="nav-btn">cvpoi.id.vn ↗</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>Nguyên lý Bao hàm - Loại trừ (PIE)</h1>
+    <p style="font-size: 1.2rem; color: var(--accent2);">Biến bài toán đếm điều kiện phức tạp (HOẶC) thành các bài toán đếm giao của các tập hợp đơn giản (VÀ) bằng cách cộng trừ luân phiên.</p>
+
+    <!-- 2. TÓM TẮT NHANH -->
+    <div class="grid-3">
+        <div class="card">
+            <div class="card-title">Ý tưởng chủ đạo</div>
+            <p>Để đếm kích thước hợp của nhiều tập hợp (đếm các phần tử thoả mãn ít nhất 1 điều kiện), ta tính tổng kích thước từng tập, trừ đi kích thước giao của 2 tập, cộng lại kích thước giao 3 tập, v.v. <strong>Cộng độ dài lẻ, trừ độ dài chẵn.</strong></p>
+        </div>
+        <div class="card">
+            <div class="card-title">Dùng khi nào?</div>
+            <p>Khi cần đếm số phần tử thỏa mãn <strong>"ít nhất một"</strong> hoặc <strong>"không có cái nào"</strong> trong N điều kiện.<br>Dấu hiệu: Tính trực tiếp rất khó (do trùng lặp), nhưng đếm số phần tử thỏa mãn <em>đồng thời</em> một nhóm điều kiện lại rất dễ. N thường nhỏ (N ≤ 20).</p>
+        </div>
+        <div class="card">
+            <div class="card-title">Điểm mạnh & Yếu</div>
+            <p><strong>Mạnh:</strong> Độ chính xác tuyệt đối, code duyệt nhị phân (bitmask) ngắn gọn.<br><strong>Yếu:</strong> Độ phức tạp hàm mũ <span class="math">O(2ⁿ)</span>. Nếu N > 25, không thể dùng PIE thuần tuý.</p>
+        </div>
+    </div>
+
+    <h3>Bảng So Sánh Kỹ Thuật Đếm</h3>
+    <p>Khi đối mặt với bài toán đếm tổ hợp có ràng buộc, ta cần cân nhắc:</p>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Kỹ thuật</th>
+                    <th>Bài toán đặc trưng</th>
+                    <th>Độ phức tạp</th>
+                    <th>Không gian</th>
+                    <th>Khi nào ưu tiên?</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>PIE thuần túy (Bitmask)</strong></td>
+                    <td>Đếm bội số chung, đếm đường đi có ít vật cản, bài toán hoán vị ràng buộc.</td>
+                    <td><span class="math">O(2ⁿ · K)</span><br>(K: phí tính giao)</td>
+                    <td><span class="math">O(N)</span></td>
+                    <td>Số lượng tập hợp/điều kiện N nhỏ (N ≤ 20). Giao của các tập tính rất nhanh (O(1) hoặc O(N)).</td>
+                </tr>
+                <tr>
+                    <td><strong>Quy hoạch động (DP)</strong></td>
+                    <td>Đếm dãy con, Digit DP, đếm trạng thái mảng.</td>
+                    <td><span class="math">O(N · State)</span></td>
+                    <td><span class="math">O(State)</span></td>
+                    <td>N lớn, nhưng các điều kiện có cấu trúc tuần tự hoặc trạng thái nhỏ (thường có đồ thị trạng thái mỏng).</td>
+                </tr>
+                <tr>
+                    <td><strong>Nghịch đảo Möbius</strong></td>
+                    <td>Đếm số cặp nguyên tố cùng nhau (GCD = 1) trên đoạn lớn.</td>
+                    <td><span class="math">O(M)</span> Sieve + <br><span class="math">O(\sqrt{M})</span> truy vấn</td>
+                    <td><span class="math">O(M)</span></td>
+                    <td>Chuyên trị các bài toán lý thuyết số về ước/bội trên giá trị cực lớn, bản chất là PIE trên các thừa số nguyên tố.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 3. BÀI TOÁN & ĐỘNG LỰC -->
+    <h2>1. Động lực: Tại sao cộng bình thường lại sai?</h2>
+    <p><strong>Bài toán:</strong> Trong các số từ 1 đến 30, có bao nhiêu số chia hết cho 2 hoặc 3?</p>
+    <p><strong>Cách ngây thơ:</strong><br>
+        - Số chia hết cho 2: 30 / 2 = 15 số. (Tập A)<br>
+        - Số chia hết cho 3: 30 / 3 = 10 số. (Tập B)<br>
+        Tổng: 15 + 10 = 25 số? <strong>SAI!</strong> Số 6 chia hết cho cả 2 và 3, nên nó bị đếm 2 lần (ở A và B). Các số 12, 18, 24, 30 cũng vậy.
+    </p>
+    <p><strong>Cách cứu vãn:</strong> Phải trừ đi phần bị đếm trùng. Trùng lặp xảy ra khi một số chia hết cho cả 2 và 3 (tức là chia hết cho BCNN(2, 3) = 6). Tập giao này gọi là A ∩ B có 30 / 6 = 5 phần tử.<br>
+    Kết quả đúng: <strong>|A ∪ B| = 15 + 10 - 5 = 20.</strong></p>
+
+    <!-- 4. LÝ THUYẾT CỐT LÕI -->
+    <h2>2. Định lý Bao hàm - Loại trừ tổng quát</h2>
+    <p>Khi có 3 tập hợp A, B, C (ví dụ chia hết cho 2, 3, 5):</p>
+    <div style="background: var(--bg2); padding: 16px; border-left: 4px solid var(--accent); border-radius: 4px; font-family: 'JetBrains Mono'; margin-bottom: 1rem;">
+        |A ∪ B ∪ C| = <br>
+        &nbsp;&nbsp;+ |A| + |B| + |C| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--ink-soft)">// Bao hàm các tập đơn lẻ (đếm lố)</span><br>
+        &nbsp;&nbsp;- |A ∩ B| - |B ∩ C| - |A ∩ C| &nbsp;&nbsp;<span style="color:var(--ink-soft)">// Loại trừ các giao đôi (trừ lố)</span><br>
+        &nbsp;&nbsp;+ |A ∩ B ∩ C| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--ink-soft)">// Bao hàm lại giao 3 (bù đắp)</span>
+    </div>
+    <p><strong>Quy luật chung (Cho N tập hợp):</strong></p>
+    <ul>
+        <li>Duyệt qua <strong>tất cả các tập con khác rỗng</strong> của N điều kiện.</li>
+        <li>Nếu tập con có <strong>số lẻ</strong> điều kiện (1, 3, 5...): <strong>CỘNG</strong> kích thước phần giao của chúng.</li>
+        <li>Nếu tập con có <strong>số chẵn</strong> điều kiện (2, 4, 6...): <strong>TRỪ</strong> kích thước phần giao của chúng.</li>
+    </ul>
+
+    <!-- Mô phỏng 1 -->
+    <h3>Mô phỏng 1: Quá trình đếm trên trục số (N = 3)</h3>
+    <p>Tìm số lượng các số từ 1 đến 30 chia hết cho ít nhất một trong các số trong tập <code>P = {2, 3, 5}</code>. Hãy xem cách PIE cộng và trừ để cuối cùng mỗi số thỏa mãn chỉ mang giá trị đếm bằng đúng 1.</p>
+    
+    <div class="sim-container" id="sim1">
+        <div class="sim-controls">
+            <button class="btn btn-primary" id="btnPlay1">Tự động chạy</button>
+            <button class="btn" id="btnStep1">Từng bước</button>
+            <button class="btn" id="btnReset1">Đặt lại</button>
+            <div class="speed-ctrl">
+                Chậm <input type="range" id="speed1" min="1" max="5" value="3"> Nhanh
+            </div>
+        </div>
+        <div class="sim-log" id="log1">Nhấn "Từng bước" hoặc "Tự động chạy" để bắt đầu.</div>
+        <div class="sim-stage">
+            <div class="num-grid" id="grid1">
+                <!-- JS sẽ sinh 30 ô ở đây -->
+            </div>
+            <div style="margin-top: 20px; font-family: 'JetBrains Mono'; font-size: 1.2rem; color: var(--accent);">
+                Tổng (Ans) = <span id="ans1">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. CÀI ĐẶT -->
+    <h2>3. Cài đặt C++ với Bitmask</h2>
+    <p>Để code tổng quát cho N điều kiện, ta không viết <code>if-else</code> dài dòng. Ta dùng vòng lặp bitmask: sinh các số từ <code>1</code> đến <code>2ⁿ - 1</code>. Mỗi bit thứ <code>i</code> bằng 1 nghĩa là chọn điều kiện thứ <code>i</code>.</p>
+    <p><em>Ví dụ N=3, mask = 5 (nhị phân <code>101</code>): Chọn phần tử <code>a[0]</code> và <code>a[2]</code>. Số bit 1 (popcount) là 2 (chẵn) -> Dấu TRỪ.</em></p>
+
+    <!-- Mô phỏng 2 -->
+    <h3>Mô phỏng 2: Chạy Code Bitmask (Tập con sinh tự động)</h3>
+    <p>Tính số lượng phần tử ≤ 20 chia hết cho 2 hoặc 3. <code>M = 20</code>, mảng <code>a = {2, 3}</code>. (N = 2).</p>
+    
+    <div class="sim-container" id="sim2">
+        <div class="sim-controls">
+            <button class="btn btn-primary" id="btnPlay2">Tự động chạy</button>
+            <button class="btn" id="btnStep2">Từng bước</button>
+            <button class="btn" id="btnReset2">Đặt lại</button>
+        </div>
+        <div class="sim-log" id="log2">Chuẩn bị thực thi mã bitmask.</div>
+        <div class="sim-split">
+            <div class="sim-stage" style="border-bottom: none; justify-content: flex-start; padding: 24px 16px;">
+                <div class="registers">
+                    <div class="reg-row" id="reg-mask"><span>mask (nhị phân)</span> <span class="val">0 (00)</span></div>
+                    <div class="reg-row" id="reg-bits"><span>__builtin_popcount</span> <span class="val">0</span></div>
+                    <div class="reg-row" id="reg-lcm"><span>BCNN (cur_lcm)</span> <span class="val">1</span></div>
+                    <div class="reg-row" id="reg-count"><span>M / cur_lcm</span> <span class="val">0</span></div>
+                    <div class="reg-row" id="reg-sign"><span>Dấu (Lẻ +, Chẵn -)</span> <span class="val">N/A</span></div>
+                    <div class="reg-row" style="margin-top: 12px; border-left-color: var(--accent); background: rgba(56, 214, 196, 0.1);">
+                        <span style="color: var(--accent);">Ans (Kết quả)</span> <span class="val" id="reg-ans">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="pre-wrap" style="height: 100%; border-radius: 0;">
+                <div class="pre-header"><span>C++ Bitmask PIE</span></div>
+                <pre id="code2-target" style="height: calc(100% - 35px); overflow-y: auto; padding: 8px 0;"></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Đoạn code gốc ẩn để JS đọc -->
+    <pre id="code2-raw" class="hidden">
+long long ans = 0;
+for(int mask = 1; mask < (1 << n); mask++) {
+    int bits = __builtin_popcount(mask);
+    long long cur_lcm = 1;
+    for(int i = 0; i < n; i++) {
+        if((mask >> i) & 1) {
+            cur_lcm = lcm(cur_lcm, a[i]);
+        }
+    }
+    long long count = M / cur_lcm;
+    if(bits % 2 == 1) ans += count;
+    else ans -= count;
+}
+    </pre>
+
+    <!-- 6. MỞ RỘNG -->
+    <h2>4. Mở rộng: Nguyên lý phần bù & Nghịch đảo Mobius</h2>
+    <ul>
+        <li><strong>Phần bù (Không có điều kiện nào thỏa mãn):</strong> Đôi khi ta cần đếm số phần tử <em>không chia hết cho bất kỳ số nào</em>. Thay vì đếm trực tiếp, ta tính Tổng không gian mẫu trừ đi số phần tử thỏa mãn <em>ít nhất một</em> điều kiện: <code>Ans = Tổng_vũ_trụ - PIE</code>.</li>
+        <li><strong>Nghịch đảo Möbius (Möbius Inversion):</strong> Khi N rất lớn nhưng là các số nguyên tố, mảng bitmask sụp đổ (O(2ⁿ) quá giới hạn). Hàm Möbius <span class="math">μ(x)</span> chính là sự mã hoá sẵn của PIE (μ = 1 nếu lẻ thừa số, μ = -1 nếu chẵn thừa số, μ = 0 nếu có ước chính phương). Nó cho phép đẩy PIE lên giới hạn <span class="math">N = 10⁶</span> hoặc lớn hơn.</li>
+    </ul>
+
+    <!-- 7. BÀI TẬP -->
+    <h2>5. Danh sách bài tập rèn luyện</h2>
+    <div class="grid-2">
+        <div class="prob-card easy">
+            <div><span class="prob-tag">Nhập môn</span></div>
+            <h4 style="margin: 8px 0; color: var(--ink);">1. Vanya and Primes (Codeforces)</h4>
+            <p style="font-size: 0.9rem; margin-bottom:0;">Cho mảng N số nguyên tố và số K. Đếm số lượng số ≤ K chia hết cho ít nhất một số trong mảng. (N ≤ 20).</p>
+            <p style="font-size: 0.8rem; margin-top: 4px; color: var(--ink-dim);"><em>Gợi ý: Áp dụng trực tiếp khuôn mẫu PIE bitmask như mô phỏng.</em></p>
+        </div>
+        <div class="prob-card easy">
+            <div><span class="prob-tag">Nhập môn</span></div>
+            <h4 style="margin: 8px 0; color: var(--ink);">2. Hoán vị không điểm bất động (Derangement)</h4>
+            <p style="font-size: 0.9rem; margin-bottom:0;">Đếm số hoán vị của N phần tử sao cho không có phần tử <code>i</code> nào đứng ở vị trí <code>i</code>.</p>
+            <p style="font-size: 0.8rem; margin-top: 4px; color: var(--ink-dim);"><em>Gợi ý: Gọi Aᵢ là tập hoán vị phần tử i đứng đúng chỗ. Tính phần bù: N! - |A₁ ∪ A₂ ... ∪ Aₙ|.</em></p>
+        </div>
+        <div class="prob-card med">
+            <div><span class="prob-tag">Trung bình</span></div>
+            <h4 style="margin: 8px 0; color: var(--ink);">3. Số cặp nguyên tố cùng nhau (Coprime Arrays)</h4>
+            <p style="font-size: 0.9rem; margin-bottom:0;">Cho mảng A. Tìm số cặp (i, j) sao cho i < j và GCD(A[i], A[j]) = 1. (A[i] ≤ 10⁵).</p>
+            <p style="font-size: 0.8rem; margin-top: 4px; color: var(--ink-dim);"><em>Gợi ý: Đếm số cặp có GCD là bội của X, dùng mảng tần số đếm số lượng bội, áp dụng PIE qua hàm Mobius.</em></p>
+        </div>
+        <div class="prob-card med">
+            <div><span class="prob-tag">Trung bình</span></div>
+            <h4 style="margin: 8px 0; color: var(--ink);">4. Điểm cản trên lưới (Grid Paths w/ Obstacles)</h4>
+            <p style="font-size: 0.9rem; margin-bottom:0;">Đếm số đường đi từ (0,0) đến (H,W) di chuyển phải/xuống, nhưng không đi qua K điểm bị cản. (K ≤ 20).</p>
+            <p style="font-size: 0.8rem; margin-top: 4px; color: var(--ink-dim);"><em>Gợi ý: Điều kiện là "đi qua điểm cản i". Giao của các điều kiện đếm bằng tích số cách đi giữa các điểm cản đã sắp xếp.</em></p>
+        </div>
+        <div class="prob-card hard">
+            <div><span class="prob-tag">Khó</span></div>
+            <h4 style="margin: 8px 0; color: var(--ink);">5. Cây tô màu với ràng buộc (Tree Coloring PIE)</h4>
+            <p style="font-size: 0.9rem; margin-bottom:0;">Cho một cây, bạn cần tô màu các đỉnh sao cho các đỉnh có khoảng cách ≤ 2 không cùng màu. Có một số cặp đỉnh (N ≤ 15 cặp) KHÔNG được phép cùng màu.</p>
+            <p style="font-size: 0.8rem; margin-top: 4px; color: var(--ink-dim);"><em>Gợi ý: PIE trên tập hợp các cặp bị cấm kết hợp với Quy hoạch động trên cây (Tree DP).</em></p>
+        </div>
+        <div class="prob-card hard">
+            <div><span class="prob-tag">Khó</span></div>
+            <h4 style="margin: 8px 0; color: var(--ink);">6. Lưới hình chữ nhật có viền (Matrix Rows/Cols)</h4>
+            <p style="font-size: 0.9rem; margin-bottom:0;">Điền số 0, 1 vào ma trận N×M sao cho không có hàng nào toàn 0 và không có cột nào toàn 0. (N, M ≤ 3000).</p>
+            <p style="font-size: 0.8rem; margin-top: 4px; color: var(--ink-dim);"><em>Gợi ý: Áp dụng PIE hai chiều. Fix số hàng vi phạm (i), fix số cột vi phạm (j). Tổ hợp giao: C(N, i) × C(M, j) × 2^{(N-i)(M-j)}.</em></p>
+        </div>
+    </div>
+
+    <!-- 8. LỖI THƯỜNG GẶP -->
+    <h2>6. Lỗi thường gặp & Cách phòng tránh</h2>
+    <div class="grid-2">
+        <div class="card" style="border-left: 4px solid var(--red);">
+            <div class="card-title bad">Tràn số nguyên (Overflow) khi tính BCNN</div>
+            <p><strong>Lỗi:</strong> Trong lúc duyệt tập con, biến <code>cur_lcm</code> có thể vượt quá giới hạn 64-bit (long long) nếu giao của quá nhiều phần tử nguyên tố cùng nhau.</p>
+            <p><strong>Khắc phục:</strong> Kiểm tra tràn trước khi tính LCM: <br><code>if (M / a[i] < cur_lcm / gcd) break;</code><br> hoặc nếu <code>cur_lcm > M</code> thì gán <code>cur_lcm = vô cực</code> ngay, vì <code>M / cur_lcm</code> sẽ bằng 0.</p>
+        </div>
+        <div class="card" style="border-left: 4px solid var(--amber);">
+            <div class="card-title">Quên chỉ số bit 0</div>
+            <p><strong>Lỗi:</strong> Vòng lặp mask chạy từ 1, nhưng phần tử mảng lại từ 1 đến N. Code <code>mask >> i</code> với <code>i = 1</code> bị sai lệch chỉ số phần tử.</p>
+            <p><strong>Khắc phục:</strong> Luôn sử dụng index 0-based cho mảng (0 đến N-1), và vòng bit lặp <code>i</code> từ 0 đến N-1. <code>(mask >> i) & 1</code> sẽ khớp chính xác với <code>a[i]</code>.</p>
+        </div>
+    </div>
+
+    <!-- 9. TRẮC NGHIỆM -->
+    <h2>7. Trắc nghiệm đánh giá</h2>
+    <div id="quiz-container"></div>
+    <div class="quiz-score" id="quiz-score-ui">Điểm: 0 / 12</div>
+
+    <footer>
+        <p>Biên soạn cho đội tuyển Lập trình thi đấu. © 2026 cvpoi.id.vn</p>
+        <p style="font-size: 0.8rem; opacity: 0.5;">Tài liệu lưu hành nội bộ - Có thể chạy offline không cần kết nối mạng.</p>
+    </footer>
+</div>
+
+<script>
+    // --- UTILS: SYNTAX HIGHLIGHTER ---
+    function escapeHtml(unsafe) {
+        return unsafe
+             .replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;");
+    }
+
+    function highlightCode(rawText) {
+        // Tách dòng
+        const lines = rawText.trim().split('\n');
+        let outHtml = '';
+        
+        // Regex đơn giản an toàn
+        const kw = /\b(int|long|for|if|else|while|return|break|continue)\b/g;
+        const fn = /\b(__builtin_popcount|lcm|gcd|min|max)(?=\()/g;
+        const nu = /\b(\d+)\b/g;
+        
+        lines.forEach((line, idx) => {
+            let processed = escapeHtml(line);
+            
+            // Xử lý token (cẩn thận với HTML tags do escape tạo ra, tránh chèn vào &lt; hay &gt;)
+            // Hack: split by spaces and boundaries, map, then join is safer, but regex with word boundaries is ok since escape strings don't contain full alphanumeric keywords.
+            processed = processed.replace(kw, '<span class="syn-kw">$1</span>');
+            processed = processed.replace(fn, '<span class="syn-fn">$1</span>');
+            processed = processed.replace(nu, '<span class="syn-nu">$1</span>');
+            // Cấu trúc operator (chỉ highlight các ký tự không phải alphabet sau khi escape)
+            processed = processed.replace(/(\+|\-|\*|\/|%|\^|&amp;|\||&lt;&lt;|&gt;&gt;|==|!=|&lt;|&gt;|=)/g, '<span class="syn-op">$1</span>');
+            
+            outHtml += `<div class="line" id="line-${idx}">${processed}</div>`;
+        });
+        return outHtml;
+    }
+
+    document.getElementById('code2-target').innerHTML = highlightCode(document.getElementById('code2-raw').textContent);
+
+    // --- SIMULATION 1: VENN TO GRID (1 to 30) ---
+    const sim1 = {
+        state: 0,
+        running: false,
+        timer: null,
+        grid: document.getElementById('grid1'),
+        ansEl: document.getElementById('ans1'),
+        logEl: document.getElementById('log1'),
+        cells: [], // DOM elements
+        counts: new Array(31).fill(0), // How many times counted
+        
+        steps: [
+            { txt: "Khởi tạo. Tập các số mục tiêu ≤ 30. Ans = 0.", mask: 0, op: 0 },
+            // mask 1 (2): lẻ -> +
+            { txt: "Bước 1: CỘNG các số chia hết cho 2 (Tập A).", divBy: 2, op: 1, c: 1 },
+            // mask 2 (3): lẻ -> +
+            { txt: "Bước 2: CỘNG các số chia hết cho 3 (Tập B). Có số bị trùng!", divBy: 3, op: 1, c: 2 },
+            // mask 4 (5): lẻ -> +
+            { txt: "Bước 3: CỘNG các số chia hết cho 5 (Tập C).", divBy: 5, op: 1, c: 3 },
+            // mask 3 (2,3): chẵn -> -
+            { txt: "Bước 4: TRỪ phần giao A ∩ B (chia hết BCNN(2,3) = 6).", divBy: 6, op: -1, c: 1 },
+            // mask 5 (2,5): chẵn -> -
+            { txt: "Bước 5: TRỪ phần giao A ∩ C (chia hết BCNN(2,5) = 10).", divBy: 10, op: -1, c: 2 },
+            // mask 6 (3,5): chẵn -> -
+            { txt: "Bước 6: TRỪ phần giao B ∩ C (chia hết BCNN(3,5) = 15).", divBy: 15, op: -1, c: 3 },
+            // mask 7 (2,3,5): lẻ -> +
+            { txt: "Bước 7: CỘNG LẠI phần giao A ∩ B ∩ C (chia hết BCNN = 30).", divBy: 30, op: 1, c: 1 },
+            { txt: "Hoàn tất! Các số thoả mãn đều được đếm đúng 1 lần.", done: true }
+        ],
+
+        init() {
+            this.grid.innerHTML = '';
+            this.cells = [];
+            this.counts.fill(0);
+            for(let i=1; i<=30; i++){
+                const cell = document.createElement('div');
+                cell.className = 'num-cell';
+                cell.innerText = i;
+                const badge = document.createElement('div');
+                badge.className = 'badge';
+                badge.innerText = '0';
+                cell.appendChild(badge);
+                this.grid.appendChild(cell);
+                this.cells[i] = cell;
+            }
+            this.ansEl.innerText = '0';
+            this.state = 0;
+            this.logEl.innerHTML = this.steps[0].txt;
+        },
+
+        updateCell(i) {
+            const el = this.cells[i];
+            const badge = el.querySelector('.badge');
+            const cnt = this.counts[i];
+            badge.innerText = cnt;
+            
+            // Xóa class cũ
+            el.className = 'num-cell' + (cnt > 0 ? ' has-badge' : '');
+            if(cnt === 1) el.classList.add('active-1');
+            if(cnt === 2) el.classList.add('active-2');
+            if(cnt >= 3) el.classList.add('active-3');
+        },
+
+        step() {
+            if (this.state >= this.steps.length - 1) {
+                this.pause(); return;
+            }
+            this.state++;
+            const s = this.steps[this.state];
+            this.logEl.innerHTML = s.txt;
+            
+            if (s.done) return;
+
+            let ans = parseInt(this.ansEl.innerText);
+            
+            for(let i=1; i<=30; i++) {
+                if (i % s.divBy === 0) {
+                    this.counts[i] += s.op;
+                    this.updateCell(i);
+                    ans += s.op;
+                    
+                    // Hiệu ứng nháy
+                    this.cells[i].style.transform = 'scale(1.1)';
+                    setTimeout(() => { if(this.cells[i]) this.cells[i].style.transform = 'scale(1)'; }, 200);
+                }
+            }
+            this.ansEl.innerText = ans;
+        },
+
+        play() {
+            if(this.running) return;
+            if(this.state >= this.steps.length - 1) this.init();
+            this.running = true;
+            document.getElementById('btnPlay1').innerText = "Tạm dừng";
+            this.nextFrame();
+        },
+
+        pause() {
+            this.running = false;
+            clearTimeout(this.timer);
+            document.getElementById('btnPlay1').innerText = "Tự động chạy";
+        },
+
+        nextFrame() {
+            if(!this.running) return;
+            this.step();
+            if(this.state < this.steps.length - 1) {
+                const speed = 6 - parseInt(document.getElementById('speed1').value); // 1 to 5 -> ms
+                this.timer = setTimeout(() => this.nextFrame(), speed * 400);
+            } else {
+                this.pause();
+            }
+        }
+    };
+
+    document.getElementById('btnPlay1').onclick = () => { sim1.running ? sim1.pause() : sim1.play(); };
+    document.getElementById('btnStep1').onclick = () => { sim1.pause(); sim1.step(); };
+    document.getElementById('btnReset1').onclick = () => { sim1.pause(); sim1.init(); };
+    sim1.init();
+
+
+    // --- SIMULATION 2: CODE EXECUTION ---
+    const sim2 = {
+        state: 0, running: false, timer: null,
+        M: 20, a: [2, 3], ans: 0,
+        
+        // Sequence of states mimicking loop execution
+        // lines mapping to #code2-target:
+        // 0: long long ans = 0;
+        // 1: for(int mask = 1...
+        // 2: int bits...
+        // 3: long long cur_lcm...
+        // 4: for(int i=0...
+        // 5: if((mask >> i)...
+        // 6: cur_lcm = lcm...
+        // 9: long long count...
+        // 10: if(bits % 2...
+        // 11: else...
+        
+        steps: [
+            { l: 0, txt: "Khởi tạo kết quả ans = 0.", mask:-1, bit:-1, lcm:-1, cnt:-1, sgn:'', ans:0 },
+            // Mask 1 (binary 01) - Chọn phần tử a[0] = 2
+            { l: 1, txt: "mask = 1 (Nhị phân: 01). Chọn phần tử đầu tiên.", mask:1, bit:-1, lcm:-1, cnt:-1, sgn:'', ans:0 },
+            { l: 2, txt: "bits = 1 (Số bit 1 là 1, lẻ).", mask:1, bit:1, lcm:-1, cnt:-1, sgn:'', ans:0 },
+            { l: 3, txt: "cur_lcm khởi tạo = 1.", mask:1, bit:1, lcm:1, cnt:-1, sgn:'', ans:0 },
+            { l: 6, txt: "Bit thứ 0 là 1. Tính BCNN(1, a[0]) = BCNN(1, 2) = 2.", mask:1, bit:1, lcm:2, cnt:-1, sgn:'', ans:0 },
+            { l: 9, txt: "count = M / cur_lcm = 20 / 2 = 10.", mask:1, bit:1, lcm:2, cnt:10, sgn:'', ans:0 },
+            { l: 10, txt: "Số bit lẻ -> CỘNG count vào ans.", mask:1, bit:1, lcm:2, cnt:10, sgn:'+', ans:10 },
+            // Mask 2 (binary 10) - Chọn phần tử a[1] = 3
+            { l: 1, txt: "mask = 2 (Nhị phân: 10). Chọn phần tử thứ hai.", mask:2, bit:-1, lcm:-1, cnt:-1, sgn:'', ans:10 },
+            { l: 2, txt: "bits = 1 (Số bit 1 là 1, lẻ).", mask:2, bit:1, lcm:-1, cnt:-1, sgn:'', ans:10 },
+            { l: 3, txt: "cur_lcm khởi tạo = 1.", mask:2, bit:1, lcm:1, cnt:-1, sgn:'', ans:10 },
+            { l: 6, txt: "Bit thứ 1 là 1. Tính BCNN(1, a[1]) = BCNN(1, 3) = 3.", mask:2, bit:1, lcm:3, cnt:-1, sgn:'', ans:10 },
+            { l: 9, txt: "count = M / cur_lcm = 20 / 3 = 6.", mask:2, bit:1, lcm:3, cnt:6, sgn:'', ans:10 },
+            { l: 10, txt: "Số bit lẻ -> CỘNG count vào ans.", mask:2, bit:1, lcm:3, cnt:6, sgn:'+', ans:16 },
+            // Mask 3 (binary 11) - Chọn a[0]=2, a[1]=3
+            { l: 1, txt: "mask = 3 (Nhị phân: 11). Chọn cả 2 phần tử.", mask:3, bit:-1, lcm:-1, cnt:-1, sgn:'', ans:16 },
+            { l: 2, txt: "bits = 2 (Số bit 1 là 2, chẵn).", mask:3, bit:2, lcm:-1, cnt:-1, sgn:'', ans:16 },
+            { l: 3, txt: "cur_lcm khởi tạo = 1.", mask:3, bit:2, lcm:1, cnt:-1, sgn:'', ans:16 },
+            { l: 6, txt: "Bit thứ 0 là 1. BCNN(1, 2) = 2.", mask:3, bit:2, lcm:2, cnt:-1, sgn:'', ans:16 },
+            { l: 6, txt: "Bit thứ 1 là 1. BCNN(2, 3) = 6.", mask:3, bit:2, lcm:6, cnt:-1, sgn:'', ans:16 },
+            { l: 9, txt: "count = M / cur_lcm = 20 / 6 = 3 (phần giao bị trùng).", mask:3, bit:2, lcm:6, cnt:3, sgn:'', ans:16 },
+            { l: 11, txt: "Số bit chẵn -> TRỪ count khỏi ans.", mask:3, bit:2, lcm:6, cnt:3, sgn:'-', ans:13 },
+            // End
+            { l: -1, txt: "Hoàn tất! (20/2 + 20/3 - 20/6 = 10 + 6 - 3 = 13).", mask:-2, bit:-1, lcm:-1, cnt:-1, sgn:'', ans:13 }
+        ],
+
+        updateUI(s, prev) {
+            this.logEl.innerHTML = s.txt;
+            
+            // UI Registers
+            const uM = (v) => v === -1 ? '...' : (v === -2 ? 'Kết thúc' : v);
+            const rMask = document.getElementById('reg-mask');
+            if(s.mask > 0) rMask.querySelector('.val').innerText = `${s.mask} (${s.mask.toString(2).padStart(2, '0')})`;
+            else rMask.querySelector('.val').innerText = uM(s.mask);
+            
+            document.getElementById('reg-bits').querySelector('.val').innerText = uM(s.bit);
+            document.getElementById('reg-lcm').querySelector('.val').innerText = uM(s.lcm);
+            document.getElementById('reg-count').querySelector('.val').innerText = uM(s.cnt);
+            document.getElementById('reg-sign').querySelector('.val').innerText = s.sgn || '...';
+            document.getElementById('reg-ans').innerText = s.ans;
+
+            // Flash changed
+            ['mask', 'bits', 'lcm', 'count', 'sign', 'ans'].forEach(key => {
+                const el = document.getElementById(`reg-${key}`);
+                if(!el) return;
+                const prop = key.substring(0,3); // mask, bit, lcm, cnt, sgn, ans
+                let val1 = s[prop]; let val0 = prev ? prev[prop] : null;
+                if(val1 !== val0 && val1 !== -1) {
+                    el.classList.add('changed');
+                    setTimeout(() => el.classList.remove('changed'), 500);
+                }
+            });
+
+            // Code highlight
+            document.querySelectorAll('.line').forEach(el => el.classList.remove('active'));
+            if(s.l >= 0) {
+                const line = document.getElementById(`line-${s.l}`);
+                if(line) {
+                    line.classList.add('active');
+                    line.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        },
+
+        init() {
+            this.state = 0;
+            this.updateUI(this.steps[0], null);
+        },
+
+        step() {
+            if (this.state >= this.steps.length - 1) { this.pause(); return; }
+            const prev = this.steps[this.state];
+            this.state++;
+            this.updateUI(this.steps[this.state], prev);
+        },
+
+        play() {
+            if(this.running) return;
+            if(this.state >= this.steps.length - 1) this.init();
+            this.running = true;
+            document.getElementById('btnPlay2').innerText = "Tạm dừng";
+            this.nextFrame();
+        },
+
+        pause() {
+            this.running = false;
+            clearTimeout(this.timer);
+            document.getElementById('btnPlay2').innerText = "Tự động chạy";
+        },
+
+        nextFrame() {
+            if(!this.running) return;
+            this.step();
+            if(this.state < this.steps.length - 1) {
+                this.timer = setTimeout(() => this.nextFrame(), 1500); // Tốc độ cố định cho code dễ đọc
+            } else {
+                this.pause();
+            }
+        }
+    };
+
+    document.getElementById('btnPlay2').onclick = () => { sim2.running ? sim2.pause() : sim2.play(); };
+    document.getElementById('btnStep2').onclick = () => { sim2.pause(); sim2.step(); };
+    document.getElementById('btnReset2').onclick = () => { sim2.pause(); sim2.init(); };
+    sim2.init();
+
+
+    // --- QUIZ SYSTEM (12 Questions) ---
+    const quizData = [
+        {
+            q: "Kỹ thuật Bao hàm - Loại trừ (PIE) thường được dùng khi nào?",
+            opts: [
+                "Khi số lượng phần tử N rất lớn (N > 1000).",
+                "Khi cần đếm số phần tử thỏa mãn 'ít nhất một' trong N điều kiện (N nhỏ).",
+                "Khi cần tìm đường đi ngắn nhất trên đồ thị.",
+                "Khi mảng có nhiều truy vấn cập nhật từng điểm."
+            ],
+            ans: 1,
+            exp: "PIE chuyên trị các điều kiện dạng 'HOẶC' (ít nhất 1). Do độ phức tạp hàm mũ O(2ⁿ), N phải nhỏ (thường ≤ 20)."
+        },
+        {
+            q: "Công thức |A ∪ B| đúng là gì?",
+            opts: [
+                "|A| + |B|",
+                "|A| + |B| + |A ∩ B|",
+                "|A| + |B| - |A ∩ B|",
+                "|A| × |B|"
+            ],
+            ans: 2,
+            exp: "Tổng kích thước hai tập trừ đi phần giao bị đếm trùng lặp."
+        },
+        {
+            q: "Độ phức tạp thời gian mặc định của việc dùng bitmask sinh tập con trong PIE là bao nhiêu?",
+            opts: ["O(N²)", "O(2ⁿ)", "O(N · 2ⁿ)", "O(N!)"],
+            ans: 2,
+            exp: "Vòng lặp chạy qua 2ⁿ trạng thái (từ 0 đến 2ⁿ-1). Bên trong tính giao cần O(N), nên đầy đủ là O(N · 2ⁿ)."
+        },
+        {
+            q: "Nếu một tập con chứa 5 điều kiện (N=5) được chọn trong quá trình duyệt bitmask, ta sẽ CỘNG hay TRỪ kết quả của tập này vào tổng chung?",
+            opts: ["CỘNG (do 5 là số lẻ)", "TRỪ (do 5 là số nguyên tố)", "TRỪ (do quy tắc luân phiên kết thúc bằng trừ)", "CỘNG (do bitmask chạy ngược)"],
+            ans: 0,
+            exp: "Theo định lý tổng quát, tập hợp con có độ dài LẺ sẽ mang dấu CỘNG, độ dài CHẴN mang dấu TRỪ."
+        },
+        {
+            q: "Làm thế nào để đếm số lượng bit 1 của một số nguyên (mask) trong C++ cực nhanh?",
+            opts: [
+                "Dùng vòng lặp while(mask > 0) mask /= 2;",
+                "Hàm __builtin_popcount(mask)",
+                "Hàm std::count_bits(mask)",
+                "Dùng mảng đánh dấu O(1)"
+            ],
+            ans: 1,
+            exp: "Hàm __builtin_popcount (dành cho số int 32-bit) và __builtin_popcountll (cho long long 64-bit) được hỗ trợ ở cấp độ kiến trúc phần cứng (vi mã), rất nhanh (thường O(1))."
+        },
+        {
+            q: "Khi tính phần giao (BCNN / LCM) của nhiều phần tử, lỗi nghiêm trọng nhất thường gặp là gì?",
+            opts: [
+                "Quên lấy trị tuyệt đối.",
+                "Tràn số nguyên (Integer Overflow) khi tích các LCM vượt quá giới hạn long long.",
+                "Trôi số thực (Floating point precision).",
+                "Truy cập mảng ngoài giới hạn."
+            ],
+            ans: 1,
+            exp: "LCM tăng rất nhanh. Mặc dù các số a[i] nhỏ, LCM của một nhóm 10 số có thể vượt qua 2⁶³-1. Cần ngắt sớm (break) nếu LCM vượt quá giới hạn trên (ví dụ M)."
+        },
+        {
+            q: "Để đếm số các số từ 1 đến M chia hết cho 'ít nhất một' số nguyên tố trong mảng A. Kích thước tập giao của một tập con S được tính bằng gì?",
+            opts: [
+                "M / Tổng các số trong S",
+                "M / UCLN của các số trong S",
+                "M / BCNN của các số trong S",
+                "M × BCNN của các số trong S"
+            ],
+            ans: 2,
+            exp: "Một số chia hết cho tất cả các phần tử trong S nếu và chỉ nếu nó chia hết cho Bội chung nhỏ nhất (BCNN/LCM) của chúng. Số lượng đó trong đoạn [1, M] là M / BCNN."
+        },
+        {
+            q: "Để đếm số lượng hoán vị của N phần tử không có phần tử nào đúng vị trí (Derangement), tập Aᵢ trong tư duy PIE được định nghĩa là gì?",
+            opts: [
+                "Tập các hoán vị mà phần tử thứ i đúng vị trí.",
+                "Tập các hoán vị mà mọi phần tử đều sai vị trí.",
+                "Tập các phần tử không xuất hiện.",
+                "Tập các hoán vị hợp lệ."
+            ],
+            ans: 0,
+            exp: "Ta dùng phần bù. Gọi Aᵢ là tập hoán vị có i nằm đúng vị trí i. Đếm số hoán vị thuộc ít nhất một Aᵢ (bằng PIE), rồi lấy N! trừ đi kết quả đó."
+        },
+        {
+            q: "Giao của K tập hợp dạng Aᵢ (như bài Derangement) có kích thước là bao nhiêu?",
+            opts: [
+                "K!", "(N - K)!", "N! / K!", "N! - K!"
+            ],
+            ans: 1,
+            exp: "Nếu ép K phần tử nằm CỐ ĐỊNH ở đúng vị trí của chúng, N - K phần tử còn lại có thể hoán vị tự do. Số cách là (N - K)!."
+        },
+        {
+            q: "Trong đoạn code `for(int i = 0; i < n; i++) if ((mask >> i) & 1)`, đoạn `(mask >> i) & 1` dùng để làm gì?",
+            opts: [
+                "Tạo ra một mặt nạ bit mới.",
+                "Kiểm tra xem bit thứ i (từ phải sang) của biến mask có bằng 1 hay không.",
+                "Tính số lượng bit 1.",
+                "Đảo ngược bit thứ i."
+            ],
+            ans: 1,
+            exp: "Phép dịch phải i bit sẽ đưa bit thứ i về vị trí cuối cùng (bit 0). Sau đó phép AND bit (& 1) sẽ trích xuất duy nhất bit đó."
+        },
+        {
+            q: "Trong trường hợp N rất lớn (ví dụ N = 100,000), thuật toán PIE thuần (dùng bitmask) có khả thi không?",
+            opts: [
+                "Có, vòng lặp chạy O(N) rất nhanh.",
+                "Không, O(2ⁿ) sẽ vượt Time Limit. Cần xem xét Nghịch đảo Möbius hoặc DP (nếu có cấu trúc đặc biệt).",
+                "Có, nếu dùng pragma optimize.",
+                "Chỉ khả thi nếu cấu trúc đồ thị là cây."
+            ],
+            ans: 1,
+            exp: "2¹⁰⁰⁰⁰⁰ lớn hơn số hạt trong vũ trụ. Không thể duyệt bitmask. Nghịch đảo Mobius là một dạng PIE rút gọn cực nhanh dùng trong lý thuyết số."
+        },
+        {
+            q: "Bài toán 'Cây tô màu với các cặp đỉnh cấm kết hợp' có N=15 cặp bị cấm. Ta sẽ PIE trên đối tượng nào?",
+            opts: [
+                "Tất cả các đỉnh trên cây.",
+                "Màu của đỉnh gốc.",
+                "Tập hợp các cặp đỉnh bị cấm (duyệt bitmask 2¹⁵).",
+                "Độ dài đường đi giữa các đỉnh."
+            ],
+            ans: 2,
+            exp: "PIE áp dụng lên 'các điều kiện ràng buộc'. Ở đây có 15 điều kiện cấm. Ta giả sử bắt ép K cặp vi phạm đồng thời, gom chúng thành các đỉnh đồng nhất, rồi tính số cách tô màu cây bằng DP."
+        }
+    ];
+
+    let score = 0;
+    const qContainer = document.getElementById('quiz-container');
+    const scoreUI = document.getElementById('quiz-score-ui');
+
+    quizData.forEach((qObj, qIdx) => {
+        const item = document.createElement('div');
+        item.className = 'quiz-item';
+        
+        let optsHtml = '';
+        qObj.opts.forEach((opt, oIdx) => {
+            optsHtml += `<div class="quiz-opt" data-q="${qIdx}" data-o="${oIdx}">
+                <div style="width:24px; height:24px; border-radius:50%; border:2px solid var(--ink-dim); display:flex; align-items:center; justify-content:center; flex:none;"></div>
+                <div>${escapeHtml(opt)}</div>
+            </div>`;
+        });
+
+        item.innerHTML = `
+            <div style="font-family:'Space Grotesk'; font-weight:600; margin-bottom:8px; color:var(--accent2);">Câu hỏi ${qIdx + 1}</div>
+            <div style="font-size:1.1rem; margin-bottom:12px;">${escapeHtml(qObj.q)}</div>
+            <div class="quiz-opts">${optsHtml}</div>
+            <div class="quiz-exp" id="exp-${qIdx}">${escapeHtml(qObj.exp)}</div>
+        `;
+        qContainer.appendChild(item);
+    });
+
+    // Quiz Logic
+    document.querySelectorAll('.quiz-opt').forEach(optEl => {
+        optEl.addEventListener('click', function() {
+            const qIdx = parseInt(this.getAttribute('data-q'));
+            const oIdx = parseInt(this.getAttribute('data-o'));
+            const qData = quizData[qIdx];
+            const itemEl = this.closest('.quiz-item');
+            
+            // Đã trả lời rồi thì bỏ qua
+            if(itemEl.classList.contains('answered')) return;
+            itemEl.classList.add('answered');
+
+            const isCorrect = (oIdx === qData.ans);
+            if(isCorrect) {
+                this.classList.add('selected-correct');
+                itemEl.classList.add('correct');
+                score++;
+            } else {
+                this.classList.add('selected-wrong');
+                itemEl.classList.add('wrong');
+                // Hiện đáp án đúng
+                itemEl.querySelectorAll('.quiz-opt')[qData.ans].classList.add('show-correct');
+            }
+            
+            // Đổi icon check/cross
+            const circle = this.querySelector('div');
+            circle.innerHTML = isCorrect ? '✓' : '✗';
+            circle.style.borderColor = isCorrect ? 'var(--accent)' : 'var(--red)';
+
+            // Hiện giải thích
+            document.getElementById(`exp-${qIdx}`).style.display = 'block';
+            
+            // Cập nhật điểm
+            scoreUI.innerText = `Điểm: ${score} / 12`;
+            scoreUI.style.transform = 'translateX(-50%) scale(1.1)';
+            setTimeout(() => scoreUI.style.transform = 'translateX(-50%) scale(1)', 200);
+        });
+    });
+</script>
+</body>
+</html>
