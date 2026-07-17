@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mảng Hiệu Số 2D - EduCode Master</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
+            --accent: #38D6C4; --accent2: #5B8CFF;
+            --mark: #FFB454; --red: #FF6B6B; --green: #22C55E;
+            --text-main: #E2E8F0; --text-muted: #94A3B8;
+            --glow: 0 0 20px rgba(56,214,196,.4);
+            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
+            --border: 1px solid rgba(255,255,255,.1);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg); color: var(--text-main);
+            line-height: 1.6;
+        }
+        
+        /* Typography */
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.03em; }
+        h1 { font-size: 3rem; background: linear-gradient(135deg, var(--accent2), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(56,214,196,0.3)); margin-bottom: 0.5rem; }
+        h2 { font-size: 2rem; margin-bottom: 1rem; color: #fff; border-bottom: 2px solid var(--panel); padding-bottom: 0.5rem; }
+        p { margin-bottom: 1rem; }
+        code, .c-font { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
+        
+        /* Navigation */
+        .topnav {
+            position: sticky; top: 0; z-index: 100;
+            display: flex; gap: 12px; align-items: center;
+            padding: 12px 20px;
+            background: rgba(11,18,32,.85); backdrop-filter: blur(10px);
+            border-bottom: var(--border);
+        }
+        .nav-btn {
+            text-decoration: none; color:#000;
+            background: linear-gradient(135deg, var(--accent2), var(--accent));
+            padding: 8px 18px; border-radius: 8px; font-weight: 600;
+            box-shadow: var(--glow); transition: all .3s ease; cursor: pointer; border: none; font-family: inherit; font-size: 0.95rem;
+        }
+        .nav-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
+        .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: none; }
+        .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
+        .nav-btn.outline:hover:not(:disabled) { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
+
+        /* Container & Cards */
+        .container { max-width: 1000px; margin: 0 auto; padding: 2rem 20px; }
+        .card {
+            background: linear-gradient(180deg, var(--panel) 0%, var(--bg2) 100%);
+            border: var(--border); border-radius: 16px;
+            padding: 24px; margin-bottom: 32px; box-shadow: var(--shadow);
+        }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        
+        /* Code Block */
+        .code-block {
+            background: #0A1220; border: var(--border); border-radius: 12px;
+            padding: 16px; overflow-x: auto; font-family: 'JetBrains Mono', monospace;
+        }
+        .codeline { white-space: pre-wrap; padding: 2px 8px; border-left: 3px solid transparent; transition: all 0.2s; }
+        .codeline.hot { background: rgba(255,180,84,.1); border-left: 3px solid var(--mark); }
+        .c-kw { color: #C678DD; } /* Keyword */
+        .c-fn { color: #61AFEF; } /* Function */
+        .c-num { color: #D19A66; } /* Number */
+        .c-str { color: #98C379; } /* String */
+        .c-cm { color: #5C6370; font-style: italic; } /* Comment */
+        .c-op { color: #56B6C2; } /* Operator */
+
+        /* Badges */
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; background: rgba(56,214,196,0.1); color: var(--accent); font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem; border: 1px solid rgba(56,214,196,0.3); }
+
+        /* Hero */
+        .hero { text-align: center; padding: 3rem 0; }
+        .hero-subtitle { color: var(--text-muted); font-size: 1.2rem; margin-bottom: 2rem; }
+
+        /* Mini Lab */
+        .mini-lab { background: var(--bg2); padding: 20px; border-radius: 12px; border: var(--border); display: flex; align-items: center; justify-content: center; gap: 30px; margin-top: 20px; }
+        .ml-grid { display: grid; grid-template-columns: repeat(4, 30px); gap: 4px; }
+        .ml-cell { width: 30px; height: 30px; background: var(--panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #fff; transition: all 0.3s; font-family: 'JetBrains Mono'; }
+        .ml-cell.active { background: rgba(56,214,196,0.3); border-color: var(--accent); box-shadow: 0 0 10px rgba(56,214,196,0.5); }
+        .ml-cell.mark { background: rgba(255,180,84,0.3); border-color: var(--mark); color: var(--mark); font-weight: bold; }
+
+        /* Lab Section */
+        .lab-container { display: grid; grid-template-columns: 1fr 400px; gap: 20px; }
+        @media (max-width: 800px) { .lab-container { grid-template-columns: 1fr; } }
+        
+        .lab-toolbar { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; background: var(--panel); padding: 10px; border-radius: 12px; border: var(--border); }
+        .step-counter { margin-left: auto; font-family: 'JetBrains Mono'; color: var(--accent); font-weight: bold; }
+        
+        .lab-visual { background: #0A1220; border-radius: 12px; padding: 20px; border: var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 350px;}
+        .board-grid { display: grid; grid-template-columns: repeat(6, 45px); gap: 4px; } /* 0 to 5 */
+        .b-cell { width: 45px; height: 45px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono'; font-size: 1.1rem; color: var(--text-muted); transition: all 0.2s; position: relative;}
+        .b-cell.label { background: transparent; border: none; color: #5C6370; font-size: 0.8rem; }
+        .b-cell.val-pos { color: var(--accent); text-shadow: 0 0 5px rgba(56,214,196,0.5); font-weight: bold; background: rgba(56,214,196,0.1); border-color: rgba(56,214,196,0.3); }
+        .b-cell.val-neg { color: var(--red); text-shadow: 0 0 5px rgba(255,107,107,0.5); font-weight: bold; background: rgba(255,107,107,0.1); border-color: rgba(255,107,107,0.3); }
+        .b-cell.filled { background: rgba(56,214,196,0.25); border-color: var(--accent); color: #fff; box-shadow: inset 0 0 10px rgba(56,214,196,0.2); }
+        .b-cell.hl-calc { border: 2px solid var(--mark); z-index: 2; box-shadow: 0 0 15px rgba(255,180,84,0.4); transform: scale(1.05); }
+        .b-cell.hl-dep { border: 2px dashed var(--accent2); background: rgba(91,140,255,0.15); }
+        
+        .lab-side { display: flex; flex-direction: column; gap: 16px; }
+        .lab-msg { background: rgba(56,214,196,0.1); border-left: 4px solid var(--accent); padding: 16px; border-radius: 8px; font-size: 0.95rem; }
+        .lab-vars { background: var(--panel); border: var(--border); border-radius: 8px; padding: 12px; display: flex; flex-wrap: wrap; gap: 16px; font-family: 'JetBrains Mono'; }
+        .var-item { background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 6px; }
+        .var-name { color: var(--text-muted); }
+        .var-val { color: var(--mark); font-weight: bold; }
+
+        /* Pitfalls */
+        .trap-box { border-radius: 12px; padding: 20px; border: 1px solid; }
+        .trap-box.wrong { background: rgba(255,107,107,0.05); border-color: rgba(255,107,107,0.3); }
+        .trap-box.right { background: rgba(34,197,94,0.05); border-color: rgba(34,197,94,0.3); }
+        .trap-title { font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .wrong .trap-title { color: var(--red); }
+        .right .trap-title { color: var(--green); }
+
+        /* Quiz */
+        .quiz-opt { background: var(--panel); border: var(--border); padding: 16px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
+        .quiz-opt:hover { background: rgba(255,255,255,0.05); transform: translateX(5px); }
+        .quiz-opt.correct { background: rgba(34,197,94,0.15); border-color: var(--green); color: #fff; }
+        .quiz-opt.wrong-ans { background: rgba(255,107,107,0.15); border-color: var(--red); color: #fff; }
+        .quiz-exp { display: none; margin-top: 16px; padding: 16px; background: #0A1220; border-radius: 8px; border-left: 4px solid var(--accent2); font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+
+    <nav class="topnav">
+        <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
+        <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+    </nav>
+
+    <div class="container">
+        <header class="hero">
+            <span class="badge">Cần biết trước: Mảng cộng dồn 1D</span>
+            <h1>Mảng Hiệu Số 2D</h1>
+            <p class="hero-subtitle">Kỹ thuật thần thánh O(1) để giải quyết bài toán "Rải bom sơn" trên mặt phẳng.</p>
+            
+            <div class="mini-lab">
+                <div>
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px;">Cộng +1 vào vùng 2x2</p>
+                    <button class="nav-btn outline" id="btn-ml-naive" style="font-size: 0.8rem; padding: 6px 12px;">Chạy vòng lặp (Chậm)</button>
+                    <button class="nav-btn" id="btn-ml-opt" style="font-size: 0.8rem; padding: 6px 12px;">Mảng Hiệu Số (O(1))</button>
+                </div>
+                <div class="ml-grid" id="ml-grid">
+                    <!-- Sinh bằng JS -->
+                </div>
+            </div>
+        </header>
+
+        <section class="card">
+            <h2>Tóm tắt đề bài: Rải bom sơn</h2>
+            <p><strong>Đề bài:</strong> Bạn có một mặt phẳng kích thước lớn. Người ta thả N tấm thảm (hình chữ nhật). Hãy đếm xem có bao nhiêu ô trên mặt phẳng bị phủ bởi <em>ít nhất một</em> tấm thảm.</p>
+            <div class="grid-2">
+                <div>
+                    <p><strong>Input:</strong></p>
+                    <ul style="margin-left: 20px; color: var(--text-muted);">
+                        <li>Kích thước lưới: tối đa 1000 × 1000.</li>
+                        <li>Số tấm thảm <code class="c-kw">K</code> ≤ 10<sup>5</sup>.</li>
+                        <li>Tọa độ mỗi thảm: góc trên-trái <code class="c-kw">(x1, y1)</code> và góc dưới-phải <code class="c-kw">(x2, y2)</code>.</li>
+                    </ul>
+                </div>
+                <div>
+                    <p><strong>Ví dụ:</strong></p>
+                    <div class="code-block" style="padding: 10px;">
+Thảm 1: (2,2) tới (3,4)
+Thảm 2: (3,3) tới (4,5)
+-> Trả về tổng số ô được tô màu.
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 16px; padding-top: 16px; border-top: var(--border);">
+                <p><strong>Hướng giải:</strong> Ta muốn đếm số ô được phủ. Khó khăn là nếu dùng vòng lặp tô từng ô cho 10<sup>5</sup> tấm thảm trên lưới 1000×1000, máy sẽ chạy hàng tỷ phép tính (gây quá giờ - TLE). Ý tưởng để vượt qua là <strong>chỉ đánh dấu sự thay đổi tại 4 góc</strong> của mỗi tấm thảm (mất O(1)). Cuối cùng, dùng kỹ thuật cộng dồn 2D để lan truyền sự thay đổi ra toàn lưới (mất O(N×M)). Vì tổng số thao tác chỉ còn khoảng 10<sup>6</sup>, thuật toán chạy cực nhanh!</p>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Vì sao cần Mảng Hiệu Số 2D?</h2>
+            <div class="grid-2">
+                <div class="trap-box wrong" style="border: var(--border);">
+                    <div class="trap-title">Ác mộng 2 vòng lặp (Ngây thơ)</div>
+                    <div class="code-block" style="background: transparent; padding: 0; margin-bottom: 10px;">
+<div class="codeline"><span class="c-kw">for</span>(<span class="c-kw">int</span> i = x1; i &lt;= x2; i++) {</div>
+<div class="codeline">    <span class="c-kw">for</span>(<span class="c-kw">int</span> j = y1; j &lt;= y2; j++) {</div>
+<div class="codeline">        a[i][j] += <span class="c-num">1</span>;</div>
+<div class="codeline">    }</div>
+<div class="codeline">}</div>
+                    </div>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">Với lưới 1000×1000, 1 tấm thảm có thể chứa 10<sup>6</sup> ô. Nếu có 10<sup>5</sup> thảm, vòng lặp này sẽ chạy tối đa <strong>10<sup>11</sup> lần</strong>. Quá 1 giây cho phép của hệ thống!</p>
+                </div>
+                <div class="trap-box right" style="border: var(--border); background: var(--bg2);">
+                    <div class="trap-title">Đỉnh cao O(1) (Mảng hiệu số)</div>
+                    <div class="code-block" style="background: transparent; padding: 0; margin-bottom: 10px;">
+<div class="codeline">d[x1][y1] += <span class="c-num">1</span>;</div>
+<div class="codeline">d[x1][y2 + <span class="c-num">1</span>] -= <span class="c-num">1</span>;</div>
+<div class="codeline">d[x2 + <span class="c-num">1</span>][y1] -= <span class="c-num">1</span>;</div>
+<div class="codeline">d[x2 + <span class="c-num">1</span>][y2 + <span class="c-num">1</span>] += <span class="c-num">1</span>;</div>
+                    </div>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">Thay vì lặp cả vùng, ta chỉ chạm đúng <strong>4 ô biên</strong>! Bất kể thảm to cỡ nào, mỗi truy vấn chỉ tốn đúng 4 phép toán. Độ phức tạp giảm xuống cực thấp.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Cú pháp & Nguyên lý hoạt động</h2>
+            <p>Để thao tác cộng <code class="c-kw">V</code> vào hình chữ nhật từ <code class="c-kw">(x1, y1)</code> đến <code class="c-kw">(x2, y2)</code> chạy đúng, ta làm việc trên một mảng phụ <code class="c-kw">d</code> (khởi tạo bằng 0). Nguyên lý lan truyền của cộng dồn 2D là "từ trên xuống, từ trái sang":</p>
+            <ul style="margin-left: 20px; margin-bottom: 16px; color: var(--text-muted);">
+                <li><strong style="color:#fff;">+V tại (x1, y1):</strong> Mở vòi nước. Từ ô này trở về góc dưới-phải, mọi ô đều được cộng V.</li>
+                <li><strong style="color:#fff;">-V tại (x1, y2+1):</strong> Khóa vòi nước tràn sang ngang. Ngăn chặn vùng bên phải cột y2 bị cộng nhầm.</li>
+                <li><strong style="color:#fff;">-V tại (x2+1, y1):</strong> Khóa vòi nước tràn xuống dưới. Ngăn chặn vùng bên dưới hàng x2 bị cộng nhầm.</li>
+                <li><strong style="color:#fff;">+V tại (x2+1, y2+1):</strong> Bù lại!. Khu vực phía dưới bên phải bị trừ đi 2 lần bởi hai cái "khóa" trên, nên ta phải cộng lại 1 lần V để cân bằng.</li>
+            </ul>
+            <p>Sau khi ghi nhận đủ số thảm, ta khôi phục lưới thực sự bằng công thức cộng dồn quen thuộc: <br><code class="c-kw">d[i][j] = d[i][j] + d[i-1][j] + d[i][j-1] - d[i-1][j-1]</code></p>
+        </section>
+
+        <section class="card">
+            <h2>Interactive Lab: Mô phỏng Mảng Hiệu Số</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Lưới giả lập kích thước 5×5. Có 2 tấm thảm cần rải:<br>Thảm 1: (2,2) đến (3,4) — Thảm 2: (3,3) đến (4,5).</p>
+            
+            <div class="lab-toolbar">
+                <button class="nav-btn outline" id="btn-reset" style="padding: 6px 12px;">Reset</button>
+                <button class="nav-btn outline" id="btn-prev" style="padding: 6px 12px;">« Lùi</button>
+                <button class="nav-btn outline" id="btn-next" style="padding: 6px 12px;">Tiến »</button>
+                <button class="nav-btn" id="btn-play" style="padding: 6px 12px; width: 100px;">Tự chạy ⏯</button>
+                <div class="step-counter">Bước: <span id="lbl-step">0</span> / <span id="lbl-total">0</span></div>
+            </div>
+
+            <div class="lab-container">
+                <div class="lab-visual" id="board">
+                    <!-- Render by JS -->
+                </div>
+                <div class="lab-side">
+                    <div class="lab-msg" id="lab-msg">
+                        Nhấn "Tiến" để bắt đầu quan sát thuật toán mảng hiệu số 2D.
+                    </div>
+                    <div class="lab-vars" id="lab-vars">
+                        <div class="var-item"><span class="var-name">Thảm</span> = <span class="var-val" id="var-tham">-</span></div>
+                        <div class="var-item"><span class="var-name">i</span> = <span class="var-val" id="var-i">-</span></div>
+                        <div class="var-item"><span class="var-name">j</span> = <span class="var-val" id="var-j">-</span></div>
+                        <div class="var-item"><span class="var-name">ans</span> = <span class="var-val" id="var-ans">0</span></div>
+                    </div>
+                    <div class="code-block" style="padding: 10px; font-size: 0.85rem;">
+<div class="codeline c-cm">// Xử lý thảm (x1, y1) -> (x2, y2)</div>
+<div class="codeline" id="l1">d[x1][y1] += <span class="c-num">1</span>;</div>
+<div class="codeline" id="l2">d[x1][y2 + <span class="c-num">1</span>] -= <span class="c-num">1</span>;</div>
+<div class="codeline" id="l3">d[x2 + <span class="c-num">1</span>][y1] -= <span class="c-num">1</span>;</div>
+<div class="codeline" id="l4">d[x2 + <span class="c-num">1</span>][y2 + <span class="c-num">1</span>] += <span class="c-num">1</span>;</div>
+<div class="codeline"></div>
+<div class="codeline c-cm">// Khôi phục và Đếm</div>
+<div class="codeline" id="l5"><span class="c-kw">for</span> (i = <span class="c-num">1</span>; i &lt;= N; ++i) {</div>
+<div class="codeline" id="l6">    <span class="c-kw">for</span> (j = <span class="c-num">1</span>; j &lt;= M; ++j) {</div>
+<div class="codeline" id="l7">        d[i][j] = d[i][j] + d[i-<span class="c-num">1</span>][j] + d[i][j-<span class="c-num">1</span>] - d[i-<span class="c-num">1</span>][j-<span class="c-num">1</span>];</div>
+<div class="codeline" id="l8">        <span class="c-kw">if</span> (d[i][j] &gt; <span class="c-num">0</span>) ans++;</div>
+<div class="codeline" id="l9">    }</div>
+<div class="codeline" id="l10">}</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Cạm bẫy thường gặp (Lỗi hay sai)</h2>
+            <div class="grid-2">
+                <div class="trap-box wrong">
+                    <div class="trap-title">✕ Sai chỉ số biên</div>
+                    <div class="code-block" style="padding: 10px; margin-bottom: 10px;">
+<div class="codeline">d[x1][y1] += <span class="c-num">1</span>;</div>
+<div class="codeline">d[x1][<span class="c-kw">y2</span>] -= <span class="c-num">1</span>; <span class="c-cm">// SAI!</span></div>
+                    </div>
+                    <p style="font-size: 0.9rem;"><strong>Hậu quả:</strong> Đặt chốt chặn ngay tại cột <code>y2</code> sẽ làm cột <code>y2</code> không nhận được giá trị cộng dồn. Tấm thảm bị co hụt mất 1 cột và 1 hàng ở góc dưới phải.</p>
+                </div>
+                <div class="trap-box right">
+                    <div class="trap-title">✓ Đúng: Phải + 1</div>
+                    <div class="code-block" style="padding: 10px; margin-bottom: 10px;">
+<div class="codeline">d[x1][y1] += <span class="c-num">1</span>;</div>
+<div class="codeline">d[x1][<span class="c-kw">y2 + 1</span>] -= <span class="c-num">1</span>; <span class="c-cm">// ĐÚNG!</span></div>
+                    </div>
+                    <p style="font-size: 0.9rem;"><strong>Giải thích:</strong> Vùng thảm phủ TỚI <code>y2</code>. Do đó, điểm bắt đầu bị triệt tiêu phải nằm NGOÀI thảm, tức là cột tiếp theo <code>y2 + 1</code>. Tương tự với hàng <code>x2 + 1</code>.</p>
+                </div>
+            </div>
+            <div class="trap-box wrong" style="margin-top: 16px;">
+                <div class="trap-title">✕ Quên cấp phát dư mảng</div>
+                <p style="font-size: 0.9rem;">Lưới kích thước 1000×1000. Nếu bạn khai báo <code>int d[1000][1000];</code>, khi gặp thảm phủ sát mép lưới (VD: <code>x2 = 1000</code>), lệnh <code>d[x2 + 1][y1] -= 1;</code> sẽ truy cập vào <code>d[1001]</code> gây lỗi <strong>Out of Bounds (Tràn mảng)</strong>. Luôn khai báo mảng dư ra một chút: <code>int d[1005][1005];</code>.</p>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Kiểm tra nhanh (Quiz)</h2>
+            <p>Tại sao trong mảng hiệu số 2D, tại tọa độ <code>(x2 + 1, y2 + 1)</code> ta lại dùng phép <strong>cộng</strong> <code>+= V</code> thay vì trừ?</p>
+            <div id="quiz-options">
+                <div class="quiz-opt" data-correct="false">A. Để nhân đôi giá trị tại góc, giúp tính tổng nhanh hơn.</div>
+                <div class="quiz-opt" data-correct="true">B. Vì vùng này đã bị trừ đi 2 lần bởi các dải chặn ngang và dọc trước đó, nên ta phải cộng lại 1 lần để bù (Nguyên lý bao hàm - loại trừ).</div>
+                <div class="quiz-opt" data-correct="false">C. Vì công thức toán học bắt buộc phải làm vậy, không có ý nghĩa vật lý.</div>
+            </div>
+            <div class="quiz-exp" id="quiz-exp">
+                <strong>Giải thích:</strong> Khi bạn trừ <code>-V</code> tại <code>(x1, y2+1)</code> (chặn ngang) và trừ <code>-V</code> tại <code>(x2+1, y1)</code> (chặn dọc), phần giao nhau của hai đường chặn này (bắt đầu từ tọa độ <code>(x2+1, y2+1)</code> về góc dưới cùng bên phải) vô tình bị trừ đi <strong>2 lần</strong>. Để nó trở về trạng thái 0 (vì nằm ngoài thảm), ta phải bù lại bằng cách cộng <code>+V</code>. Đây chính là biểu hiện trực quan của Nguyên lý bù trừ (Inclusion-Exclusion Principle).
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Mini Lab Animation
+        function runMiniLab() {
+            const grid = document.getElementById('ml-grid');
+            grid.innerHTML = '';
+            for(let i=0; i<16; i++) {
+                let cell = document.createElement('div');
+                cell.className = 'ml-cell';
+                grid.appendChild(cell);
+            }
+        }
+        
+        document.getElementById('btn-ml-naive').onclick = () => {
+            const cells = document.querySelectorAll('.ml-cell');
+            cells.forEach(c => { c.className = 'ml-cell'; c.textContent = ''; });
+            let targets = [5, 6, 9, 10]; // 2x2 grid in center of 4x4 (indices: row 1,2 col 1,2)
+            let i = 0;
+            let intv = setInterval(() => {
+                if(i >= targets.length) { clearInterval(intv); return; }
+                cells[targets[i]].classList.add('active');
+                cells[targets[i]].textContent = '+1';
+                i++;
+            }, 300); // Slow loop
+        };
+
+        document.getElementById('btn-ml-opt').onclick = () => {
+            const cells = document.querySelectorAll('.ml-cell');
+            cells.forEach(c => { c.className = 'ml-cell'; c.textContent = ''; });
+            // Instant corner marks
+            cells[5].classList.add('mark'); cells[5].textContent = '+1';   // (x1, y1)
+            cells[7].classList.add('mark'); cells[7].textContent = '-1';   // (x1, y2+1)
+            cells[13].classList.add('mark'); cells[13].textContent = '-1'; // (x2+1, y1)
+            cells[15].classList.add('mark'); cells[15].textContent = '+1'; // (x2+1, y2+1)
+        };
+        runMiniLab();
+
+        // --- CORE LAB LOGIC (State Machine) ---
+        const N = 5, M = 5;
+        let steps = [];
+        let sp = 0;
+        let playInterval = null;
+
+        const cloneBoard = (arr) => arr.map(row => [...row]);
+
+        function makeSteps() {
+            steps = [];
+            // Board includes index 0 up to 6 (to hold N+1 boundaries)
+            let b = Array.from({length: N + 2}, () => Array(M + 2).fill(0));
+            let ans = 0;
+            
+            // Step 0: Init
+            steps.push({
+                board: cloneBoard(b), line: '', vars: {tham: '-', i: '-', j: '-', ans: 0},
+                hlCalc: null, hlDep: [],
+                msg: "Lưới 5x5 khởi tạo toàn bộ bằng 0. Trục tọa độ tính từ 1."
+            });
+
+            // Rect 1: (2,2) to (3,4)
+            b[2][2] += 1;
+            steps.push({
+                board: cloneBoard(b), line: 'l1', vars: {tham: '1 (2,2->3,4)', i: '-', j: '-', ans: 0}, hlCalc: [2,2], hlDep: [],
+                msg: "Thảm 1: Cộng +1 vào góc bắt đầu (2,2). Dòng nước giá trị +1 sẽ từ đây chảy xuống góc dưới-phải lưới."
+            });
+            b[2][5] -= 1;
+            steps.push({
+                board: cloneBoard(b), line: 'l2', vars: {tham: '1 (2,2->3,4)', i: '-', j: '-', ans: 0}, hlCalc: [2,5], hlDep: [],
+                msg: "Thảm 1 chỉ dài đến cột 4. Tại cột 5 (tức y2+1), ta chốt -1 để ngăn không cho dòng nước lan sang ngang quá ranh giới."
+            });
+            b[4][2] -= 1;
+            steps.push({
+                board: cloneBoard(b), line: 'l3', vars: {tham: '1 (2,2->3,4)', i: '-', j: '-', ans: 0}, hlCalc: [4,2], hlDep: [],
+                msg: "Thảm 1 chỉ sâu đến hàng 3. Tại hàng 4 (tức x2+1), ta chốt -1 để ngăn không cho dòng nước lan xuống dưới quá ranh giới."
+            });
+            b[4][5] += 1;
+            steps.push({
+                board: cloneBoard(b), line: 'l4', vars: {tham: '1 (2,2->3,4)', i: '-', j: '-', ans: 0}, hlCalc: [4,5], hlDep: [],
+                msg: "Góc (4,5) bị trừ 2 lần bởi hai cái chốt bên trên, nên ta phải cộng lại +1 để cân bằng (bù lại phần giao nhau)."
+            });
+
+            // Rect 2: (3,3) to (4,5)
+            b[3][3] += 1;
+            steps.push({
+                board: cloneBoard(b), line: 'l1', vars: {tham: '2 (3,3->4,5)', i: '-', j: '-', ans: 0}, hlCalc: [3,3], hlDep: [],
+                msg: "Thảm 2: Cộng +1 vào (3,3) để mở vòi phủ thảm thứ hai."
+            });
+            b[3][6] -= 1; // y2=5, y2+1=6
+            steps.push({
+                board: cloneBoard(b), line: 'l2', vars: {tham: '2 (3,3->4,5)', i: '-', j: '-', ans: 0}, hlCalc: [3,6], hlDep: [],
+                msg: "Cột giới hạn là 6 (nằm ngoài lưới hiển thị, nhưng lưu trong bộ nhớ) để khóa chiều ngang."
+            });
+            b[5][3] -= 1;
+            steps.push({
+                board: cloneBoard(b), line: 'l3', vars: {tham: '2 (3,3->4,5)', i: '-', j: '-', ans: 0}, hlCalc: [5,3], hlDep: [],
+                msg: "Khóa chiều dọc tại hàng x2+1 = 5."
+            });
+            b[5][6] += 1;
+            steps.push({
+                board: cloneBoard(b), line: 'l4', vars: {tham: '2 (3,3->4,5)', i: '-', j: '-', ans: 0}, hlCalc: [5,6], hlDep: [],
+                msg: "Bù góc (5,6). Xong bước O(1) đánh dấu!"
+            });
+
+            // Restore Prefix Sum
+            steps.push({
+                board: cloneBoard(b), line: 'l5', vars: {tham: 'Xong', i: 1, j: '-', ans: 0}, hlCalc: null, hlDep: [],
+                msg: "Bắt đầu vòng lặp khôi phục mảng bằng cộng dồn 2D."
+            });
+
+            for (let i = 1; i <= N; ++i) {
+                for (let j = 1; j <= M; ++j) {
+                    // Logic tính
+                    let oldVal = b[i][j];
+                    b[i][j] = b[i][j] + b[i-1][j] + b[i][j-1] - b[i-1][j-1];
+                    let isFilled = b[i][j] > 0;
+                    if (isFilled) ans++;
+
+                    // Chỉ sinh các bước quan trọng để không quá dài (tránh 25 bước)
+                    // Ta lọc: chỉ lưu bước nếu có sự kiện đặc biệt (d[i][j] thay đổi hoặc > 0)
+                    if (b[i][j] !== 0 || oldVal !== 0 || isFilled) {
+                        steps.push({
+                            board: cloneBoard(b), line: 'l7', vars: {tham: '-', i: i, j: j, ans: isFilled ? ans - 1 : ans}, 
+                            hlCalc: [i,j], hlDep: [[i-1,j], [i,j-1], [i-1,j-1]],
+                            msg: `Tính tổng tại (${i},${j}) dựa trên ô kề trên, kề trái trừ đi ô chéo. Giá trị = ${b[i][j]}.`
+                        });
+
+                        if (isFilled) {
+                            steps.push({
+                                board: cloneBoard(b), line: 'l8', vars: {tham: '-', i: i, j: j, ans: ans}, 
+                                hlCalc: [i,j], hlDep: [],
+                                msg: `Ô (${i},${j}) có giá trị > 0, tức là nằm trong vùng phủ. Tăng biến đếm ans lên 1.`
+                            });
+                        }
+                    }
+                }
+            }
+            
+            steps.push({
+                board: cloneBoard(b), line: '', vars: {tham: '-', i: 'Xong', j: 'Xong', ans: ans}, hlCalc: null, hlDep: [],
+                msg: `Hoàn tất! Tổng cộng có ${ans} ô bị phủ bởi thảm. Vùng xanh đậm chính là hình dáng các tấm thảm hợp lại.`
+            });
+        }
+
+        function buildBoardHTML() {
+            const visual = document.getElementById('board');
+            let html = '<div class="board-grid">';
+            for (let i = 0; i <= N; i++) {
+                for (let j = 0; j <= M; j++) {
+                    let id = `c_${i}_${j}`;
+                    if (i === 0 && j === 0) html += `<div class="b-cell label"></div>`;
+                    else if (i === 0) html += `<div class="b-cell label">c${j}</div>`;
+                    else if (j === 0) html += `<div class="b-cell label">h${i}</div>`;
+                    else html += `<div class="b-cell" id="${id}">0</div>`;
+                }
+            }
+            html += '</div>';
+            visual.innerHTML = html;
+        }
+
+        function paint(stepIdx) {
+            let s = steps[stepIdx];
+            
+            // 1. Update Grid Cells
+            for (let i = 1; i <= N; i++) {
+                for (let j = 1; j <= M; j++) {
+                    let cell = document.getElementById(`c_${i}_${j}`);
+                    let val = s.board[i][j];
+                    cell.textContent = val;
+                    
+                    // Base classes
+                    cell.className = 'b-cell';
+                    if (val > 0 && s.line === 'l8' || (s.line==='' && stepIdx>10 && val > 0)) cell.classList.add('filled');
+                    else if (val > 0) cell.classList.add('val-pos');
+                    else if (val < 0) cell.classList.add('val-neg');
+
+                    // Highlights
+                    if (s.hlCalc && s.hlCalc[0] === i && s.hlCalc[1] === j) cell.classList.add('hl-calc');
+                    
+                    if (s.hlDep) {
+                        for(let dep of s.hlDep) {
+                            if (dep[0] === i && dep[1] === j) cell.classList.add('hl-dep');
+                        }
+                    }
+                }
+            }
+
+            // 2. Variables
+            document.getElementById('var-tham').textContent = s.vars.tham;
+            document.getElementById('var-i').textContent = s.vars.i;
+            document.getElementById('var-j').textContent = s.vars.j;
+            document.getElementById('var-ans').textContent = s.vars.ans;
+
+            // 3. Highlight Code
+            document.querySelectorAll('.codeline.hot').forEach(el => el.classList.remove('hot'));
+            if (s.line) {
+                let lineEl = document.getElementById(s.line);
+                if (lineEl) lineEl.classList.add('hot');
+            }
+
+            // 4. Message & Counter
+            document.getElementById('lab-msg').textContent = s.msg;
+            document.getElementById('lbl-step').textContent = stepIdx;
+            
+            // 5. Buttons state
+            document.getElementById('btn-prev').disabled = (stepIdx === 0);
+            document.getElementById('btn-next').disabled = (stepIdx === steps.length - 1);
+            if (stepIdx === steps.length - 1) {
+                clearInterval(playInterval); playInterval = null;
+                document.getElementById('btn-play').textContent = "Tự chạy ⏯";
+            }
+        }
+
+        // Init
+        window.onload = () => {
+            makeSteps();
+            buildBoardHTML();
+            document.getElementById('lbl-total').textContent = steps.length - 1;
+            paint(0);
+        };
+
+        // Events
+        document.getElementById('btn-prev').onclick = () => { if (sp > 0) paint(--sp); };
+        document.getElementById('btn-next').onclick = () => { if (sp < steps.length - 1) paint(++sp); };
+        document.getElementById('btn-reset').onclick = () => {
+            clearInterval(playInterval); playInterval = null;
+            document.getElementById('btn-play').textContent = "Tự chạy ⏯";
+            sp = 0; paint(sp);
+        };
+        document.getElementById('btn-play').onclick = function() {
+            if (playInterval) {
+                clearInterval(playInterval); playInterval = null;
+                this.textContent = "Tự chạy ⏯";
+            } else {
+                if (sp >= steps.length - 1) sp = 0; // auto reset if at end
+                this.textContent = "Dừng ⏸";
+                playInterval = setInterval(() => {
+                    if (sp < steps.length - 1) paint(++sp);
+                    else { clearInterval(playInterval); playInterval = null; this.textContent = "Tự chạy ⏯"; }
+                }, 600);
+            }
+        };
+
+        // Quiz Logic
+        document.querySelectorAll('.quiz-opt').forEach(opt => {
+            opt.onclick = function() {
+                if (opt.parentElement.dataset.answered === "true") return;
+                opt.parentElement.dataset.answered = "true";
+                
+                document.querySelectorAll('.quiz-opt').forEach(o => o.style.pointerEvents = 'none');
+                
+                if (this.dataset.correct === "true") {
+                    this.classList.add('correct');
+                } else {
+                    this.classList.add('wrong-ans');
+                    // Highlight true answer
+                    document.querySelector('.quiz-opt[data-correct="true"]').classList.add('correct');
+                }
+                document.getElementById('quiz-exp').style.display = 'block';
+            };
+        });
+    </script>
+</body>
+</html>
