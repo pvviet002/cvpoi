@@ -97,6 +97,13 @@
         
         .math { font-family: var(--font-code); background: var(--bg2); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: var(--accent); }
 
+        .compare-table { width: 100%; border-collapse: collapse; margin-top: 16px; margin-bottom: 24px; font-size: 0.9rem; overflow-x: auto; display: block; }
+        @media (min-width: 768px) { .compare-table { display: table; } }
+        .compare-table th, .compare-table td { padding: 12px 16px; border: 1px solid var(--line); text-align: left; }
+        .compare-table th { background: var(--bg2); color: var(--accent); font-family: var(--font-heading); font-weight: 600; white-space: nowrap; }
+        .compare-table tr:nth-child(even) { background: rgba(17, 30, 54, 0.3); }
+        .compare-table tr:hover { background: rgba(56, 214, 196, 0.05); }
+
         .panel {
             background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
             padding: 24px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); margin-bottom: 24px;
@@ -277,7 +284,65 @@
         </section>
 
         <section id="phan-2">
-            <h2>Phần 2: Chia khối & Tiền xử lý</h2>
+            <h2>Phần 2: Tóm tắt Kỹ thuật & So sánh</h2>
+            <div class="panel">
+                <h3 style="margin-top: 0;">1. Tóm tắt đặc điểm</h3>
+                <ul>
+                    <li><strong>Ý tưởng chủ đạo:</strong> Chia mảng (hoặc dữ liệu) kích thước <span class="math">N</span> thành khoảng <span class="math">√N</span> khối, mỗi khối có độ dài <span class="math">√N</span>. Tiền xử lý thông tin cho từng khối để gia tốc các truy vấn.</li>
+                    <li><strong>Sử dụng khi nào:</strong> Khi gặp các bài toán truy vấn đoạn / cập nhật trên mảng mà Cây Segment Tree khó cài đặt (ví dụ: các thao tác không có tính chất gộp/kết hợp dễ dàng), hoặc khi giải các bài toán offline bằng Thuật toán Mo.</li>
+                    <li><strong>Điểm mạnh:</strong> Ý tưởng cực kỳ đơn giản, tự nhiên. Code ngắn, dễ debug. Cấu trúc linh hoạt, dễ dàng chế biến cho các yêu cầu phức tạp (như đếm số lượng giá trị phân biệt).</li>
+                    <li><strong>Điểm yếu:</strong> Độ phức tạp truy vấn <span class="math">O(√N)</span> chậm hơn đáng kể so với cấu trúc dữ liệu dạng cây <span class="math">O(log N)</span>. Nếu <span class="math">N</span> lớn (<span class="math">≥ 2·10⁵</span>) và time limit chặt, thuật toán dễ bị Time Limit Exceeded (TLE).</li>
+                    <li><strong>Các kỹ thuật có thể thay thế:</strong> Cây Segment Tree (Cây IT), Fenwick Tree (Cây BIT), Sparse Table (nếu chỉ truy vấn không cập nhật), Treap.</li>
+                </ul>
+
+                <h3>2. Bảng so sánh với các Cấu trúc dữ liệu khác</h3>
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th>Tiêu chí</th>
+                            <th>Chia Căn (Sqrt)</th>
+                            <th>Segment Tree</th>
+                            <th>Fenwick Tree (BIT)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Mức độ cài đặt</strong></td>
+                            <td>Rất dễ, trực quan</td>
+                            <td>Trung bình - Khó</td>
+                            <td>Rất dễ (nhưng khó hiểu)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bộ nhớ (Memory)</strong></td>
+                            <td><span class="math">O(N)</span></td>
+                            <td><span class="math">O(4N)</span></td>
+                            <td><span class="math">O(N)</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>TG Truy vấn đoạn</strong></td>
+                            <td><span class="math">O(√N)</span> (Chậm)</td>
+                            <td><span class="math">O(log N)</span> (Rất nhanh)</td>
+                            <td><span class="math">O(log N)</span> (Rất nhanh)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TG Cập nhật điểm</strong></td>
+                            <td><span class="math">O(1)</span></td>
+                            <td><span class="math">O(log N)</span></td>
+                            <td><span class="math">O(log N)</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Khả năng mở rộng</strong></td>
+                            <td>Rất cao (xử lý được nhiều loại truy vấn phi tuyến tính)</td>
+                            <td>Cao (nhưng đòi hỏi ghép hàm phức tạp)</td>
+                            <td>Thấp (thường chỉ dùng cho tổng/xor đoạn)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="phan-3">
+            <h2>Phần 3: Chia khối & Tiền xử lý</h2>
             <p>Ta chia mảng <span class="math">N</span> phần tử thành các khối, mỗi khối có kích thước <span class="math">blk ≈ √N</span>. Như vậy sẽ có khoảng <span class="math">√N</span> khối.</p>
             <ul>
                 <li>Phần tử ở vị trí <span class="math">i</span> sẽ thuộc khối thứ <span class="math">i / blk</span> (phép chia lấy phần nguyên).</li>
@@ -313,8 +378,8 @@
             </div>
         </section>
 
-        <section id="phan-3">
-            <h2>Phần 3: Truy vấn đoạn [L, R] trong <span class="math">O(√N)</span></h2>
+        <section id="phan-4">
+            <h2>Phần 4: Truy vấn đoạn [L, R] trong <span class="math">O(√N)</span></h2>
             <div class="alert-panel">
                 <strong>Khi truy vấn tổng đoạn từ <span class="math">L</span> đến <span class="math">R</span>, có hai trường hợp:</strong>
                 <ol style="margin-top: 8px; padding-left: 20px;">
@@ -375,8 +440,8 @@
             </div>
         </section>
 
-        <section id="phan-4">
-            <h2>Phần 4: Cập nhật một phần tử <span class="math">O(1)</span></h2>
+        <section id="phan-5">
+            <h2>Phần 5: Cập nhật một phần tử <span class="math">O(1)</span></h2>
             <p>Khi có yêu cầu thay đổi giá trị <span class="math">A[i] = x</span>, ta cần cập nhật lại thông tin của khối chứa nó để các truy vấn sau vẫn chính xác.</p>
             <ul>
                 <li>Xác định khối: <span class="math">b = i / blk</span>.</li>
@@ -386,23 +451,23 @@
             <p>Toàn bộ quá trình chỉ mất thời gian <span class="math">O(1)</span>. Rất nhanh!</p>
         </section>
 
-        <section id="phan-5">
-            <h2>Phần 5: Cài đặt C++ (Point Update, Range Sum)</h2>
+        <section id="phan-6">
+            <h2>Phần 6: Cài đặt C++ (Point Update, Range Sum)</h2>
             <div class="code-container" id="code-full">
                 <!-- Chèn code full -->
             </div>
         </section>
 
-        <section id="phan-6">
-            <h2>Phần 6: Mở rộng (Nâng cao)</h2>
+        <section id="phan-7">
+            <h2>Phần 7: Mở rộng (Nâng cao)</h2>
             <ul>
                 <li><strong>Thuật toán Mo (Mo's Algorithm):</strong> Kỹ thuật offline xử lý nhiều truy vấn đoạn. Bằng cách sắp xếp các truy vấn <span class="math">[L, R]</span> theo khối của <span class="math">L</span>, và với <span class="math">R</span> thì sắp xếp tăng/giảm dần, thuật toán Mo dùng hai con trỏ trượt để trả lời mọi truy vấn trong <span class="math">O((N+Q)√N)</span>. Rất mạnh mẽ với các bài toán không có thao tác cập nhật xen kẽ.</li>
                 <li><strong>Lazy Update theo khối (Range Update):</strong> Ta hoàn toàn có thể cập nhật cả một đoạn <span class="math">[L, R]</span> cộng thêm <span class="math">x</span>. Các phần lẻ hai đầu duyệt và cộng trực tiếp vào <span class="math">A[i]</span>, kết hợp cập nhật lại <span class="math">B[b]</span>. Với các khối nguyên ở giữa, ta duy trì một mảng <span class="math">lazy[b]</span> ghi nhận khối đó đang bị cộng thêm bao nhiêu. Chi phí cập nhật đoạn cũng là <span class="math">O(√N)</span>.</li>
             </ul>
         </section>
 
-        <section id="phan-7">
-            <h2>Phần 7: Các lỗi thường gặp (Bẫy chết người)</h2>
+        <section id="phan-8">
+            <h2>Phần 8: Các lỗi thường gặp (Bẫy chết người)</h2>
             <div class="panel" style="border-color: var(--red); background: rgba(255, 107, 107, 0.05);">
                 <ul style="color: var(--ink);">
                     <li><strong>Sai điều kiện biên khi <span class="math">L</span> và <span class="math">R</span> cùng một khối:</strong> Rất nhiều bạn quên bắt trường hợp <span class="math">bL == bR</span>, dẫn đến việc code rẽ nhánh nhầm vào việc tính lẻ đầu, lẻ cuối chồng chéo lên nhau sinh ra kết quả sai. Luôn có lệnh `if (bL == bR)` riêng biệt.</li>
@@ -412,9 +477,9 @@
             </div>
         </section>
 
-        <section id="phan-8">
-            <h2>Phần 8: Trắc nghiệm củng cố</h2>
-            <div class="score-board">Điểm: <span id="quiz-score">0</span> / 6</div>
+        <section id="phan-9">
+            <h2>Phần 9: Trắc nghiệm củng cố</h2>
+            <div class="score-board">Điểm: <span id="quiz-score">0</span> / 10</div>
             <div id="quiz-container">
                 <!-- JS sẽ bơm câu hỏi vào đây -->
             </div>
@@ -896,7 +961,43 @@ int querySum(int L, int R) {
                     { text: "Độ phức tạp truy vấn O(√N) chậm hơn so với O(log N) của Segment Tree.", correct: true },
                     { text: "Code dài và phức tạp hơn.", correct: false }
                 ],
-                exp: "√N lớn hơn log N rất nhiều (VD N=10^5, √N ≈ 316, log N ≈ 17). Segment Tree truy vấn chỉ tốn log N, nhanh hơn Chia căn."
+                exp: "√N lớn hơn log N rất nhiều (VD N=10⁵, √N ≈ 316, log N ≈ 17). Segment Tree truy vấn chỉ tốn log N, nhanh hơn Chia căn."
+            },
+            {
+                q: "7. Điểm mạnh lớn nhất của Kỹ thuật Chia căn so với Segment Tree là gì?",
+                options: [
+                    { text: "Độ phức tạp truy vấn tốt hơn.", correct: false },
+                    { text: "Cài đặt đơn giản, linh hoạt, dễ tùy biến cho các bài toán mà phép toán không có tính kết hợp.", correct: true },
+                    { text: "Tiêu tốn ít bộ nhớ hơn, luôn giới hạn ở mức O(1).", correct: false }
+                ],
+                exp: "Khác với Segment Tree yêu cầu phép toán phải có tính kết hợp (Associative), Chia căn cho phép ta duy trì dữ liệu phức tạp trong mỗi khối một cách dễ dàng và linh hoạt."
+            },
+            {
+                q: "8. Khi áp dụng kỹ thuật Lazy Update trên mảng chia căn, thao tác CẬP NHẬT một đoạn [L, R] có độ phức tạp là bao nhiêu?",
+                options: [
+                    { text: "O(log N)", correct: false },
+                    { text: "O(1)", correct: false },
+                    { text: "O(√N)", correct: true }
+                ],
+                exp: "Giống như truy vấn đoạn, cập nhật đoạn cũng chỉ duyệt lẻ tẻ các phần tử ở hai đầu đoạn và đánh dấu 'lazy' lên các khối nguyên ở giữa. Tổng số thao tác vẫn là O(√N)."
+            },
+            {
+                q: "9. Nếu N = 1.000.000, số lượng khối và kích thước mỗi khối xấp xỉ bằng bao nhiêu?",
+                options: [
+                    { text: "1.000 khối, mỗi khối 1.000 phần tử", correct: true },
+                    { text: "10.000 khối, mỗi khối 100 phần tử", correct: false },
+                    { text: "100 khối, mỗi khối 10.000 phần tử", correct: false }
+                ],
+                exp: "Căn bậc hai của 1.000.000 (10⁶) là 1.000. Do đó ta sẽ chia thành khoảng 1.000 khối, mỗi khối chứa 1.000 phần tử."
+            },
+            {
+                q: "10. Kỹ thuật Chia căn có thể thay thế hoàn toàn Cây Segment Tree trong mọi trường hợp không?",
+                options: [
+                    { text: "Có, vì cả hai đều giải quyết cùng một loại bài toán.", correct: false },
+                    { text: "Không, vì Chia căn có thời gian truy vấn O(√N) chậm hơn O(log N). Nếu số truy vấn quá lớn, Chia căn sẽ dễ bị Time Limit Exceeded.", correct: true },
+                    { text: "Có, vì Chia căn tiết kiệm bộ nhớ hơn.", correct: false }
+                ],
+                exp: "Dù dễ cài đặt và đa năng, Chia căn chậm hơn Segment Tree khá nhiều. Ở các kỳ thi có giới hạn thời gian cực nghiêm ngặt và N, Q lớn, ta buộc phải dùng cấu trúc dữ liệu O(log N)."
             }
         ];
 
