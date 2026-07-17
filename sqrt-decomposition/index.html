@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kỹ thuật Chia Căn (Sqrt Decomposition) | Competitive Programming</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #0B1220;
+            --bg2: #0F1A2E;
+            --panel: #111E36;
+            --line: #22304C;
+            --line2: #2E3F60;
+            --ink: #E6ECF7;
+            --ink-soft: #8FA1C4;
+            --ink-dim: #5A6B8F;
+            
+            --accent: #38D6C4; /* Xanh ngọc - Phần lẻ đầu / Nổi bật */
+            --accent-blue: #5B8CFF; /* Xanh dương - Phần lẻ cuối */
+            --amber: #FFB454; /* Hổ phách - Đang xét */
+            --pink: #FF6B9D; /* Hồng - Khối nguyên ở giữa */
+            --red: #FF6B6B; /* Đỏ nhạt */
+            --green: #4ADE80; /* Xanh lục - Success */
+            
+            --glow: 0 0 20px rgba(56, 214, 196, 0.15);
+            --font-body: 'Inter', sans-serif;
+            --font-heading: 'Space Grotesk', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: ''; position: absolute; top: -200px; left: -100px; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(56,214,196,0.08) 0%, transparent 70%);
+            z-index: -1; pointer-events: none;
+        }
+        body::after {
+            content: ''; position: absolute; top: 100px; right: -150px; width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(91,140,255,0.06) 0%, transparent 70%);
+            z-index: -1; pointer-events: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 0 16px; }
+        }
+
+        nav {
+            position: sticky; top: 0; background: rgba(11, 18, 32, 0.85);
+            backdrop-filter: blur(12px); border-bottom: 1px solid var(--line);
+            z-index: 100; padding: 12px 0;
+        }
+
+        .nav-inner { display: flex; justify-content: space-between; align-items: center; }
+        .nav-links a {
+            color: var(--ink-soft); text-decoration: none; font-size: 0.9rem;
+            font-weight: 500; padding: 6px 12px; border-radius: 6px; transition: all 0.2s;
+        }
+        .nav-links a:hover, .nav-links a:focus-visible { color: var(--ink); background: var(--line); outline: none; }
+        .breadcrumb { color: var(--ink-soft); font-family: var(--font-heading); font-size: 0.95rem; }
+        .breadcrumb span { color: var(--accent); }
+
+        section { margin: 48px 0; }
+        h1, h2, h3 { font-family: var(--font-heading); color: var(--ink); margin-bottom: 16px; }
+        h1 { font-size: 2.2rem; background: linear-gradient(to right, var(--accent), var(--accent-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 1.6rem; border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-top: 40px; }
+        h3 { font-size: 1.2rem; color: var(--accent-blue); }
+        p, ul { margin-bottom: 16px; color: var(--ink-soft); }
+        ul { padding-left: 24px; }
+        li { margin-bottom: 6px; }
+        strong { color: var(--ink); font-weight: 600; }
+        
+        .math { font-family: var(--font-code); background: var(--bg2); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: var(--accent); }
+
+        .panel {
+            background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+            padding: 24px; box-shadow: 0 4px 24px rgba(0,0,0,0.2); margin-bottom: 24px;
+        }
+        .alert-panel {
+            background: rgba(255, 180, 84, 0.1); border-left: 4px solid var(--amber);
+            padding: 16px; border-radius: 0 8px 8px 0; margin-bottom: 24px;
+        }
+
+        .code-container {
+            background: #0A1220; border: 1px solid var(--line); border-radius: 8px;
+            overflow-x: auto; margin-bottom: 24px; padding: 16px 0;
+        }
+        .code-line {
+            font-family: var(--font-code); font-size: 0.85rem; line-height: 1.6;
+            padding: 0 16px; margin: 0; display: block; white-space: pre;
+            color: #A9B7C6; border-left: 3px solid transparent; transition: background 0.2s, border-color 0.2s;
+        }
+        .code-line.active { background: rgba(56, 214, 196, 0.1); border-left-color: var(--accent); }
+
+        .token-kw { color: #CC7832; font-weight: bold; }
+        .token-type { color: #5B8CFF; }
+        .token-str { color: #6A8759; }
+        .token-num { color: #6897BB; }
+        .token-com { color: #808080; font-style: italic; }
+        .token-func { color: #FFC66D; }
+        .token-op { color: #A9B7C6; }
+
+        .sim-container {
+            background: var(--bg2); border: 1px solid var(--line2); border-radius: 12px;
+            overflow: hidden; margin: 32px 0; display: flex; flex-direction: column;
+        }
+
+        /* Layer 1: Array/Blocks (Full width, horizontal scroll) */
+        .sim-layer-array {
+            width: 100%; overflow-x: auto; padding: 32px 24px;
+            border-bottom: 1px solid var(--line);
+        }
+        
+        .array-track {
+            display: flex; flex-wrap: nowrap; gap: 8px; min-width: max-content;
+            padding-bottom: 8px; /* For scrollbar breathing room */
+        }
+
+        .block-group {
+            display: flex; flex-direction: column; align-items: center;
+            border: 2px dashed var(--line2); border-radius: 8px; padding: 8px;
+            background: rgba(17, 30, 54, 0.4); position: relative; transition: all 0.3s;
+        }
+        .block-group.active-block { border-color: var(--pink); background: rgba(255, 107, 157, 0.15); box-shadow: 0 0 15px rgba(255, 107, 157, 0.2); }
+        
+        .block-label {
+            position: absolute; top: -24px; font-size: 0.75rem; color: var(--ink-dim);
+            font-family: var(--font-heading); font-weight: 600;
+        }
+
+        .block-cells { display: flex; gap: 4px; }
+
+        .array-cell {
+            width: 48px; height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: var(--panel); border: 1px solid var(--line2); border-radius: 6px;
+            font-family: var(--font-code); font-size: 1rem; color: var(--ink);
+            transition: all 0.2s; position: relative; flex-shrink: 0;
+        }
+        .cell-idx { position: absolute; bottom: -18px; font-size: 0.65rem; color: var(--ink-dim); }
+        
+        /* Cell States */
+        .cell-current { background: var(--amber); color: #000; border-color: var(--amber); transform: translateY(-4px); font-weight: bold; z-index: 10; box-shadow: 0 4px 12px rgba(255, 180, 84, 0.3); }
+        .cell-left-tail { background: rgba(56, 214, 196, 0.2); border-color: var(--accent); color: var(--accent); }
+        .cell-right-tail { background: rgba(91, 140, 255, 0.2); border-color: var(--accent-blue); color: var(--accent-blue); }
+        .cell-dim { opacity: 0.3; }
+
+        .block-sum-display {
+            margin-top: 24px; padding: 4px 12px; background: var(--bg); border: 1px solid var(--line);
+            border-radius: 4px; font-family: var(--font-code); font-size: 0.85rem; color: var(--ink-soft);
+            min-width: 60px; text-align: center; transition: all 0.3s;
+        }
+        .block-sum-display.active { background: var(--pink); color: #000; border-color: var(--pink); font-weight: bold; transform: scale(1.1); }
+        .block-sum-display.updating { background: var(--accent); color: #000; border-color: var(--accent); }
+
+        /* Layer 2: Controls */
+        .sim-layer-controls {
+            display: flex; flex-direction: column; padding: 24px; border-bottom: 1px solid var(--line);
+            background: rgba(17, 30, 54, 0.3); gap: 20px;
+        }
+        @media (min-width: 900px) {
+            .sim-layer-controls { flex-direction: row; align-items: stretch; }
+        }
+
+        .controls-main { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+        .controls-side { width: 100%; display: flex; flex-direction: column; gap: 12px; justify-content: flex-end; }
+        @media (min-width: 900px) { .controls-side { width: 250px; flex-shrink: 0; border-left: 1px solid var(--line); padding-left: 24px; } }
+
+        .sim-status {
+            background: var(--bg); border: 1px solid var(--line); padding: 16px; border-radius: 8px;
+            font-size: 0.95rem; min-height: 80px; display: flex; align-items: center; color: var(--ink);
+        }
+
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        button {
+            background: var(--line); color: var(--ink); border: 1px solid var(--line2); padding: 8px 16px;
+            border-radius: 6px; cursor: pointer; font-family: var(--font-body); font-size: 0.9rem; font-weight: 500; transition: all 0.2s;
+        }
+        button:hover:not(:disabled) { background: var(--line2); color: #fff; }
+        button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button.primary { background: var(--accent); color: #000; border-color: var(--accent); }
+        button.primary:hover:not(:disabled) { background: #2CB5A5; }
+
+        .input-group { display: flex; align-items: center; gap: 8px; }
+        .input-group label { font-family: var(--font-code); font-size: 0.9rem; color: var(--ink-soft); }
+        .input-group input[type="number"] {
+            width: 60px; background: var(--bg); border: 1px solid var(--line); color: var(--ink);
+            padding: 6px 8px; border-radius: 4px; font-family: var(--font-code); text-align: center;
+        }
+        .input-group input[type="number"]:focus { outline: none; border-color: var(--accent); }
+
+        .stat-box {
+            background: var(--bg); border: 1px solid var(--line); padding: 12px; border-radius: 6px;
+            display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--ink-soft);
+        }
+        .stat-box strong { font-family: var(--font-code); font-size: 1.1rem; color: var(--accent); }
+
+        /* Layer 3: Code Frame */
+        .sim-layer-code { width: 100%; background: #0A1220; padding: 16px 0; overflow-x: auto; }
+
+        .quiz-item { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+        .quiz-item h4 { margin-bottom: 12px; color: var(--ink); }
+        .quiz-option {
+            display: block; padding: 10px 16px; background: var(--bg); border: 1px solid var(--line);
+            border-radius: 6px; margin-bottom: 8px; cursor: pointer; transition: background 0.2s;
+        }
+        .quiz-option:hover { background: var(--bg2); }
+        .quiz-option input { display: none; }
+        .quiz-option.correct { background: rgba(74, 222, 128, 0.15); border-color: var(--green); }
+        .quiz-option.wrong { background: rgba(255, 107, 107, 0.15); border-color: var(--red); }
+        .quiz-exp { margin-top: 12px; padding: 12px; background: var(--bg2); border-left: 3px solid var(--accent-blue); font-size: 0.9rem; display: none; }
+        .score-board { text-align: center; font-size: 1.2rem; font-family: var(--font-heading); padding: 16px; background: var(--panel); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent); margin-bottom: 24px; display: inline-block; }
+
+        .legend { display: flex; gap: 16px; font-size: 0.8rem; color: var(--ink-soft); flex-wrap: wrap; margin-top: 8px; }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-color { width: 12px; height: 12px; border-radius: 3px; }
+
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-inner">
+            <div class="breadcrumb">
+                Kỹ thuật <span>/</span> Chia căn
+            </div>
+            <div class="nav-links">
+                <a href="/index.html">Trang chủ</a>
+                <a href="https://cvpoi.id.vn" target="_blank" rel="noopener noreferrer">cvpoi.id.vn</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1>Kỹ Thuật Chia Căn (Sqrt Decomposition)</h1>
+            <p style="font-size: 1.1rem;">Chia để trị trên mảng: cân bằng giữa cập nhật và truy vấn bằng cách gom mảng thành các khối có kích thước √N.</p>
+        </header>
+
+        <section id="phan-1">
+            <h2>Phần 1: Bài toán & Động lực</h2>
+            <div class="panel">
+                <p><strong>Bài toán cơ bản:</strong> Cho một mảng <span class="math">A</span> gồm <span class="math">N</span> phần tử. Cần thực hiện <span class="math">Q</span> thao tác thuộc hai loại:</p>
+                <ul>
+                    <li><strong>Truy vấn:</strong> Tính tổng các phần tử trong đoạn <span class="math">[L, R]</span>.</li>
+                    <li><strong>Cập nhật:</strong> Thay đổi giá trị một phần tử <span class="math">A[i] = x</span>.</li>
+                </ul>
+                <p><strong>Cách ngây thơ:</strong> Truy vấn bằng cách chạy vòng lặp từ <span class="math">L</span> đến <span class="math">R</span> tốn <span class="math">O(N)</span>. Cập nhật tốn <span class="math">O(1)</span>. Tổng thời gian cho <span class="math">Q</span> truy vấn là <span class="math">O(N·Q)</span>. Nếu <span class="math">N, Q ≈ 10⁵</span>, số phép toán cỡ <span class="math">10¹⁰</span>, chắc chắn Time Limit Exceeded (TLE).</p>
+                <p><strong>Ý tưởng cốt lõi của Chia căn:</strong> Thay vì duyệt từng phần tử một cho mọi truy vấn đoạn, ta chia mảng thành các <strong>"khối" (blocks)</strong>. Cập nhật sẽ duy trì thông tin của khối, và truy vấn đoạn sẽ lấy thông tin của các <strong>khối nguyên</strong> kết hợp với vài phần tử lẻ ở hai đầu. Điều này giúp độ phức tạp truy vấn giảm xuống còn <span class="math">O(√N)</span>.</p>
+            </div>
+        </section>
+
+        <section id="phan-2">
+            <h2>Phần 2: Chia khối & Tiền xử lý</h2>
+            <p>Ta chia mảng <span class="math">N</span> phần tử thành các khối, mỗi khối có kích thước <span class="math">blk ≈ √N</span>. Như vậy sẽ có khoảng <span class="math">√N</span> khối.</p>
+            <ul>
+                <li>Phần tử ở vị trí <span class="math">i</span> sẽ thuộc khối thứ <span class="math">i / blk</span> (phép chia lấy phần nguyên).</li>
+                <li>Ta dùng một mảng phụ <span class="math">B</span> để lưu <strong>giá trị gộp</strong> của từng khối (ở bài toán tổng đoạn, <span class="math">B[k]</span> lưu tổng các phần tử trong khối <span class="math">k</span>).</li>
+                <li><strong>Vì sao chọn cỡ √N?</strong> Khi truy vấn một đoạn <span class="math">[L, R]</span>, ta xét tối đa khoảng <span class="math">√N</span> khối nguyên ở giữa, và duyệt lẻ tẻ tối đa <span class="math">2 × √N</span> phần tử ở hai đầu đoạn (chưa tạo thành khối trọn vẹn). Tổng số bước là <span class="math">O(√N) + O(√N) = O(√N)</span>. Sự cân bằng này khiến thời gian chạy tốt nhất.</li>
+            </ul>
+
+            <h3>Mô phỏng 1: Chia mảng và Tiền xử lý (N = 16, Khối = √16 = 4)</h3>
+            <p>Quan sát cách mảng được cắt thành 4 khối. Mỗi khối tính sẵn tổng các phần tử bên trong nó.</p>
+            
+            <div class="sim-container">
+                <div class="sim-layer-array">
+                    <div class="array-track" id="sim1-array">
+                        <!-- JS sẽ chèn các khối vào đây -->
+                    </div>
+                </div>
+                <div class="sim-layer-controls">
+                    <div class="controls-main">
+                        <div class="sim-status" id="sim1-status">Sẵn sàng. Nhấn "Bắt đầu Tiền xử lý" để tính tổng từng khối.</div>
+                        <div class="btn-group">
+                            <button id="sim1-btn-run" class="primary">Bắt đầu Tiền xử lý</button>
+                            <button id="sim1-btn-step">Từng bước</button>
+                            <button id="sim1-btn-reset">Đặt lại</button>
+                        </div>
+                    </div>
+                    <div class="controls-side">
+                        <div style="font-size: 0.85rem; color: var(--ink-soft); display: flex; align-items: center; justify-content: space-between;">
+                            <span>Tốc độ:</span>
+                            <input type="range" id="sim1-speed" min="1" max="5" value="3" style="width: 80px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="phan-3">
+            <h2>Phần 3: Truy vấn đoạn [L, R] trong <span class="math">O(√N)</span></h2>
+            <div class="alert-panel">
+                <strong>Khi truy vấn tổng đoạn từ <span class="math">L</span> đến <span class="math">R</span>, có hai trường hợp:</strong>
+                <ol style="margin-top: 8px; padding-left: 20px;">
+                    <li><strong><span class="math">L</span> và <span class="math">R</span> nằm trong cùng MỘT khối:</strong> Trực tiếp duyệt vòng lặp <span class="math">i</span> từ <span class="math">L</span> đến <span class="math">R</span> và cộng <span class="math">A[i]</span>. Chi phí tối đa <span class="math">O(√N)</span> (vì đoạn này nằm gọn trong một khối cỡ <span class="math">√N</span>).</li>
+                    <li><strong><span class="math">L</span> và <span class="math">R</span> nằm ở HAI khối khác nhau:</strong> Đây là cốt lõi của thuật toán. Ta chia làm 3 phần:
+                        <ul style="margin-top: 4px;">
+                            <li><strong style="color:var(--accent);">Phần lẻ đầu:</strong> Duyệt <span class="math">i</span> từ <span class="math">L</span> đến <em>cuối khối chứa L</em>. Cộng <span class="math">A[i]</span>.</li>
+                            <li><strong style="color:var(--pink);">Các khối nguyên ở giữa:</strong> Duyệt các khối <span class="math">b</span> từ <em>khối sau L</em> đến <em>khối trước R</em>. Cộng trực tiếp <strong>tổng khối <span class="math">B[b]</span></strong> (không cần duyệt phần tử con).</li>
+                            <li><strong style="color:var(--accent-blue);">Phần lẻ cuối:</strong> Duyệt <span class="math">i</span> từ <em>đầu khối chứa R</em> đến <span class="math">R</span>. Cộng <span class="math">A[i]</span>.</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+
+            <h3>Mô phỏng 2: Hoạt động Truy vấn cắt ngang các khối</h3>
+            <p>Nhập <span class="math">L</span> và <span class="math">R</span> để xem cách thuật toán "nhảy cóc" qua các khối nguyên ở giữa, tiết kiệm rất nhiều phép tính so với duyệt từng ô.</p>
+
+            <div class="sim-container">
+                <div class="sim-layer-array">
+                    <div class="array-track" id="sim2-array">
+                        <!-- JS sẽ chèn các khối vào đây -->
+                    </div>
+                </div>
+                <div class="sim-layer-controls">
+                    <div class="controls-main">
+                        <div class="sim-status" id="sim2-status">Chọn L và R rồi nhấn "Truy vấn đoạn".</div>
+                        <div class="btn-group">
+                            <div class="input-group">
+                                <label>L =</label><input type="number" id="sim2-L" min="0" max="15" value="2">
+                            </div>
+                            <div class="input-group" style="margin-right: 16px;">
+                                <label>R =</label><input type="number" id="sim2-R" min="0" max="15" value="13">
+                            </div>
+                            <button id="sim2-btn-run" class="primary">Truy vấn đoạn</button>
+                            <button id="sim2-btn-reset">Đặt lại UI</button>
+                        </div>
+                        <div class="legend">
+                            <div class="legend-item"><div class="legend-color" style="background: var(--accent);"></div> Duyệt lẻ đầu</div>
+                            <div class="legend-item"><div class="legend-color" style="background: var(--pink);"></div> Cộng nguyên khối</div>
+                            <div class="legend-item"><div class="legend-color" style="background: var(--accent-blue);"></div> Duyệt lẻ cuối</div>
+                        </div>
+                    </div>
+                    <div class="controls-side">
+                        <div class="stat-box">
+                            <span>Tổng tìm được:</span>
+                            <strong id="sim2-sum-val">0</strong>
+                        </div>
+                        <div class="stat-box">
+                            <span>Số phép cộng:</span>
+                            <strong id="sim2-op-val">0</strong>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--ink-dim); text-align: right;">(Duyệt ngây thơ cần <span id="sim2-naive-val">0</span> phép)</div>
+                    </div>
+                </div>
+                <div class="sim-layer-code" id="sim2-code">
+                    <!-- Mã code truy vấn -->
+                </div>
+            </div>
+        </section>
+
+        <section id="phan-4">
+            <h2>Phần 4: Cập nhật một phần tử <span class="math">O(1)</span></h2>
+            <p>Khi có yêu cầu thay đổi giá trị <span class="math">A[i] = x</span>, ta cần cập nhật lại thông tin của khối chứa nó để các truy vấn sau vẫn chính xác.</p>
+            <ul>
+                <li>Xác định khối: <span class="math">b = i / blk</span>.</li>
+                <li>Cập nhật tổng khối: Có thể tính <span class="math">B[b] = B[b] - A[i] + x</span> (trừ đi cũ, cộng vào mới).</li>
+                <li>Cập nhật mảng gốc: <span class="math">A[i] = x</span>.</li>
+            </ul>
+            <p>Toàn bộ quá trình chỉ mất thời gian <span class="math">O(1)</span>. Rất nhanh!</p>
+        </section>
+
+        <section id="phan-5">
+            <h2>Phần 5: Cài đặt C++ (Point Update, Range Sum)</h2>
+            <div class="code-container" id="code-full">
+                <!-- Chèn code full -->
+            </div>
+        </section>
+
+        <section id="phan-6">
+            <h2>Phần 6: Mở rộng (Nâng cao)</h2>
+            <ul>
+                <li><strong>Thuật toán Mo (Mo's Algorithm):</strong> Kỹ thuật offline xử lý nhiều truy vấn đoạn. Bằng cách sắp xếp các truy vấn <span class="math">[L, R]</span> theo khối của <span class="math">L</span>, và với <span class="math">R</span> thì sắp xếp tăng/giảm dần, thuật toán Mo dùng hai con trỏ trượt để trả lời mọi truy vấn trong <span class="math">O((N+Q)√N)</span>. Rất mạnh mẽ với các bài toán không có thao tác cập nhật xen kẽ.</li>
+                <li><strong>Lazy Update theo khối (Range Update):</strong> Ta hoàn toàn có thể cập nhật cả một đoạn <span class="math">[L, R]</span> cộng thêm <span class="math">x</span>. Các phần lẻ hai đầu duyệt và cộng trực tiếp vào <span class="math">A[i]</span>, kết hợp cập nhật lại <span class="math">B[b]</span>. Với các khối nguyên ở giữa, ta duy trì một mảng <span class="math">lazy[b]</span> ghi nhận khối đó đang bị cộng thêm bao nhiêu. Chi phí cập nhật đoạn cũng là <span class="math">O(√N)</span>.</li>
+            </ul>
+        </section>
+
+        <section id="phan-7">
+            <h2>Phần 7: Các lỗi thường gặp (Bẫy chết người)</h2>
+            <div class="panel" style="border-color: var(--red); background: rgba(255, 107, 107, 0.05);">
+                <ul style="color: var(--ink);">
+                    <li><strong>Sai điều kiện biên khi <span class="math">L</span> và <span class="math">R</span> cùng một khối:</strong> Rất nhiều bạn quên bắt trường hợp <span class="math">bL == bR</span>, dẫn đến việc code rẽ nhánh nhầm vào việc tính lẻ đầu, lẻ cuối chồng chéo lên nhau sinh ra kết quả sai. Luôn có lệnh `if (bL == bR)` riêng biệt.</li>
+                    <li><strong>Nhầm lẫn chỉ số phần tử lẻ:</strong> Việc xác định cuối khối của <span class="math">L</span> là <span class="math">(bL + 1) × blk - 1</span> và đầu khối của <span class="math">R</span> là <span class="math">bR × blk</span> rất dễ Off-by-one (lệch 1 đơn vị). Cần vẽ ra giấy để kiểm chứng. Đặc biệt chú ý không duyệt vượt biên mảng gốc <span class="math">N</span> ở khối cuối cùng.</li>
+                    <li><strong>Chia cho 0:</strong> Nếu dùng Chia căn cho các tập dữ liệu nhỏ xíu (ví dụ test nhỏ <span class="math">N = 0</span> hoặc <span class="math">N = 1</span>) dẫn đến <span class="math">blk = 0</span>, phép chia <span class="math">i / blk</span> sẽ gây lỗi Runtime Error (Division by zero). Luôn đảm bảo <span class="math">blk ≥ 1</span>.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="phan-8">
+            <h2>Phần 8: Trắc nghiệm củng cố</h2>
+            <div class="score-board">Điểm: <span id="quiz-score">0</span> / 6</div>
+            <div id="quiz-container">
+                <!-- JS sẽ bơm câu hỏi vào đây -->
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // --- Tiện ích ---
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+        
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function highlightCPP(line) {
+            // Bước 1: Escape HTML để an toàn (quan trọng cho các dấu < >)
+            let safeLine = escapeHtml(line);
+            
+            // Bước 2: Regex an toàn (Tránh bọc thẻ chồng chéo)
+            // Cắt dòng thành các token dựa trên ranh giới từ và ký hiệu
+            
+            // Xử lý comment trước tiên để không bắt keyword bên trong comment
+            if (safeLine.includes('//')) {
+                const parts = safeLine.split('//');
+                return processTokens(parts[0]) + '<span class="token-com">//' + parts.slice(1).join('//') + '</span>';
+            }
+            return processTokens(safeLine);
+        }
+
+        function processTokens(text) {
+            // Các Regex cần áp dụng theo thứ tự cẩn thận
+            const keywords = /\b(for|if|else|return|while|break|continue|using|namespace)\b/g;
+            const types = /\b(int|long|long long|void|bool|vector)\b/g;
+            const numbers = /\b(\d+)\b/g;
+            const functions = /\b([a-zA-Z_]\w*)(?=\()/g;
+            
+            let html = text;
+            // Thay thế keywords
+            html = html.replace(keywords, '<span class="token-kw">$1</span>');
+            // Thay thế types (cẩn thận không đè lên keyword đã thay) - regex cơ bản này có rủi ro nếu tên class chứa keyword, nhưng đủ cho code mẫu.
+            // Để an toàn, chỉ áp dụng cho text chưa bị bọc <span>
+            // Cách làm đơn giản nhưng hiệu quả cho hiển thị tĩnh:
+            html = html.replace(types, '<span class="token-type">$1</span>');
+            html = html.replace(functions, '<span class="token-func">$1</span>');
+            // Số: chỉ bọc số nếu nó không nằm trong các thẻ html <...> (heuristics)
+            // Vì ta không dùng thư viện xịn, dùng regex âm (lookbehind) nếu trình duyệt hỗ trợ, hoặc đơn giản:
+            html = html.replace(/(^|[^A-Za-z0-9_])(\d+)(?=[^A-Za-z0-9_]|$)/g, '$1<span class="token-num">$2</span>');
+
+            return html;
+        }
+
+        function renderCodeBlock(containerId, rawCodeStr) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            const lines = rawCodeStr.trim().split('\n');
+            
+            lines.forEach((line, index) => {
+                const div = document.createElement('div');
+                div.className = 'code-line';
+                div.id = `${containerId}-line-${index}`;
+                div.innerHTML = highlightCPP(line); 
+                container.appendChild(div);
+            });
+            return lines.length;
+        }
+
+        function highlightLine(containerId, lineIndex, totalLines) {
+            for (let i = 0; i < totalLines; i++) {
+                const el = document.getElementById(`${containerId}-line-${i}`);
+                if (el) {
+                    if (i === lineIndex) el.classList.add('active');
+                    else el.classList.remove('active');
+                }
+            }
+        }
+        function clearLineHighlights(containerId, totalLines) {
+            for (let i = 0; i < totalLines; i++) {
+                const el = document.getElementById(`${containerId}-line-${i}`);
+                if (el) el.classList.remove('active');
+            }
+        }
+
+        // --- Cấu trúc dữ liệu dùng chung ---
+        const ARRAY_DATA = [4, 1, 3, 5,  2, 8, 1, 4,  7, 2, 0, 9,  3, 6, 2, 5];
+        const N = ARRAY_DATA.length; // 16
+        const BLK = Math.floor(Math.sqrt(N)); // 4
+        const NUM_BLOCKS = Math.ceil(N / BLK); // 4
+
+        function createArrayDOM(containerId, showBlockSum = false) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            for (let b = 0; b < NUM_BLOCKS; b++) {
+                const blockGroup = document.createElement('div');
+                blockGroup.className = 'block-group';
+                blockGroup.id = `${containerId}-block-${b}`;
+
+                const label = document.createElement('div');
+                label.className = 'block-label';
+                label.textContent = `Khối ${b}`;
+                blockGroup.appendChild(label);
+
+                const cellsDiv = document.createElement('div');
+                cellsDiv.className = 'block-cells';
+
+                for (let i = b * BLK; i < Math.min((b + 1) * BLK, N); i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'array-cell';
+                    cell.id = `${containerId}-cell-${i}`;
+                    cell.textContent = ARRAY_DATA[i];
+                    
+                    const idx = document.createElement('div');
+                    idx.className = 'cell-idx';
+                    idx.textContent = i;
+                    cell.appendChild(idx);
+                    
+                    cellsDiv.appendChild(cell);
+                }
+                blockGroup.appendChild(cellsDiv);
+
+                if (showBlockSum) {
+                    const sumDisplay = document.createElement('div');
+                    sumDisplay.className = 'block-sum-display';
+                    sumDisplay.id = `${containerId}-bsum-${b}`;
+                    sumDisplay.textContent = 'B[?]';
+                    blockGroup.appendChild(sumDisplay);
+                }
+
+                container.appendChild(blockGroup);
+            }
+        }
+
+        function getSpeed(sliderId) {
+            const val = parseInt(document.getElementById(sliderId).value);
+            const speeds = [0, 1000, 500, 250, 100, 20];
+            return speeds[val];
+        }
+
+        let sim1State = { running: false, stepMode: false, resolveStep: null };
+
+        async function waitStep1() {
+            if (!sim1State.stepMode) { await sleep(getSpeed('sim1-speed')); return; }
+            return new Promise(resolve => { sim1State.resolveStep = resolve; });
+        }
+
+        async function runSim1() {
+            if (sim1State.running) return;
+            sim1State.running = true;
+            createArrayDOM('sim1-array', true); // Reset UI
+            
+            const statusEl = document.getElementById('sim1-status');
+            let blockSums = Array(NUM_BLOCKS).fill(0);
+
+            for(let b=0; b<NUM_BLOCKS; b++) {
+                document.getElementById(`sim1-array-bsum-${b}`).textContent = '0';
+            }
+
+            for (let i = 0; i < N; i++) {
+                if(!sim1State.running) break;
+                
+                const b = Math.floor(i / BLK);
+                const cellEl = document.getElementById(`sim1-array-cell-${i}`);
+                const bsumEl = document.getElementById(`sim1-array-bsum-${b}`);
+                
+                // Dim other cells slightly for focus
+                document.querySelectorAll('#sim1-array .array-cell').forEach(c => c.classList.remove('cell-current'));
+                cellEl.classList.add('cell-current');
+                bsumEl.classList.add('updating');
+
+                statusEl.innerHTML = `Đang xét <strong>A[${i}] = ${ARRAY_DATA[i]}</strong> (thuộc Khối ${b}).<br>Cộng vào tổng khối ${b}: ${blockSums[b]} + ${ARRAY_DATA[i]} = ${blockSums[b] + ARRAY_DATA[i]}`;
+                await waitStep1();
+
+                blockSums[b] += ARRAY_DATA[i];
+                bsumEl.textContent = blockSums[b];
+                
+                bsumEl.classList.remove('updating');
+            }
+
+            document.querySelectorAll('#sim1-array .array-cell').forEach(c => c.classList.remove('cell-current'));
+            statusEl.innerHTML = `<strong>Hoàn tất Tiền xử lý!</strong> Mảng B đã lưu tổng của từng khối. Mất đúng <span class="math">O(N)</span> để chuẩn bị.`;
+            sim1State.running = false;
+        }
+
+        document.getElementById('sim1-btn-run').addEventListener('click', () => {
+            sim1State.stepMode = false;
+            if(sim1State.resolveStep) { sim1State.resolveStep(); sim1State.resolveStep = null; }
+            if(!sim1State.running) runSim1();
+        });
+        document.getElementById('sim1-btn-step').addEventListener('click', () => {
+            if(!sim1State.running) { sim1State.stepMode = true; runSim1(); }
+            else { sim1State.stepMode = true; if(sim1State.resolveStep) { sim1State.resolveStep(); sim1State.resolveStep = null; } }
+        });
+        document.getElementById('sim1-btn-reset').addEventListener('click', () => {
+            sim1State.running = false;
+            createArrayDOM('sim1-array', true);
+            document.getElementById('sim1-status').textContent = 'Sẵn sàng. Nhấn "Bắt đầu Tiền xử lý".';
+            if(sim1State.resolveStep) { sim1State.resolveStep(); sim1State.resolveStep = null; }
+        });
+
+        const codeQueryStr = `int querySum(int L, int R) {
+    int sum = 0;
+    int bL = L / blk, bR = R / blk;
+
+    if (bL == bR) {
+        // Cùng khối: duyệt trực tiếp
+        for (int i = L; i <= R; i++) sum += A[i];
+    } else {
+        // Lẻ đầu khối L
+        for (int i = L; i < (bL + 1) * blk; i++) sum += A[i];
+        
+        // Nguyên các khối ở giữa
+        for (int b = bL + 1; b < bR; b++) sum += B[b];
+        
+        // Lẻ cuối khối R
+        for (int i = bR * blk; i <= R; i++) sum += A[i];
+    }
+    return sum;
+}`;
+        const sim2Lines = renderCodeBlock('sim2-code', codeQueryStr);
+        let precalcBlockSums = [13, 15, 18, 16]; // Hardcoded for ARRAY_DATA for Sim 2 to use directly
+
+        let sim2State = { running: false, resolveStep: null };
+
+        async function waitStep2() {
+            // Reusing sim1 speed slider concept, but let's just make it a fixed 800ms per step for clarity, 
+            // or we could add a slider. Let's use a fixed moderate delay.
+            await sleep(600); 
+        }
+
+        function resetSim2UI() {
+            createArrayDOM('sim2-array', true);
+            for(let b=0; b<NUM_BLOCKS; b++) {
+                document.getElementById(`sim2-array-bsum-${b}`).textContent = precalcBlockSums[b];
+            }
+            document.getElementById('sim2-sum-val').textContent = '0';
+            document.getElementById('sim2-op-val').textContent = '0';
+            document.getElementById('sim2-naive-val').textContent = '0';
+            clearLineHighlights('sim2-code', sim2Lines);
+            document.getElementById('sim2-status').innerHTML = 'Chọn L và R rồi nhấn "Truy vấn đoạn".';
+        }
+
+        async function runSim2() {
+            if (sim2State.running) return;
+            
+            let L = parseInt(document.getElementById('sim2-L').value);
+            let R = parseInt(document.getElementById('sim2-R').value);
+            
+            if (L > R || L < 0 || R >= N || isNaN(L) || isNaN(R)) {
+                alert("Vui lòng chọn 0 ≤ L ≤ R ≤ 15 hợp lệ.");
+                return;
+            }
+
+            sim2State.running = true;
+            resetSim2UI();
+            
+            const statusEl = document.getElementById('sim2-status');
+            const sumEl = document.getElementById('sim2-sum-val');
+            const opEl = document.getElementById('sim2-op-val');
+            document.getElementById('sim2-naive-val').textContent = R - L + 1; // Naive ops
+
+            let currentSum = 0;
+            let opsCount = 0;
+
+            let bL = Math.floor(L / BLK);
+            let bR = Math.floor(R / BLK);
+
+            highlightLine('sim2-code', 2, sim2Lines);
+            statusEl.innerHTML = `Tính khối chứa L: <code>bL = ${L} / ${BLK} = ${bL}</code><br>Tính khối chứa R: <code>bR = ${R} / ${BLK} = ${bR}</code>`;
+            await sleep(1000);
+
+            // Tối mờ các ô không thuộc khoảng truy vấn
+            for(let i=0; i<N; i++) {
+                if(i < L || i > R) document.getElementById(`sim2-array-cell-${i}`).classList.add('cell-dim');
+            }
+
+            if (bL === bR) {
+                highlightLine('sim2-code', 4, sim2Lines);
+                statusEl.innerHTML = `<span class="math">L</span> và <span class="math">R</span> nằm CÙNG Khối ${bL}. Trường hợp cơ bản.`;
+                await sleep(1000);
+
+                highlightLine('sim2-code', 6, sim2Lines);
+                for (let i = L; i <= R; i++) {
+                    const c = document.getElementById(`sim2-array-cell-${i}`);
+                    c.classList.remove('cell-dim');
+                    c.classList.add('cell-current');
+                    statusEl.innerHTML = `Cộng phần tử <code>A[${i}] = ${ARRAY_DATA[i]}</code>`;
+                    await sleep(400);
+                    
+                    currentSum += ARRAY_DATA[i]; opsCount++;
+                    sumEl.textContent = currentSum; opEl.textContent = opsCount;
+                    
+                    c.classList.remove('cell-current');
+                    c.classList.add('cell-left-tail'); // Just color it same as tail
+                }
+            } else {
+                highlightLine('sim2-code', 7, sim2Lines);
+                statusEl.innerHTML = `<span class="math">L</span> và <span class="math">R</span> nằm KHÁC Khối. Tiến hành chia 3 phần.`;
+                await sleep(1000);
+
+                // Phần lẻ đầu
+                let endBL = Math.min((bL + 1) * BLK - 1, N - 1);
+                highlightLine('sim2-code', 9, sim2Lines);
+                statusEl.innerHTML = `<strong>1. Phần lẻ đầu:</strong> Duyệt từ L=${L} đến cuối Khối ${bL} (index ${endBL}).`;
+                await sleep(1000);
+
+                for (let i = L; i <= endBL; i++) {
+                    const c = document.getElementById(`sim2-array-cell-${i}`);
+                    c.classList.remove('cell-dim');
+                    c.classList.add('cell-current');
+                    statusEl.innerHTML = `Cộng lẻ <code>A[${i}] = ${ARRAY_DATA[i]}</code>`;
+                    await sleep(400);
+                    
+                    currentSum += ARRAY_DATA[i]; opsCount++;
+                    sumEl.textContent = currentSum; opEl.textContent = opsCount;
+                    
+                    c.classList.remove('cell-current');
+                    c.classList.add('cell-left-tail');
+                }
+
+                // Các khối nguyên ở giữa
+                highlightLine('sim2-code', 12, sim2Lines);
+                if (bL + 1 < bR) {
+                    statusEl.innerHTML = `<strong>2. Các khối nguyên:</strong> Từ Khối ${bL+1} đến Khối ${bR-1}. Lấy luôn tổng nguyên khối!`;
+                    await sleep(1000);
+                    
+                    for (let b = bL + 1; b < bR; b++) {
+                        const bg = document.getElementById(`sim2-array-block-${b}`);
+                        const bsumEl = document.getElementById(`sim2-array-bsum-${b}`);
+                        
+                        bg.classList.add('active-block');
+                        bsumEl.classList.add('active');
+                        
+                        // Dim cells inside block to emphasize we take the block sum, not cells
+                        for(let i=b*BLK; i<(b+1)*BLK; i++) {
+                            const c = document.getElementById(`sim2-array-cell-${i}`);
+                            c.classList.remove('cell-dim');
+                            c.style.opacity = '0.5'; // Soft dim
+                            c.style.background = 'var(--pink)';
+                            c.style.color = '#fff';
+                        }
+
+                        statusEl.innerHTML = `Cộng NGUYÊN KHỐI <code>B[${b}] = ${precalcBlockSums[b]}</code> (Chỉ mất 1 thao tác!)`;
+                        await sleep(800);
+
+                        currentSum += precalcBlockSums[b]; opsCount++; // 1 operation per block!
+                        sumEl.textContent = currentSum; opEl.textContent = opsCount;
+                        
+                        bsumEl.classList.remove('active');
+                    }
+                } else {
+                    statusEl.innerHTML = `Không có khối nguyên nào nằm lọt giữa Khối ${bL} và Khối ${bR}.`;
+                    await sleep(1000);
+                }
+
+                // Phần lẻ cuối
+                let startBR = bR * BLK;
+                highlightLine('sim2-code', 15, sim2Lines);
+                statusEl.innerHTML = `<strong>3. Phần lẻ cuối:</strong> Duyệt từ đầu Khối ${bR} (index ${startBR}) đến R=${R}.`;
+                await sleep(1000);
+
+                for (let i = startBR; i <= R; i++) {
+                    const c = document.getElementById(`sim2-array-cell-${i}`);
+                    c.classList.remove('cell-dim');
+                    c.classList.add('cell-current');
+                    statusEl.innerHTML = `Cộng lẻ <code>A[${i}] = ${ARRAY_DATA[i]}</code>`;
+                    await sleep(400);
+                    
+                    currentSum += ARRAY_DATA[i]; opsCount++;
+                    sumEl.textContent = currentSum; opEl.textContent = opsCount;
+                    
+                    c.classList.remove('cell-current');
+                    c.classList.add('cell-right-tail');
+                }
+            }
+
+            clearLineHighlights('sim2-code', sim2Lines);
+            statusEl.innerHTML = `<strong>Hoàn tất!</strong> Tổng đoạn <span class="math">[${L}, ${R}]</span> là <strong>${currentSum}</strong>. Mất ${opsCount} phép tính (thay vì ${R-L+1} bằng duyệt ngây thơ).`;
+            sim2State.running = false;
+        }
+
+        document.getElementById('sim2-btn-run').addEventListener('click', runSim2);
+        document.getElementById('sim2-btn-reset').addEventListener('click', () => {
+            if(!sim2State.running) resetSim2UI();
+        });
+
+        // Initialize Sim 2 UI explicitly on load
+        window.addEventListener('DOMContentLoaded', resetSim2UI);
+
+        const codeFullStr = `#include <iostream>
+#include <vector>
+#include <cmath>
+using namespace std;
+
+int N, blk;
+vector<int> A, B;
+
+void init() {
+    blk = sqrt(N);
+    if (blk == 0) blk = 1; // Bảo vệ chia cho 0
+    B.assign((N + blk - 1) / blk, 0); // Kích thước đủ chứa các khối
+    
+    for (int i = 0; i < N; i++) {
+        B[i / blk] += A[i];
+    }
+}
+
+void update(int i, int x) {
+    int b = i / blk;
+    B[b] = B[b] - A[i] + x;
+    A[i] = x;
+}
+
+int querySum(int L, int R) {
+    int sum = 0;
+    int bL = L / blk, bR = R / blk;
+
+    if (bL == bR) {
+        for (int i = L; i <= R; i++) sum += A[i];
+    } else {
+        for (int i = L; i < (bL + 1) * blk; i++) sum += A[i];
+        for (int b = bL + 1; b < bR; b++) sum += B[b];
+        for (int i = bR * blk; i <= R; i++) sum += A[i];
+    }
+    return sum;
+}`;
+        renderCodeBlock('code-full', codeFullStr);
+
+        const quizData = [
+            {
+                q: "1. Tại sao kích thước khối được chọn là khoảng √N?",
+                options: [
+                    { text: "Để mảng lưu khối B có đúng √N phần tử, tiết kiệm RAM.", correct: false },
+                    { text: "Để cân bằng O(√N) phần tử bị duyệt lẻ ở hai đầu và O(√N) khối nguyên ở giữa, làm tổng thời gian nhỏ nhất.", correct: true },
+                    { text: "Để tránh lỗi tràn số khi cộng dồn khối.", correct: false }
+                ],
+                exp: "Đúng! Theo bất đẳng thức Cauchy (AM-GM), tổng (số phần tử lẻ + số khối) đạt min khi hai đại lượng này bằng nhau, dẫn đến kích thước khối ≈ √N."
+            },
+            {
+                q: "2. Trong chia căn độ dài N, phần tử A[i] thuộc khối số mấy?",
+                options: [
+                    { text: "i % blk", correct: false },
+                    { text: "i / blk (lấy phần nguyên)", correct: true },
+                    { text: "i * blk", correct: false }
+                ],
+                exp: "Công thức i / blk map các index [0, blk-1] vào khối 0; [blk, 2*blk-1] vào khối 1..."
+            },
+            {
+                q: "3. Độ phức tạp của thao tác cập nhật MỘT phần tử trong Chia căn cơ bản là bao nhiêu?",
+                options: [
+                    { text: "O(1)", correct: true },
+                    { text: "O(√N)", correct: false },
+                    { text: "O(log N)", correct: false }
+                ],
+                exp: "Chỉ mất O(1) do ta chỉ cần tính B[b] = B[b] - cũ + mới, và gán lại A[i]. Không cần vòng lặp nào."
+            },
+            {
+                q: "4. Nếu truy vấn đoạn [L, R] với L và R nằm cùng một khối (bL == bR), ta xử lý thế nào?",
+                options: [
+                    { text: "Dùng nguyên giá trị tổng khối B[bL] trả về luôn.", correct: false },
+                    { text: "Duyệt vòng lặp từ L đến R và cộng từng phần tử A[i].", correct: true },
+                    { text: "Trả về B[bL] trừ đi các phần tử bên ngoài [L, R].", correct: false }
+                ],
+                exp: "Cách duyệt trực tiếp đơn giản nhất và chắc chắn chi phí ≤ O(√N) vì L, R chung một khối có kích thước √N."
+            },
+            {
+                q: "5. Lỗi 'Off-by-one' phổ biến khi code vòng lặp duyệt 'phần lẻ đầu' (từ L đến cuối khối L) là gì?",
+                options: [
+                    { text: "Duyệt for(int i=L; i < (bL+1)*blk; i++), quên rằng (bL+1)*blk là chỉ số bắt đầu của khối tiếp theo (chưa bị duyệt qua).", correct: false },
+                    { text: "Duyệt quá giới hạn N ở khối cuối cùng của mảng.", correct: true },
+                    { text: "Bắt đầu vòng lặp từ L+1 thay vì L.", correct: false }
+                ],
+                exp: "Phần tử cuối khối có index là (bL+1)*blk - 1. Nếu khối bL là khối cuối mảng, giới hạn này có thể vọt qua N-1 gây out of bounds. Thường fix bằng i < min((bL+1)*blk, N)."
+            },
+            {
+                q: "6. Điểm yếu lớn nhất của Kỹ thuật Chia căn so với Cây Segment Tree (Cây IT) là gì?",
+                options: [
+                    { text: "Tốn bộ nhớ hơn rất nhiều.", correct: false },
+                    { text: "Độ phức tạp truy vấn O(√N) chậm hơn so với O(log N) của Segment Tree.", correct: true },
+                    { text: "Code dài và phức tạp hơn.", correct: false }
+                ],
+                exp: "√N lớn hơn log N rất nhiều (VD N=10^5, √N ≈ 316, log N ≈ 17). Segment Tree truy vấn chỉ tốn log N, nhanh hơn Chia căn."
+            }
+        ];
+
+        let score = 0;
+        const quizContainer = document.getElementById('quiz-container');
+
+        quizData.forEach((item, qIndex) => {
+            const div = document.createElement('div');
+            div.className = 'quiz-item';
+            
+            const title = document.createElement('h4');
+            title.textContent = item.q;
+            div.appendChild(title);
+            
+            const expDiv = document.createElement('div');
+            expDiv.className = 'quiz-exp';
+            expDiv.textContent = item.exp;
+
+            let answered = false;
+
+            item.options.forEach(opt => {
+                const label = document.createElement('label');
+                label.className = 'quiz-option';
+                
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = `q${qIndex}`;
+                
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(opt.text));
+                
+                input.addEventListener('change', () => {
+                    if(answered) return;
+                    answered = true;
+                    
+                    div.querySelectorAll('input').forEach(inp => inp.disabled = true);
+                    
+                    if(opt.correct) {
+                        label.classList.add('correct');
+                        score++;
+                        document.getElementById('quiz-score').textContent = score;
+                    } else {
+                        label.classList.add('wrong');
+                        Array.from(div.querySelectorAll('.quiz-option')).forEach(lbl => {
+                            if(lbl.textContent === item.options.find(o=>o.correct).text) {
+                                lbl.classList.add('correct');
+                            }
+                        });
+                    }
+                    expDiv.style.display = 'block';
+                });
+
+                div.appendChild(label);
+            });
+            div.appendChild(expDiv);
+            quizContainer.appendChild(div);
+        });
+
+    </script>
+</body>
+</html>
