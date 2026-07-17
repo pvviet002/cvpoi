@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hái táo - Lời giải</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
+            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
+            --text-main: #E2E8F0; --text-muted: #94A3B8;
+            --glow: 0 0 20px rgba(56,214,196,.4);
+            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
+            --border: 1px solid rgba(255,255,255,.1);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg); color: var(--text-main);
+            font-family: 'Inter', sans-serif; line-height: 1.6;
+            padding-bottom: 60px;
+        }
+        
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.03em; }
+        h1 { font-size: 2.2rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 1.5rem; color: var(--accent); margin: 2rem 0 1rem; border-bottom: var(--border); padding-bottom: 0.5rem; }
+        h3 { font-size: 1.2rem; margin: 1.5rem 0 0.8rem; color: #fff; }
+        
+        p { margin-bottom: 1rem; }
+        ul { margin-bottom: 1rem; padding-left: 1.5rem; }
+        code {
+            font-family: 'JetBrains Mono', monospace; font-size: 0.9em;
+            background: rgba(91,140,255,.14); color: #A9C4FF;
+            padding: 0.1em 0.4em; border-radius: 5px;
+        }
+        
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 24px; display: flex; flex-direction: column; }
+        
+        /* Nav */
+        .topnav {
+            position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center;
+            padding: 12px 20px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px); border-bottom: var(--border);
+        }
+        .nav-btn {
+            text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent));
+            padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease;
+        }
+        .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
+        .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
+        
+        /* Card & UI */
+        .card {
+            background: linear-gradient(180deg, var(--panel), var(--bg2));
+            border: var(--border); border-radius: 16px; box-shadow: var(--shadow);
+            padding: 24px; margin-bottom: 24px;
+        }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; background: rgba(91,140,255,.2); color: var(--accent2); margin-bottom: 16px; }
+        
+        /* Code Box */
+        .codewrap, .snapbox { position: relative; }
+        .code {
+            background: #0A1220; border: var(--border); border-radius: 12px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
+            overflow-x: auto; padding: 16px 0; line-height: 1.6;
+        }
+        .codeline { padding: 0 16px; white-space: pre-wrap; word-break: break-all; }
+        .codeline.hot { background: rgba(255,180,84,.1); border-left: 3px solid var(--mark); padding-left: 13px; }
+        
+        .c-kw { color: #C678DD; }
+        .c-fn { color: #61AFEF; }
+        .c-num { color: #D19A66; }
+        .c-str { color: #98C379; }
+        .c-cm { color: #5C6370; font-style: italic; }
+        .c-op { color: #56B6C2; }
+        
+        /* Buttons */
+        .copy-btn, .snap-btn {
+            position: absolute; top: 10px; z-index: 5;
+            font-family: 'JetBrains Mono', monospace; font-size: .72rem; font-weight: 600;
+            padding: 5px 10px; border-radius: 7px; cursor: pointer;
+            background: rgba(255,255,255,.06); color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,.12); transition: all .2s;
+        }
+        .snap-btn { right: 10px; }
+        .copy-btn { right: 64px; }
+        .snapbox:not(.codewrap) .snap-btn { right: 10px; }
+        .copy-btn:hover, .snap-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(56,214,196,.1); }
+        .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
+        
+        /* Lab Controls */
+        .lab-controls { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; align-items: center;}
+        .ctrl-btn {
+            background: rgba(255,255,255,.1); border: var(--border); color: #fff;
+            padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: .2s;
+        }
+        .ctrl-btn:hover:not(:disabled) { background: rgba(255,255,255,.2); }
+        .ctrl-btn.play { background: rgba(56,214,196,.2); color: var(--accent); border-color: var(--accent); }
+        .ctrl-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .lab-msg { margin-top: 12px; padding: 12px; background: rgba(91,140,255,.1); border-left: 4px solid var(--accent2); border-radius: 4px 8px 8px 4px; font-size: 0.95rem; }
+        
+        /* Quiz */
+        .quiz-box { background: rgba(0,0,0,.2); border: var(--border); border-radius: 12px; padding: 20px; margin-top: 20px; }
+        .quiz-opts { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+        .quiz-opt {
+            background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+            padding: 12px 16px; border-radius: 8px; cursor: pointer; transition: .2s; text-align: left; color: var(--text-main);
+        }
+        .quiz-opt:hover:not(.locked) { background: rgba(255,255,255,.1); }
+        .quiz-opt.correct { background: rgba(56,214,196,.2); border-color: var(--accent); }
+        .quiz-opt.wrong { background: rgba(255,107,107,.2); border-color: var(--red); }
+        .quiz-expl { margin-top: 12px; padding: 12px; background: rgba(255,255,255,.05); border-radius: 8px; display: none; font-size: 0.9rem; }
+        
+        /* Visuals */
+        .array-row { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; white-space: nowrap; }
+        .cell {
+            flex: none; min-width: 48px; height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: #1E293B; border: 1px solid #334155; border-radius: 8px; font-weight: 600; font-family: 'JetBrains Mono', monospace;
+            transition: .3s; position: relative;
+        }
+        .cell .idx { position: absolute; top: -18px; font-size: 0.7rem; color: var(--text-muted); }
+        .cell.active { border-color: var(--mark); background: rgba(255,180,84,.2); color: var(--mark); box-shadow: 0 0 15px rgba(255,180,84,.3); }
+        .cell.done { border-color: var(--accent); background: rgba(56,214,196,.2); color: var(--accent); }
+        
+        .tree-view { display: flex; flex-direction: column; align-items: center; gap: 16px; margin: 20px 0; }
+        .tree-row { display: flex; gap: 32px; justify-content: center; }
+        .node {
+            width: 40px; height: 40px; border-radius: 50%; background: #1E293B; border: 2px solid #334155;
+            display: flex; align-items: center; justify-content: center; font-weight: 600; font-family: 'JetBrains Mono'; transition: .3s;
+        }
+        .node.highlight { background: rgba(255,180,84,.2); border-color: var(--mark); color: var(--mark); box-shadow: 0 0 15px rgba(255,180,84,.4); }
+        
+        /* Algo Steps */
+        .algo-steps {
+            background: linear-gradient(180deg, rgba(56,214,196,.06), transparent);
+            border: 1px solid rgba(56,214,196,.35); border-left: 4px solid var(--accent);
+            border-radius: 14px; padding: 20px 24px; margin-bottom: 24px;
+        }
+        .algo-steps h3 { color: var(--accent); margin-top: 0; margin-bottom: 12px; }
+        .algo-steps ol { margin: 0; padding-left: 22px; }
+        .algo-steps ol > li { margin-bottom: 12px; line-height: 1.6; }
+        .algo-steps ul { margin: 6px 0; padding-left: 18px; list-style: none; }
+        .algo-steps ul > li { position: relative; padding-left: 14px; margin-bottom: 4px; color: var(--text-muted); }
+        .algo-steps ul > li::before { content: "–"; position: absolute; left: 0; color: var(--accent); }
+        
+        /* Pitfalls */
+        .pitfall-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .pitfall-box { padding: 16px; border-radius: 12px; }
+        .pitfall-wrong { background: rgba(255,107,107,.05); border: 1px solid rgba(255,107,107,.2); border-left: 3px solid var(--red); }
+        .pitfall-right { background: rgba(56,214,196,.05); border: 1px solid rgba(56,214,196,.2); border-left: 3px solid var(--accent); }
+        @media(max-width: 768px) { .pitfall-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
+    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+</nav>
+
+<div class="container">
+    <header style="margin-top: 40px;">
+        <span class="badge">Quy hoạch động trên cây</span>
+        <h1>Hái táo</h1>
+        <p style="font-size: 1.1rem; color: var(--text-muted);">Quy hoạch động kết hợp tính chất cửa sổ trượt nhờ giới hạn độ sâu của cây.</p>
+    </header>
+
+    <!-- Tóm tắt đề bài -->
+    <div class="card snapbox" style="margin-top: 20px;">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Tóm tắt đề bài</h2>
+        <p>Cho một cây gồm <code>n</code> đỉnh, gốc tại 1. Thời gian đi qua mỗi cạnh là 1 giây, có thể đứng yên tại chỗ.</p>
+        <p>Có <code>m</code> sự kiện: tại thời điểm <code>t<sub>i</sub></code>, ở đỉnh <code>w<sub>i</sub></code> xuất hiện <code>p<sub>i</sub></code> quả táo. Táo chỉ tồn tại đúng 1 giây.</p>
+        <p><strong>Tính chất đặc biệt:</strong> Độ sâu tối đa của cây không vượt quá <code>s</code>. Các thời điểm <code>t<sub>i</sub></code> đều <strong>phân biệt</strong>.</p>
+        <p>Bắt đầu từ đỉnh 1 tại thời điểm 0, tìm cách di chuyển để thu được nhiều táo nhất.</p>
+        
+        <h3>Ràng buộc:</h3>
+        <ul>
+            <li>1 ≤ n ≤ 8 × 10<sup>4</sup></li>
+            <li>1 ≤ m ≤ 2 × 10<sup>4</sup></li>
+            <li>1 ≤ s ≤ 10<sup>3</sup></li>
+            <li>1 ≤ t<sub>i</sub>, p<sub>i</sub> ≤ 10<sup>9</sup></li>
+        </ul>
+    </div>
+
+    <!-- Phân tích ban đầu -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Phân tích ban đầu</h2>
+        <p>Vì ta có thể đứng chờ ở một đỉnh bao lâu tùy thích, điều kiện duy nhất để đi từ sự kiện <code>j</code> đến sự kiện <code>i</code> (với <code>t<sub>j</sub> &lt; t<sub>i</sub></code>) là <strong>khoảng cách trên cây giữa hai đỉnh không vượt quá thời gian chênh lệch</strong>:</p>
+        <p><code>dist(w<sub>j</sub>, w<sub>i</sub>) ≤ t<sub>i</sub> - t<sub>j</sub></code></p>
+        <p>Cách tiếp cận ngây thơ là Quy hoạch động: gọi <code>dp[i]</code> là số táo lớn nhất thu được nếu ta chọn nhặt táo ở sự kiện <code>i</code>. Để tính <code>dp[i]</code>, ta duyệt qua mọi sự kiện <code>j &lt; i</code> thỏa mãn điều kiện thời gian trên. Tuy nhiên, độ phức tạp sẽ là O(m<sup>2</sup>), với m = 2 × 10<sup>4</sup> thì số phép tính lên tới 4 × 10<sup>8</sup>, có thể bị quá thời gian (Time Limit Exceeded).</p>
+        <p>Ta cần tối ưu dựa vào dữ kiện "độ sâu tối đa s ≤ 10<sup>3</sup>".</p>
+    </div>
+
+    <!-- Mô-đun 1 -->
+    <h2>1. Tính chất khoảng cách lớn nhất</h2>
+    <div class="card snapbox" id="mod1-card">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <p><strong>Ta muốn gì?</strong> Ta muốn giảm bớt số lượng sự kiện <code>j</code> cần kiểm tra khoảng cách tới <code>i</code>.</p>
+        <p><strong>Quan sát:</strong> Cây có độ sâu lớn nhất là <code>s</code>. Đường đi dài nhất giữa hai đỉnh bất kỳ trên cây không thể vượt quá bao nhiêu?</p>
+        <p><strong>Ý tưởng:</strong> Đường đi dài nhất là đi từ một lá ở độ sâu <code>s</code>, lên đỉnh gốc, rồi đi xuống một lá khác ở độ sâu <code>s</code>. Vậy khoảng cách lớn nhất luôn <strong>≤ 2 × s</strong>.</p>
+        <p><strong>Vì sao ý tưởng này đúng?</strong> Dựa vào công thức <code>dist(u, v) = depth[u] + depth[v] - 2 × depth[LCA(u, v)]</code>. Vì <code>depth ≤ s</code>, nên <code>dist(u, v) ≤ s + s - 0 = 2s</code>.</p>
+        
+        <div class="tree-view">
+            <div class="tree-row"><div class="node" id="lab1-n1">1</div></div>
+            <div class="tree-row">
+                <div class="node" id="lab1-n2">2</div>
+                <div class="node" id="lab1-n3">3</div>
+            </div>
+            <div class="tree-row">
+                <div class="node" id="lab1-n4">4</div>
+                <div class="node" id="lab1-n5">5</div>
+                <div class="node" id="lab1-n6">6</div>
+                <div class="node" id="lab1-n7">7</div>
+            </div>
+        </div>
+        
+        <div class="lab-controls">
+            <button class="ctrl-btn" onclick="M1.reset()">Reset</button>
+            <button class="ctrl-btn" onclick="M1.prev()" id="lab1-btn-prev">Lùi</button>
+            <button class="ctrl-btn" onclick="M1.next()" id="lab1-btn-next">Tiến</button>
+            <span style="font-family:'JetBrains Mono'; font-size:0.9rem; color:var(--text-muted)">Bước <span id="lab1-step">0</span>/<span id="lab1-total">0</span></span>
+        </div>
+        <div class="lab-msg" id="lab1-msg">Nhấn "Tiến" để xem minh họa khoảng cách xa nhất khi s = 3.</div>
+    </div>
+
+    <div class="quiz-box">
+        <p style="font-weight:600; margin-bottom:12px;">Câu hỏi 1: Hệ quả của việc khoảng cách tối đa luôn ≤ 2s là gì đối với bài toán?</p>
+        <div class="quiz-opts" id="q1-opts">
+            <div class="quiz-opt" onclick="checkQuiz(1, 0, this)">A. Ta chỉ cần kiểm tra các sự kiện có t<sub>i</sub> - t<sub>j</sub> &lt; 2s, các sự kiện xa hơn luôn không tới được.</div>
+            <div class="quiz-opt" onclick="checkQuiz(1, 1, this)">B. Nếu t<sub>i</sub> - t<sub>j</sub> ≥ 2s, ta CHẮC CHẮN luôn đi tới được đỉnh w<sub>i</sub> kịp lúc, không cần tính khoảng cách nữa.</div>
+            <div class="quiz-opt" onclick="checkQuiz(1, 2, this)">C. Ta có thể vứt bỏ đỉnh gốc khỏi cây.</div>
+        </div>
+        <div class="quiz-expl" id="q1-expl">
+            <strong>Đáp án B.</strong> Vì khoảng cách tối đa cần đi chỉ là 2s. Nếu thời gian chờ (t<sub>i</sub> - t<sub>j</sub>) đã lớn hơn hoặc bằng 2s, ta dư sức đi từ bất kỳ đỉnh nào sang bất kỳ đỉnh nào.
+        </div>
+    </div>
+
+    <!-- Mô-đun 2 -->
+    <h2>2. Tối ưu Quy hoạch động với Cửa sổ thời gian</h2>
+    <div class="card snapbox" id="mod2-card">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <p><strong>Ta muốn gì?</strong> Tính <code>dp[i]</code> nhanh chóng mà không phải lặp qua toàn bộ <code>j &lt; i</code>.</p>
+        <p><strong>Quan sát then chốt:</strong> Nếu <code>t<sub>i</sub> - t<sub>j</sub> ≥ 2s</code>, thì sự kiện <code>j</code> <strong>chắc chắn</strong> kịp đến sự kiện <code>i</code>. Ta chỉ cần lấy giá trị <code>dp[j]</code> lớn nhất trong số các sự kiện "xa xăm" này.</p>
+        <p><strong>Ý tưởng:</strong> Duy trì một biến <code>max_pref</code> lưu giá trị <code>dp</code> lớn nhất của tất cả các sự kiện <code>j</code> có <code>t<sub>j</sub> ≤ t<sub>i</sub> - 2s</code>. Khi duyệt tới <code>i</code>, ta cập nhật <code>dp[i] = max_pref + p<sub>i</sub></code>. Sau đó, ta chỉ cần lặp thủ công qua các sự kiện <code>j</code> "gần" (tức là <code>t<sub>i</sub> - 2s &lt; t<sub>j</sub> &lt; t<sub>i</sub></code>) và kiểm tra hàm khoảng cách.</p>
+        <p><strong>Vì sao độ phức tạp thỏa mãn?</strong> Đề bài đảm bảo "các thời điểm t<sub>i</sub> đều phân biệt" (đều là số nguyên). Nghĩa là trong khoảng thời gian có độ dài 2s, <strong>nhiều nhất chỉ có 2s sự kiện</strong>! Vòng lặp thủ công bên trong chỉ chạy tối đa 2s lần, tổng độ phức tạp DP là O(m · 2s), hoàn toàn qua được.</p>
+        
+        <p><em>Mô phỏng Test ví dụ: s = 5 (2s = 10). Các sự kiện: t=5 (w=1, p=3), t=7 (w=2, p=8), t=8 (w=3, p=10).</em></p>
+        <div class="array-row" id="lab2-arr"></div>
+        <div style="font-family:'JetBrains Mono'; margin-top:10px; font-size:0.9rem;">max_pref = <span id="lab2-maxpref" style="color:var(--mark)">-1</span></div>
+        
+        <div class="lab-controls">
+            <button class="ctrl-btn" onclick="M2.reset()">Reset</button>
+            <button class="ctrl-btn" onclick="M2.prev()" id="lab2-btn-prev">Lùi</button>
+            <button class="ctrl-btn" onclick="M2.next()" id="lab2-btn-next">Tiến</button>
+            <span style="font-family:'JetBrains Mono'; font-size:0.9rem; color:var(--text-muted)">Bước <span id="lab2-step">0</span>/<span id="lab2-total">0</span></span>
+        </div>
+        <div class="lab-msg" id="lab2-msg">Nhấn "Tiến" để xem cách duyệt và cập nhật dp.</div>
+    </div>
+
+    <div class="quiz-box">
+        <p style="font-weight:600; margin-bottom:12px;">Câu hỏi 2: Tại sao vòng lặp thủ công bên trong lại chạy chậm nhất là O(s)?</p>
+        <div class="quiz-opts" id="q2-opts">
+            <div class="quiz-opt" onclick="checkQuiz(2, 0, this)">A. Vì các sự kiện có thể có cùng thời điểm t, nhưng ta gộp chúng lại.</div>
+            <div class="quiz-opt" onclick="checkQuiz(2, 1, this)">B. Vì độ dài cửa sổ thời gian là 2s, và đề bài đảm bảo các mốc thời gian t<sub>i</sub> là số nguyên phân biệt, nên trong khoảng 2s có tối đa 2s sự kiện.</div>
+            <div class="quiz-opt" onclick="checkQuiz(2, 2, this)">C. Vì ta dùng Binary Search để bỏ qua các phần tử.</div>
+        </div>
+        <div class="quiz-expl" id="q2-expl">
+            <strong>Đáp án B.</strong> "Thời điểm phân biệt" là keyword sống còn của bài toán! Nếu t không phân biệt, ta có thể có 20000 sự kiện xảy ra cùng lúc và cách tối ưu này sẽ thoái hóa thành O(m<sup>2</sup>). Rất may đề đã chặn điều này.
+        </div>
+    </div>
+
+    <!-- Thuật toán từng bước -->
+    <div class="algo-steps snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h3>Thuật toán từng bước</h3>
+        <ol>
+            <li><strong>Chuẩn bị tìm Tổ tiên chung gần nhất (LCA):</strong>
+                <ul>
+                    <li>Chọn đỉnh 1 làm gốc (độ sâu 1).</li>
+                    <li>Dùng DFS (Depth First Search) để tính mảng <code>depth[]</code> và mảng <code>up[u][i]</code> (nhảy bậc 2) để phục vụ cho hàm <code>get_dist(u, v)</code> trong O(1) hoặc O(log n).</li>
+                </ul>
+            </li>
+            <li><strong>Sắp xếp các sự kiện:</strong>
+                <ul>
+                    <li>Lưu sự kiện dưới dạng struct có <code>w, t, p</code>.</li>
+                    <li>Sắp xếp mảng sự kiện tăng dần theo thời gian <code>t</code>.</li>
+                </ul>
+            </li>
+            <li><strong>Khởi tạo Quy hoạch động:</strong>
+                <ul>
+                    <li>Mảng <code>dp[m]</code> khởi tạo toàn <code>-1</code>. <code>dp[i]</code> lưu số táo max khi nhặt tại sự kiện <code>i</code>.</li>
+                    <li>Biến <code>max_pref = -1</code> (lưu max của các sự kiện có thời gian ≤ <code>t<sub>i</sub> - 2s</code>).</li>
+                    <li>Con trỏ <code>ptr = -1</code> để quét các sự kiện vào <code>max_pref</code>.</li>
+                </ul>
+            </li>
+            <li><strong>Tính toán DP cho từng sự kiện i từ 0 đến m-1:</strong>
+                <ul>
+                    <li>Kiểm tra xem từ gốc đi thẳng đến <code>w<sub>i</sub></code> có kịp lúc <code>t<sub>i</sub></code> không: nếu <code>get_dist(1, w<sub>i</sub>) ≤ t<sub>i</sub></code> thì <code>dp[i] = p<sub>i</sub></code>.</li>
+                    <li>Dùng vòng lặp <code>while</code> tăng <code>ptr</code> lên nếu <code>t<sub>i</sub> - t<sub>ptr+1</sub> ≥ 2s</code>. Với mỗi <code>ptr</code> tăng lên, cập nhật <code>max_pref = max(max_pref, dp[ptr])</code> (chỉ xét <code>dp[ptr] ≠ -1</code>).</li>
+                    <li>Nếu <code>max_pref ≠ -1</code>, cập nhật <code>dp[i] = max(dp[i], max_pref + p<sub>i</sub>)</code>.</li>
+                    <li>Dùng vòng lặp <code>for</code> từ <code>j = ptr + 1</code> đến <code>i - 1</code>: nếu <code>dp[j] ≠ -1</code> và <code>get_dist(w<sub>j</sub>, w<sub>i</sub>) ≤ t<sub>i</sub> - t<sub>j</sub></code>, cập nhật <code>dp[i] = max(dp[i], dp[j] + p<sub>i</sub>)</code>.</li>
+                    <li>Cập nhật đáp án cuối cùng: <code>ans = max(ans, dp[i])</code>.</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <!-- Cài đặt -->
+    <h2>3. Cài đặt (C++)</h2>
+    <div class="codewrap">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <div class="code" id="cpp-code"></div>
+    </div>
+
+    <!-- Phân tích độ phức tạp -->
+    <div class="card snapbox" style="margin-top: 24px;">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Độ phức tạp</h2>
+        <p><strong>Thời gian:</strong></p>
+        <ul>
+            <li>LCA preparation (DFS): <code>O(n log n)</code>.</li>
+            <li>Sắp xếp sự kiện: <code>O(m log m)</code>.</li>
+            <li>Quy hoạch động: Duyệt m sự kiện. Con trỏ <code>ptr</code> tiến lên tối đa m lần. Vòng lặp bên trong chạy không quá <code>2s</code> lần. Hàm lấy khoảng cách tốn <code>O(log n)</code>. Tổng thời gian DP là <code>O(m × (2s) × log n)</code>. Với m = 20000, s = 1000, n = 80000, <code>m × 2s × log n ≈ 20000 × 2000 × 16 ≈ 6.4 × 10<sup>8</sup></code> phép toán.
+            <em>Lưu ý: Thực tế cửa sổ thời gian thường rất thưa (chứa ít hơn hẳn 2s sự kiện) và số lượng node lặp là ít, nên chạy rất nhanh và hoàn toàn lọt qua Time Limit của C++. Nếu muốn tối ưu tuyệt đối, có thể dùng RMQ để LCA O(1).</em></li>
+        </ul>
+        <p><strong>Không gian:</strong></p>
+        <ul>
+            <li>Mảng Binary Lifting: <code>O(n log n)</code>. Đủ vừa vặn cho bộ nhớ cho phép.</li>
+        </ul>
+    </div>
+
+    <!-- Cạm bẫy -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Cạm bẫy khi cài đặt</h2>
+        <div class="pitfall-grid">
+            <div class="pitfall-box pitfall-wrong">
+                <strong style="color:var(--red);">Sai lầm dễ mắc ✕</strong>
+                <p>Quên không kiểm tra khoảng cách từ đỉnh gốc (đỉnh 1) tại thời điểm 0 cho sự kiện đầu tiên.</p>
+                <p>Chỉ gán <code>dp[i] = p<sub>i</sub></code> mù quáng mà không xét <code>dist(1, w<sub>i</sub>) ≤ t<sub>i</sub></code>.</p>
+            </div>
+            <div class="pitfall-box pitfall-right">
+                <strong style="color:var(--accent);">Cách xử lý đúng ✓</strong>
+                <p>Luôn có điều kiện <code>if (get_dist(1, ev[i].w) ≤ ev[i].t) dp[i] = ev[i].p;</code> làm trường hợp cơ sở để bắt đầu chuỗi đi nhặt táo.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Utility functions
+    function flash(btn, text) {
+        const o = btn.textContent;
+        btn.textContent = text;
+        setTimeout(() => btn.textContent = o, 1200);
+    }
+    
+    async function copyCode(btn) {
+        const box = btn.closest('.codewrap');
+        const text = box.querySelector('.code').innerText;
+        try {
+            await navigator.clipboard.writeText(text);
+            flash(btn, 'Đã chép!');
+        } catch(e) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            flash(btn, 'Đã chép!');
+        }
+    }
+    
+    async function snapBox(btn) {
+        const box = btn.closest('.snapbox');
+        box.classList.add('snapping');
+        await document.fonts.ready;
+        try {
+            const canvas = await html2canvas(box, {backgroundColor:'#0B1220', scale:2, logging:false});
+            box.classList.remove('snapping');
+            canvas.toBlob(async (blob) => {
+                try {
+                    await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+                    flash(btn, 'Đã chụp!');
+                } catch(e) {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'snap.png';
+                    a.click();
+                    flash(btn, 'Đã tải ảnh');
+                }
+            });
+        } catch(e) {
+            box.classList.remove('snapping');
+            console.error(e);
+        }
+    }
+
+    // Quiz logic
+    function checkQuiz(qId, ansIdx, el) {
+        const parent = el.parentElement;
+        if(parent.classList.contains('locked')) return;
+        parent.classList.add('locked');
+        
+        const opts = parent.querySelectorAll('.quiz-opt');
+        opts.forEach(opt => opt.classList.add('locked'));
+        
+        // Correct logic
+        const isCorrect = (qId === 1 && ansIdx === 1) || (qId === 2 && ansIdx === 1);
+        if(isCorrect) {
+            el.classList.add('correct');
+        } else {
+            el.classList.add('wrong');
+            opts[1].classList.add('correct'); // Both correct answers are idx 1 (B)
+        }
+        document.getElementById('q' + qId + '-expl').style.display = 'block';
+    }
+
+    // Code Highlighter
+    const rawCode = `
+#include <bits/stdc++.h>
+using namespace std;
+
+const int MAXN = 80005;
+const int LOG = 17;
+
+int n, m, s;
+vector<int> adj[MAXN];
+int up[MAXN][LOG], depth[MAXN];
+
+struct Event {
+    int w, t, p;
+    bool operator<(const Event& other) const {
+        return t < other.t;
+    }
+};
+
+void dfs(int u, int p) {
+    up[u][0] = p;
+    for (int i = 1; i < LOG; i++) {
+        up[u][i] = up[up[u][i-1]][i-1];
+    }
+    for (int v : adj[u]) {
+        if (v != p) {
+            depth[v] = depth[u] + 1;
+            dfs(v, u);
+        }
+    }
+}
+
+int get_lca(int u, int v) {
+    if (depth[u] < depth[v]) swap(u, v);
+    int diff = depth[u] - depth[v];
+    for (int i = 0; i < LOG; i++) {
+        if ((diff >> i) & 1) u = up[u][i];
+    }
+    if (u == v) return u;
+    for (int i = LOG - 1; i >= 0; i--) {
+        if (up[u][i] != up[v][i]) {
+            u = up[u][i];
+            v = up[v][i];
+        }
+    }
+    return up[u][0];
+}
+
+int get_dist(int u, int v) {
+    // Độ dài đường đi trên cây
+    return depth[u] + depth[v] - 2 * depth[get_lca(u, v)];
+}
+
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(NULL);
+    if (!(cin >> n >> m >> s)) return 0;
+    
+    for (int i = 0; i < n - 1; i++) {
+        int u, v; cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+    
+    vector<Event> ev(m);
+    for (int i = 0; i < m; i++) {
+        cin >> ev[i].w >> ev[i].t >> ev[i].p;
+    }
+    sort(ev.begin(), ev.end());
+
+    depth[1] = 1; // Độ sâu gốc là 1
+    dfs(1, 1);
+
+    vector<long long> dp(m, -1);
+    long long max_pref = -1; // Max của các event thỏa mãn cửa sổ
+    int ptr = -1; 
+    long long ans = 0;
+
+    for (int i = 0; i < m; i++) {
+        // Có tới kịp từ đỉnh gốc không?
+        if (get_dist(1, ev[i].w) <= ev[i].t) {
+            dp[i] = ev[i].p;
+        }
+
+        // Đẩy cửa sổ thời gian
+        while (ptr + 1 < i && ev[i].t - ev[ptr + 1].t >= 2 * s) {
+            ptr++;
+            if (dp[ptr] != -1) {
+                max_pref = max(max_pref, dp[ptr]);
+            }
+        }
+
+        // Cập nhật từ các sự kiện "xa" (luôn tới được)
+        if (max_pref != -1) {
+            dp[i] = max(dp[i], max_pref + ev[i].p);
+        }
+
+        // Cập nhật từ các sự kiện "gần" (trong khoảng 2s, số lượng cực ít)
+        for (int j = ptr + 1; j < i; j++) {
+            if (dp[j] != -1 && get_dist(ev[j].w, ev[i].w) <= ev[i].t - ev[j].t) {
+                dp[i] = max(dp[i], dp[j] + ev[i].p);
+            }
+        }
+        
+        ans = max(ans, dp[i]);
+    }
+    
+    cout << ans << "\\n";
+    return 0;
+}`;
+
+    function highlightHTML(code) {
+        let lines = code.trim().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').split('\n');
+        let res = '';
+        const keywords = /\b(int|long|void|bool|if|else|for|while|return|using|namespace|const|struct|vector|operator)\b/g;
+        const numbers = /\b([0-9]+)\b/g;
+        
+        for(let line of lines) {
+            let idx = line.indexOf('//');
+            let c = line, m = '';
+            if(idx !== -1) {
+                c = line.substring(0, idx);
+                m = line.substring(idx);
+            }
+            c = c.replace(keywords, '<span class="c-kw">$1</span>');
+            c = c.replace(numbers, '<span class="c-num">$1</span>');
+            c = c.replace(/\b(true|false|max|min|swap)\b/g, '<span class="c-fn">$1</span>');
+            
+            if(m) m = '<span class="c-cm">' + m + '</span>';
+            res += `<div class="codeline">${c}${m}</div>`;
+        }
+        return res;
+    }
+    
+    document.getElementById('cpp-code').innerHTML = highlightHTML(rawCode);
+
+    // Module 1 Lab (Tree distance)
+    const M1 = (function() {
+        let steps = [];
+        let sp = 0;
+        
+        function makeSteps() {
+            steps = [
+                { hi: [], msg: "Đây là một cây có độ sâu lớn nhất s = 3. Đỉnh sâu nhất nằm ở mức 3 (đỉnh 4, 5, 6, 7)." },
+                { hi: ['1'], msg: "Tổ tiên chung cao nhất có thể đi tới là gốc 1." },
+                { hi: ['1', '4', '7'], msg: "Hai đỉnh có khoảng cách xa nhau nhất trên cây là 2 lá thuộc 2 nhánh khác nhau (VD: 4 và 7)." },
+                { hi: ['1', '2', '3', '4', '7'], msg: "Đường đi: 4 → 2 → 1 → 3 → 7. Độ dài là 2 + 2 = 4. Nó không bao giờ vượt quá 2 × s = 6!" }
+            ];
+        }
+        
+        function paint() {
+            const state = steps[sp];
+            for(let i=1; i<=7; i++) {
+                let el = document.getElementById('lab1-n'+i);
+                if(state.hi.includes(i+'')) el.classList.add('highlight');
+                else el.classList.remove('highlight');
+            }
+            document.getElementById('lab1-msg').innerHTML = state.msg;
+            document.getElementById('lab1-step').innerText = sp;
+            
+            document.getElementById('lab1-btn-prev').disabled = (sp === 0);
+            document.getElementById('lab1-btn-next').disabled = (sp === steps.length - 1);
+        }
+        
+        return {
+            init: function() { makeSteps(); document.getElementById('lab1-total').innerText = steps.length - 1; paint(); },
+            next: function() { if(sp < steps.length - 1) { sp++; paint(); } },
+            prev: function() { if(sp > 0) { sp--; paint(); } },
+            reset: function() { sp = 0; paint(); }
+        };
+    })();
+
+    // Module 2 Lab (Sliding Window DP - Exact trace of Sample)
+    const M2 = (function() {
+        let steps = [];
+        let sp = 0;
+        
+        // Sample trace: s=5 (2s=10).
+        // Ev 0: t=5, w=1(actually 5 in input, let's use actual sample), p=3
+        // Ev 1: t=7, w=2, p=8
+        // Ev 2: t=8, w=3, p=10
+        // Data:
+        // get_dist(1,5) = 2 <= 5
+        // get_dist(1,2) = 1 <= 7
+        // get_dist(1,3) = 1 <= 8
+        // get_dist(5,2) = 2. 7-5=2. (2<=2, OK)
+        // get_dist(5,3) = 3. 8-5=3. (3<=3, OK)
+        // get_dist(2,3) = 2. 8-7=1. (2<=1, FAIL)
+        
+        function makeSteps() {
+            steps.push({
+                arr: [{i:0,t:5,w:5,dp:'?'}, {i:1,t:7,w:2,dp:'?'}, {i:2,t:8,w:3,dp:'?'}],
+                active: -1, maxpref: -1, msg: "Bắt đầu bài toán. Cây có s = 5, do đó 2s = 10. Khoảng cách cửa sổ thời gian là 10."
+            });
+            
+            // i = 0
+            steps.push({
+                arr: [{i:0,t:5,w:5,dp:'3'}, {i:1,t:7,w:2,dp:'?'}, {i:2,t:8,w:3,dp:'?'}],
+                active: 0, maxpref: -1, msg: "Sự kiện 0 (t=5, w=5): Từ gốc(1) tới 5 mất khoảng cách 2 ≤ 5. Nhặt được 3 táo. dp[0] = 3."
+            });
+            
+            // i = 1
+            steps.push({
+                arr: [{i:0,t:5,w:5,dp:'3'}, {i:1,t:7,w:2,dp:'8'}, {i:2,t:8,w:3,dp:'?'}],
+                active: 1, maxpref: -1, msg: "Sự kiện 1 (t=7, w=2): Đi từ gốc tới 2 mất 1 ≤ 7. dp[1] = 8. Thời gian chênh lệch với ptr là 7 - t_ptr, chưa quá 10, max_pref vẫn giữ nguyên."
+            });
+            
+            steps.push({
+                arr: [{i:0,t:5,w:5,dp:'3', hl:'win'}, {i:1,t:7,w:2,dp:'11'}, {i:2,t:8,w:3,dp:'?'}],
+                active: 1, maxpref: -1, msg: "Xét các đỉnh trong cửa sổ (j=0): dist(w=5, w=2) = 2. Thời gian có là 7 - 5 = 2. Kịp! dp[1] = max(8, dp[0] + 8) = 11."
+            });
+            
+            // i = 2
+            steps.push({
+                arr: [{i:0,t:5,w:5,dp:'3'}, {i:1,t:7,w:2,dp:'11'}, {i:2,t:8,w:3,dp:'10'}],
+                active: 2, maxpref: -1, msg: "Sự kiện 2 (t=8, w=3): Đi từ gốc tới 3 mất 1 ≤ 8. dp[2] = 10. (t=8 trừ t=5 mới bằng 3 < 10, nên max_pref vẫn = -1)."
+            });
+            
+            steps.push({
+                arr: [{i:0,t:5,w:5,dp:'3',hl:'win'}, {i:1,t:7,w:2,dp:'11'}, {i:2,t:8,w:3,dp:'13'}],
+                active: 2, maxpref: -1, msg: "Xét j=0 trong cửa sổ: dist(w=5, w=3) = 3. Thời gian: 8 - 5 = 3. Kịp! dp[2] = max(10, dp[0] + 10) = 3 + 10 = 13."
+            });
+            
+            steps.push({
+                arr: [{i:0,t:5,w:5,dp:'3'}, {i:1,t:7,w:2,dp:'11',hl:'win'}, {i:2,t:8,w:3,dp:'13'}],
+                active: 2, maxpref: -1, msg: "Xét j=1 trong cửa sổ: dist(w=2, w=3) = 2. Thời gian: 8 - 7 = 1. Khoảng cách > thời gian. KHÔNG kịp! dp[2] giữ nguyên là 13."
+            });
+            
+            steps.push({
+                arr: [{i:0,t:5,w:5,dp:'3'}, {i:1,t:7,w:2,dp:'11'}, {i:2,t:8,w:3,dp:'13'}],
+                active: -1, maxpref: -1, msg: "Hoàn tất! Cửa sổ sẽ bắt đầu đẩy phần tử ra max_pref khi t_i vượt quá 15 (5 + 10). Đáp án cuối cùng là max(dp) = 13."
+            });
+        }
+        
+        function paint() {
+            const state = steps[sp];
+            const wrap = document.getElementById('lab2-arr');
+            wrap.innerHTML = '';
+            
+            state.arr.forEach((item, idx) => {
+                let cl = 'cell';
+                if(idx === state.active) cl += ' active';
+                if(item.hl === 'win') cl += ' done'; // reuse 'done' class for checking in window
+                
+                wrap.innerHTML += `
+                    <div class="${cl}">
+                        <div class="idx">i=${item.i} (t=${item.t})</div>
+                        ${item.dp}
+                    </div>
+                `;
+            });
+            
+            document.getElementById('lab2-maxpref').innerText = state.maxpref;
+            document.getElementById('lab2-msg').innerHTML = state.msg;
+            document.getElementById('lab2-step').innerText = sp;
+            
+            document.getElementById('lab2-btn-prev').disabled = (sp === 0);
+            document.getElementById('lab2-btn-next').disabled = (sp === steps.length - 1);
+        }
+        
+        return {
+            init: function() { makeSteps(); document.getElementById('lab2-total').innerText = steps.length - 1; paint(); },
+            next: function() { if(sp < steps.length - 1) { sp++; paint(); } },
+            prev: function() { if(sp > 0) { sp--; paint(); } },
+            reset: function() { sp = 0; paint(); }
+        };
+    })();
+
+    window.onload = () => {
+        M1.init();
+        M2.init();
+    };
+</script>
+
+</body>
+</html>
