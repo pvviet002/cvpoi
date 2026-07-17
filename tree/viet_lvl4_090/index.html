@@ -195,10 +195,14 @@
                     <div class="stat-val" id="lab1-total-val">v2: 0 | v5: 0</div>
                 </div>
             </div>
-            <div class="lab-msg" id="lab1-msg">Nhập giá trị và bấm "Phân tích ngay" để xem thừa số.</div>
+<comment-tag id="1">            <div class="lab-msg" id="lab1-msg">Nhập giá trị và bấm "Phân tích ngay" để xem thừa số.</div>
         </div>
 
-        <div class="quiz-box">
+        <div class="quiz-box"></comment-tag id="1" text="            <div class="lab-msg" id="lab1-msg">Nhập giá trị và bấm "Phân tích ngay" để xem thừa số.</div>
+        </div>
+    </div>
+
+    <div class="quiz-box">" type="suggestion">
             <h4>? Kiểm tra kiến thức</h4>
             <p style="margin-bottom: 10px;">Điều gì xảy ra nếu có một cạnh trên đường đi mang trọng số chính xác bằng <span class="inline-math">0.0000</span>?</p>
             <div class="quiz-options" id="quiz1">
@@ -206,11 +210,14 @@
                 <div class="quiz-opt" onclick="checkQuiz(this, 'q1', false)">Cạnh đó không đóng góp gì cả, Net_2 = -4 và Net_5 = -4.</div>
                 <div class="quiz-opt" onclick="checkQuiz(this, 'q1', true)">Bất kỳ số nào nhân với 0 đều bằng 0, mà 0 là một số nguyên. Nên đáp án lập tức là 'Yes' bất chấp các cạnh khác!</div>
             </div>
-            <div class="quiz-exp" id="q1-exp"><strong>Chính xác!</strong> Nếu a<sub>x</sub> = 0 hoặc có bất kỳ cạnh nào bằng 0 trên đường đi, tích lập tức bằng 0. Số 0 hoàn toàn là một số nguyên. Đây là một trường hợp đặc biệt (edge case) phải xử lý riêng thay vì cố gắng đếm thừa số của 0.</div>
+<comment-tag id="2">            <div class="quiz-exp" id="q1-exp"><strong>Chính xác!</strong> Nếu a<sub>x</sub> = 0 hoặc có bất kỳ cạnh nào bằng 0 trên đường đi, tích lập tức bằng 0. Số 0 hoàn toàn là một số nguyên. Đây là một trường hợp đặc biệt (edge case) phải xử lý riêng thay vì cố gắng đếm thừa số của 0.</div>
         </div>
     </div>
 
-    <div class="card snapbox" id="mod2">
+    <div class="card snapbox" id="mod2"></comment-tag id="2" text="            <div class="quiz-exp" id="q1-exp"><strong>Chính xác!</strong> Nếu a<sub>x</sub> = 0 hoặc có bất kỳ cạnh nào bằng 0 trên đường đi, tích lập tức bằng 0. Số 0 hoàn toàn là một số nguyên. Đây là một trường hợp đặc biệt (edge case) phải xử lý riêng thay vì cố gắng đếm thừa số của 0.</div>
+    </div>
+
+    <div class="card snapbox" id="mod2">" type="suggestion">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
         <h2>2. Tính tổng trên cây cực nhanh với LCA</h2>
         <p><strong>Ta muốn gì:</strong> Tính tổng các <span class="inline-math">Net_2</span> và <span class="inline-math">Net_5</span> cho mọi cạnh nằm trên đường đi từ <span class="inline-math">x</span> đến <span class="inline-math">y</span> một cách nhanh chóng (truy vấn trong <span class="inline-math">O(log N)</span>).</p>
@@ -246,10 +253,14 @@
                     <div class="stat-val">-</div>
                 </div>
             </div>
-            <div class="lab-msg" id="lab2-msg">Nhấp vào hai đỉnh trên cây để chọn X và Y, sau đó bấm Tiến bước.</div>
+<comment-tag id="3">            <div class="lab-msg" id="lab2-msg">Nhấp vào hai đỉnh trên cây để chọn X và Y, sau đó bấm Tiến bước.</div>
         </div>
 
-        <div class="quiz-box">
+        <div class="quiz-box"></comment-tag id="3" text="            <div class="lab-msg" id="lab2-msg">Nhấp vào hai đỉnh trên cây để chọn X và Y, sau đó bấm Tiến bước.</div>
+        </div>
+    </div>
+
+    <div class="quiz-box">" type="suggestion">
             <h4>? Kiểm tra kiến thức</h4>
             <p style="margin-bottom: 10px;">Tại sao trong công thức ta lại trừ đi <span class="inline-math">2 &times; S[LCA(x, y)]</span> mà không phải là <span class="inline-math">1 &times; S[LCA(x, y)]</span>?</p>
             <div class="quiz-options" id="quiz2">
@@ -257,11 +268,14 @@
                 <div class="quiz-opt" onclick="checkQuiz(this, 'q2', true)">Vì S[x] đã chứa đoạn từ gốc đến LCA, và S[y] cũng chứa đoạn từ gốc đến LCA. Ta cộng chúng lại thì đoạn (Gốc &rarr; LCA) bị tính dư 2 lần. Do đó phải trừ đúng 2 lần để loại bỏ hoàn toàn phần dư này.</div>
                 <div class="quiz-opt" onclick="checkQuiz(this, 'q2', false)">Chỉ là công thức mặc định để bù trừ cho đỉnh LCA không bị tính hai lần.</div>
             </div>
-            <div class="quiz-exp" id="q2-exp"><strong>Hoàn toàn chính xác!</strong> Các cạnh nằm trên đoạn từ Root đến LCA không hề nằm trên đường đi từ x đến y. Do ta đã cộng đoạn này 1 lần trong S[x] và 1 lần trong S[y], nên ta buộc phải trừ đi chính xác 2 lần để triệt tiêu nó đi.</div>
+<comment-tag id="4">            <div class="quiz-exp" id="q2-exp"><strong>Hoàn toàn chính xác!</strong> Các cạnh nằm trên đoạn từ Root đến LCA không hề nằm trên đường đi từ x đến y. Do ta đã cộng đoạn này 1 lần trong S[x] và 1 lần trong S[y], nên ta buộc phải trừ đi chính xác 2 lần để triệt tiêu nó đi.</div>
         </div>
     </div>
 
-    <div class="card snapbox algo-steps">
+    <div class="card snapbox algo-steps"></comment-tag id="4" text="            <div class="quiz-exp" id="q2-exp"><strong>Hoàn toàn chính xác!</strong> Các cạnh nằm trên đoạn từ Root đến LCA không hề nằm trên đường đi từ x đến y. Do ta đã cộng đoạn này 1 lần trong S[x] và 1 lần trong S[y], nên ta buộc phải trừ đi chính xác 2 lần để triệt tiêu nó đi.</div>
+    </div>
+
+    <div class="card snapbox algo-steps">" type="suggestion">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
         <h3>Thuật toán từng bước</h3>
         <ol>
@@ -834,3 +848,4 @@
 </body>
 </html>
 ```eof
+*Các khối quiz đã được đưa ra ngoài.*
