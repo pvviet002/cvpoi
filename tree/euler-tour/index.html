@@ -74,7 +74,8 @@
         code { font-family: var(--font-mono); background: var(--bg2); padding: 0.1rem 0.3rem; border-radius: 4px; font-size: 0.9em; color: var(--accent2); }
 
         /* Layout & Components */
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 1rem; }
+        .container-text { max-width: 720px; margin: 0 auto; padding: 0 16px; }
+        .container-wide { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
         
         .sticky-nav {
             position: sticky; top: 0; z-index: 100;
@@ -115,16 +116,19 @@
             opacity: 0.5;
         }
 
-        .sim-layout {
+        .sim-layer-1 {
             display: grid; grid-template-columns: 1fr; gap: 2rem;
             margin-top: 1.5rem;
         }
         @media(min-width: 900px) {
-            .sim-layout { grid-template-columns: 5fr 4fr; }
+            .sim-layer-1 { grid-template-columns: 3fr 2fr; } /* Tỷ lệ 60/40 cho Desktop */
+        }
+        .sim-layer-2, .sim-layer-3 {
+            margin-top: 1.5rem; width: 100%;
         }
 
         /* Tree SVG Styles */
-        svg.tree-canvas { width: 100%; height: auto; display: block; overflow: visible; user-select: none; }
+        svg.tree-canvas { width: 100%; height: auto; max-height: 440px; display: block; overflow: visible; user-select: none; }
         .edge { stroke: var(--line2); stroke-width: 2; transition: stroke 0.3s; }
         .edge-depth { stroke: var(--line); stroke-width: 1; stroke-dasharray: 4 4; pointer-events: none; }
         .node { fill: var(--bg2); stroke: var(--ink-dim); stroke-width: 2; cursor: pointer; transition: all 0.2s; }
@@ -241,7 +245,8 @@
         </div>
     </nav>
 
-    <div class="container">
+    <!-- WRAPPER VĂN BẢN (720px) -->
+    <div class="container-text">
         <header style="margin: 3rem 0;">
             <h1>Kỹ thuật Euler Tour trên Cây</h1>
             <p style="font-size: 1.1rem;">Khám phá sức mạnh của việc biến đổi cấu trúc cây thành mảng phẳng, mở khóa khả năng áp dụng Segment Tree/BIT cho các bài toán truy vấn cây con.</p>
@@ -281,27 +286,25 @@
                 <li><strong>Ưu tiên dùng:</strong> Khi bài toán chỉ yêu cầu truy vấn/cập nhật trên cây con.</li>
             </ul>
         </div>
+    </div>
 
-        <!-- MÔ PHỎNG 1 -->
+    <!-- WRAPPER RỘNG (1200px) CHO MÔ PHỎNG 1 -->
+    <div class="container-wide">
         <div class="card" style="border-color: var(--accent2);">
             <div class="card-glow" style="background: linear-gradient(90deg, transparent, var(--accent2), transparent);"></div>
             <h2 style="margin-top: 0;">Mô phỏng 1: DFS sinh Euler Tour</h2>
             <p style="font-size: 0.9rem;">Quan sát cách DFS "trải phẳng" cây. Chú ý thanh ghi thời gian và mảng bên dưới cuộn dài liền mạch khi được thêm ô mới.</p>
             
-            <div class="sim-layout">
-                <!-- Sân khấu (Trái) -->
+            <!-- Tầng 1: Cây SVG & Bảng điều khiển -->
+            <div class="sim-layer-1">
+                <!-- Sân khấu Trái -->
                 <div class="sim-visuals">
-                    <div style="background: var(--bg); border: 1px solid var(--line2); border-radius: 8px; padding: 1rem;">
+                    <div style="background: var(--bg); border: 1px solid var(--line2); border-radius: 8px; padding: 1rem; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 300px;">
                         <svg class="tree-canvas" id="svg-tree-1" viewBox="0 0 400 250"></svg>
-                    </div>
-                    
-                    <h3 style="font-size: 0.9rem; margin: 1rem 0 0.5rem 0; text-align: center;">Mảng Phẳng (Euler Array)</h3>
-                    <div class="array-container" id="array-container-1">
-                        <!-- Array boxes will be injected here -->
                     </div>
                 </div>
 
-                <!-- Bảng điều khiển (Phải) -->
+                <!-- Điều khiển Phải -->
                 <div class="sim-controls">
                     <div class="controls">
                         <select id="sim1-type">
@@ -327,14 +330,28 @@
                     <div class="explain-box" id="sim1-explain" style="margin-top: 0;">
                         Nhấn "Chạy Auto" hoặc "Từng bước" để bắt đầu duyệt DFS.
                     </div>
-
-                    <pre class="code-block" id="code-dfs"></pre>
                 </div>
             </div>
-        </div>
 
-        <!-- PHẦN 3 & 4: Công thức & Code -->
-        <div class="card">
+            <!-- Tầng 2: Mảng phẳng ngang -->
+            <div class="sim-layer-2">
+                <h3 style="font-size: 0.9rem; margin: 0 0 0.5rem 0; text-align: left; color: var(--ink-soft);">Mảng Phẳng (Euler Array)</h3>
+                <div class="array-container" id="array-container-1">
+                    <!-- Array boxes will be injected here -->
+                </div>
+            </div>
+
+            <!-- Tầng 3: Khối code -->
+            <div class="sim-layer-3">
+                <h3 style="font-size: 0.9rem; margin: 0 0 0.5rem 0; text-align: left; color: var(--ink-soft);">Mã nguồn chạy tương ứng</h3>
+                <pre class="code-block" id="code-dfs" style="margin-top: 0;"></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- WRAPPER VĂN BẢN (720px) CHO PHẦN 3 & 4 -->
+    <div class="container-text">
+        <div class="card" style="margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom: none;">
             <div class="card-glow"></div>
             <h2 style="margin-top: 0;">Phần 3 & 4: Công thức tính & Cài đặt mẫu</h2>
             
@@ -354,35 +371,39 @@
             
             <h3>3. Độ phức tạp (Phần 5)</h3>
             <ul>
-                <li><strong>Tiền xử lý (DFS):</strong> <code>O(N)</code> thời gian, <code>O(N)</code> không không gian bộ nhớ.</li>
+                <li><strong>Tiền xử lý (DFS):</strong> <code>O(N)</code> thời gian, <code>O(N)</code> không gian bộ nhớ.</li>
                 <li><strong>Truy vấn/Cập nhật:</strong> Quy về truy vấn đoạn trên Segment Tree hoặc BIT, tốn <code>O(log N)</code>.</li>
             </ul>
 
             <h3 style="margin-top: 2rem;">Code C++ Mẫu (Kiểu B - Mảng kích thước N)</h3>
-            <p style="font-size:0.85rem; color: var(--ink-soft);">Mẫu kết hợp Euler Tour với Segment Tree để giải bài toán cộng giá trị vào 1 đỉnh và tính tổng cây con.</p>
-            <pre class="code-block" id="code-full"></pre>
+            <p style="font-size:0.85rem; color: var(--ink-soft); margin-bottom: 0;">Mẫu kết hợp Euler Tour với Segment Tree để giải bài toán cộng giá trị vào 1 đỉnh và tính tổng cây con.</p>
         </div>
+    </div>
 
-        <!-- MÔ PHỎNG 2 & PHẦN 6 -->
+    <!-- WRAPPER RỘNG (1200px) CHO KHỐI CODE LÝ THUYẾT -->
+    <div class="container-wide">
+        <div class="card" style="margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; padding-top: 0;">
+            <pre class="code-block" id="code-full" style="margin-top: 1rem;"></pre>
+        </div>
+    </div>
+
+    <!-- WRAPPER RỘNG (1200px) CHO MÔ PHỎNG 2 -->
+    <div class="container-wide">
         <div class="card" style="border-color: var(--pink);">
             <div class="card-glow" style="background: linear-gradient(90deg, transparent, var(--pink), transparent);"></div>
             <h2 style="margin-top: 0;">Mô phỏng 2: Trực giác "Cây con là một đoạn liên tục"</h2>
             <p><strong>Bấm vào một đỉnh bất kỳ trên cây</strong>. Hãy quan sát cách toàn bộ các đỉnh thuộc cây con đó sáng lên, và điều kỳ diệu là chúng tạo thành một <strong>khối liền mạch</strong> không thể phá vỡ trên mảng Euler.</p>
             
-            <div class="sim-layout">
-                <!-- Sân khấu (Trái) -->
+            <!-- Tầng 1 -->
+            <div class="sim-layer-1">
+                <!-- Sân khấu Trái -->
                 <div class="sim-visuals">
-                    <div style="background: var(--bg); border: 1px solid var(--line2); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <div style="background: var(--bg); border: 1px solid var(--line2); border-radius: 8px; padding: 1rem; display: flex; align-items: center; justify-content: center; height: 100%; min-height: 300px;">
                         <svg class="tree-canvas" id="svg-tree-2" viewBox="0 0 400 250"></svg>
-                    </div>
-                    
-                    <h3 style="font-size: 0.9rem; margin: 0 0 0.5rem 0; text-align: center;">Mảng Euler Hiện Tại</h3>
-                    <div class="array-container" id="array-container-2">
-                        <!-- Static array generated here -->
                     </div>
                 </div>
                 
-                <!-- Bảng điều khiển (Phải) -->
+                <!-- Điều khiển Phải -->
                 <div class="sim-controls">
                     <div class="controls" style="margin-bottom: 1rem;">
                         <label>Chọn mảng nền:</label>
@@ -403,7 +424,7 @@
                         </div>
                     </div>
 
-                    <div class="card" style="background: var(--bg); margin-bottom: 0; padding: 1rem;">
+                    <div class="card" style="background: var(--bg); margin-bottom: 0; padding: 1rem; margin-top: 1rem;">
                         <h4 style="margin-top: 0; margin-bottom: 0.5rem;">Kiểm tra Tổ tiên (Ancestor Check)</h4>
                         <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
                             <label>u:</label>
@@ -417,15 +438,26 @@
                 </div>
             </div>
 
-            <!-- PHẦN 6: Các lỗi thường gặp -->
-            <div class="card" style="background: var(--bg); margin-top: 2rem; margin-bottom: 0; border-color: #f87171;">
-                <h3 style="color: #f87171; margin-top: 0;">Phần 6: Các Lỗi Thường Gặp</h3>
-                <ul style="margin-bottom: 0;">
-                    <li><strong>Nhầm lẫn mảng N và 2N:</strong> Dùng Kiểu B (pos) nhưng lại gán <code>tout[u] = timer</code> lúc ra khỏi DFS (làm timer tăng không khớp).</li>
-                    <li><strong>Sai kích thước mảng Segment Tree:</strong> Nếu dùng Kiểu A (2N), Segment Tree phải khởi tạo với kích thước <code>2*N</code>. Nếu quên, sẽ bị Runtime Error (Out of Bounds).</li>
-                    <li><strong>Lệch chỉ số mảng (0-based vs 1-based):</strong> Đảm bảo biến <code>timer</code> bắt đầu đúng (thường là 1) và khớp với hàm Segment Tree.</li>
-                </ul>
+            <!-- Tầng 2 -->
+            <div class="sim-layer-2">
+                <h3 style="font-size: 0.9rem; margin: 0 0 0.5rem 0; text-align: left; color: var(--ink-soft);">Mảng Euler Hiện Tại</h3>
+                <div class="array-container" id="array-container-2">
+                    <!-- Static array generated here -->
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- WRAPPER VĂN BẢN (720px) CHO CÁC PHẦN CÒN LẠI -->
+    <div class="container-text">
+        <!-- PHẦN 6: Các lỗi thường gặp -->
+        <div class="card" style="background: var(--bg); margin-bottom: 1.5rem; border-color: #f87171;">
+            <h3 style="color: #f87171; margin-top: 0;">Phần 6: Các Lỗi Thường Gặp</h3>
+            <ul style="margin-bottom: 0;">
+                <li><strong>Nhầm lẫn mảng N và 2N:</strong> Dùng Kiểu B (pos) nhưng lại gán <code>tout[u] = timer</code> lúc ra khỏi DFS (làm timer tăng không khớp).</li>
+                <li><strong>Sai kích thước mảng Segment Tree:</strong> Nếu dùng Kiểu A (2N), Segment Tree phải khởi tạo với kích thước <code>2*N</code>. Nếu quên, sẽ bị Runtime Error (Out of Bounds).</li>
+                <li><strong>Lệch chỉ số mảng (0-based vs 1-based):</strong> Đảm bảo biến <code>timer</code> bắt đầu đúng (thường là 1) và khớp với hàm Segment Tree.</li>
+            </ul>
         </div>
 
         <!-- PHẦN 7: Trắc nghiệm -->
