@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kỹ thuật Euler Tour Trên Cây</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@600;700&display=swap');
+
+        :root {
+            --bg: #0B1220;
+            --bg2: #0F1A2E;
+            --panel: #111E36;
+            --line: #22304C;
+            --line2: #2E3F60;
+            --ink: #E6ECF7;
+            --ink-soft: #8FA1C4;
+            --ink-dim: #5A6B8F;
+            --accent: #38D6C4;
+            --accent2: #5B8CFF;
+            --highlight: #FFB454;
+            --pink: #FF6B9D;
+            --correct: #4ade80;
+            --wrong: #f87171;
+            
+            --font-head: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--ink);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Nền Gradient mờ */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+        body::before {
+            top: -200px; left: -100px;
+            background: radial-gradient(circle, var(--accent), transparent);
+        }
+        body::after {
+            top: 20%; right: -200px;
+            background: radial-gradient(circle, var(--accent2), transparent);
+        }
+
+        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+        a:hover { color: var(--accent2); }
+
+        /* Typography */
+        h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 700; color: var(--ink); margin-bottom: 1rem; }
+        h1 { font-size: 2.2rem; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 1.5rem; margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: 0.5rem; }
+        h3 { font-size: 1.2rem; color: var(--ink-soft); margin-top: 1.5rem; }
+        p, ul, ol { margin-bottom: 1rem; color: var(--ink-soft); }
+        li { margin-left: 1.5rem; margin-bottom: 0.5rem; }
+        strong { color: var(--ink); font-weight: 600; }
+        code { font-family: var(--font-mono); background: var(--bg2); padding: 0.1rem 0.3rem; border-radius: 4px; font-size: 0.9em; color: var(--accent2); }
+
+        /* Layout & Components */
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 1rem; }
+        
+        .sticky-nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(11, 18, 32, 0.8); backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--line);
+            padding: 0.75rem 1rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-links { display: flex; gap: 1rem; }
+        .breadcrumb { font-family: var(--font-head); color: var(--ink-soft); font-size: 0.9rem; }
+        .breadcrumb span { color: var(--ink); font-weight: 600; }
+
+        .btn {
+            background: var(--line); color: var(--ink);
+            border: 1px solid var(--line2); border-radius: 6px;
+            padding: 0.5rem 1rem; font-family: var(--font-head); font-size: 0.9rem;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn:hover { background: var(--line2); border-color: var(--ink-dim); }
+        .btn.primary { background: var(--accent2); color: #fff; border-color: transparent; }
+        .btn.primary:hover { background: #4a7cf5; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-glow {
+            position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0.5;
+        }
+
+        .two-col {
+            display: grid; grid-template-columns: 1fr; gap: 2rem;
+            margin-top: 2rem; margin-bottom: 2rem;
+        }
+        @media(min-width: 1024px) {
+            .two-col { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+        }
+
+        /* Tree SVG Styles */
+        svg.tree-canvas { width: 100%; height: auto; display: block; overflow: visible; user-select: none; }
+        .edge { stroke: var(--line2); stroke-width: 2; transition: stroke 0.3s; }
+        .edge-depth { stroke: var(--line); stroke-width: 1; stroke-dasharray: 4 4; pointer-events: none; }
+        .node { fill: var(--bg2); stroke: var(--ink-dim); stroke-width: 2; cursor: pointer; transition: all 0.2s; }
+        .node:hover { stroke: var(--accent); fill: var(--panel); }
+        .node-text { fill: var(--ink); font-family: var(--font-mono); font-size: 14px; text-anchor: middle; dominant-baseline: central; pointer-events: none; transition: fill 0.2s; }
+        
+        /* Node states */
+        .node.active { stroke: var(--highlight); fill: rgba(255, 180, 84, 0.2); stroke-width: 3; }
+        .node.selected { stroke: var(--pink); fill: rgba(255, 107, 157, 0.2); stroke-width: 3; }
+        .edge.active { stroke: var(--highlight); }
+        .edge.selected { stroke: var(--pink); }
+
+        /* Array Visualization */
+        .array-container {
+            display: flex; flex-wrap: wrap; gap: 4px; padding: 1rem 0; justify-content: center;
+        }
+        .array-box {
+            width: 40px; height: 40px;
+            background: var(--bg); border: 1px solid var(--line2); border-radius: 6px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-family: var(--font-mono); position: relative;
+            transition: all 0.3s ease;
+        }
+        .array-box .val { color: var(--ink); font-weight: bold; font-size: 14px; z-index: 2; }
+        .array-box .idx { position: absolute; bottom: -20px; font-size: 10px; color: var(--ink-dim); }
+        .array-box .tag { position: absolute; top: -18px; font-size: 10px; color: var(--ink-soft); }
+        
+        /* Array states */
+        .array-box.newly-added { animation: popIn 0.3s ease-out forwards; border-color: var(--highlight); background: rgba(255, 180, 84, 0.1); }
+        .array-box.highlighted { border-color: var(--pink); background: rgba(255, 107, 157, 0.2); box-shadow: 0 0 10px rgba(255, 107, 157, 0.3); }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Controls */
+        .controls { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; padding: 0.5rem; background: var(--bg2); border-radius: 8px; border: 1px solid var(--line); }
+        .controls label { font-size: 0.85rem; color: var(--ink-soft); margin-right: 0.5rem; }
+        select, input[type="range"], input[type="number"] {
+            background: var(--bg); color: var(--ink); border: 1px solid var(--line2);
+            padding: 0.4rem; border-radius: 4px; font-family: var(--font-body); outline: none;
+        }
+        select:focus, input:focus { border-color: var(--accent); }
+
+        /* Registers / Status Board */
+        .status-board {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;
+            background: var(--bg2); padding: 0.5rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--line);
+        }
+        .status-item { display: flex; flex-direction: column; align-items: center; }
+        .status-label { font-size: 0.75rem; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-val { font-family: var(--font-mono); font-size: 1.1rem; color: var(--accent); font-weight: bold; min-height: 1.5em; }
+
+        /* Code Block Highlighter */
+        pre.code-block {
+            background: var(--bg); padding: 1rem; border-radius: 8px; border: 1px solid var(--line);
+            overflow-x: auto; font-family: var(--font-mono); font-size: 0.9rem; line-height: 1.5;
+            tab-size: 4; margin-top: 1rem; position: relative;
+        }
+        pre.code-block .line { display: block; padding-left: 0.5rem; border-left: 2px solid transparent; transition: all 0.2s; }
+        pre.code-block .line.active { background: rgba(56, 214, 196, 0.1); border-left-color: var(--accent); }
+        
+        /* Token Colors */
+        .tk-keyword { color: #c678dd; } /* Purple */
+        .tk-type { color: #e5c07b; } /* Yellow */
+        .tk-number { color: #d19a66; } /* Orange */
+        .tk-string { color: #98c379; } /* Green */
+        .tk-comment { color: var(--ink-dim); font-style: italic; }
+        .tk-macro { color: #56b6c2; } /* Cyan */
+        .tk-func { color: #61afef; } /* Blue */
+        .tk-punct { color: var(--ink-soft); }
+        .tk-ident { color: var(--ink); }
+
+        /* Explain Text */
+        .explain-box {
+            background: rgba(56, 214, 196, 0.05); border-left: 3px solid var(--accent);
+            padding: 1rem; border-radius: 0 8px 8px 0; font-style: italic; color: var(--ink);
+            min-height: 3rem; margin-top: 1rem; font-size: 0.95rem;
+        }
+
+        /* Quiz */
+        .quiz-question { padding: 1rem; background: var(--bg2); border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--line); }
+        .quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+        .quiz-opt-btn {
+            text-align: left; background: var(--bg); border: 1px solid var(--line2);
+            padding: 0.75rem 1rem; border-radius: 6px; color: var(--ink); cursor: pointer; transition: 0.2s;
+        }
+        .quiz-opt-btn:hover:not(:disabled) { border-color: var(--accent); background: var(--panel); }
+        .quiz-opt-btn.correct { background: rgba(74, 222, 128, 0.1); border-color: var(--correct); color: var(--correct); }
+        .quiz-opt-btn.wrong { background: rgba(248, 113, 113, 0.1); border-color: var(--wrong); color: var(--wrong); }
+        .quiz-explain { margin-top: 1rem; padding: 1rem; border-radius: 6px; background: var(--panel); font-size: 0.9rem; display: none; }
+        
+        :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+    </style>
+</head>
+<body>
+
+    <nav class="sticky-nav">
+        <div class="breadcrumb">
+            <a href="/index.html">Trang chủ</a> / <span>Đồ thị & Cây</span> / <span>Euler Tour</span>
+        </div>
+        <div class="nav-links">
+            <a href="https://cvpoi.id.vn" target="_blank" class="btn">Mở cvpoi.id.vn</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header style="margin: 3rem 0;">
+            <h1>Kỹ thuật Euler Tour trên Cây</h1>
+            <p style="font-size: 1.1rem;">Khám phá sức mạnh của việc biến đổi cấu trúc cây thành mảng phẳng, mở khóa khả năng áp dụng Segment Tree/BIT cho các bài toán truy vấn cây con.</p>
+        </header>
+
+        <!-- PHẦN 1 & 2: Lý thuyết -->
+        <div class="two-col">
+            <div class="content-col">
+                <div class="card">
+                    <div class="card-glow"></div>
+                    <h2>Phần 1: Bài toán & Động lực</h2>
+                    <p>Giả sử bạn được cho một cây có gốc (Rooted Tree) gồm <code>N</code> đỉnh. Mỗi đỉnh chứa một giá trị. Bạn phải trả lời <code>Q</code> truy vấn thuộc các loại sau:</p>
+                    <ul>
+                        <li><strong>Cập nhật:</strong> Thay đổi giá trị của đỉnh <code>u</code> (hoặc cộng thêm vào toàn bộ cây con của <code>u</code>).</li>
+                        <li><strong>Truy vấn:</strong> Tính tổng (hoặc max/min) các giá trị trong toàn bộ <strong>cây con (subtree)</strong> gốc <code>u</code>.</li>
+                    </ul>
+                    <p><strong>Cách ngây thơ:</strong> Với mỗi truy vấn, ta duyệt DFS từ <code>u</code> để thăm toàn bộ cây con. Độ phức tạp là <code>O(N)</code> cho mỗi truy vấn → Tổng <code>O(Q * N)</code>. Sẽ bị Time Limit Exceeded (TLE) nếu <code>N, Q ≤ 10^5</code>.</p>
+                    <p><strong>Ý tưởng cứu vãn:</strong> Cấu trúc dữ liệu mảng có <strong>Segment Tree</strong> và <strong>BIT</strong> xử lý truy vấn đoạn liên tục <code>[L, R]</code> cực nhanh <code>O(log N)</code>. Nếu ta có thể "trải phẳng" cây ra thành một mảng sao cho <em>tập hợp các đỉnh trong cây con của bất kỳ đỉnh <code>u</code> nào cũng nằm liền kề nhau tạo thành một đoạn liên tục <code>[L, R]</code></em>, thì bài toán được giải quyết triệt để!</p>
+                    <div class="explain-box" style="border-left-color: var(--pink)">
+                        <strong>Chìa khóa:</strong> Euler Tour biến CÂY thành MẢNG PHẲNG. Cây con ↔ Đoạn liên tục trên mảng.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-glow"></div>
+                    <h2>Phần 2: Hai kiểu Euler Tour thường gặp</h2>
+                    <p>Có 2 cách đánh số thời gian (timer) khi duyệt DFS để tạo ra mảng phẳng. Cần phân biệt rõ để tránh sai lệch chỉ số.</p>
+                    
+                    <h3>Kiểu A: In/Out (Mảng kích thước 2N)</h3>
+                    <p>Mỗi đỉnh ghi nhận 2 mốc thời gian: lúc bắt đầu vào (<code>tin</code>) và lúc duyệt xong đi ra (<code>tout</code>). Biến thời gian tăng lên ở <strong>cả hai</strong> sự kiện.</p>
+                    <ul>
+                        <li>Đỉnh <code>u</code> xuất hiện 2 lần trên mảng.</li>
+                        <li>Cây con của <code>u</code> tương ứng với đoạn <strong><code>[tin[u], tout[u]]</code></strong>.</li>
+                        <li>Thường dùng cho: Truy vấn đường đi, kiểm tra quan hệ tổ tiên.</li>
+                    </ul>
+
+                    <h3>Kiểu B: Đánh số DFS + Size (Mảng kích thước N)</h3>
+                    <p>Mỗi đỉnh chỉ ghi nhận mốc thời gian <strong>lúc vào</strong> (<code>pos</code>). Biến thời gian chỉ tăng khi <strong>vào</strong> đỉnh mới. Đồng thời tính thêm số lượng đỉnh trong cây con (<code>size</code>).</p>
+                    <ul>
+                        <li>Mỗi đỉnh xuất hiện đúng 1 lần. Tiết kiệm bộ nhớ và kích thước Segment Tree.</li>
+                        <li>Cây con của <code>u</code> tương ứng với đoạn <strong><code>[pos[u], pos[u] + size[u] - 1]</code></strong>.</li>
+                        <li><strong>Ưu tiên dùng:</strong> Khi bài toán chỉ yêu cầu truy vấn/cập nhật trên cây con.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="interactive-col">
+                <div class="card" style="border-color: var(--accent2);">
+                    <div class="card-glow" style="background: linear-gradient(90deg, transparent, var(--accent2), transparent);"></div>
+                    <h2 style="margin-top: 0;">Mô phỏng 1: DFS sinh Euler Tour</h2>
+                    <p style="font-size: 0.9rem;">Quan sát cách DFS "trải phẳng" cây. Chú ý thanh ghi thời gian và mảng bên dưới.</p>
+                    
+                    <div class="controls">
+                        <select id="sim1-type">
+                            <option value="A">Kiểu A: In/Out (2N)</option>
+                            <option value="B">Kiểu B: Đánh số DFS (N)</option>
+                        </select>
+                        <button class="btn primary" id="sim1-play">Chạy Auto</button>
+                        <button class="btn" id="sim1-step">Từng bước</button>
+                        <button class="btn" id="sim1-reset">Đặt lại</button>
+                        <label for="sim1-speed" style="margin-left: auto;">Tốc độ:</label>
+                        <input type="range" id="sim1-speed" min="1" max="5" value="3" style="width: 80px;">
+                    </div>
+
+                    <div class="status-board">
+                        <div class="status-item"><span class="status-label">Đỉnh</span><span class="status-val" id="reg-u">-</span></div>
+                        <div class="status-item"><span class="status-label">Time</span><span class="status-val" id="reg-timer">0</span></div>
+                        <div class="status-item"><span class="status-label">tin / pos</span><span class="status-val" id="reg-in">-</span></div>
+                        <div class="status-item"><span class="status-label">tout / size</span><span class="status-val" id="reg-out">-</span></div>
+                    </div>
+
+                    <!-- Tree Container -->
+                    <div style="background: var(--bg); border: 1px solid var(--line2); border-radius: 8px; padding: 1rem;">
+                        <svg class="tree-canvas" id="svg-tree-1" viewBox="0 0 400 250"></svg>
+                    </div>
+
+                    <!-- Array Container -->
+                    <h3 style="font-size: 0.9rem; margin: 1rem 0 0.5rem 0; text-align: center;">Mảng Phẳng (Euler Array)</h3>
+                    <div class="array-container" id="array-container-1" style="min-height: 80px;">
+                        <!-- Array boxes will be injected here -->
+                    </div>
+
+                    <div class="explain-box" id="sim1-explain">
+                        Nhấn "Chạy Auto" hoặc "Từng bước" để bắt đầu duyệt DFS.
+                    </div>
+
+                    <!-- Code block for DFS syncing -->
+                    <pre class="code-block" id="code-dfs"></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHẦN 3 & 4: Công thức & Code -->
+        <div class="card">
+            <div class="card-glow"></div>
+            <h2>Phần 3 & 4: Công thức tính & Cài đặt mẫu</h2>
+            <div class="two-col" style="margin-top: 1rem; margin-bottom: 0;">
+                <div>
+                    <h3>1. Công thức đoạn cây con</h3>
+                    <p>Như đã thấy ở mô phỏng, để lấy đoạn mảng tương ứng với cây con <code>u</code>:</p>
+                    <ul style="color: var(--ink);">
+                        <li>Kiểu A (2N): Đoạn <code>[ tin[u], tout[u] ]</code></li>
+                        <li>Kiểu B (N): Đoạn <code>[ pos[u], pos[u] + size[u] - 1 ]</code></li>
+                    </ul>
+                    
+                    <h3>2. Ứng dụng: Kiểm tra Tổ tiên (Ancestor Check)</h3>
+                    <p>Bằng Kiểu A (in/out), ta có thể kiểm tra <code>u</code> có phải là tổ tiên của <code>v</code> trong <code>O(1)</code>:</p>
+                    <div style="background: var(--bg2); padding: 1rem; border-left: 3px solid var(--accent); font-family: var(--font-mono); margin-bottom: 1rem;">
+                        tin[u] &le; tin[v] &amp;&amp; tout[u] &ge; tout[v]
+                    </div>
+                    <p style="font-size: 0.9rem;"><em>Giải thích: Nếu v nằm trong cây con của u, thì thời điểm vào thăm v chắc chắn phải xảy ra sau khi vào u, và duyệt xong v phải xảy ra trước khi duyệt xong toàn bộ u.</em></p>
+                    
+                    <h3>3. Độ phức tạp (Phần 5)</h3>
+                    <ul>
+                        <li><strong>Tiền xử lý (DFS):</strong> <code>O(N)</code> thời gian, <code>O(N)</code> không gian bộ nhớ.</li>
+                        <li><strong>Truy vấn/Cập nhật:</strong> Quy về truy vấn đoạn trên Segment Tree hoặc BIT, tốn <code>O(log N)</code>.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Code C++ Mẫu (Kiểu B - Mảng kích thước N)</h3>
+                    <p style="font-size:0.85rem; color: var(--ink-soft);">Mẫu kết hợp Euler Tour với Segment Tree để giải bài toán cộng giá trị vào 1 đỉnh và tính tổng cây con.</p>
+                    <pre class="code-block" id="code-full"></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHẦN MÔ PHỎNG 2 -->
+        <div class="card" style="border-color: var(--pink);">
+            <div class="card-glow" style="background: linear-gradient(90deg, transparent, var(--pink), transparent);"></div>
+            <h2>Mô phỏng 2: Trực giác "Cây con là một đoạn liên tục"</h2>
+            <p><strong>Bấm vào một đỉnh bất kỳ trên cây</strong>. Hãy quan sát cách toàn bộ các đỉnh thuộc cây con đó sáng lên, và điều kỳ diệu là chúng tạo thành một <strong>khối liền mạch</strong> không thể phá vỡ trên mảng Euler.</p>
+            
+            <div class="two-col" style="margin-top: 1rem; align-items: start;">
+                <div>
+                    <div class="controls" style="margin-bottom: 1rem;">
+                        <label>Chọn mảng nền:</label>
+                        <select id="sim2-type">
+                            <option value="B" selected>Kiểu B (Mảng N, Dùng mảng A)</option>
+                            <option value="A">Kiểu A (Mảng 2N, in/out)</option>
+                        </select>
+                    </div>
+                    <div style="background: var(--bg); border: 1px solid var(--line2); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                        <svg class="tree-canvas" id="svg-tree-2" viewBox="0 0 400 250"></svg>
+                    </div>
+                    
+                    <div class="card" style="background: var(--bg); margin-bottom: 0; padding: 1rem;">
+                        <h4 style="margin-bottom: 0.5rem;">Kiểm tra Tổ tiên (Ancestor Check)</h4>
+                        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                            <label>u:</label>
+                            <input type="number" id="anc-u" min="1" max="10" value="2" style="width: 50px;">
+                            <label>v:</label>
+                            <input type="number" id="anc-v" min="1" max="10" value="5" style="width: 50px;">
+                            <button class="btn primary" id="btn-check-anc">Kiểm tra</button>
+                        </div>
+                        <div id="anc-result" style="margin-top: 0.5rem; font-weight: bold; min-height: 1.5em;"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 style="margin-top: 0;">Mảng Euler Hiện Tại</h3>
+                    <div class="array-container" id="array-container-2" style="min-height: 80px; justify-content: flex-start; gap: 2px;">
+                        <!-- Static array generated here -->
+                    </div>
+                    
+                    <div class="status-board" style="grid-template-columns: 1fr; margin-top: 1.5rem;">
+                        <div class="status-item" style="align-items: flex-start; text-align: left;">
+                            <span class="status-label">Công thức truy vấn đoạn trên mảng</span>
+                            <span class="status-val" id="sim2-formula" style="color: var(--pink);">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="explain-box" id="sim2-explain" style="border-left-color: var(--pink);">
+                        Hãy click vào một đỉnh trên cây bên trái để xem đoạn mảng tương ứng. Nhờ tính chất này, nếu Segment Tree quản lý mảng bên trên, ta chỉ cần gọi <code>query(L, R)</code>.
+                    </div>
+
+                    <div class="card" style="background: var(--bg); margin-top: 1rem; border-color: #f87171;">
+                        <h3 style="color: #f87171; margin-top: 0;">Phần 6: Các Lỗi Thường Gặp</h3>
+                        <ul style="margin-bottom: 0;">
+                            <li><strong>Nhầm lẫn mảng N và 2N:</strong> Dùng Kiểu B (pos) nhưng lại gán <code>tout[u] = timer</code> lúc ra khỏi DFS (làm timer tăng không khớp).</li>
+                            <li><strong>Sai kích thước mảng Segment Tree:</strong> Nếu dùng Kiểu A (2N), Segment Tree phải khởi tạo với kích thước <code>2*N</code>. Nếu quên, sẽ bị Runtime Error (Out of Bounds).</li>
+                            <li><strong>Lệch chỉ số mảng (0-based vs 1-based):</strong> Đảm bảo biến <code>timer</code> bắt đầu đúng (thường là 1) và khớp với hàm Segment Tree.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHẦN 7: Trắc nghiệm -->
+        <div class="card">
+            <div class="card-glow"></div>
+            <h2>Phần 7: Kiểm tra kiến thức</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <p>Kiểm tra lại độ hiểu bài của bạn. Chọn đáp án đúng cho các câu hỏi sau.</p>
+                <div style="background: var(--bg2); padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--accent); color: var(--accent); font-weight: bold;">
+                    Điểm: <span id="quiz-score">0</span> / 6
+                </div>
+            </div>
+            
+            <div id="quiz-container">
+                <!-- Quiz dynamically injected -->
+            </div>
+        </div>
+
+        <footer style="text-align: center; margin: 2rem 0; padding-top: 2rem; border-top: 1px solid var(--line); color: var(--ink-dim); font-size: 0.9rem;">
+            Tài liệu tương tác: Kỹ thuật Euler Tour trên Cây.<br>Mọi thuật toán đều được mô phỏng trực tiếp bằng JavaScript trên trình duyệt.
+        </footer>
+    </div>
+
+    <script>
+        // --- UTILS & DATA ---
+        
+        // Escape HTML entities to prevent XSS and breakage when inserting code
+        function escapeHTML(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        // Custom C++ Tokenizer for Syntax Highlighting
+        function highlightCPP(code) {
+            const rules = [
+                { type: 'whitespace', regex: /^\s+/ },
+                { type: 'comment', regex: /^\/\/.*/ },
+                { type: 'macro', regex: /^#\s*(include|define|pragma|ifndef|endif)\b.*/ },
+                { type: 'string', regex: /^"[^"]*"/ },
+                { type: 'keyword', regex: /^(if|else|for|while|return|struct|class|public|private)\b/ },
+                { type: 'type', regex: /^(int|void|bool|long|char|const|auto)\b/ },
+                { type: 'number', regex: /^[0-9]+(\.[0-9]+)?/ },
+                { type: 'func', regex: /^[a-zA-Z_]\w*(?=\s*\()/ },
+                { type: 'ident', regex: /^[a-zA-Z_]\w*/ },
+                { type: 'punct', regex: /^[{}()[\].,;:+\-*/%<>=!&|~^]+/ },
+                { type: 'other', regex: /^./ }
+            ];
+
+            let html = '';
+            let remaining = code;
+            let lineNum = 1;
+
+            while (remaining.length > 0) {
+                let matched = false;
+                for (let rule of rules) {
+                    const match = remaining.match(rule.regex);
+                    if (match) {
+                        const val = match[0];
+                        remaining = remaining.substring(val.length);
+                        
+                        if (rule.type === 'whitespace') {
+                            // Convert newlines to actual HTML newlines in pre structure if needed, 
+                            // but pre handles \n natively. We just split by \n to wrap lines.
+                            html += val; 
+                        } else {
+                            html += `<span class="tk-${rule.type}">${escapeHTML(val)}</span>`;
+                        }
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) break; // Should not happen with 'other' fallback
+            }
+
+            // Wrap lines in <span class="line"> for highlighting during simulation
+            const lines = html.split('\n');
+            // Remove last empty line if exists due to trailing \n
+            if(lines.length > 0 && lines[lines.length-1] === "") lines.pop(); 
+            
+            return lines.map((line, idx) => `<span class="line" id="code-line-${idx+1}">${line}</span>`).join('\n');
+        }
+
+        // Tree Structure Data (10 nodes)
+        // Adjacency list
+        const adj = {
+            1: [2, 3, 4],
+            2: [5, 6],
+            3: [7],
+            4: [8, 9],
+            5: [], 6: [], 7: [10], 8: [], 9: [], 10: []
+        };
+        // Node visual coordinates (SVG 400x250 viewbox)
+        const nodePos = {
+            1: {x: 200, y: 30},
+            2: {x: 80, y: 90},
+            3: {x: 200, y: 90},
+            4: {x: 320, y: 90},
+            5: {x: 40, y: 150},
+            6: {x: 120, y: 150},
+            7: {x: 200, y: 150},
+            8: {x: 280, y: 150},
+            9: {x: 360, y: 150},
+            10:{x: 200, y: 210}
+        };
+
+        // Render tree function
+        function drawTree(svgId) {
+            const svg = document.getElementById(svgId);
+            svg.innerHTML = ''; // clear
+
+            // Draw edges
+            for (let u in adj) {
+                adj[u].forEach(v => {
+                    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    line.setAttribute("x1", nodePos[u].x); line.setAttribute("y1", nodePos[u].y);
+                    line.setAttribute("x2", nodePos[v].x); line.setAttribute("y2", nodePos[v].y);
+                    line.setAttribute("class", "edge");
+                    line.setAttribute("id", `edge-${svgId}-${u}-${v}`);
+                    svg.appendChild(line);
+                });
+            }
+
+            // Draw depth background lines (optional, for aesthetics)
+            [90, 150, 210].forEach(y => {
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", 20); line.setAttribute("y1", y);
+                line.setAttribute("x2", 380); line.setAttribute("y2", y);
+                line.setAttribute("class", "edge-depth");
+                svg.insertBefore(line, svg.firstChild);
+            });
+
+            // Draw nodes
+            for (let i = 1; i <= 10; i++) {
+                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                g.setAttribute("class", "node");
+                g.setAttribute("id", `node-${svgId}-${i}`);
+                g.dataset.id = i;
+                
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", nodePos[i].x); circle.setAttribute("cy", nodePos[i].y);
+                circle.setAttribute("r", 15);
+                
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", nodePos[i].x); text.setAttribute("y", nodePos[i].y);
+                text.setAttribute("class", "node-text");
+                text.textContent = i;
+                
+                g.appendChild(circle);
+                g.appendChild(text);
+                svg.appendChild(g);
+            }
+        }
+
+        // --- STREAMING_CHUNK:Code Definitions ---
+        
+        // C++ Code for DFS Generator Simulation (Pseudo-C++)
+        const codeDFS_A = 
+`int timer = 0;
+int tin[N], tout[N];
+
+void dfs_A(int u) {
+    timer++;
+    tin[u] = timer;     // (1) Vào u
+    
+    for (int v : adj[u]) {
+        dfs_A(v);
+    }
+    
+    timer++;
+    tout[u] = timer;    // (2) Ra khỏi u
+}`;
+
+        const codeDFS_B =
+`int timer = 0;
+int pos[N], size[N];
+int flat_A[N]; // Mảng giá trị đã phẳng hóa
+
+void dfs_B(int u) {
+    timer++;
+    pos[u] = timer;     // (1) Vào u
+    flat_A[timer] = A[u]; 
+    size[u] = 1;
+    
+    for (int v : adj[u]) {
+        dfs_B(v);
+        size[u] += size[v]; // (2) Cộng dồn size từ con
+    }
+}`;
+
+        // Setup Code block for Sim 1
+        function setSim1Code(type) {
+            const block = document.getElementById('code-dfs');
+            block.innerHTML = type === 'A' ? highlightCPP(codeDFS_A) : highlightCPP(codeDFS_B);
+        }
+
+        // Full Code for Section 4
+        const codeFull = 
+`// Tiền xử lý DFS (Kiểu B)
+int timer = 0;
+int pos[N], size[N];
+int flat_A[N]; // Mảng được đánh chỉ số theo timer
+
+void dfs(int u, int p) {
+    pos[u] = ++timer;
+    flat_A[timer] = A[u]; // A là mảng giá trị gốc
+    size[u] = 1;
+    for (int v : adj[u]) {
+        if (v == p) continue;
+        dfs(v, u);
+        size[u] += size[v];
+    }
+}
+
+// Xử lý truy vấn
+int main() {
+    // ... Nhập đồ thị, mảng A ...
+    dfs(1, 0); // Gốc là 1
+    
+    // Khởi tạo Segment Tree trên mảng phẳng flat_A (kích thước N)
+    build_segtree(1, 1, N, flat_A); 
+    
+    while(Q--) {
+        int type, u, val;
+        cin >> type;
+        if (type == 1) { // Cộng val vào đỉnh u
+            cin >> u >> val;
+            // pos[u] là vị trí DUY NHẤT của u trên mảng phẳng
+            update(1, 1, N, pos[u], val); 
+        } else {         // Tính tổng cây con của u
+            cin >> u;
+            int L = pos[u];
+            int R = pos[u] + size[u] - 1; // Công thức vi diệu!
+            long long ans = query(1, 1, N, L, R);
+            cout << ans << "\\n";
+        }
+    }
+}`;
+        document.getElementById('code-full').innerHTML = highlightCPP(codeFull);
+
+        // --- STREAMING_CHUNK:Simulation 1 (DFS Generator) Logic ---
+        
+        let sim1Steps = [];
+        let sim1CurrentStep = 0;
+        let sim1TimerId = null;
+        
+        // Generate pre-calculated steps for DFS traversal
+        function generateSteps(type) {
+            sim1Steps = [];
+            let timer = 0;
+            let tin = {}, tout = {}, pos = {}, size = {};
+            let arrayState = [];
+            
+            function dfs(u) {
+                // Enter node
+                timer++;
+                if (type === 'A') {
+                    tin[u] = timer;
+                    arrayState.push({ val: u, idx: timer, tag: 'in', new: true });
+                } else {
+                    pos[u] = timer;
+                    size[u] = 1;
+                    arrayState.push({ val: u, idx: timer, tag: 'pos', new: true });
+                }
+                
+                // Record step: Entering
+                sim1Steps.push({
+                    action: 'enter', u: u, timer: timer, 
+                    tin: tin[u], tout: '-', pos: pos[u], size: '-',
+                    array: JSON.parse(JSON.stringify(arrayState)), // Deep copy
+                    line: type === 'A' ? 5 : 6,
+                    desc: `Vào đỉnh ${u}, gán ${type==='A'?'tin':'pos'}[${u}] = ${timer}. Thêm vào mảng phẳng.`
+                });
+                
+                // Clear 'new' flag for next states
+                arrayState[arrayState.length-1].new = false;
+
+                // Visit children
+                if (adj[u]) {
+                    adj[u].forEach(v => {
+                        sim1Steps.push({ action: 'traverse', u: u, v: v, line: type === 'A' ? 8 : 10, desc: `Từ ${u} gọi đệ quy xuống con ${v}.`, array: JSON.parse(JSON.stringify(arrayState)), timer, tin: tin[u], pos: pos[u], size: size[u] });
+                        dfs(v);
+                        if(type === 'B') {
+                             size[u] += size[v];
+                             sim1Steps.push({ action: 'calc_size', u: u, v: v, line: 12, desc: `Trở về từ ${v}, cộng dồn size: size[${u}] += size[${v}] (thành ${size[u]}).`, array: JSON.parse(JSON.stringify(arrayState)), timer, pos: pos[u], size: size[u] });
+                        }
+                    });
+                }
+                
+                // Leave node
+                if (type === 'A') {
+                    timer++;
+                    tout[u] = timer;
+                    arrayState.push({ val: u, idx: timer, tag: 'out', new: true });
+                    sim1Steps.push({
+                        action: 'leave', u: u, timer: timer,
+                        tin: tin[u], tout: tout[u],
+                        array: JSON.parse(JSON.stringify(arrayState)),
+                        line: 13,
+                        desc: `Duyệt xong ${u}, tăng time. Gán tout[${u}] = ${timer}. Thêm vào mảng phẳng.`
+                    });
+                     arrayState[arrayState.length-1].new = false;
+                } else {
+                    sim1Steps.push({
+                        action: 'leave', u: u, timer: timer,
+                        pos: pos[u], size: size[u],
+                        array: JSON.parse(JSON.stringify(arrayState)),
+                        line: 14,
+                        desc: `Duyệt xong toàn bộ cây con của ${u}, tổng cộng size[${u}] = ${size[u]}.`
+                    });
+                }
+            }
+            
+            dfs(1); // Start at root
+            sim1Steps.push({ action: 'done', desc: 'Đã duyệt xong toàn bộ cây!', line: -1, array: JSON.parse(JSON.stringify(arrayState)), u: '-', timer: timer });
+        }
+
+        function renderSim1Step(stepIdx) {
+            if (stepIdx < 0 || stepIdx >= sim1Steps.length) return;
+            const step = sim1Steps[stepIdx];
+            const type = document.getElementById('sim1-type').value;
+            
+            // 1. Update Status Board
+            document.getElementById('reg-u').textContent = step.u || '-';
+            document.getElementById('reg-timer').textContent = step.timer || '-';
+            document.getElementById('reg-in').textContent = type === 'A' ? (step.tin || '-') : (step.pos || '-');
+            document.getElementById('reg-out').textContent = type === 'A' ? (step.tout || '-') : (step.size || '-');
+            
+            // 2. Update Explain Text
+            document.getElementById('sim1-explain').textContent = step.desc;
+            
+            // 3. Highlight Code
+            document.querySelectorAll('#code-dfs .line').forEach(el => el.classList.remove('active'));
+            if (step.line !== -1) {
+                const lineEl = document.getElementById(`code-line-${step.line}`);
+                if (lineEl) lineEl.classList.add('active');
+            }
+            
+            // 4. Update Tree SVG
+            // Reset all
+            document.querySelectorAll('#svg-tree-1 .node').forEach(n => { n.classList.remove('active', 'selected'); });
+            document.querySelectorAll('#svg-tree-1 .edge').forEach(e => { e.classList.remove('active'); });
+            
+            if (step.u !== '-') {
+                document.getElementById(`node-svg-tree-1-${step.u}`).classList.add('active');
+            }
+            if (step.action === 'traverse' || step.action === 'calc_size') {
+                const edge = document.getElementById(`edge-svg-tree-1-${step.u}-${step.v}`);
+                if(edge) edge.classList.add('active');
+                document.getElementById(`node-svg-tree-1-${step.v}`).classList.add('selected'); // child being visited/returned
+            }
+
+            // 5. Render Array
+            const arrContainer = document.getElementById('array-container-1');
+            arrContainer.innerHTML = '';
+            
+            if (step.array) {
+                step.array.forEach(item => {
+                    const box = document.createElement('div');
+                    box.className = 'array-box' + (item.new ? ' newly-added' : '');
+                    
+                    const tag = document.createElement('div');
+                    tag.className = 'tag'; tag.textContent = item.tag;
+                    
+                    const val = document.createElement('div');
+                    val.className = 'val'; val.textContent = item.val;
+                    
+                    const idx = document.createElement('div');
+                    idx.className = 'idx'; idx.textContent = item.idx;
+                    
+                    box.appendChild(tag); box.appendChild(val); box.appendChild(idx);
+                    arrContainer.appendChild(box);
+                });
+            }
+        }
+
+        function playSim1() {
+            const btn = document.getElementById('sim1-play');
+            if (sim1TimerId) {
+                clearInterval(sim1TimerId);
+                sim1TimerId = null;
+                btn.textContent = 'Tiếp tục';
+            } else {
+                if (sim1CurrentStep >= sim1Steps.length - 1) { sim1CurrentStep = 0; }
+                btn.textContent = 'Tạm dừng';
+                const speedIdx = document.getElementById('sim1-speed').value;
+                const interval = 1200 - (speedIdx * 200); // 1->1000ms, 5->200ms
+                
+                sim1TimerId = setInterval(() => {
+                    if (sim1CurrentStep < sim1Steps.length - 1) {
+                        sim1CurrentStep++;
+                        renderSim1Step(sim1CurrentStep);
+                    } else {
+                        clearInterval(sim1TimerId);
+                        sim1TimerId = null;
+                        btn.textContent = 'Chạy Auto';
+                    }
+                }, interval);
+            }
+        }
+
+        // Sim 1 Event Listeners
+        document.getElementById('sim1-type').addEventListener('change', (e) => {
+            if (sim1TimerId) playSim1(); // pause
+            setSim1Code(e.target.value);
+            generateSteps(e.target.value);
+            sim1CurrentStep = 0;
+            renderSim1Step(0);
+            document.getElementById('sim1-play').textContent = 'Chạy Auto';
+        });
+        
+        document.getElementById('sim1-play').addEventListener('click', playSim1);
+        
+        document.getElementById('sim1-step').addEventListener('click', () => {
+            if (sim1TimerId) playSim1(); // pause auto
+            if (sim1CurrentStep < sim1Steps.length - 1) {
+                sim1CurrentStep++;
+                renderSim1Step(sim1CurrentStep);
+            }
+        });
+        
+        document.getElementById('sim1-reset').addEventListener('click', () => {
+            if (sim1TimerId) playSim1(); // pause
+            sim1CurrentStep = 0;
+            renderSim1Step(0);
+            document.getElementById('sim1-play').textContent = 'Chạy Auto';
+        });
+
+        // Initialize Sim 1
+        drawTree('svg-tree-1');
+        setSim1Code('A');
+        generateSteps('A');
+        renderSim1Step(0);
+
+        // --- STREAMING_CHUNK:Simulation 2 (Subtree Explorer) Logic ---
+        
+        // Data derived from DFS for static lookup in Sim 2
+        let sim2Data = { A: { arr: [], tin: {}, tout: {} }, B: { arr: [], pos: {}, size: {} } };
+        
+        function buildSim2Data() {
+            // Build A
+            let timerA = 0;
+            function dfsA(u) {
+                sim2Data.A.tin[u] = ++timerA;
+                sim2Data.A.arr.push({ val: u, idx: timerA, tag: 'in' });
+                if(adj[u]) adj[u].forEach(v => dfsA(v));
+                sim2Data.A.tout[u] = ++timerA;
+                sim2Data.A.arr.push({ val: u, idx: timerA, tag: 'out' });
+            }
+            dfsA(1);
+
+            // Build B
+            let timerB = 0;
+            function dfsB(u) {
+                sim2Data.B.pos[u] = ++timerB;
+                sim2Data.B.size[u] = 1;
+                sim2Data.B.arr.push({ val: u, idx: timerB, tag: 'pos' });
+                if(adj[u]) adj[u].forEach(v => {
+                    dfsB(v);
+                    sim2Data.B.size[u] += sim2Data.B.size[v];
+                });
+            }
+            dfsB(1);
+        }
+        buildSim2Data();
+
+        let sim2SelectedNode = null;
+
+        function renderSim2Array(type) {
+            const arrContainer = document.getElementById('array-container-2');
+            arrContainer.innerHTML = '';
+            const data = sim2Data[type].arr;
+            
+            data.forEach((item, index) => {
+                const box = document.createElement('div');
+                box.className = 'array-box';
+                box.id = `sim2-arr-${type}-${index+1}`; // 1-based index logically matching array idx
+                
+                const tag = document.createElement('div');
+                tag.className = 'tag'; tag.textContent = item.tag;
+                
+                const val = document.createElement('div');
+                val.className = 'val'; val.textContent = item.val;
+                
+                const idxEl = document.createElement('div');
+                idxEl.className = 'idx'; idxEl.textContent = item.idx;
+                
+                box.appendChild(tag); box.appendChild(val); box.appendChild(idxEl);
+                arrContainer.appendChild(box);
+            });
+        }
+
+        // Subtree identification helper
+        function getSubtreeNodes(root) {
+            let res = [];
+            function traverse(u) {
+                res.push(parseInt(u));
+                if(adj[u]) adj[u].forEach(v => traverse(v));
+            }
+            traverse(root);
+            return res;
+        }
+
+        function handleSim2NodeClick(u) {
+            sim2SelectedNode = u;
+            const type = document.getElementById('sim2-type').value;
+            
+            // 1. Highlight Tree
+            document.querySelectorAll('#svg-tree-2 .node').forEach(n => n.classList.remove('selected'));
+            document.querySelectorAll('#svg-tree-2 .edge').forEach(e => e.classList.remove('selected'));
+            
+            const subtree = getSubtreeNodes(u);
+            subtree.forEach(v => {
+                document.getElementById(`node-svg-tree-2-${v}`).classList.add('selected');
+                // highlight edge to children if in subtree
+                if(adj[v]) {
+                    adj[v].forEach(child => {
+                        const edge = document.getElementById(`edge-svg-tree-2-${v}-${child}`);
+                        if(edge) edge.classList.add('selected');
+                    });
+                }
+            });
+
+            // 2. Highlight Array and Update Formula
+            document.querySelectorAll('#array-container-2 .array-box').forEach(b => b.classList.remove('highlighted'));
+            
+            let l, r, formulaStr, expStr;
+            
+            if (type === 'A') {
+                l = sim2Data.A.tin[u];
+                r = sim2Data.A.tout[u];
+                formulaStr = `[ tin[${u}], tout[${u}] ] = [ ${l}, ${r} ]`;
+                expStr = `Đỉnh ${u} và toàn bộ cây con của nó nằm gọi gọn từ chỉ số ${l} (lúc bắt đầu vào ${u}) đến chỉ số ${r} (lúc duyệt xong ${u}).`;
+            } else {
+                l = sim2Data.B.pos[u];
+                const sz = sim2Data.B.size[u];
+                r = l + sz - 1;
+                formulaStr = `[ pos[${u}], pos[${u}] + size[${u}] - 1 ] = [ ${l}, ${l} + ${sz} - 1 ] = [ ${l}, ${r} ]`;
+                expStr = `Bắt đầu từ vị trí của ${u} (pos=${l}), cộng thêm số lượng đỉnh trong cây con (size=${sz}), ta có đoạn liên tục [${l}, ${r}] chứa toàn bộ các đỉnh con cháu.`;
+            }
+
+            // Apply array highlight (using logical indices 1 to length)
+            for (let i = l; i <= r; i++) {
+                document.getElementById(`sim2-arr-${type}-${i}`).classList.add('highlighted');
+            }
+
+            document.getElementById('sim2-formula').textContent = formulaStr;
+            document.getElementById('sim2-explain').innerHTML = `Đã chọn đỉnh <strong>${u}</strong>. ${expStr} Segment Tree chỉ việc query đoạn này.`;
+        }
+
+        // Sim 2 Setup
+        drawTree('svg-tree-2');
+        renderSim2Array('B'); // default
+
+        // Add click listeners to SVG nodes
+        document.querySelectorAll('#svg-tree-2 .node').forEach(nodeEl => {
+            nodeEl.addEventListener('click', (e) => {
+                const u = parseInt(e.currentTarget.dataset.id);
+                handleSim2NodeClick(u);
+            });
+        });
+
+        document.getElementById('sim2-type').addEventListener('change', (e) => {
+            renderSim2Array(e.target.value);
+            if (sim2SelectedNode) handleSim2NodeClick(sim2SelectedNode);
+        });
+
+        // Ancestor Check logic
+        document.getElementById('btn-check-anc').addEventListener('click', () => {
+            const u = parseInt(document.getElementById('anc-u').value);
+            const v = parseInt(document.getElementById('anc-v').value);
+            const resEl = document.getElementById('anc-result');
+            
+            if (!u || !v || u < 1 || u > 10 || v < 1 || v > 10) {
+                resEl.textContent = "Nhập đỉnh từ 1 đến 10."; return;
+            }
+
+            const inU = sim2Data.A.tin[u], outU = sim2Data.A.tout[u];
+            const inV = sim2Data.A.tin[v], outV = sim2Data.A.tout[v];
+            
+            const isAnc = (inU <= inV) && (outU >= outV);
+            
+            if (isAnc) {
+                resEl.innerHTML = `<span style="color: var(--correct);">✔ Đúng!</span> ${u} là tổ tiên của ${v}.<br>Vì đoạn của v [${inV}, ${outV}] nằm hoàn toàn bên trong đoạn của u [${inU}, ${outU}].`;
+            } else {
+                resEl.innerHTML = `<span style="color: var(--wrong);">✘ Sai!</span> ${u} KHÔNG phải tổ tiên của ${v}.<br>Vì đoạn của v [${inV}, ${outV}] không nằm trong đoạn của u [${inU}, ${outU}].`;
+            }
+        });
+
+        // --- STREAMING_CHUNK:Quiz Logic ---
+        
+        const quizData = [
+            {
+                q: "Mục đích chính của kỹ thuật Euler Tour trên cây là gì?",
+                options: [
+                    "Tìm đường đi ngắn nhất giữa hai đỉnh nhanh hơn.",
+                    "Trải phẳng cấu trúc cây thành mảng 1 chiều sao cho cây con là một đoạn liên tục.",
+                    "Giảm bộ nhớ lưu trữ cây từ O(N) xuống O(log N).",
+                    "Tìm Tổ tiên chung gần nhất (LCA) mà không cần DFS."
+                ],
+                ans: 1,
+                exp: "Đúng. Bằng cách ghi nhận thứ tự duyệt DFS, mọi đỉnh trong một cây con sẽ được thăm liên tục, tạo thành một đoạn liên tục trên mảng 1 chiều."
+            },
+            {
+                q: "Nếu dùng Euler Tour kiểu B (chỉ ghi nhận 'pos' lúc vào), mảng phẳng sẽ có kích thước tối đa là bao nhiêu?",
+                options: ["N", "2N", "3N", "N log N"],
+                ans: 0,
+                exp: "Đúng. Kiểu B chỉ gán 1 vị trí duy nhất cho mỗi đỉnh khi bắt đầu thăm, nên mảng có kích thước đúng bằng số đỉnh N."
+            },
+            {
+                q: "Trong kiểu B (đánh số pos + size), công thức đoạn trên mảng tương ứng với cây con của đỉnh u là gì?",
+                options: [
+                    "[ pos[u], pos[u] + size[u] ]",
+                    "[ pos[u] - size[u], pos[u] ]",
+                    "[ pos[u], pos[u] + size[u] - 1 ]",
+                    "[ tin[u], tout[u] ]"
+                ],
+                ans: 2,
+                exp: "Đúng. Bắt đầu từ pos[u] và kéo dài thêm (size[u] - 1) phần tử nữa (do chính pos[u] đã đếm là 1 phần tử)."
+            },
+            {
+                q: "Điều kiện (tin[u] ≤ tin[v] && tout[u] ≥ tout[v]) có ý nghĩa gì?",
+                options: [
+                    "u và v là anh em (cùng cha).",
+                    "u là tổ tiên của v (v nằm trong cây con của u).",
+                    "v là tổ tiên của u.",
+                    "Khoảng cách từ u đến v là (tout[u] - tin[v])."
+                ],
+                ans: 1,
+                exp: "Đúng. Nếu v là con cháu của u, DFS bắt buộc phải vào u trước khi vào v, và ra khỏi v xong mới được ra khỏi u."
+            },
+            {
+                q: "Tại sao kiểu Euler Tour B (mảng kích thước N) thường được ưu tiên khi giải bài tập Cập nhật/Truy vấn cây con bằng Segment Tree?",
+                options: [
+                    "Vì nó dễ code hơn kiểu A.",
+                    "Vì Segment Tree xây trên mảng N tốn ít bộ nhớ và chạy nhanh hơn so với mảng 2N.",
+                    "Vì kiểu A không thể tính tổng cây con được.",
+                    "Vì kiểu B có thể tìm đường đi giữa 2 đỉnh."
+                ],
+                ans: 1,
+                exp: "Đúng. Cây phân đoạn (Segment Tree) tốn O(K) bộ nhớ với K là độ dài mảng. Kích thước N tối ưu tài nguyên gấp đôi so với 2N."
+            },
+            {
+                q: "Độ phức tạp để tính tổng toàn bộ cây con của đỉnh u SAU KHI đã khởi tạo Segment Tree trên mảng Euler là bao nhiêu?",
+                options: ["O(1)", "O(log N)", "O(N)", "O(N log N)"],
+                ans: 1,
+                exp: "Đúng. Vì cây con u nay đã trở thành truy vấn đoạn [L, R] trên Segment Tree, thao tác này mất O(log N)."
+            }
+        ];
+
+        let currentScore = 0;
+        let answered = new Array(quizData.length).fill(false);
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+            
+            quizData.forEach((item, qIdx) => {
+                const qDiv = document.createElement('div');
+                qDiv.className = 'quiz-question';
+                
+                const qTitle = document.createElement('h3');
+                qTitle.style.marginTop = '0'; qTitle.style.color = 'var(--ink)';
+                qTitle.textContent = `Câu ${qIdx + 1}: ${item.q}`;
+                qDiv.appendChild(qTitle);
+                
+                const optsDiv = document.createElement('div');
+                optsDiv.className = 'quiz-options';
+                
+                const explainDiv = document.createElement('div');
+                explainDiv.className = 'quiz-explain';
+                explainDiv.id = `quiz-exp-${qIdx}`;
+                explainDiv.textContent = item.exp;
+
+                item.options.forEach((optText, optIdx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'quiz-opt-btn';
+                    btn.textContent = optText;
+                    
+                    btn.onclick = () => {
+                        if(answered[qIdx]) return; // Only answer once
+                        answered[qIdx] = true;
+                        
+                        // Disable all buttons in this question
+                        optsDiv.childNodes.forEach(b => b.disabled = true);
+                        
+                        if(optIdx === item.ans) {
+                            btn.classList.add('correct');
+                            currentScore++;
+                            document.getElementById('quiz-score').textContent = currentScore;
+                        } else {
+                            btn.classList.add('wrong');
+                            // Highlight correct answer
+                            optsDiv.childNodes[item.ans].classList.add('correct');
+                        }
+                        
+                        explainDiv.style.display = 'block';
+                    };
+                    
+                    optsDiv.appendChild(btn);
+                });
+                
+                qDiv.appendChild(optsDiv);
+                qDiv.appendChild(explainDiv);
+                container.appendChild(qDiv);
+            });
+        }
+        
+        renderQuiz();
+
+    </script>
+</body>
+</html>
