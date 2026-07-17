@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lời giải: Tìm kiếm số hoàn hảo (arr2d_047)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
+            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
+            --text-main: #E2E8F0; --text-muted: #94A3B8;
+            --glow: 0 0 20px rgba(56,214,196,.4);
+            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
+            --border: 1px solid rgba(255,255,255,.1);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg); color: var(--text-main);
+            line-height: 1.6; padding-bottom: 60px;
+        }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.03em; }
+        
+        /* Navigation */
+        .topnav {
+            position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center;
+            padding: 12px 24px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px);
+            border-bottom: var(--border); max-width: 1200px; margin: 0 auto; width: 100%;
+        }
+        .nav-btn {
+            text-decoration: none; color: #000;
+            background: linear-gradient(135deg, var(--accent2), var(--accent));
+            padding: 8px 18px; border-radius: 8px; font-weight: 600;
+            box-shadow: var(--glow); transition: all .3s ease; font-size: 0.9rem;
+        }
+        .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
+        .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
+
+        /* Container */
+        .container { max-width: 1000px; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; gap: 32px; }
+        
+        /* Typography */
+        p { margin-bottom: 16px; color: var(--text-muted); }
+        strong { color: var(--text-main); font-weight: 600; }
+        code { font-family: 'JetBrains Mono', monospace; background: rgba(255,255,255,.05); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: var(--accent); }
+        
+        /* Badges & Hero */
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; background: rgba(91,140,255,.15); color: var(--accent2); border: 1px solid rgba(91,140,255,.3); margin-bottom: 16px; margin-right: 8px;}
+        .hero { text-align: center; padding: 40px 0 20px; }
+        .hero h1 { font-size: 2.5rem; color: #fff; margin-bottom: 16px; }
+        .hero p { font-size: 1.1rem; max-width: 800px; margin: 0 auto; color: var(--text-main); }
+        
+        /* Cards */
+        .card { background: linear-gradient(180deg, var(--panel), var(--bg2)); border: var(--border); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); }
+        .card h2 { font-size: 1.5rem; margin-bottom: 20px; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .card h2::before { content: ''; display: block; width: 4px; height: 24px; background: var(--accent); border-radius: 2px; }
+        
+        /* Algorithm Steps Card */
+        .algo-steps {
+            background: linear-gradient(180deg, rgba(56,214,196,.06), transparent);
+            border: 1px solid rgba(56,214,196,.35); border-left: 4px solid var(--accent);
+            border-radius: 14px; padding: 20px 24px;
+        }
+        .algo-steps h3 { color: var(--accent); margin-bottom: 10px; font-family: 'Space Grotesk', sans-serif; }
+        .algo-steps ol { margin: 0; padding-left: 22px; color: var(--text-main); }
+        .algo-steps ol > li { margin-bottom: 12px; line-height: 1.6; }
+        .algo-steps ul { margin: 6px 0 10px; padding-left: 18px; list-style: none; }
+        .algo-steps ul > li { position: relative; padding-left: 14px; margin-bottom: 6px; color: var(--text-muted); }
+        .algo-steps ul > li::before { content: "–"; position: absolute; left: 0; color: var(--accent); }
+        .algo-steps code { background: rgba(91,140,255,.14); color: #A9C4FF; padding: .05em .4em; border-radius: 5px; }
+
+        /* Code Blocks */
+        .code-block { background: #0A1220; border: var(--border); border-radius: 12px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6; padding: 16px 0; }
+        .codeline { padding: 0 16px; white-space: pre-wrap; border-left: 3px solid transparent; transition: all 0.2s; }
+        .codeline.hot { background: rgba(255,180,84,.1); border-left: 3px solid var(--mark); }
+        
+        /* Syntax Highlighting */
+        .c-kw { color: #FF7B72; } /* Keyword */
+        .c-num { color: #79C0FF; } /* Number */
+        .c-str { color: #A5D6FF; } /* String */
+        .c-fn { color: #D2A8FF; } /* Function */
+        .c-op { color: #C9D1D9; } /* Operator */
+        .c-cm { color: #8B949E; font-style: italic; } /* Comment */
+
+        /* Interactive Lab UI */
+        .lab-container { margin-top: 20px; border: 1px solid rgba(255,255,255,.05); border-radius: 12px; overflow: hidden; background: #0A1220; }
+        .lab-header { background: rgba(255,255,255,.03); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,.05); }
+        .lab-controls { display: flex; gap: 8px; }
+        .btn-icon { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: var(--text-main); padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 0.85rem; font-family: 'Inter'; display: flex; align-items: center; justify-content: center;}
+        .btn-icon:hover:not(:disabled) { background: rgba(255,255,255,.1); color: #fff; }
+        .btn-icon:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: rgba(56,214,196,.15); color: var(--accent); border-color: rgba(56,214,196,.3); }
+        .btn-primary:hover:not(:disabled) { background: rgba(56,214,196,.25); }
+        
+        .lab-body { display: flex; flex-direction: column; gap: 0; }
+        @media (min-width: 768px) { .lab-body { flex-direction: row; } }
+        .lab-view { flex: 1; padding: 20px; border-bottom: 1px solid rgba(255,255,255,.05); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; }
+        @media (min-width: 768px) { .lab-view { border-bottom: none; border-right: 1px solid rgba(255,255,255,.05); } }
+        .lab-code { flex: 1; font-family: 'JetBrains Mono'; font-size: 0.85rem; padding: 16px 0; max-height: 300px; overflow-y: auto; }
+        .lab-msg { padding: 16px; background: rgba(56,214,196,.05); border-top: 1px solid rgba(56,214,196,.1); color: var(--text-main); font-size: 0.95rem; min-height: 60px; display: flex; align-items: center;}
+        
+        /* Grid Visualization */
+        .grid-vis { display: flex; flex-direction: column; gap: 4px; background: #000; padding: 10px; border-radius: 8px; overflow-x: auto;}
+        .grid-row { display: flex; gap: 4px; flex: none; white-space: nowrap; }
+        .grid-cell { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: #1A2639; border-radius: 4px; font-family: 'JetBrains Mono'; font-weight: 600; color: #fff; transition: all 0.3s; position: relative;}
+        .grid-cell.active { background: rgba(255,180,84,.2); border: 2px solid var(--mark); color: var(--mark); transform: scale(1.05); z-index: 2;}
+        .grid-cell.perfect { background: rgba(56,214,196,.2); border: 2px solid var(--accent); color: var(--accent); }
+        .grid-cell.dim { opacity: 0.4; }
+        
+        .var-panel { display: flex; gap: 16px; margin-top: 20px; flex-wrap: wrap; justify-content: center;}
+        .var-box { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.1); padding: 8px 16px; border-radius: 8px; font-family: 'JetBrains Mono'; font-size: 0.9rem; }
+        .var-label { color: var(--text-muted); margin-right: 8px; font-family: 'Inter'; font-size: 0.8rem; }
+        .var-val { color: var(--mark); font-weight: 600; }
+        .var-val.success { color: var(--accent); }
+
+        /* Quiz */
+        .quiz { background: rgba(0,0,0,.2); border-radius: 12px; padding: 20px; margin-top: 24px; border: 1px solid rgba(255,255,255,.05); }
+        .quiz p { color: #fff; font-weight: 500; margin-bottom: 16px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-btn { text-align: left; background: #111E36; border: 1px solid rgba(255,255,255,.1); color: var(--text-main); padding: 12px 16px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.95rem; line-height: 1.4; }
+        .quiz-btn:hover:not(:disabled) { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.3); }
+        .quiz-btn.correct { background: rgba(56,214,196,.1); border-color: var(--accent); color: #fff; }
+        .quiz-btn.wrong { background: rgba(255,107,107,.1); border-color: var(--red); color: #fff; }
+        .quiz-btn:disabled { cursor: default; opacity: 0.8; }
+        .quiz-exp { margin-top: 16px; padding: 12px 16px; border-radius: 8px; font-size: 0.9rem; display: none; }
+        .quiz-exp.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Performance Bar Lab */
+        .perf-container { width: 100%; max-width: 400px; margin-top: 20px; }
+        .perf-label { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.85rem; font-family: 'JetBrains Mono'; }
+        .perf-bar-bg { width: 100%; height: 12px; background: rgba(255,255,255,.1); border-radius: 6px; overflow: hidden; margin-bottom: 12px; position: relative;}
+        .perf-bar-fill { height: 100%; width: 0; border-radius: 6px; transition: width 1s ease-out; }
+        .fill-naive { background: var(--red); }
+        .fill-opt { background: var(--accent); }
+
+        /* Pitfalls */
+        .pitfall-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
+        @media (min-width: 768px) { .pitfall-grid { grid-template-columns: 1fr 1fr; } }
+        .pitfall-card { padding: 16px; border-radius: 12px; background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.05); }
+        .pitfall-card.wrong { border-top: 3px solid var(--red); }
+        .pitfall-card.right { border-top: 3px solid var(--accent); }
+        .pitfall-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-weight: 600; }
+        .pitfall-card.wrong .pitfall-header { color: var(--red); }
+        .pitfall-card.right .pitfall-header { color: var(--accent); }
+    </style>
+</head>
+<body>
+
+    <nav class="topnav">
+        <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
+        <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+    </nav>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="badge">Nền tảng</div>
+            <div class="badge">Mảng 2D</div>
+            <h1>Tìm kiếm số hoàn hảo</h1>
+            <p>Bí quyết của bài toán này không nằm ở vòng lặp ma trận, mà nằm ở <strong>sự hiểu biết về toán học</strong> đằng sau giới hạn của dữ liệu đầu vào.</p>
+        </section>
+
+        <!-- Problem Summary -->
+        <section class="card">
+            <h2>Tóm tắt đề bài</h2>
+            <p><strong>Nhiệm vụ:</strong> Cho một ma trận kích thước N × M. Tìm số hoàn hảo lớn nhất xuất hiện trong ma trận. Nếu không có, in ra <code>-1</code>.</p>
+            <p><strong>Số hoàn hảo:</strong> Là số nguyên dương bằng tổng các ước dương nhỏ hơn chính nó (ví dụ: 6 = 1 + 2 + 3).</p>
+            <p><strong>Ràng buộc:</strong>
+                <br>– Kích thước ma trận: 1 ≤ N, M ≤ 1000.
+                <br>– Giá trị phần tử: 1 ≤ a<sub>ij</sub> ≤ 10<sup>9</sup>.
+            </p>
+            <p><strong>Ví dụ:</strong></p>
+            <div class="code-block" style="padding: 12px 16px; font-size: 0.85rem;">
+Input:
+2 3
+6 12 28
+496 10 8
+
+Output:
+496
+            </div>
+        </section>
+
+        <!-- Initial Analysis -->
+        <section class="card">
+            <h2>Phân tích ban đầu</h2>
+            <p>Cách "ngây thơ" nhất mà chúng ta thường nghĩ tới: Duyệt qua từng ô của ma trận, và với mỗi giá trị X tại ô đó, ta dùng một vòng lặp từ 1 đến √X để tìm tất cả các ước số, cộng chúng lại và so sánh với X.</p>
+            <p><strong>Vì sao cách này thất bại?</strong></p>
+            <p>Ma trận có tối đa 1000 × 1000 = 10<sup>6</sup> phần tử. Trong trường hợp xấu nhất, mỗi phần tử đều có giá trị gần 10<sup>9</sup>. Việc kiểm tra một số tốn khoảng √10<sup>9</sup> ≈ 31622 phép toán.</p>
+            <p>Tổng số phép toán sẽ là: 10<sup>6</sup> × 31622 ≈ <strong>3 × 10<sup>10</sup> phép toán</strong>. Con số này vượt xa ngưỡng cho phép thường thấy của các kỳ thi (khoảng 10<sup>8</sup> phép toán mỗi giây), và chắc chắn sẽ bị <strong>Quá thời gian (Time Limit Exceeded - TLE)</strong>.</p>
+            <p>Vậy, ta cần một cách kiểm tra số hoàn hảo siêu tốc, tốn chi phí O(1) thay vì O(√X). Chìa khóa chính là <em>sự thưa thớt</em> của số hoàn hảo.</p>
+        </section>
+
+        <!-- Module 1 -->
+        <section class="card">
+            <h2>1. Sự thưa thớt của số hoàn hảo</h2>
+            <p>Trong toán học, các số hoàn hảo vô cùng hiếm. Tính đến hiện tại, con người mới chỉ tìm ra khoảng hơn 50 số hoàn hảo, và khoảng cách giữa chúng tăng lên theo cấp số nhân.</p>
+            <p>Đề bài cho giới hạn phần tử a<sub>ij</sub> ≤ 10<sup>9</sup>. Hãy thử liệt kê xem có bao nhiêu số hoàn hảo nằm trong phạm vi này:</p>
+            <ul>
+                <li>P<sub>1</sub> = 6</li>
+                <li>P<sub>2</sub> = 28</li>
+                <li>P<sub>3</sub> = 496</li>
+                <li>P<sub>4</sub> = 8128</li>
+                <li>P<sub>5</sub> = 33550336</li>
+                <li>P<sub>6</sub> = 8589869056 <em>(Đã vượt quá 10<sup>9</sup>)</em></li>
+            </ul>
+            <p>Bất ngờ chưa? <strong>Chỉ có chính xác 5 số hoàn hảo</strong> có thể xuất hiện trong test của bài toán này! Thay vì phải mất công đi tìm ước và tính tổng cho từng số, ta chỉ cần so sánh giá trị a<sub>ij</sub> xem nó có bằng một trong 5 con số "vàng" này hay không.</p>
+
+            <!-- Mini Lab M1 -->
+            <div class="lab-container" id="lab1-container">
+                <div class="lab-header">
+                    <span>Mô phỏng: So sánh tốc độ kiểm tra X = 33550336</span>
+                    <button class="btn-icon btn-primary" id="lab1-btn-run">So sánh ngay</button>
+                </div>
+                <div class="lab-view" style="min-height: 150px;">
+                    <div class="perf-container">
+                        <div class="perf-label"><span>Cách Ngây Thơ (Lặp tìm ước)</span> <span id="lab1-lbl-naive">0 phép toán</span></div>
+                        <div class="perf-bar-bg"><div class="perf-bar-fill fill-naive" id="lab1-bar-naive"></div></div>
+                        
+                        <div class="perf-label"><span>Cách Tối Ưu (So khớp mảng)</span> <span id="lab1-lbl-opt">0 phép toán</span></div>
+                        <div class="perf-bar-bg"><div class="perf-bar-fill fill-opt" id="lab1-bar-opt"></div></div>
+                    </div>
+                    <p style="margin-top: 10px; font-size: 0.9rem; color: var(--accent); text-align: center; height: 20px;" id="lab1-msg"></p>
+                </div>
+            </div>
+
+            <!-- Quiz M1 -->
+            <div class="quiz" id="q1">
+                <p>❓ Dựa vào quan sát trên, nếu giới hạn của a<sub>ij</sub> tăng lên đến 10<sup>18</sup>, phương pháp lưu sẵn danh sách số hoàn hảo (precomputation) còn khả thi hay không?</p>
+                <div class="quiz-options">
+                    <button class="quiz-btn" data-ans="1">A. Không, vì mảng lưu danh sách sẽ tốn quá nhiều bộ nhớ (vượt quá giới hạn RAM).</button>
+                    <button class="quiz-btn" data-ans="2">B. Không, vì việc so sánh với một danh sách quá dài sẽ tốn nhiều thời gian (TLE).</button>
+                    <button class="quiz-btn" data-ans="3">C. Có, vì số hoàn hảo cực kì hiếm. Dưới 10<sup>18</sup> chỉ có vỏn vẹn 8 số hoàn hảo, hoàn toàn lọt thỏm trong 1 mảng nhỏ bé.</button>
+                </div>
+                <div class="quiz-exp" id="q1-exp"></div>
+            </div>
+        </section>
+
+        <!-- Module 2 -->
+        <section class="card">
+            <h2>2. Duyệt ma trận và duy trì kết quả Max</h2>
+            <p>Sau khi đã có "vũ khí" là danh sách 5 số hoàn hảo, việc còn lại rất đơn giản: Ta duyệt lần lượt qua các ô của ma trận 2 chiều.</p>
+            <p>Tại mỗi ô, ta kiểm tra xem nó có nằm trong danh sách không. Nếu có, ta cập nhật lại biến lưu trữ kết quả lớn nhất (giả sử đặt tên là <code>ans</code>).</p>
+            <p><strong>Cạm bẫy khởi tạo:</strong> Đề bài yêu cầu in ra <code>-1</code> nếu không tìm thấy số hoàn hảo nào. Do mọi số hoàn hảo đều là số dương (> 0), ta có thể khởi tạo giá trị ban đầu của <code>ans = -1</code>. Nếu duyệt hết ma trận mà <code>ans</code> vẫn là -1, nghĩa là không có số nào hợp lệ, ta in thẳng <code>ans</code> ra là chính xác.</p>
+
+            <!-- Lab M2 -->
+            <div class="lab-container" id="lab2-container">
+                <div class="lab-header">
+                    <span>Mô phỏng: Quá trình duyệt tìm Max (Mảng 2×3)</span>
+                    <div class="lab-controls">
+                        <button class="btn-icon" id="lab2-btn-reset">Reset</button>
+                        <button class="btn-icon" id="lab2-btn-prev">Lùi</button>
+                        <button class="btn-icon" id="lab2-btn-next">Tiến <span id="lab2-lbl-step" style="margin-left:4px;opacity:0.6;font-size:0.8em"></span></button>
+                        <button class="btn-icon btn-primary" id="lab2-btn-auto">Tự chạy</button>
+                    </div>
+                </div>
+                <div class="lab-body">
+                    <div class="lab-view">
+                        <div class="grid-vis" id="lab2-grid">
+                            <!-- JS will inject grid here -->
+                        </div>
+                        <div class="var-panel">
+                            <div class="var-box"><span class="var-label">ans</span><span class="var-val" id="lab2-var-ans">-1</span></div>
+                            <div class="var-box"><span class="var-label">i</span><span class="var-val" id="lab2-var-i">-</span></div>
+                            <div class="var-box"><span class="var-label">j</span><span class="var-val" id="lab2-var-j">-</span></div>
+                        </div>
+                    </div>
+                    <div class="lab-code">
+<div class="codeline" id="lab2-l1"><span class="c-kw">long long</span> ans = -1;</div>
+<div class="codeline" id="lab2-l2"><span class="c-kw">for</span> (<span class="c-kw">int</span> i = 0; i &lt; N; i++) {</div>
+<div class="codeline" id="lab2-l3">    <span class="c-kw">for</span> (<span class="c-kw">int</span> j = 0; j &lt; M; j++) {</div>
+<div class="codeline" id="lab2-l4">        <span class="c-kw">if</span> (<span class="c-fn">isPerfect</span>(a[i][j])) {</div>
+<div class="codeline" id="lab2-l5">            ans = <span class="c-fn">max</span>(ans, a[i][j]);</div>
+<div class="codeline">        }</div>
+<div class="codeline">    }</div>
+<div class="codeline">}</div>
+<div class="codeline" id="lab2-l6"><span class="c-kw">return</span> ans;</div>
+                    </div>
+                </div>
+                <div class="lab-msg" id="lab2-msg">Nhấn Tiến hoặc Tự chạy để bắt đầu.</div>
+            </div>
+
+            <!-- Quiz M2 -->
+            <div class="quiz" id="q2">
+                <p>❓ Vì sao chúng ta dùng hàm kiểm tra từng số (<code>isPerfect</code>) thay vì lưu 5 số vào một mảng, rồi duyệt 5 số đó tìm xem nó có nằm trong ma trận không?</p>
+                <div class="quiz-options">
+                    <button class="quiz-btn" data-ans="1">A. Vì duyệt 5 số sẽ tốn thời gian hơn là duyệt ma trận.</button>
+                    <button class="quiz-btn" data-ans="2">B. Việc tìm xem 1 số có trong ma trận (chưa sắp xếp) tốn O(N × M). Dù chỉ có 5 số, tổng thời gian vẫn là 5 × N × M, bản chất độ phức tạp tương đương nhưng cài đặt phức tạp hơn.</button>
+                    <button class="quiz-btn" data-ans="3">C. Vì làm cách đó sẽ không lấy được giá trị Max.</button>
+                </div>
+                <div class="quiz-exp" id="q2-exp"></div>
+            </div>
+        </section>
+
+        <!-- Algorithm Steps -->
+        <section class="algo-steps">
+            <h3>Thuật toán từng bước</h3>
+            <ol>
+                <li><strong>Chuẩn bị danh sách số hoàn hảo:</strong>
+                    <ul>
+                        <li>Tạo một tập hợp hoặc mảng chứa 5 số hoàn hảo hợp lệ: <code>{6, 28, 496, 8128, 33550336}</code>.</li>
+                        <li>Viết một hàm <code>isPerfect(x)</code> để kiểm tra nhanh một số <code>x</code> có nằm trong danh sách này hay không.</li>
+                    </ul>
+                </li>
+                <li><strong>Khởi tạo biến theo dõi:</strong>
+                    <ul>
+                        <li>Khai báo biến <code>ans = -1</code> để lưu số hoàn hảo lớn nhất tìm được. Lý do dùng <code>-1</code> là để bao hàm luôn trường hợp không tìm thấy.</li>
+                    </ul>
+                </li>
+                <li><strong>Duyệt ma trận đầu vào:</strong>
+                    <ul>
+                        <li>Dùng 2 vòng lặp lồng nhau duyệt chỉ số dòng <code>i</code> từ 0 đến N-1, và chỉ số cột <code>j</code> từ 0 đến M-1.</li>
+                        <li>Với mỗi phần tử <code>a[i][j]</code>, gọi hàm <code>isPerfect(a[i][j])</code>.</li>
+                        <li>Nếu hàm trả về <code>true</code>, thực hiện cập nhật: <code>ans = max(ans, a[i][j])</code>.</li>
+                    </ul>
+                </li>
+                <li><strong>Xuất kết quả:</strong>
+                    <ul>
+                        <li>Sau khi kết thúc vòng lặp, in giá trị của <code>ans</code> ra màn hình.</li>
+                    </ul>
+                </li>
+            </ol>
+        </section>
+
+        <!-- Cài đặt -->
+        <section class="card">
+            <h2>Cài đặt</h2>
+            <div class="code-block">
+<div class="codeline"><span class="c-cm">#include &lt;iostream&gt;</span></div>
+<div class="codeline"><span class="c-cm">#include &lt;vector&gt;</span></div>
+<div class="codeline"><span class="c-cm">#include &lt;algorithm&gt;</span></div>
+<div class="codeline"><span class="c-kw">using namespace</span> std;</div>
+<div class="codeline"></div>
+<div class="codeline"><span class="c-cm">// Mảng chứa 5 số hoàn hảo duy nhất trong giới hạn 10^9</span></div>
+<div class="codeline"><span class="c-kw">const long long</span> PERFECT_NUMS[] = {6, 28, 496, 8128, 33550336};</div>
+<div class="codeline"></div>
+<div class="codeline"><span class="c-cm">// Hàm kiểm tra chi phí O(1)</span></div>
+<div class="codeline"><span class="c-kw">bool</span> <span class="c-fn">isPerfect</span>(<span class="c-kw">long long</span> x) {</div>
+<div class="codeline">    <span class="c-kw">for</span> (<span class="c-kw">int</span> i = 0; i &lt; 5; i++) {</div>
+<div class="codeline">        <span class="c-kw">if</span> (x == PERFECT_NUMS[i]) <span class="c-kw">return true</span>;</div>
+<div class="codeline">    }</div>
+<div class="codeline">    <span class="c-kw">return false</span>;</div>
+<div class="codeline">}</div>
+<div class="codeline"></div>
+<div class="codeline"><span class="c-kw">int</span> <span class="c-fn">main</span>() {</div>
+<div class="codeline">    <span class="c-cm">// Tối ưu I/O để đọc dữ liệu lớn nhanh hơn</span></div>
+<div class="codeline">    ios_base::sync_with_stdio(<span class="c-kw">false</span>);</div>
+<div class="codeline">    cin.tie(NULL);</div>
+<div class="codeline"></div>
+<div class="codeline">    <span class="c-kw">int</span> N, M;</div>
+<div class="codeline">    <span class="c-kw">if</span> (!(cin &gt;&gt; N &gt;&gt; M)) <span class="c-kw">return</span> 0;</div>
+<div class="codeline"></div>
+<div class="codeline">    <span class="c-kw">long long</span> ans = -1; <span class="c-cm">// Khởi tạo là -1 như bước phân tích</span></div>
+<div class="codeline"></div>
+<div class="codeline">    <span class="c-kw">for</span> (<span class="c-kw">int</span> i = 0; i &lt; N; i++) {</div>
+<div class="codeline">        <span class="c-kw">for</span> (<span class="c-kw">int</span> j = 0; j &lt; M; j++) {</div>
+<div class="codeline">            <span class="c-kw">long long</span> val;</div>
+<div class="codeline">            cin &gt;&gt; val;</div>
+<div class="codeline">            <span class="c-kw">if</span> (<span class="c-fn">isPerfect</span>(val)) {</div>
+<div class="codeline">                ans = <span class="c-fn">max</span>(ans, val);</div>
+<div class="codeline">            }</div>
+<div class="codeline">        }</div>
+<div class="codeline">    }</div>
+<div class="codeline"></div>
+<div class="codeline">    cout &lt;&lt; ans &lt;&lt; <span class="c-str">"\n"</span>;</div>
+<div class="codeline">    <span class="c-kw">return</span> 0;</div>
+<div class="codeline">}</div>
+            </div>
+        </section>
+
+        <!-- Độ phức tạp & Cạm bẫy -->
+        <section class="card">
+            <h2>Độ phức tạp & Cạm bẫy</h2>
+            <p><strong>Thời gian (Time Complexity):</strong> O(N × M). Vòng lặp duyệt qua ma trận tốn N × M lần. Tại mỗi phần tử, thao tác so sánh với mảng tốn tối đa 5 bước (hằng số O(1)). Tổng số phép tính khoảng 10<sup>6</sup>, chạy dư sức qua giới hạn 1 giây của hệ thống.</p>
+            <p><strong>Không gian (Space Complexity):</strong> O(1). Chúng ta không cần lưu toàn bộ ma trận vào bộ nhớ mà có thể vừa đọc <code>cin &gt;&gt; val</code> vừa xử lý trực tiếp, tiết kiệm được rất nhiều RAM.</p>
+
+            <div class="pitfall-grid">
+                <div class="pitfall-card wrong">
+                    <div class="pitfall-header">✕ Lỗi dễ mắc: Khởi tạo ans = 0</div>
+                    <p>Nhiều bạn có thói quen khai báo <code>long long ans = 0;</code> khi tìm Max. Tuy nhiên, nếu ma trận <strong>không có số hoàn hảo nào</strong>, vòng lặp kết thúc và kết quả in ra là <code>0</code> thay vì <code>-1</code> như yêu cầu của đề.</p>
+                </div>
+                <div class="pitfall-card right">
+                    <div class="pitfall-header">✓ Xử lý đúng: Khởi tạo ans = -1</div>
+                    <p>Bằng cách cho <code>ans = -1</code> từ đầu. Do mọi số hoàn hảo đều lớn hơn 0, nếu có ít nhất 1 số hoàn hảo tồn tại thì <code>ans</code> chắc chắn sẽ được ghi đè bằng số dương. Nếu không, nó giữ nguyên <code>-1</code> và là kết quả chính xác để in ra.</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Utilities
+        function escapeHTML(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // ==========================================
+        // MODULE 1: Performance Timeline Lab
+        // ==========================================
+        const lab1 = (function() {
+            const btnRun = document.getElementById('lab1-btn-run');
+            const barNaive = document.getElementById('lab1-bar-naive');
+            const barOpt = document.getElementById('lab1-bar-opt');
+            const lblNaive = document.getElementById('lab1-lbl-naive');
+            const lblOpt = document.getElementById('lab1-lbl-opt');
+            const msg = document.getElementById('lab1-msg');
+            let isRunning = false;
+
+            btnRun.addEventListener('click', () => {
+                if(isRunning) return;
+                isRunning = true;
+                btnRun.disabled = true;
+                
+                // Reset
+                barNaive.style.width = '0%';
+                barOpt.style.width = '0%';
+                lblNaive.innerText = '0 phép toán';
+                lblOpt.innerText = '0 phép toán';
+                msg.innerText = "Đang kiểm tra bằng tập hợp cố định...";
+
+                // Animate Opt
+                setTimeout(() => {
+                    barOpt.style.width = '5%'; 
+                    lblOpt.innerText = '5 phép toán (O(1))';
+                    msg.innerText = "Hoàn thành cực nhanh! Giờ thử cách ngây thơ...";
+                    
+                    // Animate Naive
+                    setTimeout(() => {
+                        let width = 0;
+                        let count = 0;
+                        const interval = setInterval(() => {
+                            width += 2;
+                            count += 115; // simulate counting up to ~5792
+                            if(width >= 100) {
+                                width = 100;
+                                count = 5792;
+                                clearInterval(interval);
+                                msg.innerText = "Kiểm tra vòng lặp quá lâu (O(√X))! Khác biệt là quá lớn.";
+                                setTimeout(() => {
+                                    isRunning = false;
+                                    btnRun.disabled = false;
+                                    btnRun.innerText = "So sánh lại";
+                                }, 1000);
+                            }
+                            barNaive.style.width = width + '%';
+                            lblNaive.innerText = count + ' phép toán (O(√X))';
+                        }, 20);
+                    }, 1000);
+                }, 500);
+            });
+        })();
+
+        // Quiz M1
+        document.querySelectorAll('#q1 .quiz-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const ans = this.getAttribute('data-ans');
+                const exp = document.getElementById('q1-exp');
+                document.querySelectorAll('#q1 .quiz-btn').forEach(b => {
+                    b.disabled = true;
+                    if(b.getAttribute('data-ans') === '3') b.classList.add('correct');
+                    else b.classList.add('wrong');
+                });
+                
+                if (ans === '3') {
+                    exp.innerHTML = "<strong>✅ Đúng!</strong> Dưới 10<sup>18</sup>, số lượng số hoàn hảo vẫn cực kì ít (tăng lên không đáng kể). Ta vẫn có thể copy nguyên danh sách vài con số đó nhét vào code để chạy O(1).";
+                    exp.style.background = "rgba(56,214,196,.1)";
+                    exp.style.borderLeft = "4px solid var(--accent)";
+                } else {
+                    exp.innerHTML = "<strong>❌ Chưa chính xác.</strong> Tính chất toán học cho thấy số hoàn hảo rất hiếm. Giới hạn 10<sup>18</sup> vẫn chỉ sinh ra thêm vài con số, hoàn toàn có thể lưu bằng <code>long long</code> trong mảng dưới 20 phần tử.";
+                    exp.style.background = "rgba(255,107,107,.1)";
+                    exp.style.borderLeft = "4px solid var(--red)";
+                }
+                exp.classList.add('show');
+            });
+        });
+
+        // ==========================================
+        // MODULE 2: Matrix State Machine Lab
+        // ==========================================
+        const lab2 = (function() {
+            const gridData = [
+                [6, 12, 28],
+                [496, 10, 8]
+            ];
+            const perfectSet = new Set([6, 28, 496, 8128, 33550336]);
+            let steps = [];
+            let sp = 0;
+            let autoTimer = null;
+
+            // DOM
+            const btnPrev = document.getElementById('lab2-btn-prev');
+            const btnNext = document.getElementById('lab2-btn-next');
+            const btnReset = document.getElementById('lab2-btn-reset');
+            const btnAuto = document.getElementById('lab2-btn-auto');
+            const lblStep = document.getElementById('lab2-lbl-step');
+            const gridEl = document.getElementById('lab2-grid');
+            
+            const vAns = document.getElementById('lab2-var-ans');
+            const vI = document.getElementById('lab2-var-i');
+            const vJ = document.getElementById('lab2-var-j');
+            const msgEl = document.getElementById('lab2-msg');
+
+            // Build Initial Grid UI
+            function buildGrid() {
+                gridEl.innerHTML = '';
+                for(let i=0; i<gridData.length; i++) {
+                    const row = document.createElement('div');
+                    row.className = 'grid-row';
+                    for(let j=0; j<gridData[i].length; j++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'grid-cell';
+                        cell.id = `lab2-cell-${i}-${j}`;
+                        cell.innerText = gridData[i][j];
+                        row.appendChild(cell);
+                    }
+                    gridEl.appendChild(row);
+                }
+            }
+
+            // Pre-calculate all states
+            function makeSteps() {
+                steps = [];
+                let ans = -1;
+                
+                steps.push({ line: 'lab2-l1', ans: ans, r: -1, c: -1, hl: [], perfects: [],
+                    msg: "Bắt đầu thuật toán. Khởi tạo ans = -1. Nếu sau khi quét không có số nào, in ra -1." });
+                
+                let foundPerfects = [];
+
+                for (let i = 0; i < gridData.length; i++) {
+                    steps.push({ line: 'lab2-l2', ans: ans, r: i, c: -1, hl: [], perfects: [...foundPerfects],
+                        msg: `Vòng lặp ngoài: Bắt đầu xét dòng i = ${i}.` });
+                    
+                    for (let j = 0; j < gridData[i].length; j++) {
+                        let val = gridData[i][j];
+                        let isPerf = perfectSet.has(val);
+                        
+                        steps.push({ line: 'lab2-l3', ans: ans, r: i, c: j, hl: [[i,j]], perfects: [...foundPerfects],
+                            msg: `Vòng lặp trong: Xét phần tử tại dòng i=${i}, cột j=${j}. Giá trị a[${i}][${j}] = ${val}.` });
+                        
+                        steps.push({ line: 'lab2-l4', ans: ans, r: i, c: j, hl: [[i,j]], perfects: [...foundPerfects],
+                            msg: `Kiểm tra ${val} có nằm trong danh sách 5 số hoàn hảo không? -> ${isPerf ? 'CÓ' : 'KHÔNG'}.` });
+                        
+                        if (isPerf) {
+                            let oldAns = ans;
+                            ans = Math.max(ans, val);
+                            foundPerfects.push([i,j]);
+                            steps.push({ line: 'lab2-l5', ans: ans, r: i, c: j, hl: [[i,j]], perfects: [...foundPerfects],
+                                msg: `Cập nhật ans = max(${oldAns}, ${val}) = ${ans}.` });
+                        }
+                    }
+                }
+                steps.push({ line: 'lab2-l6', ans: ans, r: -1, c: -1, hl: [], perfects: [...foundPerfects],
+                    msg: `Đã duyệt xong ma trận. Số hoàn hảo lớn nhất tìm được là ans = ${ans}.` });
+            }
+
+            function paint(s) {
+                const st = steps[s];
+                
+                // Update Line Highlighting
+                document.querySelectorAll('#lab2-container .codeline.hot').forEach(el => el.classList.remove('hot'));
+                if(st.line) {
+                    const l = document.getElementById(st.line);
+                    if(l) l.classList.add('hot');
+                }
+
+                // Update Grid UI
+                document.querySelectorAll('#lab2-grid .grid-cell').forEach(el => {
+                    el.className = 'grid-cell dim'; // Dim all initially
+                });
+                
+                // Highlight active cell
+                st.hl.forEach(pos => {
+                    const cell = document.getElementById(`lab2-cell-${pos[0]}-${pos[1]}`);
+                    if(cell) cell.className = 'grid-cell active';
+                });
+
+                // Highlight historical perfects
+                st.perfects.forEach(pos => {
+                    const cell = document.getElementById(`lab2-cell-${pos[0]}-${pos[1]}`);
+                    if(cell && !cell.classList.contains('active')) {
+                        cell.className = 'grid-cell perfect';
+                    }
+                });
+
+                // Re-brighten current row if entering row
+                if(st.r !== -1 && st.c === -1) {
+                     for(let j=0; j<gridData[st.r].length; j++) {
+                         document.getElementById(`lab2-cell-${st.r}-${j}`).classList.remove('dim');
+                     }
+                }
+
+                // Update Vars
+                vAns.innerText = st.ans;
+                if(st.ans !== -1) vAns.classList.add('success'); else vAns.classList.remove('success');
+                vI.innerText = st.r === -1 ? '-' : st.r;
+                vJ.innerText = st.c === -1 ? '-' : st.c;
+
+                // Update Message & Counter
+                msgEl.innerHTML = `<strong>Bước ${s+1}/${steps.length}:</strong> ` + st.msg;
+                lblStep.innerText = `(${s+1}/${steps.length})`;
+
+                // Buttons
+                btnPrev.disabled = (s === 0);
+                btnNext.disabled = (s === steps.length - 1);
+                
+                if(s === steps.length - 1 && autoTimer) {
+                    clearInterval(autoTimer); autoTimer = null;
+                    btnAuto.innerText = "Tự chạy";
+                }
+            }
+
+            // Events
+            btnNext.addEventListener('click', () => { if(sp < steps.length-1) { sp++; paint(sp); } });
+            btnPrev.addEventListener('click', () => { if(sp > 0) { sp--; paint(sp); } });
+            btnReset.addEventListener('click', () => { 
+                if(autoTimer) { clearInterval(autoTimer); autoTimer = null; btnAuto.innerText = "Tự chạy"; }
+                sp = 0; paint(sp); 
+            });
+            btnAuto.addEventListener('click', () => {
+                if(autoTimer) {
+                    clearInterval(autoTimer); autoTimer = null;
+                    btnAuto.innerText = "Tự chạy";
+                } else {
+                    if(sp === steps.length - 1) sp = 0; // wrap around
+                    btnAuto.innerText = "Dừng";
+                    autoTimer = setInterval(() => {
+                        if(sp < steps.length-1) { sp++; paint(sp); }
+                    }, 800);
+                }
+            });
+
+            // Init
+            buildGrid();
+            makeSteps();
+            return {
+                init: function() { paint(0); }
+            };
+        })();
+
+        // Quiz M2
+        document.querySelectorAll('#q2 .quiz-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const ans = this.getAttribute('data-ans');
+                const exp = document.getElementById('q2-exp');
+                document.querySelectorAll('#q2 .quiz-btn').forEach(b => {
+                    b.disabled = true;
+                    if(b.getAttribute('data-ans') === '2') b.classList.add('correct');
+                    else b.classList.add('wrong');
+                });
+                
+                if (ans === '2') {
+                    exp.innerHTML = "<strong>✅ Đúng!</strong> Hai cách duyệt này cho độ phức tạp tương đương vì O(5 × N × M) thực chất vẫn là O(N × M). Tuy nhiên, duyệt ma trận 1 lần và bắt giá trị tại mỗi ô sẽ cho code tự nhiên, dễ duy trì cấu trúc tìm Max chuẩn mực hơn.";
+                    exp.style.background = "rgba(56,214,196,.1)";
+                    exp.style.borderLeft = "4px solid var(--accent)";
+                } else {
+                    exp.innerHTML = "<strong>❌ Sai.</strong> Bạn hoàn toàn có thể lấy giá trị Max bằng cách duyệt mảng 5 phần tử đó (duyệt từ lớn đến bé, nếu tìm thấy trong ma trận thì break). Lý do chính chỉ là cách cài đặt duyệt ma trận truyền thống sẽ quen thuộc và trực quan hơn.";
+                    exp.style.background = "rgba(255,107,107,.1)";
+                    exp.style.borderLeft = "4px solid var(--red)";
+                }
+                exp.classList.add('show');
+            });
+        });
+
+        // Global Init
+        window.onload = function() {
+            lab2.init();
+        };
+
+    </script>
+</body>
+</html>
