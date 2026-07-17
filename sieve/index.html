@@ -389,11 +389,11 @@
         <section id="phan-1">
             <h2>Phần 1: Bài toán & Động lực</h2>
             <div class="panel">
-                <p><strong>Yêu cầu:</strong> Liệt kê hoặc đánh dấu mọi số nguyên tố từ <span class="math">1</span> đến <span class="math">N</span> (với <span class="math">N</span> có thể lên tới <span class="math">10^7, 10^8</span>).</p>
+                <p><strong>Yêu cầu:</strong> Liệt kê hoặc đánh dấu mọi số nguyên tố từ <span class="math">1</span> đến <span class="math">N</span> (với <span class="math">N</span> có thể lên tới <span class="math">10⁷, 10⁸</span>).</p>
                 <p><strong>Cách ngây thơ:</strong> Xét từng số <span class="math">x</span>, thử chia <span class="math">x</span> cho các số từ <span class="math">2</span> đến <span class="math">√x</span>. Nếu không chia hết cho số nào thì <span class="math">x</span> là nguyên tố.</p>
                 <ul>
                     <li>Độ phức tạp: <span class="math">O(N√N)</span>.</li>
-                    <li>Với <span class="math">N = 10^7</span>, số phép toán cỡ <span class="math">~3 \times 10^9</span>, quá giới hạn thời gian (thường là 1 giây cho ~<span class="math">10^8</span> phép tính). Quá chậm!</li>
+                    <li>Với <span class="math">N = 10⁷</span>, số phép toán cỡ <span class="math">~3 × 10⁹</span>, quá giới hạn thời gian (thường là 1 giây cho ~<span class="math">10⁸</span> phép tính). Quá chậm!</li>
                 </ul>
                 <p><strong>Ý tưởng cốt lõi của Sàng:</strong> Thay vì hỏi từng số "mày có phải nguyên tố không?", ta đi từ dưới lên. Biết 2 là nguyên tố, ta <strong>gạch bỏ TẤT CẢ</strong> các bội của 2 (4, 6, 8...). Biết 3 là nguyên tố, gạch mọi bội của 3. Số nào cuối cùng chưa bị gạch, chắc chắn là số nguyên tố!</p>
             </div>
@@ -406,14 +406,14 @@
             <div class="alert-panel">
                 <strong>Hai tối ưu quan trọng tạo nên sức mạnh:</strong>
                 <ol style="margin-top: 8px; padding-left: 20px;">
-                    <li><strong>Vòng lặp ngoài chỉ cần chạy đến <span class="math">√N</span>:</strong> Vì nếu một hợp số <span class="math">K \le N</span> tồn tại, nó chắc chắn có một ước nguyên tố <span class="math">\le √N</span>. Ta không cần xét các số lớn hơn <span class="math">√N</span> để đi gạch.</li>
-                    <li><strong>Vòng lặp gạch bắt đầu từ <span class="math">i \times i</span>:</strong> Tại sao không bắt đầu từ <span class="math">2 \times i</span>? Vì các bội nhỏ hơn <span class="math">i \times i</span> có dạng <span class="math">k \times i</span> (với <span class="math">k < i</span>). Các số này đã bị gạch bởi ước nguyên tố nhỏ hơn <span class="math">i</span> trước đó rồi! (VD: xét <span class="math">i=5</span>, <span class="math">10</span> đã bị gạch bởi 2, <span class="math">15</span> bị gạch bởi 3. Chỉ từ <span class="math">25</span> trở đi mới cần gạch).</li>
+                    <li><strong>Vòng lặp ngoài chỉ cần chạy đến <span class="math">√N</span>:</strong> Vì nếu một hợp số <span class="math">K ≤ N</span> tồn tại, nó chắc chắn có một ước nguyên tố <span class="math">≤ √N</span>. Ta không cần xét các số lớn hơn <span class="math">√N</span> để đi gạch.</li>
+                    <li><strong>Vòng lặp gạch bắt đầu từ <span class="math">i × i</span>:</strong> Tại sao không bắt đầu từ <span class="math">2 × i</span>? Vì các bội nhỏ hơn <span class="math">i × i</span> có dạng <span class="math">k × i</span> (với <span class="math">k < i</span>). Các số này đã bị gạch bởi ước nguyên tố nhỏ hơn <span class="math">i</span> trước đó rồi! (VD: xét <span class="math">i=5</span>, <span class="math">10</span> đã bị gạch bởi 2, <span class="math">15</span> bị gạch bởi 3. Chỉ từ <span class="math">25</span> trở đi mới cần gạch).</li>
                 </ol>
             </div>
-            <p>Nhờ hai tối ưu này, độ phức tạp giảm xuống cực kỳ thấp: <span class="math">O(N \log \log N)</span>. Trong thực tế, nó hoạt động gần như tuyến tính <span class="math">O(N)</span>.</p>
+            <p>Nhờ hai tối ưu này, độ phức tạp giảm xuống cực kỳ thấp: <span class="math">O(N log log N)</span>. Trong thực tế, nó hoạt động gần như tuyến tính <span class="math">O(N)</span>.</p>
 
             <h3>Mô phỏng: Sàng Eratosthenes trên lưới số</h3>
-            <p>Quan sát quá trình gạch. Hãy thử bật/tắt công tắc "Bắt đầu từ <span class="math">i \times i</span>" để thấy vì sao tối ưu này tiết kiệm số bước.</p>
+            <p>Quan sát quá trình gạch. Hãy thử bật/tắt công tắc "Bắt đầu từ <span class="math">i × i</span>" để thấy vì sao tối ưu này tiết kiệm số bước.</p>
             
             <div class="sim-container">
                 <div class="sim-layer-1">
@@ -430,7 +430,7 @@
                             <button id="btn-reset-sim1">Đặt lại</button>
                         </div>
                         <div class="control-row" style="margin-top: 12px;">
-                            <span>Tối ưu bắt đầu từ <span class="math">i \times i</span></span>
+                            <span>Tối ưu bắt đầu từ <span class="math">i × i</span></span>
                             <label class="switch">
                                 <input type="checkbox" id="toggle-opt-sim1" checked>
                                 <span class="slider"></span>
@@ -456,9 +456,9 @@
             <p>Dù sàng cơ bản đã rất nhanh, nhưng nó vẫn có một điểm yếu: <strong>Một hợp số có thể bị gạch nhiều lần</strong> (VD: 12 bị gạch bởi 2, rồi lại bị gạch bởi 3). Sàng tuyến tính <span class="math">O(N)</span> khắc phục triệt để điều này.</p>
             <div class="panel">
                 <p><strong>Nguyên lý:</strong> Mỗi hợp số <span class="math">X</span> sẽ bị gạch <strong>ĐÚNG MỘT LẦN</strong> bởi ước nguyên tố nhỏ nhất (Smallest Prime Factor - SPF) của nó.</p>
-                <p>Ta dùng mảng <span class="math">primes</span> lưu danh sách nguyên tố sinh ra. Khi xét số <span class="math">i</span>, ta gạch các số <span class="math">i \times primes[j]</span>. Điều kiện dừng mấu chốt là:</p>
+                <p>Ta dùng mảng <span class="math">primes</span> lưu danh sách nguyên tố sinh ra. Khi xét số <span class="math">i</span>, ta gạch các số <span class="math">i × primes[j]</span>. Điều kiện dừng mấu chốt là:</p>
                 <p style="text-align: center; margin: 16px 0;"><span class="math" style="font-size: 1.1rem;">if (i % primes[j] == 0) break;</span></p>
-                <p><strong>Vì sao lại dừng?</strong> Vì nếu <span class="math">i</span> chia hết cho <span class="math">primes[j]</span>, nghĩa là <span class="math">primes[j]</span> là ước nguyên tố của <span class="math">i</span>. Nếu ta đi tiếp tới <span class="math">primes[j+1]</span>, số <span class="math">X' = i \times primes[j+1]</span> sẽ có một ước nguyên tố nhỏ hơn là <span class="math">primes[j]</span>! Ta KHÔNG gạch <span class="math">X'</span> bây giờ, mà để dành nó bị gạch ở một bước sau (khi xét một số <span class="math">i</span> khác lớn hơn).</p>
+                <p><strong>Vì sao lại dừng?</strong> Vì nếu <span class="math">i</span> chia hết cho <span class="math">primes[j]</span>, nghĩa là <span class="math">primes[j]</span> là ước nguyên tố của <span class="math">i</span>. Nếu ta đi tiếp tới <span class="math">primes[j+1]</span>, số <span class="math">X' = i × primes[j+1]</span> sẽ có một ước nguyên tố nhỏ hơn là <span class="math">primes[j]</span>! Ta KHÔNG gạch <span class="math">X'</span> bây giờ, mà để dành nó bị gạch ở một bước sau (khi xét một số <span class="math">i</span> khác lớn hơn).</p>
             </div>
             <p>Sàng tuyến tính cực kỳ hữu dụng khi cần tính các <em>hàm nhân tính</em> (như Phi hàm Euler) trong quá trình sàng.</p>
 
@@ -499,9 +499,9 @@
         <section id="phan-5">
             <h2>Phần 5: Ứng dụng & Mở rộng</h2>
             <ul>
-                <li><strong>Phân tích ra thừa số nguyên tố cực nhanh:</strong> Thay vì lưu <span class="math">true/false</span>, mảng sàng (đặc biệt là sàng tuyến tính) có thể lưu <em>Ước nguyên tố nhỏ nhất (SPF)</em>. Để phân tích số <span class="math">X</span>, chỉ cần liên tục chia <span class="math">X</span> cho <span class="math">SPF[X]</span>, ta thu được các thừa số trong thời gian <span class="math">O(\log X)</span> cho mỗi truy vấn!</li>
+                <li><strong>Phân tích ra thừa số nguyên tố cực nhanh:</strong> Thay vì lưu <span class="math">true/false</span>, mảng sàng (đặc biệt là sàng tuyến tính) có thể lưu <em>Ước nguyên tố nhỏ nhất (SPF)</em>. Để phân tích số <span class="math">X</span>, chỉ cần liên tục chia <span class="math">X</span> cho <span class="math">SPF[X]</span>, ta thu được các thừa số trong thời gian <span class="math">O(log X)</span> cho mỗi truy vấn!</li>
                 <li><strong>Đếm số nguyên tố (Prime Counting):</strong> Mảng sàng giúp trả lời nhanh mảng cộng dồn số lượng nguyên tố trong đoạn <span class="math">[1, N]</span>.</li>
-                <li><strong>Sàng trên đoạn (Segmented Sieve):</strong> Khi cần sàng trên đoạn <span class="math">[L, R]</span> (với <span class="math">R</span> lên tới <span class="math">10^{12}</span> nhưng <span class="math">R-L \le 10^6</span>), ta chỉ cần sàng các số nguyên tố tới <span class="math">√R</span>, rồi dùng chúng để gạch các bội nằm trong đoạn <span class="math">[L, R]</span>.</li>
+                <li><strong>Sàng trên đoạn (Segmented Sieve):</strong> Khi cần sàng trên đoạn <span class="math">[L, R]</span> (với <span class="math">R</span> lên tới <span class="math">10¹²</span> nhưng <span class="math">R-L ≤ 10⁶</span>), ta chỉ cần sàng các số nguyên tố tới <span class="math">√R</span>, rồi dùng chúng để gạch các bội nằm trong đoạn <span class="math">[L, R]</span>.</li>
             </ul>
         </section>
 
@@ -510,8 +510,8 @@
             <div class="panel" style="border-color: var(--red); background: rgba(255, 107, 107, 0.05);">
                 <ul style="color: var(--ink);">
                     <li><strong>Quên xử lý 0 và 1:</strong> Mảng <span class="math">isPrime</span> thường khởi tạo toàn bộ là true. Phải nhớ gán <span class="math">isPrime[0] = isPrime[1] = false</span>. Hai số này KHÔNG phải nguyên tố.</li>
-                    <li><strong>Tràn số (Integer Overflow):</strong> Vòng lặp <span class="math">for (int i = 2; i * i <= n; i++)</span>. Nếu <span class="math">n</span> gần ngưỡng của kiểu <span class="math">int</span> (<span class="math">2 \times 10^9</span>), thì <span class="math">i \times i</span> sẽ bị tràn âm, dẫn đến vòng lặp vô hạn. <em>Khắc phục:</em> Dùng <span class="math">long long i</span> hoặc viết lại là <span class="math">i <= n / i</span>. Tương tự cho vòng lặp gạch <span class="math">j = i \times i</span>.</li>
-                    <li><strong>Kích thước mảng:</strong> Nếu <span class="math">N = 10^7</span>, khai báo <span class="math">bool isPrime[10000005];</span> tốn khoảng 10MB, hoàn toàn an toàn toàn. Đừng dùng <span class="math">int</span> cho mảng đánh dấu vì sẽ tốn 40MB. C++ <span class="math">vector&lt;bool&gt;</span> được tối ưu bit, tốn rất ít bộ nhớ nhưng lại <em>chậm hơn</em> mảng <span class="math">bool</span> tĩnh thuần túy.</li>
+                    <li><strong>Tràn số (Integer Overflow):</strong> Vòng lặp <span class="math">for (int i = 2; i * i <= n; i++)</span>. Nếu <span class="math">n</span> gần ngưỡng của kiểu <span class="math">int</span> (<span class="math">2 × 10⁹</span>), thì <span class="math">i × i</span> sẽ bị tràn âm, dẫn đến vòng lặp vô hạn. <em>Khắc phục:</em> Dùng <span class="math">long long i</span> hoặc viết lại là <span class="math">i <= n / i</span>. Tương tự cho vòng lặp gạch <span class="math">j = i × i</span>.</li>
+                    <li><strong>Kích thước mảng:</strong> Nếu <span class="math">N = 10⁷</span>, khai báo <span class="math">bool isPrime[10000005];</span> tốn khoảng 10MB, hoàn toàn an toàn toàn. Đừng dùng <span class="math">int</span> cho mảng đánh dấu vì sẽ tốn 40MB. C++ <span class="math">vector&lt;bool&gt;</span> được tối ưu bit, tốn rất ít bộ nhớ nhưng lại <em>chậm hơn</em> mảng <span class="math">bool</span> tĩnh thuần túy.</li>
                 </ul>
             </div>
         </section>
@@ -695,7 +695,7 @@
 
                     let startJ = useOpt ? i * i : 2 * i;
                     highlightLine('code-sim-1', 7, sim1TotalLines);
-                    setStatus1(`Bắt đầu gạch từ <strong>j = ${startJ}</strong> ${useOpt ? `(vì các bội nhỏ hơn đã bị gạch)` : `(không tối ưu i*i)`}.`);
+                    setStatus1(`Bắt đầu gạch từ <strong>j = ${startJ}</strong> ${useOpt ? `(vì các bội nhỏ hơn đã bị gạch)` : `(không tối ưu i × i)`}.`);
                     await waitStep1();
 
                     for (let j = startJ; j <= N_MAX; j += i) {
@@ -843,7 +843,7 @@
                         label.textContent = `bởi ${p}`;
                         tCell.appendChild(label);
                         
-                        setStatus2(`Gạch <strong>${target}</strong> (${i} &times; ${p}). SPF của ${target} là ${p}.`);
+                        setStatus2(`Gạch <strong>${target}</strong> (${i} × ${p}). SPF của ${target} là ${p}.`);
                         await waitStep2();
                         tCell.classList.replace('cell-crossing', 'cell-crossed');
                     }
@@ -905,16 +905,16 @@
                     { text: "Vì mọi hợp số K ≤ N đều có ít nhất một ước nguyên tố ≤ √K (và hiển nhiên ≤ √N).", correct: true },
                     { text: "Vì nếu chạy tới N thì mảng isPrime không đủ bộ nhớ.", correct: false }
                 ],
-                exp: "Chính xác. Nếu i > √N, mọi hợp số tạo ra bởi i (i*2, i*3...) đều đã bị gạch bởi các ước nguyên tố nhỏ hơn (2, 3...) trước đó."
+                exp: "Chính xác. Nếu i > √N, mọi hợp số tạo ra bởi i (i × 2, i × 3...) đều đã bị gạch bởi các ước nguyên tố nhỏ hơn (2, 3...) trước đó."
             },
             {
                 q: "3. Tối ưu quan trọng nhất trong vòng lặp gạch (vòng lặp trong) của Eratosthenes là bắt đầu gạch từ đâu?",
                 options: [
-                    { text: "Từ j = 2 * i", correct: false },
-                    { text: "Từ j = i * i", correct: true },
+                    { text: "Từ j = 2 × i", correct: false },
+                    { text: "Từ j = i × i", correct: true },
                     { text: "Từ j = i + i", correct: false }
                 ],
-                exp: "Bắt đầu từ i*i vì các bội nhỏ hơn (i*2, i*3... i*(i-1)) đã bị gạch khi duyệt các số nguyên tố 2, 3... (i-1)."
+                exp: "Bắt đầu từ i × i vì các bội nhỏ hơn (i × 2, i × 3... i × (i-1)) đã bị gạch khi duyệt các số nguyên tố 2, 3... (i-1)."
             },
             {
                 q: "4. Điều kiện dừng then chốt trong Sàng Tuyến Tính (Linear Sieve) là gì?",
@@ -926,13 +926,13 @@
                 exp: "Lệnh break này đảm bảo mỗi hợp số chỉ bị gạch đúng một lần bởi Ước Nguyên Tố Nhỏ Nhất (SPF) của nó."
             },
             {
-                q: "5. Lỗi 'tràn số' (overflow) phổ biến nhất khi code Sàng nguyên tố với N ≈ 10^7, int 32-bit là ở dòng nào?",
+                q: "5. Lỗi 'tràn số' (overflow) phổ biến nhất khi code Sàng nguyên tố với N ≈ 10⁷, int 32-bit là ở dòng nào?",
                 options: [
                     { text: "for (int i = 2; i <= N; i++)", correct: false },
                     { text: "bool isPrime[N + 1];", correct: false },
                     { text: "for (int i = 2; i * i <= N; i++)", correct: true }
                 ],
-                exp: "Nếu N đủ lớn, i*i có thể vượt quá giới hạn của int 32-bit (khoảng 2.1*10^9), dẫn đến số âm và vòng lặp chạy vô hạn. Nên dùng long long i."
+                exp: "Nếu N đủ lớn, i * i có thể vượt quá giới hạn của int 32-bit (khoảng 2.1 × 10⁹), dẫn đến số âm và vòng lặp chạy vô hạn. Nên dùng long long i."
             },
             {
                 q: "6. Điểm khác biệt lớn nhất về kết quả giữa Sàng Cơ Bản và Sàng Tuyến Tính là gì?",
