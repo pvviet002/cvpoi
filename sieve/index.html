@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sàng Nguyên Tố | Competitive Programming</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #0B1220;
+            --bg2: #0F1A2E;
+            --panel: #111E36;
+            --line: #22304C;
+            --line2: #2E3F60;
+            --ink: #E6ECF7;
+            --ink-soft: #8FA1C4;
+            --ink-dim: #5A6B8F;
+            
+            --accent: #38D6C4; /* Xanh ngọc - Nguyên tố */
+            --accent-blue: #5B8CFF; /* Xanh dương */
+            --amber: #FFB454; /* Hổ phách - Đang xét */
+            --red: #FF6B6B; /* Đỏ nhạt - Bị gạch */
+            --red-dim: rgba(255, 107, 107, 0.15);
+            
+            --glow: 0 0 20px rgba(56, 214, 196, 0.15);
+            --font-body: 'Inter', sans-serif;
+            --font-heading: 'Space Grotesk', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Background ambient glow */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -200px; left: -100px; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(56,214,196,0.08) 0%, transparent 70%);
+            z-index: -1; pointer-events: none;
+        }
+        body::after {
+            content: '';
+            position: absolute;
+            top: 100px; right: -150px; width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(91,140,255,0.06) 0%, transparent 70%);
+            z-index: -1; pointer-events: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 0 16px; }
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            background: rgba(11, 18, 32, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--line);
+            z-index: 100;
+            padding: 12px 0;
+        }
+
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--ink-soft);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .nav-links a:hover, .nav-links a:focus-visible {
+            color: var(--ink);
+            background: var(--line);
+            outline: none;
+        }
+        
+        .breadcrumb {
+            color: var(--ink-soft);
+            font-family: var(--font-heading);
+            font-size: 0.95rem;
+        }
+        .breadcrumb span { color: var(--accent); }
+
+        /* Typography & Layout spacing */
+        section {
+            margin: 48px 0;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            color: var(--ink);
+            margin-bottom: 16px;
+        }
+
+        h1 { font-size: 2.2rem; background: linear-gradient(to right, var(--accent), var(--accent-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 1.6rem; border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-top: 40px; }
+        h3 { font-size: 1.2rem; color: var(--accent-blue); }
+
+        p, ul { margin-bottom: 16px; color: var(--ink-soft); }
+        ul { padding-left: 24px; }
+        li { margin-bottom: 6px; }
+        strong { color: var(--ink); font-weight: 600; }
+        
+        .math { font-family: var(--font-code); background: var(--bg2); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: var(--accent); }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+            margin-bottom: 24px;
+        }
+
+        .alert-panel {
+            background: rgba(255, 180, 84, 0.1);
+            border-left: 4px solid var(--amber);
+            padding: 16px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 24px;
+        }
+
+        /* Strict Code Block Formatting */
+        .code-container {
+            background: #0A1220;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 24px;
+            padding: 16px 0; /* Only vertical padding on container */
+        }
+
+        .code-line {
+            font-family: var(--font-code);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            padding: 0 16px; /* Horizontal padding on each line */
+            margin: 0; /* NO vertical margin */
+            display: block;
+            white-space: pre;
+            color: #A9B7C6;
+            border-left: 3px solid transparent;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .code-line.active {
+            background: rgba(56, 214, 196, 0.1);
+            border-left-color: var(--accent);
+        }
+
+        /* Syntax colors */
+        .token-kw { color: #CC7832; font-weight: bold; } /* Keyword */
+        .token-type { color: #5B8CFF; } /* Type */
+        .token-str { color: #6A8759; } /* String */
+        .token-num { color: #6897BB; } /* Number */
+        .token-com { color: #808080; font-style: italic; } /* Comment */
+        .token-func { color: #FFC66D; } /* Function */
+
+        .sim-container {
+            background: var(--bg2);
+            border: 1px solid var(--line2);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 32px 0;
+        }
+
+        /* Layer 1: Grid + Controls */
+        .sim-layer-1 {
+            display: flex;
+            flex-direction: column; /* Stack on mobile */
+            border-bottom: 1px solid var(--line);
+        }
+        @media (min-width: 900px) {
+            .sim-layer-1 { flex-direction: row; }
+        }
+
+        /* Grid Section */
+        .sim-grid-wrapper {
+            flex: 1; /* Takes remaining space */
+            padding: 24px;
+            border-bottom: 1px solid var(--line);
+        }
+        @media (min-width: 900px) {
+            .sim-grid-wrapper { border-bottom: none; border-right: 1px solid var(--line); }
+        }
+
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 6px;
+            width: 100%;
+        }
+
+        .grid-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--panel);
+            border: 1px solid var(--line2);
+            border-radius: 6px;
+            font-family: var(--font-code);
+            font-size: 0.9rem;
+            color: var(--ink);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        /* Cell States */
+        .cell-prime { background: var(--accent); color: #000; border-color: var(--accent); font-weight: bold; box-shadow: var(--glow); }
+        .cell-current { background: var(--amber); color: #000; border-color: var(--amber); font-weight: bold; transform: scale(1.1); z-index: 10; }
+        .cell-crossed { 
+            background: var(--bg); color: var(--ink-dim); border-color: var(--line); opacity: 0.6;
+        }
+        .cell-crossed::after {
+            content: ''; position: absolute;
+            top: 50%; left: 10%; right: 10%; height: 2px;
+            background: var(--red); transform: translateY(-50%) rotate(45deg);
+        }
+        .cell-crossing { background: var(--red); color: #fff; transform: scale(1.1); z-index: 10; border-color: var(--red); }
+        
+        .cell-spf-label {
+            position: absolute;
+            bottom: -2px; right: 2px;
+            font-size: 0.55rem;
+            color: var(--red);
+            font-weight: bold;
+            z-index: 5;
+        }
+
+        /* Controls Section */
+        .sim-controls {
+            width: 100%;
+            padding: 24px;
+            background: rgba(17, 30, 54, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        @media (min-width: 900px) {
+            .sim-controls { width: 320px; flex-shrink: 0; }
+        }
+
+        .sim-status {
+            background: var(--bg);
+            border: 1px solid var(--line);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        
+        button {
+            background: var(--line);
+            color: var(--ink);
+            border: 1px solid var(--line2);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        button:hover:not(:disabled) { background: var(--line2); color: #fff; }
+        button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        button.primary { background: var(--accent); color: #000; border-color: var(--accent); }
+        button.primary:hover:not(:disabled) { background: #2CB5A5; }
+
+        .control-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; color: var(--ink-soft); }
+        
+        /* Toggle Switch */
+        .switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--line2); transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+        /* Layer 2: Code Frame */
+        .sim-layer-2 {
+            width: 100%;
+            background: #0A1220;
+            /* Container styling matches .code-container logic */
+            padding: 16px 0;
+            overflow-x: auto;
+        }
+
+        .quiz-item {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .quiz-item h4 { margin-bottom: 12px; color: var(--ink); }
+        .quiz-option {
+            display: block;
+            padding: 10px 16px;
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .quiz-option:hover { background: var(--bg2); }
+        .quiz-option input { display: none; }
+        
+        .quiz-option.correct { background: rgba(56, 214, 196, 0.15); border-color: var(--accent); }
+        .quiz-option.wrong { background: rgba(255, 107, 107, 0.15); border-color: var(--red); }
+        
+        .quiz-exp {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--bg2);
+            border-left: 3px solid var(--accent-blue);
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .score-board {
+            text-align: center; font-size: 1.2rem; font-family: var(--font-heading);
+            padding: 16px; background: var(--panel); border: 1px solid var(--accent); border-radius: 8px; color: var(--accent);
+            margin-bottom: 24px; display: inline-block;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; animation: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-inner">
+            <div class="breadcrumb">
+                Toán <span>/</span> Sàng nguyên tố
+            </div>
+            <div class="nav-links">
+                <a href="/index.html">Trang chủ</a>
+                <a href="https://cvpoi.id.vn" target="_blank" rel="noopener noreferrer">cvpoi.id.vn</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1>Sàng Nguyên Tố (Sieve of Eratosthenes)</h1>
+            <p style="font-size: 1.1rem;">Lọc mẻ lớn thay vì nhặt từng hạt. Kỹ thuật bắt buộc phải biết khi làm việc với số nguyên tố trong lập trình thi đấu.</p>
+        </header>
+
+        <section id="phan-1">
+            <h2>Phần 1: Bài toán & Động lực</h2>
+            <div class="panel">
+                <p><strong>Yêu cầu:</strong> Liệt kê hoặc đánh dấu mọi số nguyên tố từ <span class="math">1</span> đến <span class="math">N</span> (với <span class="math">N</span> có thể lên tới <span class="math">10^7, 10^8</span>).</p>
+                <p><strong>Cách ngây thơ:</strong> Xét từng số <span class="math">x</span>, thử chia <span class="math">x</span> cho các số từ <span class="math">2</span> đến <span class="math">√x</span>. Nếu không chia hết cho số nào thì <span class="math">x</span> là nguyên tố.</p>
+                <ul>
+                    <li>Độ phức tạp: <span class="math">O(N√N)</span>.</li>
+                    <li>Với <span class="math">N = 10^7</span>, số phép toán cỡ <span class="math">~3 \times 10^9</span>, quá giới hạn thời gian (thường là 1 giây cho ~<span class="math">10^8</span> phép tính). Quá chậm!</li>
+                </ul>
+                <p><strong>Ý tưởng cốt lõi của Sàng:</strong> Thay vì hỏi từng số "mày có phải nguyên tố không?", ta đi từ dưới lên. Biết 2 là nguyên tố, ta <strong>gạch bỏ TẤT CẢ</strong> các bội của 2 (4, 6, 8...). Biết 3 là nguyên tố, gạch mọi bội của 3. Số nào cuối cùng chưa bị gạch, chắc chắn là số nguyên tố!</p>
+            </div>
+        </section>
+
+        <section id="phan-2">
+            <h2>Phần 2: Sàng Eratosthenes cơ bản</h2>
+            <p>Thuật toán Eratosthenes duy trì một mảng boolean <span class="math">isPrime[]</span>, ban đầu giả định mọi số đều là nguyên tố (true).</p>
+            
+            <div class="alert-panel">
+                <strong>Hai tối ưu quan trọng tạo nên sức mạnh:</strong>
+                <ol style="margin-top: 8px; padding-left: 20px;">
+                    <li><strong>Vòng lặp ngoài chỉ cần chạy đến <span class="math">√N</span>:</strong> Vì nếu một hợp số <span class="math">K \le N</span> tồn tại, nó chắc chắn có một ước nguyên tố <span class="math">\le √N</span>. Ta không cần xét các số lớn hơn <span class="math">√N</span> để đi gạch.</li>
+                    <li><strong>Vòng lặp gạch bắt đầu từ <span class="math">i \times i</span>:</strong> Tại sao không bắt đầu từ <span class="math">2 \times i</span>? Vì các bội nhỏ hơn <span class="math">i \times i</span> có dạng <span class="math">k \times i</span> (với <span class="math">k < i</span>). Các số này đã bị gạch bởi ước nguyên tố nhỏ hơn <span class="math">i</span> trước đó rồi! (VD: xét <span class="math">i=5</span>, <span class="math">10</span> đã bị gạch bởi 2, <span class="math">15</span> bị gạch bởi 3. Chỉ từ <span class="math">25</span> trở đi mới cần gạch).</li>
+                </ol>
+            </div>
+            <p>Nhờ hai tối ưu này, độ phức tạp giảm xuống cực kỳ thấp: <span class="math">O(N \log \log N)</span>. Trong thực tế, nó hoạt động gần như tuyến tính <span class="math">O(N)</span>.</p>
+
+            <h3>Mô phỏng: Sàng Eratosthenes trên lưới số</h3>
+            <p>Quan sát quá trình gạch. Hãy thử bật/tắt công tắc "Bắt đầu từ <span class="math">i \times i</span>" để thấy vì sao tối ưu này tiết kiệm số bước.</p>
+            
+            <div class="sim-container">
+                <div class="sim-layer-1">
+                    <div class="sim-grid-wrapper">
+                        <div id="grid-sim-1" class="number-grid">
+                            <!-- JS will populate 2 to 60 -->
+                        </div>
+                    </div>
+                    <div class="sim-controls">
+                        <div class="sim-status" id="status-sim-1">Sẵn sàng. Nhấn "Chạy sàng" để bắt đầu.</div>
+                        <div class="btn-group">
+                            <button id="btn-run-sim1" class="primary">Chạy sàng</button>
+                            <button id="btn-step-sim1">Từng bước</button>
+                            <button id="btn-reset-sim1">Đặt lại</button>
+                        </div>
+                        <div class="control-row" style="margin-top: 12px;">
+                            <span>Tối ưu bắt đầu từ <span class="math">i \times i</span></span>
+                            <label class="switch">
+                                <input type="checkbox" id="toggle-opt-sim1" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="control-row">
+                            <span>Tốc độ</span>
+                            <input type="range" id="speed-sim1" min="1" max="5" value="3" style="width: 80px;">
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--ink-soft); margin-top: auto;">
+                            Số phép gạch: <strong id="cross-count-sim1" style="color:var(--accent);">0</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="sim-layer-2" id="code-sim-1">
+                    <!-- JS will populate formatted code lines -->
+                </div>
+            </div>
+        </section>
+
+        <section id="phan-3">
+            <h2>Phần 3: Sàng Tuyến Tính (Linear Sieve)</h2>
+            <p>Dù sàng cơ bản đã rất nhanh, nhưng nó vẫn có một điểm yếu: <strong>Một hợp số có thể bị gạch nhiều lần</strong> (VD: 12 bị gạch bởi 2, rồi lại bị gạch bởi 3). Sàng tuyến tính <span class="math">O(N)</span> khắc phục triệt để điều này.</p>
+            <div class="panel">
+                <p><strong>Nguyên lý:</strong> Mỗi hợp số <span class="math">X</span> sẽ bị gạch <strong>ĐÚNG MỘT LẦN</strong> bởi ước nguyên tố nhỏ nhất (Smallest Prime Factor - SPF) của nó.</p>
+                <p>Ta dùng mảng <span class="math">primes</span> lưu danh sách nguyên tố sinh ra. Khi xét số <span class="math">i</span>, ta gạch các số <span class="math">i \times primes[j]</span>. Điều kiện dừng mấu chốt là:</p>
+                <p style="text-align: center; margin: 16px 0;"><span class="math" style="font-size: 1.1rem;">if (i % primes[j] == 0) break;</span></p>
+                <p><strong>Vì sao lại dừng?</strong> Vì nếu <span class="math">i</span> chia hết cho <span class="math">primes[j]</span>, nghĩa là <span class="math">primes[j]</span> là ước nguyên tố của <span class="math">i</span>. Nếu ta đi tiếp tới <span class="math">primes[j+1]</span>, số <span class="math">X' = i \times primes[j+1]</span> sẽ có một ước nguyên tố nhỏ hơn là <span class="math">primes[j]</span>! Ta KHÔNG gạch <span class="math">X'</span> bây giờ, mà để dành nó bị gạch ở một bước sau (khi xét một số <span class="math">i</span> khác lớn hơn).</p>
+            </div>
+            <p>Sàng tuyến tính cực kỳ hữu dụng khi cần tính các <em>hàm nhân tính</em> (như Phi hàm Euler) trong quá trình sàng.</p>
+
+            <h3>Mô phỏng: Sàng tuyến tính</h3>
+            <p>Để ý kỹ nhãn đỏ trên mỗi ô bị gạch. Bạn sẽ thấy 12 chỉ bị gạch 1 lần duy nhất bởi số 2 (khi xét <span class="math">i=6</span>), và lệnh break sẽ ngăn số 2 không gạch số 12 thêm lần nào nữa (ở <span class="math">i=4</span> nó đã bị chặn).</p>
+            
+            <div class="sim-container">
+                <div class="sim-layer-1">
+                    <div class="sim-grid-wrapper">
+                        <div id="grid-sim-2" class="number-grid">
+                            <!-- JS will populate 2 to 60 -->
+                        </div>
+                    </div>
+                    <div class="sim-controls">
+                        <div class="sim-status" id="status-sim-2">Sẵn sàng. Nhấn "Chạy sàng" để xem từng ô bị gạch đúng 1 lần.</div>
+                        <div class="btn-group">
+                            <button id="btn-run-sim2" class="primary">Chạy sàng</button>
+                            <button id="btn-step-sim2">Từng bước</button>
+                            <button id="btn-reset-sim2">Đặt lại</button>
+                        </div>
+                        <div class="control-row" style="margin-top: 12px;">
+                            <span>Tốc độ</span>
+                            <input type="range" id="speed-sim2" min="1" max="5" value="3" style="width: 80px;">
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--ink-soft); margin-top: auto;">
+                            Số phép gạch: <strong id="cross-count-sim2" style="color:var(--accent);">0</strong>
+                            <br>
+                            <span style="font-size: 0.75rem">(So với Sàng cơ bản: <span id="comp-count-sim1">?</span>)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="sim-layer-2" id="code-sim-2">
+                    <!-- JS will populate formatted code lines -->
+                </div>
+            </div>
+        </section>
+
+        <section id="phan-5">
+            <h2>Phần 5: Ứng dụng & Mở rộng</h2>
+            <ul>
+                <li><strong>Phân tích ra thừa số nguyên tố cực nhanh:</strong> Thay vì lưu <span class="math">true/false</span>, mảng sàng (đặc biệt là sàng tuyến tính) có thể lưu <em>Ước nguyên tố nhỏ nhất (SPF)</em>. Để phân tích số <span class="math">X</span>, chỉ cần liên tục chia <span class="math">X</span> cho <span class="math">SPF[X]</span>, ta thu được các thừa số trong thời gian <span class="math">O(\log X)</span> cho mỗi truy vấn!</li>
+                <li><strong>Đếm số nguyên tố (Prime Counting):</strong> Mảng sàng giúp trả lời nhanh mảng cộng dồn số lượng nguyên tố trong đoạn <span class="math">[1, N]</span>.</li>
+                <li><strong>Sàng trên đoạn (Segmented Sieve):</strong> Khi cần sàng trên đoạn <span class="math">[L, R]</span> (với <span class="math">R</span> lên tới <span class="math">10^{12}</span> nhưng <span class="math">R-L \le 10^6</span>), ta chỉ cần sàng các số nguyên tố tới <span class="math">√R</span>, rồi dùng chúng để gạch các bội nằm trong đoạn <span class="math">[L, R]</span>.</li>
+            </ul>
+        </section>
+
+        <section id="phan-6">
+            <h2>Phần 6: Các lỗi thường gặp (Bẫy chết người)</h2>
+            <div class="panel" style="border-color: var(--red); background: rgba(255, 107, 107, 0.05);">
+                <ul style="color: var(--ink);">
+                    <li><strong>Quên xử lý 0 và 1:</strong> Mảng <span class="math">isPrime</span> thường khởi tạo toàn bộ là true. Phải nhớ gán <span class="math">isPrime[0] = isPrime[1] = false</span>. Hai số này KHÔNG phải nguyên tố.</li>
+                    <li><strong>Tràn số (Integer Overflow):</strong> Vòng lặp <span class="math">for (int i = 2; i * i <= n; i++)</span>. Nếu <span class="math">n</span> gần ngưỡng của kiểu <span class="math">int</span> (<span class="math">2 \times 10^9</span>), thì <span class="math">i \times i</span> sẽ bị tràn âm, dẫn đến vòng lặp vô hạn. <em>Khắc phục:</em> Dùng <span class="math">long long i</span> hoặc viết lại là <span class="math">i <= n / i</span>. Tương tự cho vòng lặp gạch <span class="math">j = i \times i</span>.</li>
+                    <li><strong>Kích thước mảng:</strong> Nếu <span class="math">N = 10^7</span>, khai báo <span class="math">bool isPrime[10000005];</span> tốn khoảng 10MB, hoàn toàn an toàn toàn. Đừng dùng <span class="math">int</span> cho mảng đánh dấu vì sẽ tốn 40MB. C++ <span class="math">vector&lt;bool&gt;</span> được tối ưu bit, tốn rất ít bộ nhớ nhưng lại <em>chậm hơn</em> mảng <span class="math">bool</span> tĩnh thuần túy.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="phan-7">
+            <h2>Phần 7: Trắc nghiệm củng cố</h2>
+            <div class="score-board">Điểm: <span id="quiz-score">0</span> / 6</div>
+            <div id="quiz-container">
+                <!-- JS will inject questions here -->
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Utilities
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+        
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // Custom Syntax Highlighter for C++
+        function highlightCPP(line) {
+            let html = escapeHtml(line);
+            
+            // Highlight comments
+            if (html.includes('//')) {
+                const parts = html.split('//');
+                return parts[0] + '<span class="token-com">//' + parts.slice(1).join('//') + '</span>';
+            }
+
+            // Keywords
+            const keywords = ['for', 'if', 'break', 'return', 'while'];
+            keywords.forEach(kw => {
+                const regex = new RegExp(`\\b${kw}\\b`, 'g');
+                html = html.replace(regex, `<span class="token-kw">${kw}</span>`);
+            });
+
+            // Types
+            const types = ['int', 'bool', 'long', 'void', 'vector'];
+            types.forEach(type => {
+                const regex = new RegExp(`\\b${type}\\b`, 'g');
+                html = html.replace(regex, `<span class="token-type">${type}</span>`);
+            });
+
+            // Numbers (simple regex for isolated numbers)
+            html = html.replace(/\b(\d+)\b/g, '<span class="token-num">$1</span>');
+
+            // Functions (simple heuristic: word followed by '(')
+            html = html.replace(/\b([a-zA-Z_]\w*)(?=\()/g, '<span class="token-func">$1</span>');
+
+            // Booleans
+            html = html.replace(/\b(true|false)\b/g, '<span class="token-kw">$1</span>');
+
+            return html;
+        }
+
+        // Function to render code block safely with per-line DIVs
+        function renderCodeBlock(containerId, rawCodeStr) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            const lines = rawCodeStr.trim().split('\n');
+            
+            lines.forEach((line, index) => {
+                const div = document.createElement('div');
+                div.className = 'code-line';
+                div.id = `${containerId}-line-${index}`;
+                // Preserve leading spaces using non-breaking spaces for display safely, 
+                // but actually pre-wrap handles spaces natively.
+                div.innerHTML = highlightCPP(line); 
+                container.appendChild(div);
+            });
+            return lines.length;
+        }
+
+        function highlightLine(containerId, lineIndex, totalLines) {
+            for (let i = 0; i < totalLines; i++) {
+                const el = document.getElementById(`${containerId}-line-${i}`);
+                if (el) {
+                    if (i === lineIndex) el.classList.add('active');
+                    else el.classList.remove('active');
+                }
+            }
+        }
+
+        function clearLineHighlights(containerId, totalLines) {
+            for (let i = 0; i < totalLines; i++) {
+                const el = document.getElementById(`${containerId}-line-${i}`);
+                if (el) el.classList.remove('active');
+            }
+        }
+
+        // Shared Grid Generator
+        const N_MAX = 60;
+        function createGrid(containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            for (let i = 2; i <= N_MAX; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.id = `${containerId}-cell-${i}`;
+                cell.textContent = i;
+                container.appendChild(cell);
+            }
+        }
+
+        // SPEED mapping
+        function getSpeed(sliderId) {
+            const val = parseInt(document.getElementById(sliderId).value);
+            // 1: slow, 5: fast
+            const speeds = [0, 800, 400, 150, 50, 10];
+            return speeds[val];
+        }
+
+        const codeSim1Raw = `void sieve(int N) {
+    bool isPrime[N + 1];
+    for (int i = 2; i <= N; i++) isPrime[i] = true;
+    
+    for (int i = 2; i * i <= N; i++) {
+        if (isPrime[i]) {
+            // Tối ưu: bắt đầu từ i*i thay vì 2*i
+            for (int j = i * i; j <= N; j += i) {
+                isPrime[j] = false;
+            }
+        }
+    }
+}`;
+        const sim1TotalLines = renderCodeBlock('code-sim-1', codeSim1Raw);
+
+        let sim1State = {
+            running: false, paused: false, stepMode: false, resolveStep: null,
+            i: 2, j: 4, crossCount: 0, phase: 'init', isPrime: []
+        };
+
+        async function waitStep1() {
+            if (!sim1State.stepMode) {
+                await sleep(getSpeed('speed-sim1'));
+                return;
+            }
+            return new Promise(resolve => { sim1State.resolveStep = resolve; });
+        }
+
+        function setStatus1(msg) { document.getElementById('status-sim-1').innerHTML = msg; }
+        function updateCount1() { 
+            document.getElementById('cross-count-sim1').textContent = sim1State.crossCount;
+            document.getElementById('comp-count-sim1').textContent = sim1State.crossCount;
+        }
+
+        async function runSim1() {
+            if (sim1State.running) return;
+            sim1State.running = true;
+            sim1State.crossCount = 0;
+            updateCount1();
+            createGrid('grid-sim-1'); // Reset grid visually
+            
+            const useOpt = document.getElementById('toggle-opt-sim1').checked;
+            sim1State.isPrime = Array(N_MAX + 1).fill(true);
+            
+            highlightLine('code-sim-1', 2, sim1TotalLines);
+            setStatus1("Khởi tạo: Giả sử mọi số từ 2 đến 60 đều là nguyên tố.");
+            await waitStep1();
+
+            for (let i = 2; (useOpt ? i * i <= N_MAX : i <= N_MAX); i++) {
+                sim1State.i = i;
+                
+                // Reset current highlights
+                document.querySelectorAll('#grid-sim-1 .cell-current').forEach(el => el.classList.remove('cell-current'));
+                const iCell = document.getElementById(`grid-sim-1-cell-${i}`);
+                if(iCell) iCell.classList.add('cell-current');
+                
+                highlightLine('code-sim-1', 4, sim1TotalLines);
+                setStatus1(`Đang xét <strong>i = ${i}</strong>. Liệu ${i} có phải là nguyên tố?`);
+                await waitStep1();
+                
+                highlightLine('code-sim-1', 5, sim1TotalLines);
+                if (sim1State.isPrime[i]) {
+                    if(iCell) iCell.classList.replace('cell-current', 'cell-prime');
+                    setStatus1(`<strong>${i} là nguyên tố!</strong> Chuẩn bị gạch các bội của ${i}.`);
+                    await waitStep1();
+
+                    let startJ = useOpt ? i * i : 2 * i;
+                    highlightLine('code-sim-1', 7, sim1TotalLines);
+                    setStatus1(`Bắt đầu gạch từ <strong>j = ${startJ}</strong> ${useOpt ? `(vì các bội nhỏ hơn đã bị gạch)` : `(không tối ưu i*i)`}.`);
+                    await waitStep1();
+
+                    for (let j = startJ; j <= N_MAX; j += i) {
+                        sim1State.isPrime[j] = false;
+                        sim1State.crossCount++;
+                        updateCount1();
+                        
+                        const jCell = document.getElementById(`grid-sim-1-cell-${j}`);
+                        if(jCell) {
+                            jCell.classList.add('cell-crossing');
+                            highlightLine('code-sim-1', 8, sim1TotalLines);
+                            setStatus1(`Gạch bỏ bội số <strong>j = ${j}</strong>.`);
+                            await waitStep1();
+                            jCell.classList.replace('cell-crossing', 'cell-crossed');
+                            jCell.classList.remove('cell-prime'); // In case it was wrongly colored (shouldn't happen)
+                        }
+                    }
+                } else {
+                    if(iCell) iCell.classList.remove('cell-current');
+                    setStatus1(`<strong>i = ${i}</strong> đã bị gạch trước đó. Bỏ qua.`);
+                    await waitStep1();
+                }
+            }
+            
+            // Mark remaining as primes
+            for(let i = 2; i <= N_MAX; i++){
+                if(sim1State.isPrime[i]) {
+                    const c = document.getElementById(`grid-sim-1-cell-${i}`);
+                    if(c && !c.classList.contains('cell-prime')) c.classList.add('cell-prime');
+                }
+            }
+
+            clearLineHighlights('code-sim-1', sim1TotalLines);
+            setStatus1(`<strong>Hoàn tất!</strong> Thuật toán kết thúc với ${sim1State.crossCount} phép gạch.`);
+            sim1State.running = false;
+        }
+
+        document.getElementById('btn-run-sim1').addEventListener('click', () => {
+            sim1State.stepMode = false;
+            if(sim1State.resolveStep) { sim1State.resolveStep(); sim1State.resolveStep = null; }
+            if(!sim1State.running) runSim1();
+        });
+        
+        document.getElementById('btn-step-sim1').addEventListener('click', () => {
+            if(!sim1State.running) {
+                sim1State.stepMode = true;
+                runSim1();
+            } else {
+                sim1State.stepMode = true;
+                if(sim1State.resolveStep) { sim1State.resolveStep(); sim1State.resolveStep = null; }
+            }
+        });
+
+        document.getElementById('btn-reset-sim1').addEventListener('click', () => {
+            // Brute force reset (refresh block)
+            sim1State.running = false;
+            sim1State.crossCount = 0; updateCount1();
+            createGrid('grid-sim-1');
+            clearLineHighlights('code-sim-1', sim1TotalLines);
+            setStatus1("Sẵn sàng. Nhấn 'Chạy sàng' để bắt đầu.");
+            if(sim1State.resolveStep) { sim1State.resolveStep(); sim1State.resolveStep = null; }
+        });
+
+        const codeSim2Raw = `void linearSieve(int N) {
+    bool isPrime[N + 1];
+    vector<int> primes;
+    for (int i = 2; i <= N; i++) isPrime[i] = true;
+    
+    for (int i = 2; i <= N; i++) {
+        if (isPrime[i]) primes.push_back(i);
+        
+        for (int j = 0; j < primes.size() && i * primes[j] <= N; j++) {
+            isPrime[i * primes[j]] = false;
+            // Dừng nếu primes[j] là ước của i
+            if (i % primes[j] == 0) break;
+        }
+    }
+}`;
+        const sim2TotalLines = renderCodeBlock('code-sim-2', codeSim2Raw);
+
+        let sim2State = {
+            running: false, stepMode: false, resolveStep: null, crossCount: 0
+        };
+
+        async function waitStep2() {
+            if (!sim2State.stepMode) {
+                await sleep(getSpeed('speed-sim2'));
+                return;
+            }
+            return new Promise(resolve => { sim2State.resolveStep = resolve; });
+        }
+
+        function setStatus2(msg) { document.getElementById('status-sim-2').innerHTML = msg; }
+        function updateCount2() { document.getElementById('cross-count-sim2').textContent = sim2State.crossCount; }
+
+        async function runSim2() {
+            if (sim2State.running) return;
+            sim2State.running = true;
+            sim2State.crossCount = 0;
+            updateCount2();
+            createGrid('grid-sim-2');
+            
+            let isPrime = Array(N_MAX + 1).fill(true);
+            let primes = [];
+            
+            highlightLine('code-sim-2', 5, sim2TotalLines);
+            setStatus2("Bắt đầu duyệt từng số i từ 2 đến 60.");
+            await waitStep2();
+
+            for (let i = 2; i <= N_MAX; i++) {
+                if(!sim2State.running) return; // allow hard reset
+                
+                // Clear previous current
+                document.querySelectorAll('#grid-sim-2 .cell-current').forEach(el => el.classList.remove('cell-current'));
+                const iCell = document.getElementById(`grid-sim-2-cell-${i}`);
+                if(iCell) iCell.classList.add('cell-current');
+                
+                highlightLine('code-sim-2', 6, sim2TotalLines);
+                if (isPrime[i]) {
+                    primes.push(i);
+                    if(iCell) iCell.classList.add('cell-prime');
+                    setStatus2(`<strong>i = ${i}</strong> là nguyên tố chưa bị gạch. Thêm vào danh sách primes = [${primes.join(', ')}].`);
+                } else {
+                    setStatus2(`<strong>i = ${i}</strong> là hợp số. Duyệt danh sách primes = [${primes.join(', ')}].`);
+                }
+                await waitStep2();
+
+                highlightLine('code-sim-2', 8, sim2TotalLines);
+                for (let j = 0; j < primes.length && i * primes[j] <= N_MAX; j++) {
+                    if(!sim2State.running) return;
+                    
+                    let target = i * primes[j];
+                    let p = primes[j];
+                    isPrime[target] = false;
+                    sim2State.crossCount++;
+                    updateCount2();
+                    
+                    highlightLine('code-sim-2', 9, sim2TotalLines);
+                    const tCell = document.getElementById(`grid-sim-2-cell-${target}`);
+                    if(tCell) {
+                        tCell.classList.add('cell-crossing');
+                        // Add SPF label
+                        const label = document.createElement('span');
+                        label.className = 'cell-spf-label';
+                        label.textContent = `bởi ${p}`;
+                        tCell.appendChild(label);
+                        
+                        setStatus2(`Gạch <strong>${target}</strong> (${i} &times; ${p}). SPF của ${target} là ${p}.`);
+                        await waitStep2();
+                        tCell.classList.replace('cell-crossing', 'cell-crossed');
+                    }
+
+                    highlightLine('code-sim-2', 11, sim2TotalLines);
+                    if (i % p === 0) {
+                        setStatus2(`<strong>i = ${i}</strong> chia hết cho <strong>${p}</strong>. Lệnh BREAK! Nếu đi tiếp, hợp số sẽ bị gạch 2 lần. Dừng duyệt primes cho i này.`);
+                        await waitStep2();
+                        break;
+                    }
+                }
+                if(iCell) iCell.classList.remove('cell-current');
+            }
+
+            clearLineHighlights('code-sim-2', sim2TotalLines);
+            setStatus2(`<strong>Hoàn tất!</strong> Sàng tuyến tính kết thúc với đúng ${sim2State.crossCount} phép gạch (ít hơn sàng cơ bản!). Mỗi hợp số bị gạch 1 lần.`);
+            sim2State.running = false;
+        }
+
+        document.getElementById('btn-run-sim2').addEventListener('click', () => {
+            sim2State.stepMode = false;
+            if(sim2State.resolveStep) { sim2State.resolveStep(); sim2State.resolveStep = null; }
+            if(!sim2State.running) runSim2();
+        });
+        
+        document.getElementById('btn-step-sim2').addEventListener('click', () => {
+            if(!sim2State.running) {
+                sim2State.stepMode = true;
+                runSim2();
+            } else {
+                sim2State.stepMode = true;
+                if(sim2State.resolveStep) { sim2State.resolveStep(); sim2State.resolveStep = null; }
+            }
+        });
+
+        document.getElementById('btn-reset-sim2').addEventListener('click', () => {
+            sim2State.running = false;
+            sim2State.crossCount = 0; updateCount2();
+            createGrid('grid-sim-2');
+            clearLineHighlights('code-sim-2', sim2TotalLines);
+            setStatus2("Sẵn sàng. Nhấn 'Chạy sàng' để xem từng ô bị gạch đúng 1 lần.");
+            if(sim2State.resolveStep) { sim2State.resolveStep(); sim2State.resolveStep = null; }
+        });
+
+        const quizData = [
+            {
+                q: "1. Độ phức tạp của thuật toán kiểm tra từng số bằng phép chia tới √N (Cách ngây thơ) để tìm tất cả nguyên tố tới N là:",
+                options: [
+                    { text: "O(N)", correct: false },
+                    { text: "O(N √N)", correct: true },
+                    { text: "O(N log N)", correct: false }
+                ],
+                exp: "Với mỗi số x trong N số, ta mất O(√x) thao tác. Tổng lại là O(N √N)."
+            },
+            {
+                q: "2. Trong sàng Eratosthenes cơ bản, tại sao vòng lặp ngoài chỉ cần chạy i từ 2 đến √N ?",
+                options: [
+                    { text: "Để tránh tràn số nguyên (integer overflow).", correct: false },
+                    { text: "Vì mọi hợp số K ≤ N đều có ít nhất một ước nguyên tố ≤ √K (và hiển nhiên ≤ √N).", correct: true },
+                    { text: "Vì nếu chạy tới N thì mảng isPrime không đủ bộ nhớ.", correct: false }
+                ],
+                exp: "Chính xác. Nếu i > √N, mọi hợp số tạo ra bởi i (i*2, i*3...) đều đã bị gạch bởi các ước nguyên tố nhỏ hơn (2, 3...) trước đó."
+            },
+            {
+                q: "3. Tối ưu quan trọng nhất trong vòng lặp gạch (vòng lặp trong) của Eratosthenes là bắt đầu gạch từ đâu?",
+                options: [
+                    { text: "Từ j = 2 * i", correct: false },
+                    { text: "Từ j = i * i", correct: true },
+                    { text: "Từ j = i + i", correct: false }
+                ],
+                exp: "Bắt đầu từ i*i vì các bội nhỏ hơn (i*2, i*3... i*(i-1)) đã bị gạch khi duyệt các số nguyên tố 2, 3... (i-1)."
+            },
+            {
+                q: "4. Điều kiện dừng then chốt trong Sàng Tuyến Tính (Linear Sieve) là gì?",
+                options: [
+                    { text: "if (i % primes[j] == 0) break;", correct: true },
+                    { text: "if (i * primes[j] > N) break;", correct: false },
+                    { text: "if (primes[j] % i == 0) break;", correct: false }
+                ],
+                exp: "Lệnh break này đảm bảo mỗi hợp số chỉ bị gạch đúng một lần bởi Ước Nguyên Tố Nhỏ Nhất (SPF) của nó."
+            },
+            {
+                q: "5. Lỗi 'tràn số' (overflow) phổ biến nhất khi code Sàng nguyên tố với N ≈ 10^7, int 32-bit là ở dòng nào?",
+                options: [
+                    { text: "for (int i = 2; i <= N; i++)", correct: false },
+                    { text: "bool isPrime[N + 1];", correct: false },
+                    { text: "for (int i = 2; i * i <= N; i++)", correct: true }
+                ],
+                exp: "Nếu N đủ lớn, i*i có thể vượt quá giới hạn của int 32-bit (khoảng 2.1*10^9), dẫn đến số âm và vòng lặp chạy vô hạn. Nên dùng long long i."
+            },
+            {
+                q: "6. Điểm khác biệt lớn nhất về kết quả giữa Sàng Cơ Bản và Sàng Tuyến Tính là gì?",
+                options: [
+                    { text: "Sàng cơ bản gạch hợp số nhiều lần, sàng tuyến tính gạch đúng 1 lần.", correct: true },
+                    { text: "Sàng tuyến tính tìm được nhiều số nguyên tố hơn.", correct: false },
+                    { text: "Sàng cơ bản tốn ít bộ nhớ hơn rất nhiều.", correct: false }
+                ],
+                exp: "Đó là lý do sàng tuyến tính có độ phức tạp O(N) nghiêm ngặt (mỗi số được thăm hằng số lần)."
+            }
+        ];
+
+        let score = 0;
+        const quizContainer = document.getElementById('quiz-container');
+
+        quizData.forEach((item, qIndex) => {
+            const div = document.createElement('div');
+            div.className = 'quiz-item';
+            
+            const title = document.createElement('h4');
+            title.textContent = item.q;
+            div.appendChild(title);
+            
+            const expDiv = document.createElement('div');
+            expDiv.className = 'quiz-exp';
+            expDiv.textContent = item.exp;
+
+            let answered = false;
+
+            item.options.forEach(opt => {
+                const label = document.createElement('label');
+                label.className = 'quiz-option';
+                
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = `q${qIndex}`;
+                
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(opt.text));
+                
+                input.addEventListener('change', () => {
+                    if(answered) return;
+                    answered = true;
+                    
+                    // Disable others
+                    div.querySelectorAll('input').forEach(inp => inp.disabled = true);
+                    
+                    if(opt.correct) {
+                        label.classList.add('correct');
+                        score++;
+                        document.getElementById('quiz-score').textContent = score;
+                    } else {
+                        label.classList.add('wrong');
+                        // highlight correct
+                        Array.from(div.querySelectorAll('.quiz-option')).forEach(lbl => {
+                            if(lbl.textContent === item.options.find(o=>o.correct).text) {
+                                lbl.classList.add('correct');
+                            }
+                        });
+                    }
+                    expDiv.style.display = 'block';
+                });
+
+                div.appendChild(label);
+            });
+            
+            div.appendChild(expDiv);
+            quizContainer.appendChild(div);
+        });
+
+        // Initialize grids on load
+        window.addEventListener('DOMContentLoaded', () => {
+            createGrid('grid-sim-1');
+            createGrid('grid-sim-2');
+        });
+
+    </script>
+</body>
+</html>
