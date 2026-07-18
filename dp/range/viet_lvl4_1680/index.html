@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lời giải: Hợp nhất các đống sỏi</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <!-- html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
+            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
+            --text-main: #E2E8F0; --text-muted: #94A3B8;
+            --glow: 0 0 20px rgba(56,214,196,.4);
+            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
+            --border: 1px solid rgba(255,255,255,.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); line-height: 1.6; padding-bottom: 80px; }
+        h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.03em; }
+        code { font-family: 'JetBrains Mono', monospace; background: rgba(91,140,255,.14); color: #A9C4FF; padding: .15em .4em; border-radius: 5px; font-size: 0.88em; }
+
+        .topnav { position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center; padding: 12px 20px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px); border-bottom: var(--border); }
+        .nav-btn { text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent)); padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease; }
+        .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
+        .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 30px 24px; display: flex; flex-direction: column; gap: 24px; }
+
+        .hero { text-align: center; margin-bottom: 10px; }
+        .hero h1 { font-size: 2.2rem; color: var(--accent); margin-bottom: 8px; }
+        .badge { display: inline-block; background: rgba(91,140,255,.15); color: var(--accent2); padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.85rem; margin-bottom: 16px; border: 1px solid rgba(91,140,255,.3); }
+
+        .card { background: linear-gradient(180deg, var(--panel), var(--bg2)); border: var(--border); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); position: relative; }
+        .card h2 { color: var(--accent); font-size: 1.4rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        /* Nút Copy & Snap */
+        .codewrap, .snapbox { position: relative; }
+        .copy-btn, .snap-btn { position: absolute; top: 10px; z-index: 5; font-family: "JetBrains Mono", monospace; font-size: .72rem; font-weight: 600; padding: 5px 10px; border-radius: 7px; cursor: pointer; background: rgba(255,255,255,.06); color: var(--text-muted); border: 1px solid rgba(255,255,255,.12); transition: all .2s; }
+        .snap-btn { right: 10px; }
+        .copy-btn { right: 64px; }
+        .snapbox:not(.codewrap) .snap-btn { right: 10px; }
+        .copy-btn:hover, .snap-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(56,214,196,.1); }
+        .snapping .snap-btn, .snapping .copy-btn { visibility: hidden !important; }
+
+        /* Code highlight */
+        .code-container { background: #0A1220; border: var(--border); border-radius: 12px; padding: 16px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6; color: #E2E8F0; }
+        .code-container pre { margin: 0; white-space: pre-wrap; }
+        .c-kw { color: #FF7B72; } .c-num { color: #79C0FF; } .c-cm { color: #8B949E; font-style: italic; } .c-str { color: #A5D6FF; } .c-fn { color: #D2A8FF; } .c-op { color: #C9D1D9; }
+
+        /* Lab & Interactive */
+        .lab-container { margin: 15px 0; padding: 20px; background: rgba(0,0,0,0.25); border-radius: 12px; border: var(--border); text-align: center; }
+        .array-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; }
+        .array-cell { flex: none; width: 44px; height: 44px; border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono'; font-weight: bold; font-size: 1.1rem; border-radius: 8px; background: rgba(255,255,255,0.05); transition: all 0.3s ease; }
+        .cell-L { background: rgba(56,214,196,0.2); border-color: var(--accent); color: var(--accent); }
+        .cell-R { background: rgba(255,180,84,0.2); border-color: var(--mark); color: var(--mark); }
+        .k-btn { padding: 8px 16px; margin: 0 6px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: var(--text-main); border-radius: 6px; cursor: pointer; transition: 0.2s; font-family: 'JetBrains Mono'; font-size: 0.9em; }
+        .k-btn:hover { background: rgba(255,255,255,0.1); }
+        .k-btn.active { background: var(--accent2); border-color: var(--accent2); color: #000; font-weight: bold; }
+        
+        .slider-wrap { max-width: 300px; margin: 0 auto 16px auto; text-align: left; }
+        .slider-wrap input[type=range] { width: 100%; accent-color: var(--accent); }
+
+        /* Quiz */
+        .quiz-box { background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.2); border-radius: 12px; padding: 20px; margin-top: 20px; }
+        .quiz-box h4 { margin-bottom: 12px; color: var(--accent2); }
+        .quiz-opt { display: block; width: 100%; text-align: left; padding: 12px 16px; margin-bottom: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text-main); cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; font-size: 0.95rem; }
+        .quiz-opt:hover:not(:disabled) { background: rgba(255,255,255,0.05); border-color: var(--text-muted); }
+        .quiz-opt.correct { background: rgba(56,214,196,0.15); border-color: var(--accent); color: var(--accent); }
+        .quiz-opt.wrong { background: rgba(255,107,107,0.15); border-color: var(--red); color: var(--red); }
+        .quiz-opt:disabled { cursor: not-allowed; opacity: 0.8; }
+        .quiz-exp { margin-top: 12px; padding: 16px; border-radius: 8px; background: rgba(0,0,0,0.4); border-left: 4px solid var(--text-muted); font-size: 0.9em; display: none; }
+        .quiz-exp.show { display: block; }
+        
+        /* Box Thuật toán từng bước */
+        .algo-steps { background: linear-gradient(180deg, rgba(56,214,196,.06), transparent); border: 1px solid rgba(56,214,196,.35); border-left: 4px solid var(--accent); border-radius: 14px; padding: 20px 24px; }
+        .algo-steps h3 { color: var(--accent); margin-bottom: 14px; }
+        .algo-steps ol { margin: 0; padding-left: 22px; }
+        .algo-steps ol > li { margin-bottom: 12px; line-height: 1.6; }
+        .algo-steps ul { margin: 6px 0; padding-left: 18px; list-style: none; }
+        .algo-steps ul > li { position: relative; padding-left: 14px; margin-bottom: 4px; color: var(--text-muted); }
+        .algo-steps ul > li::before { content: "–"; position: absolute; left: 0; color: var(--accent); }
+
+        /* DP Grid Lab */
+        .dp-grid { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; overflow-x: auto; padding-bottom: 8px; margin: 16px 0; }
+        .dp-row { display: flex; gap: 4px; }
+        .dp-cell { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 0.85rem; font-family: 'JetBrains Mono'; color: var(--text-muted); transition: all 0.3s; }
+        .dp-cell.filled { color: #fff; background: rgba(91,140,255,0.15); border-color: var(--accent2); }
+        .dp-cell.calculating { border: 2px solid var(--mark); background: rgba(255,180,84,0.1); color: var(--mark); transform: scale(1.05); }
+        
+        .controls { display: flex; justify-content: center; gap: 12px; margin-top: 16px; }
+        .ctrl-btn { padding: 8px 16px; background: #2A364F; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-family: 'Inter'; transition: 0.2s; }
+        .ctrl-btn:hover:not(:disabled) { background: var(--accent2); }
+        .ctrl-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+    </style>
+</head>
+<body>
+
+    <nav class="topnav">
+        <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
+        <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <h1>Hợp nhất các đống sỏi</h1>
+            <div class="badge">DP trên đoạn (Interval DP)</div>
+            <p>Tuyệt chiêu dùng <b>Quy hoạch động trên đoạn</b> kết hợp thủ thuật <b>nhân đôi mảng</b> để giải quyết bài toán dạng vòng tròn một cách gọn gàng.</p>
+        </div>
+
+        <div class="card snapbox">
+            <div class="snap-btn" onclick="snapBox(this)">Snap</div>
+            <h2>1. Tóm tắt đề bài</h2>
+            <p>Có N đống sỏi xếp thành một <strong>vòng tròn</strong>, ban đầu đống thứ i có a<sub>i</sub> viên sỏi.</p>
+            <p>Mỗi lần, bạn được quyền chọn 2 đống sỏi <strong>cạnh nhau</strong> để hợp nhất thành 1 đống mới. Chi phí của lần gộp đó bằng đúng tổng số sỏi của 2 đống bị gộp.</p>
+            <p>Yêu cầu: Gộp N đống sỏi thành một đống duy nhất sao cho tổng chi phí gộp đạt cực tiểu (nhỏ nhất) và cực đại (lớn nhất).</p>
+            <ul style="margin-left: 24px; margin-top: 8px; color: var(--text-muted);">
+                <li>Ràng buộc: N ≤ 100, a<sub>i</sub> ≤ 20.</li>
+                <li>Ví dụ: 4 đống sỏi <code>[4, 5, 9, 4]</code>. Chi phí gộp Min = 43, Max = 54.</li>
+            </ul>
+        </div>
+
+        <div class="card snapbox">
+            <div class="snap-btn" onclick="snapBox(this)">Snap</div>
+            <h2>2. Phân tích ban đầu</h2>
+            <p>Nếu chúng ta tiếp cận một cách "ngây thơ" bằng cách thử gộp từng cặp kề nhau ở mỗi bước, số lượng các nhánh rẽ sẽ bùng nổ rất nhanh. Ở bước 1 có N lựa chọn cặp để gộp, bước 2 có N - 1 lựa chọn,... dẫn tới độ phức tạp O(N!). Với N = 100, cách làm này sẽ mất hàng tỷ năm để chạy.</p>
+            <p>Thay vì duyệt mò, ta nhận ra một tính chất đặc biệt: Các đống sỏi được gộp vào nhau luôn tạo thành một <strong>đoạn liên tiếp</strong> nguyên bản lúc ban đầu. Nếu ta biết cách gộp tối ưu cho các đoạn con nhỏ hơn, ta có thể suy ra cách gộp tối ưu cho đoạn lớn hơn bao trùm nó. Đây chính là dấu hiệu của <strong>Quy hoạch động</strong>.</p>
+        </div>
+
+        <div class="card">
+            <h2>3. Giải quyết trên một đường thẳng</h2>
+            <div class="snapbox">
+                <div class="snap-btn" onclick="snapBox(this)">Snap</div>
+                <p>Trước tiên, hãy giả sử các đống sỏi xếp thành một <strong>đường thẳng</strong> (không có tính vòng tròn).</p>
+                <p>Ta muốn tìm chi phí gộp đoạn sỏi từ vị trí L đến vị trí R. Khó khăn ở đây là ta không biết ở bước cuối cùng, đống sỏi lớn này được ráp lại từ 2 đống sỏi con nào.</p>
+                <p><strong>Ý tưởng:</strong> Ở ngay thao tác cuối cùng để tạo thành đoạn [L, R], ta chắc chắn phải lấy một đoạn bên trái [L, K] gộp với đoạn bên phải [K+1, R] (với K là một điểm cắt nằm giữa). Chi phí của thao tác gộp cuối cùng này luôn bằng đúng tổng tất cả viên sỏi từ L đến R.</p>
+                <p>Do đó, ta có công thức: <em>Chi phí đoạn [L, R] = (Chi phí tối ưu đoạn [L, K]) + (Chi phí tối ưu đoạn [K+1, R]) + (Tổng số sỏi từ L đến R)</em>. Ta chỉ việc thử vòng lặp K qua mọi vị trí cắt có thể để lấy giá trị Min/Max.</p>
+
+                <!-- Lab 1 Interactive -->
+                <div class="lab-container">
+                    <h4 style="margin-bottom: 12px; color:var(--text-main);">Minh họa cách cắt đoạn [4, 5, 9, 4]</h4>
+                    <div class="array-row" id="lab1-arr">
+                        <div class="array-cell cell-L" id="lab1-cell-1">4</div>
+                        <div class="array-cell cell-R" id="lab1-cell-2">5</div>
+                        <div class="array-cell cell-R" id="lab1-cell-3">9</div>
+                        <div class="array-cell cell-R" id="lab1-cell-4">4</div>
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        Thử chọn điểm cắt K: 
+                        <button class="k-btn active" id="lab1-btn-1" onclick="lab1SetK(1)">K = 1</button>
+                        <button class="k-btn" id="lab1-btn-2" onclick="lab1SetK(2)">K = 2</button>
+                        <button class="k-btn" id="lab1-btn-3" onclick="lab1SetK(3)">K = 3</button>
+                    </div>
+                    <div id="lab1-res" style="font-size:0.95em; color:var(--text-muted); background:rgba(0,0,0,0.3); padding:10px; border-radius:8px;">
+                        <!-- JS sẽ đổ dữ liệu vào đây -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Độc lập 1 -->
+            <div class="quiz-box" id="quiz1">
+                <h4>Câu hỏi kiểm tra</h4>
+                <p style="margin-bottom:12px; font-size:0.95em;">Tại sao ở thao tác gộp cuối cùng trên đoạn từ L đến R, chi phí cộng thêm LUÔN bằng đúng tổng khối lượng sỏi của toàn bộ đoạn đó, bất kể vị trí K nằm ở đâu?</p>
+                <button class="quiz-opt" onclick="checkQuiz(1, this, false)">A. Tùy thuộc vào việc đống sỏi nào bị gộp trước sẽ tiêu hao đi khối lượng.</button>
+                <button class="quiz-opt" onclick="checkQuiz(1, this, true)">B. Vì đống lớn cuối cùng tạo ra là sự kết hợp của mọi đống sỏi từ L đến R, điểm thu được bằng tổng khối lượng của chúng gộp lại.</button>
+                <button class="quiz-opt" onclick="checkQuiz(1, this, false)">C. Vì chi phí gộp phải luôn bằng hằng số cho sẵn của bài toán.</button>
+                <div class="quiz-exp" id="quiz1-exp"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>4. Tuyệt chiêu "Trải phẳng vòng tròn"</h2>
+            <div class="snapbox">
+                <div class="snap-btn" onclick="snapBox(this)">Snap</div>
+                <p>Khó khăn lớn nhất của bài là tính <strong>vòng tròn</strong>: đống cuối cùng lại nằm cạnh đống đầu tiên. Một mảng 1 chiều thông thường bị đứt gãy ở hai đầu, không diễn tả được cách lấy đống N gộp với đống 1.</p>
+                <p><strong>Ý tưởng:</strong> Thay vì xử lý chỉ số vòng vèo phức tạp, ta copy toàn bộ mảng và nối tiếp vào phía sau nó! Mảng a<sub>1</sub>, a<sub>2</sub>, a<sub>3</sub>, a<sub>4</sub> sẽ trở thành mảng kích thước 2N: a<sub>1</sub>, a<sub>2</sub>, a<sub>3</sub>, a<sub>4</sub>, a<sub>1</sub>, a<sub>2</sub>, a<sub>3</sub>, a<sub>4</sub>.</p>
+                <p>Lúc này, mọi cách "cắt" chiếc vòng tròn ban đầu để biến thành đường thẳng đều tương đương với một <strong>cửa sổ kích thước N</strong> trượt trên mảng dài 2N này. Ta chỉ cần tìm min/max DP trên các cửa sổ đó!</p>
+
+                <!-- Lab 2 Interactive -->
+                <div class="lab-container">
+                    <h4 style="margin-bottom: 12px; color:var(--text-main);">Mảng đã nhân đôi (N = 4)</h4>
+                    <div class="array-row" id="lab2-arr">
+                        <div class="array-cell cell-L" id="lab2-cell-1">4</div>
+                        <div class="array-cell cell-L" id="lab2-cell-2">5</div>
+                        <div class="array-cell cell-L" id="lab2-cell-3">9</div>
+                        <div class="array-cell cell-L" id="lab2-cell-4">4</div>
+                        <div class="array-cell" id="lab2-cell-5" style="opacity:0.3">4</div>
+                        <div class="array-cell" id="lab2-cell-6" style="opacity:0.3">5</div>
+                        <div class="array-cell" id="lab2-cell-7" style="opacity:0.3">9</div>
+                        <div class="array-cell" id="lab2-cell-8" style="opacity:0.3">4</div>
+                    </div>
+                    <div class="slider-wrap">
+                        <label for="lab2-slider" style="display:block; margin-bottom:6px; font-size:0.9em; color:var(--text-muted);">Trượt để xem các cấu hình cắt vòng tròn:</label>
+                        <input type="range" id="lab2-slider" min="1" max="4" value="1" oninput="lab2SetI(parseInt(this.value))">
+                    </div>
+                    <div id="lab2-res" style="font-size:0.95em; color:var(--mark); background:rgba(0,0,0,0.3); padding:10px; border-radius:8px;">
+                        Cách chia từ đống thứ <b>1</b>: tạo thành dãy thẳng <code>[4, 5, 9, 4]</code>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Độc lập 2 -->
+            <div class="quiz-box" id="quiz2">
+                <h4>Câu hỏi kiểm tra</h4>
+                <p style="margin-bottom:12px; font-size:0.95em;">Sau khi nối dài mảng lên độ dài 2N, tại sao ta chỉ tính DP với những đoạn thẳng có độ dài tối đa là N, chứ không điền bảng tới độ dài 2N?</p>
+                <button class="quiz-opt" onclick="checkQuiz(2, this, true)">A. Vì bài toán ban đầu chỉ có N đống sỏi, gộp quá độ dài N đồng nghĩa với việc ta đã gộp trùng một đống sỏi hai lần.</button>
+                <button class="quiz-opt" onclick="checkQuiz(2, this, false)">B. Vì độ phức tạp O((2N)<sup>3</sup>) sẽ bị quá giới hạn thời gian.</button>
+                <button class="quiz-opt" onclick="checkQuiz(2, this, false)">C. Vì DP trên mảng nhân đôi luôn đối xứng ở giữa mảng.</button>
+                <div class="quiz-exp" id="quiz2-exp"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>5. Điền bảng DP từ dưới lên</h2>
+            <div class="snapbox">
+                <div class="snap-btn" onclick="snapBox(this)">Snap</div>
+                <p>Để tính được DP của một đoạn dài, ta cần đảm bảo mọi đoạn con bên trong nó đã có kết quả. Do vậy, ta không thể dùng hai vòng lặp for i, j từ trái qua phải một cách ngẫu nhiên. Ta bắt buộc phải lặp vòng ngoài cùng theo <strong>độ dài đoạn (len)</strong> tăng dần từ 2 đến N.</p>
+                
+                <!-- Lab 3 State Machine -->
+                <div class="lab-container">
+                    <h4 style="margin-bottom: 12px; color:var(--text-main);">Tự động điền bảng DP (Min) cho N = 4</h4>
+                    <p style="font-size:0.85em; color:var(--text-muted); margin-bottom:12px;">Chỉ cần mảng dài 2N-1 = 7 để chứa trọn vẹn mọi đoạn độ dài 4.</p>
+                    
+                    <!-- Phần hiển thị (được Snap) -->
+                    <div class="array-row" id="lab3-arr">
+                        <div class="array-cell" id="l3-a1">4</div>
+                        <div class="array-cell" id="l3-a2">5</div>
+                        <div class="array-cell" id="l3-a3">9</div>
+                        <div class="array-cell" id="l3-a4">4</div>
+                        <div class="array-cell" id="l3-a5">4</div>
+                        <div class="array-cell" id="l3-a6">5</div>
+                        <div class="array-cell" id="l3-a7">9</div>
+                    </div>
+                    
+                    <div style="display:flex; justify-content:center;">
+                        <div class="dp-grid" id="lab3-grid">
+                            <!-- JS sinh hàng tự động -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nút điều khiển Lab 3 (KHÔNG BỊ SNAP) -->
+            <div style="text-align:center; font-size:0.95em; color:var(--text-muted); margin-top:-10px;">
+                <span id="lab3-msg">Đang chuẩn bị dữ liệu...</span>
+            </div>
+            <div class="controls">
+                <button class="ctrl-btn" id="l3-btn-prev" onclick="lab3Prev()">Lùi lại</button>
+                <button class="ctrl-btn" id="l3-btn-next" onclick="lab3Next()">Tiến tới</button>
+                <button class="ctrl-btn outline" id="l3-btn-auto" onclick="lab3Auto()">Tự chạy</button>
+                <span style="display:flex; align-items:center; font-family:'JetBrains Mono'; font-weight:bold; margin-left:10px;" id="lab3-step">0/0</span>
+            </div>
+
+            <!-- Quiz Độc lập 3 -->
+            <div class="quiz-box" id="quiz3">
+                <h4>Câu hỏi kiểm tra</h4>
+                <p style="margin-bottom:12px; font-size:0.95em;">Giả sử ta không tính mảng cộng dồn (Prefix Sum) mà dùng một vòng lặp for để tính tổng khối lượng đoạn [L, R] mỗi lần cập nhật. Độ phức tạp tổng quát bài này sẽ tăng lên bao nhiêu?</p>
+                <button class="quiz-opt" onclick="checkQuiz(3, this, false)">A. O(N<sup>2</sup>)</button>
+                <button class="quiz-opt" onclick="checkQuiz(3, this, true)">B. O(N<sup>4</sup>)</button>
+                <button class="quiz-opt" onclick="checkQuiz(3, this, false)">C. O(N<sup>3</sup>)</button>
+                <div class="quiz-exp" id="quiz3-exp"></div>
+            </div>
+        </div>
+
+        <div class="algo-steps snapbox">
+            <div class="snap-btn" onclick="snapBox(this)">Snap</div>
+            <h3>Thuật toán từng bước</h3>
+            <ol>
+                <li><strong>Chuẩn bị cấu trúc dữ liệu:</strong>
+                    <ul>
+                        <li>Đọc biến <code>N</code> và mảng <code>a</code> (chứa N phần tử).</li>
+                        <li>Tạo mảng nhân đôi: với mỗi <code>i</code> từ 1 đến N, gán <code>a[N + i] = a[i]</code>. Khi này độ dài mảng là <code>2N</code>.</li>
+                        <li>Tính mảng cộng dồn <code>pref[]</code> để tính nhanh tổng sỏi: <code>pref[i] = pref[i-1] + a[i]</code>. Tổng trên đoạn từ L đến R là <code>pref[R] - pref[L-1]</code>.</li>
+                    </ul>
+                </li>
+                <li><strong>Khởi tạo bảng Quy hoạch động:</strong>
+                    <ul>
+                        <li>Tạo mảng 2 chiều <code>dp_min[2N+1][2N+1]</code> và <code>dp_max[2N+1][2N+1]</code>.</li>
+                        <li>Gán toàn bộ <code>dp_min</code> bằng vô cực (∞) và <code>dp_max</code> bằng âm vô cực (-∞).</li>
+                        <li>Gán điểm cơ sở: Với các đoạn độ dài 1 (nghĩa là <code>i == j</code>), chi phí gộp bằng 0. Cụ thể: <code>dp_min[i][i] = 0</code>, <code>dp_max[i][i] = 0</code>.</li>
+                    </ul>
+                </li>
+                <li><strong>Cập nhật trạng thái (Chạy DP):</strong>
+                    <ul>
+                        <li>Chạy vòng lặp <code>len</code> (độ dài đoạn) từ 2 đến <code>N</code>.</li>
+                        <li>Bên trong, chạy vòng lặp <code>i</code> (điểm đầu) từ 1 đến <code>2N - len + 1</code>. Suy ra điểm cuối <code>j = i + len - 1</code>.</li>
+                        <li>Tính trước tổng đoạn <code>sum_ij = pref[j] - pref[i-1]</code>.</li>
+                        <li>Thử mọi điểm cắt <code>k</code> từ <code>i</code> đến <code>j - 1</code>:
+                            <br>– <code>cost = dp_min[i][k] + dp_min[k+1][j] + sum_ij</code>
+                            <br>– <code>dp_min[i][j] = min(dp_min[i][j], cost)</code>
+                            <br>– Làm tương tự để tìm giá trị lớn nhất cho <code>dp_max[i][j]</code>.
+                        </li>
+                    </ul>
+                </li>
+                <li><strong>Truy xuất đáp án cuối cùng:</strong>
+                    <ul>
+                        <li>Khai báo <code>ans_min = ∞</code>, <code>ans_max = -∞</code>.</li>
+                        <li>Duyệt vị trí cắt ban đầu <code>i</code> từ 1 đến <code>N</code>:
+                            <br>– Cập nhật <code>ans_min = min(ans_min, dp_min[i][i + N - 1])</code>
+                            <br>– Cập nhật <code>ans_max = max(ans_max, dp_max[i][i + N - 1])</code>
+                        </li>
+                        <li>In ra <code>ans_min</code> và <code>ans_max</code>.</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <div class="card" style="padding: 0; background: transparent; box-shadow: none; border: none;">
+            <h2 style="padding: 0 10px;">6. Cài đặt C++</h2>
+            
+            <script type="text/plain" id="raw-cpp-code">
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+const int INF = 1e9;
+
+int main() {
+    int N;
+    if (!(cin >> N)) return 0;
+    
+    // Mảng có kích thước 2*N để chứa mảng nhân đôi
+    vector<int> a(2 * N + 1);
+    vector<int> pref(2 * N + 1, 0);
+    
+    for (int i = 1; i <= N; ++i) {
+        cin >> a[i];
+        a[i + N] = a[i]; // Kỹ thuật nhân đôi mảng để xử lý vòng tròn
+    }
+    
+    int size = 2 * N;
+    // Xây dựng mảng cộng dồn
+    for (int i = 1; i <= size; ++i) {
+        pref[i] = pref[i - 1] + a[i];
+    }
+    
+    // Bảng DP lưu chi phí nhỏ nhất và lớn nhất
+    vector<vector<int>> dp_min(size + 1, vector<int>(size + 1, INF));
+    vector<vector<int>> dp_max(size + 1, vector<int>(size + 1, -INF));
+    
+    // Đoạn độ dài 1 (không cần gộp) có chi phí 0
+    for (int i = 1; i <= size; ++i) {
+        dp_min[i][i] = 0;
+        dp_max[i][i] = 0;
+    }
+    
+    // Quy hoạch động tăng dần theo độ dài đoạn 'len'
+    for (int len = 2; len <= N; ++len) {
+        for (int i = 1; i <= size - len + 1; ++i) {
+            int j = i + len - 1;
+            int sum_ij = pref[j] - pref[i - 1]; // Chi phí ở bước gộp cuối cùng
+            
+            // Thử mọi vị trí cắt k
+            for (int k = i; k < j; ++k) {
+                dp_min[i][j] = min(dp_min[i][j], dp_min[i][k] + dp_min[k + 1][j] + sum_ij);
+                dp_max[i][j] = max(dp_max[i][j], dp_max[i][k] + dp_max[k + 1][j] + sum_ij);
+            }
+        }
+    }
+    
+    int ans_min = INF;
+    int ans_max = -INF;
+    
+    // Kết quả nằm ở các cửa sổ kích thước chính xác là N
+    for (int i = 1; i <= N; ++i) {
+        ans_min = min(ans_min, dp_min[i][i + N - 1]);
+        ans_max = max(ans_max, dp_max[i][i + N - 1]);
+    }
+    
+    cout << ans_min << endl;
+    cout << ans_max << endl;
+    
+    return 0;
+}</script>
+            <div class="codewrap snapbox">
+                <div class="copy-btn" onclick="copyCode(this)">Copy</div>
+                <div class="snap-btn" onclick="snapBox(this)">Snap</div>
+                <div class="code-container">
+                    <pre id="cpp-code-render"></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="card snapbox">
+            <div class="snap-btn" onclick="snapBox(this)">Snap</div>
+            <h2>7. Độ phức tạp</h2>
+            <p><strong>Thời gian:</strong> Có 3 vòng lặp lồng nhau sâu nhất là <code>len</code> (từ 2 đến N), <code>i</code> (tới 2N), và <code>k</code> (chạy cỡ N bước). Do đó độ phức tạp thời gian là O(N<sup>3</sup>). Với giới hạn lớn nhất của đề là N = 100, số lượng phép tính cao nhất vào khoảng 8.000.000, chạy rất mượt mà và vượt xa thời gian giới hạn 1 giây của hệ thống chấm.</p>
+            <p><strong>Không gian (Bộ nhớ):</strong> Ta dùng 2 mảng DP 2 chiều kích thước (2N) × (2N). Với N = 100, mỗi mảng tốn cỡ 40,000 ô <code>int</code> (chiếm khoảng chưa tới 1 MB RAM). Độ phức tạp không gian O(N<sup>2</sup>) dư dả với mọi Subtask.</p>
+            
+            <h3 style="margin: 24px 0 16px 0; color:var(--text-main);">Cạm bẫy khi cài đặt</h3>
+            <div class="grid-2">
+                <div style="border-left:4px solid var(--red); background:rgba(255,107,107,0.05); padding:16px; border-radius:8px;">
+                    <h4 style="color:var(--red); margin-bottom:8px;">✕ Lỗi sai dễ mắc</h4>
+                    <p style="font-size:0.95em; color:var(--text-muted);">Viết vòng lặp DP ngoài cùng duyệt theo điểm đầu <code>i</code>, bên trong duyệt theo điểm cuối <code>j</code>.</p>
+                    <p style="font-size:0.95em; color:var(--text-muted); margin-top:8px;">Hậu quả: Để tính đoạn dài, bạn truy xuất nhầm vào các đoạn con bên trong chưa kịp được tính toán (chứa giá trị rác ∞).</p>
+                </div>
+                <div style="border-left:4px solid var(--accent); background:rgba(56,214,196,0.05); padding:16px; border-radius:8px;">
+                    <h4 style="color:var(--accent); margin-bottom:8px;">✓ Cách xử lý chuẩn</h4>
+                    <p style="font-size:0.95em; color:var(--text-muted);">Luôn thiết kế DP trên đoạn với <strong>vòng lặp ngoài cùng là độ dài đoạn (len)</strong>.</p>
+                    <p style="font-size:0.95em; color:var(--text-muted); margin-top:8px;">Điều này đảm bảo quy luật nhân quả: những đoạn ngắn được điền vào bảng xong xuôi trước khi đoạn dài gọi đến chúng để tìm kết quả.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Hàm flash đổi chữ nút
+        function flash(btn, text) { 
+            const o = btn.textContent; btn.textContent = text;
+            setTimeout(() => btn.textContent = o, 1200); 
+        }
+
+        // Copy source code (thô, không lẫn span)
+        function copyCode(btn) {
+            const rawEl = document.getElementById('raw-cpp-code');
+            const text = rawEl.textContent;
+            navigator.clipboard.writeText(text).then(() => flash(btn, 'Đã chép!')).catch(() => {
+                const ta = document.createElement('textarea'); ta.value = text;
+                document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+                flash(btn, 'Đã chép!');
+            });
+        }
+
+        // Snap Box chụp ảnh
+        function snapBox(btn) {
+            const box = btn.closest('.snapbox');
+            box.classList.add('snapping');
+            document.fonts.ready.then(() => {
+                html2canvas(box, {backgroundColor: '#0B1220', scale: 2, logging: false}).then(canvas => {
+                    box.classList.remove('snapping');
+                    canvas.toBlob(blob => {
+                        try {
+                            navigator.clipboard.write([new ClipboardItem({'image/png': blob})]).then(() => flash(btn, 'Đã chụp!'));
+                        } catch(e) {
+                            const a = document.createElement('a');
+                            a.href = URL.createObjectURL(blob); a.download = 'snap.png'; a.click();
+                            flash(btn, 'Đã tải ảnh');
+                        }
+                    });
+                });
+            });
+        }
+
+        // Tô màu cú pháp an toàn (Lexer phân tách từ vựng 1 lượt)
+        function lex(code) {
+            let result = '';
+            // Regex match các khối: comment/include, string, keyword, số, toán tử/kí hiệu, và nhóm 6 (1 kí tự bất kỳ còn sót)
+            const rgx = /(\/\/.*|#include\s*<[^>]+>)|("(?:\\.|[^"\\])*")|(\b(?:int|long|void|if|else|for|while|return|continue|break|const|auto|vector|min|max|cin|cout|endl)\b)|(\b\d+\b)|([+\-*/%=!&|<>]+)|([^])/g;
+            const escapeHTML = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            code.replace(rgx, (m, g1, g2, g3, g4, g5, g6) => {
+                if(g1) result += `<span class="c-cm">${escapeHTML(g1)}</span>`;
+                else if(g2) result += `<span class="c-str">${escapeHTML(g2)}</span>`;
+                else if(g3) result += `<span class="c-kw">${escapeHTML(g3)}</span>`;
+                else if(g4) result += `<span class="c-num">${escapeHTML(g4)}</span>`;
+                else if(g5) result += `<span class="c-op">${escapeHTML(g5)}</span>`;
+                else if(g6) result += escapeHTML(g6); // Nhóm rác cuối không bọc gì cả
+            });
+            return result;
+        }
+
+        // Logic Lab 1
+        function lab1SetK(k) {
+            const arr = [4, 5, 9, 4];
+            const costL = [0, 0, 9, 27];
+            const costR = [0, 32, 13, 0];
+            
+            for(let i=1; i<=3; i++) {
+                document.getElementById('lab1-btn-'+i).classList.toggle('active', i===k);
+            }
+            for(let i=1; i<=4; i++) {
+                const cell = document.getElementById('lab1-cell-'+i);
+                cell.className = 'array-cell ' + (i <= k ? 'cell-L' : 'cell-R');
+            }
+            
+            const total = costL[k] + costR[k] + 22;
+            document.getElementById('lab1-res').innerHTML = `
+                Đoạn trái <code>[${arr.slice(0,k).join(', ')}]</code>: gộp hết <b>${costL[k]}</b> điểm<br>
+                Đoạn phải <code>[${arr.slice(k).join(', ')}]</code>: gộp hết <b>${costR[k]}</b> điểm<br>
+                Lần gộp chung (Bằng tổng khối lượng cả đoạn): <b>22</b> điểm<br>
+                Tổng chi phí theo K = ${k}: <b>${costL[k]} + ${costR[k]} + 22 = ${total}</b>
+            `;
+        }
+        
+        // Logic Lab 2
+        function lab2SetI(i) {
+            const arr = [4, 5, 9, 4, 4, 5, 9, 4];
+            for(let j=1; j<=8; j++) {
+                const cell = document.getElementById('lab2-cell-'+j);
+                if(j >= i && j <= i+3) {
+                    cell.className = 'array-cell cell-L';
+                    cell.style.opacity = '1';
+                } else {
+                    cell.className = 'array-cell';
+                    cell.style.opacity = '0.3';
+                }
+            }
+            let sub = arr.slice(i-1, i+3);
+            document.getElementById('lab2-res').innerHTML = `Cách chia từ đống thứ <b>${i}</b>: tạo thành dãy thẳng <code>[${sub.join(', ')}]</code>`;
+        }
+
+        // Logic Quiz độc lập
+        function checkQuiz(id, btn, isCorrect) {
+            const box = document.getElementById(`quiz${id}`);
+            const btns = box.querySelectorAll('.quiz-opt');
+            btns.forEach(b => b.disabled = true);
+            
+            if(isCorrect) {
+                btn.classList.add('correct');
+            } else {
+                btn.classList.add('wrong');
+                // Auto show đúng
+                btns.forEach(b => {
+                    if(b.getAttribute('onclick').includes('true')) b.classList.add('correct');
+                });
+            }
+            const exp = document.getElementById(`quiz${id}-exp`);
+            
+            // Text giải thích tuỳ quiz
+            if(id === 1) exp.innerHTML = `<b>Giải thích:</b> Đáp án đúng là <b>B</b>. Theo quy tắc bài, khi gộp hai đống sỏi, điểm cộng thêm chính bằng trọng lượng của 2 đống gộp lại. Ở bước cuối, đống mới chính là tổng của mọi đống từ L đến R, nên chi phí tạo ra LUÔN BẰNG khối lượng toàn đoạn.`;
+            if(id === 2) exp.innerHTML = `<b>Giải thích:</b> Đáp án đúng là <b>A</b>. Khi cửa sổ độ dài lớn hơn N, ta đã bao gồm đống thứ i và đống thứ i (nhân bản ở chu kỳ sau) vào cùng 1 đoạn, vi phạm quy tắc bài toán chỉ có N đống độc lập ban đầu.`;
+            if(id === 3) exp.innerHTML = `<b>Giải thích:</b> Đáp án đúng là <b>B</b>. Vòng lặp DP mặc định là O(N<sup>3</sup>). Nếu cộng thêm một vòng for lặp từ L tới R để tính tổng (mất thêm O(N) vòng lặp) nằm sâu bên trong nữa, tổng độ phức tạp sẽ bị nhân lên thành O(N<sup>4</sup>).`;
+            
+            exp.classList.add('show');
+        }
+
+        // ----------------------------------------------------
+        // MODULE: Lab 3 - Điền DP State Machine
+        // ----------------------------------------------------
+        const Lab3 = (function() {
+            let steps = [];
+            let sp = 0;
+            let timer = null;
+            
+            function buildDOM() {
+                const grid = document.getElementById('lab3-grid');
+                grid.innerHTML = '';
+                // 4 hàng len=1..4
+                for(let len=1; len<=4; len++) {
+                    const row = document.createElement('div');
+                    row.className = 'dp-row';
+                    // Số cột = 7 - len + 1
+                    for(let i=1; i<=8-len; i++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'dp-cell';
+                        cell.id = `l3-c-${len}-${i}`;
+                        row.appendChild(cell);
+                    }
+                    grid.appendChild(row);
+                }
+            }
+
+            function makeSteps() {
+                steps = [];
+                let dp = Array.from({length: 5}, () => Array(8).fill(null));
+                let pref = [0, 4, 9, 18, 22, 26, 31, 40]; // mảng cộng dồn
+                
+                // Cấu trúc copy sâu trạng thái mảng
+                const copyDP = () => dp.map(row => [...row]);
+                
+                // Bước 0: Bắt đầu
+                steps.push({ msg: 'Sẵn sàng điền bảng min DP. Nhấn "Tiến tới" để bắt đầu.', dp: copyDP(), hl: null });
+                
+                // Len = 1
+                for(let i=1; i<=7; i++) dp[1][i] = 0;
+                steps.push({ msg: '<b>Độ dài = 1:</b> Chi phí gộp 1 đống bằng 0. Điền hàng trên cùng.', dp: copyDP(), hl: {len:1} });
+                
+                // Tính DP
+                for(let len=2; len<=4; len++) {
+                    for(let i=1; i<=8-len; i++) {
+                        let j = i + len - 1;
+                        let sum_ij = pref[j] - pref[i-1];
+                        let min_val = 999999, best_k = -1;
+                        for(let k=i; k<j; k++) {
+                            let c = dp[k-i+1][i] + dp[j-k][k+1] + sum_ij;
+                            if(c < min_val) { min_val = c; best_k = k; }
+                        }
+                        dp[len][i] = min_val;
+                        steps.push({ 
+                            msg: `<b>Đoạn len=${len}, từ đống ${i} đến ${j}:</b><br>Chi phí bé nhất là <b>${min_val}</b> (Tách tại K=${best_k}).`, 
+                            dp: copyDP(), 
+                            hl: {len, i, j},
+                            val: min_val
+                        });
+                    }
+                }
+                
+                // Tổng kết
+                steps.push({
+                    msg: `<b>Hoàn thành!</b> Kết quả bài toán là giá trị Min của 4 đoạn độ dài 4 (hàng cuối cùng). Kết quả là <b>43</b>.`,
+                    dp: copyDP(),
+                    hl: {final: true}
+                });
+            }
+
+            function paint(p) {
+                sp = p;
+                const step = steps[sp];
+                
+                // Update UI text
+                document.getElementById('lab3-msg').innerHTML = step.msg;
+                document.getElementById('lab3-step').textContent = `${sp}/${steps.length-1}`;
+                
+                // Nút bấm trạng thái
+                document.getElementById('l3-btn-prev').disabled = (sp === 0);
+                document.getElementById('l3-btn-next').disabled = (sp === steps.length-1);
+                
+                // Xóa mọi highlight cũ
+                document.querySelectorAll('.array-cell').forEach(c => c.style.background = 'rgba(255,255,255,0.05)');
+                document.querySelectorAll('.dp-cell').forEach(c => {
+                    c.className = 'dp-cell';
+                    c.textContent = '';
+                });
+
+                // Đổ data lên bảng DP
+                for(let len=1; len<=4; len++) {
+                    for(let i=1; i<=8-len; i++) {
+                        const v = step.dp[len][i];
+                        const cell = document.getElementById(`l3-c-${len}-${i}`);
+                        if(v !== null) {
+                            cell.textContent = v;
+                            cell.classList.add('filled');
+                        }
+                    }
+                }
+
+                // Highlight mảng array gốc và highlight cell
+                if(step.hl) {
+                    if(step.hl.len === 1) {
+                        for(let x=1; x<=7; x++) {
+                            document.getElementById(`l3-c-1-${x}`).classList.add('calculating');
+                        }
+                    } 
+                    else if(step.hl.final) {
+                        for(let x=1; x<=4; x++) {
+                            document.getElementById(`l3-c-4-${x}`).classList.add('calculating');
+                        }
+                    }
+                    else {
+                        const {len, i, j} = step.hl;
+                        const mainCell = document.getElementById(`l3-c-${len}-${i}`);
+                        if(mainCell) {
+                            mainCell.classList.add('calculating');
+                            mainCell.style.borderColor = 'var(--mark)';
+                        }
+                        // Bôi màu mảng array gốc
+                        for(let x=i; x<=j; x++) {
+                            document.getElementById(`l3-a${x}`).style.background = 'rgba(56,214,196,0.3)';
+                        }
+                    }
+                }
+            }
+
+            return {
+                init: function() {
+                    buildDOM();
+                    makeSteps();
+                    paint(0);
+                },
+                next: function() {
+                    if(sp < steps.length - 1) paint(sp + 1);
+                    else { clearInterval(timer); timer = null; }
+                },
+                prev: function() {
+                    if(sp > 0) paint(sp - 1);
+                },
+                auto: function() {
+                    if(timer) { clearInterval(timer); timer = null; return; }
+                    if(sp === steps.length - 1) paint(0);
+                    timer = setInterval(() => { this.next(); }, 700);
+                }
+            };
+        })();
+
+        // Wrapper gọi ra từ giao diện HTML
+        function lab3Next() { Lab3.next(); }
+        function lab3Prev() { Lab3.prev(); }
+        function lab3Auto() { Lab3.auto(); }
+
+        // Boot
+        window.addEventListener('DOMContentLoaded', () => {
+            // Lex code
+            const raw = document.getElementById('raw-cpp-code').textContent;
+            document.getElementById('cpp-code-render').innerHTML = lex(raw);
+            
+            // Init Labs
+            lab1SetK(1);
+            lab2SetI(1);
+            Lab3.init();
+        });
+    </script>
+</body>
+</html>
