@@ -122,13 +122,8 @@
         }
 
         p { margin-bottom: 12px; }
-        
-        .hl-text {
-            color: var(--mark);
-            font-weight: 600;
-        }
+        .hl-text { color: var(--mark); font-weight: 600; }
 
-        /* Nút Copy & Snap */
         .codewrap, .snapbox { position: relative; }
         
         .copy-btn, .snap-btn {
@@ -159,7 +154,6 @@
 
         .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
 
-        /* Code Block */
         .codewrap {
             background-color: #0A1220;
             border: var(--border);
@@ -172,13 +166,13 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.9rem;
             line-height: 1.6;
-            padding: 16px 0;
+            padding: 16px 0; /* Bỏ padding ngang ở thẻ ngoài */
         }
 
         .codeline {
-            padding: 0 16px;
+            padding: 0 16px; /* Chuyển padding ngang vào từng dòng */
             border-left: 3px solid transparent;
-            white-space: pre-wrap;
+            white-space: pre-wrap; /* Ép white-space vào từng dòng để tránh dòng rỗng thừa */
         }
 
         .codeline.hot {
@@ -195,7 +189,6 @@
         .c-op { color: #56B6C2; } /* Operator */
         .c-ty { color: #E5C07B; } /* Type */
 
-        /* Thuật toán từng bước */
         .algo-steps {
             background: linear-gradient(180deg, rgba(56, 214, 196, 0.06), transparent);
             border: 1px solid rgba(56, 214, 196, 0.35);
@@ -220,7 +213,6 @@
             font-size: 0.88em;
         }
 
-        /* Bàn cờ */
         .board-container {
             display: flex;
             justify-content: center;
@@ -255,10 +247,9 @@
 
         .cell.light { background: #1E293B; }
         .cell.dark { background: #0F172A; }
-        
         .cell:hover { opacity: 0.8; }
 
-        .cell.queen { 
+        .cell.queen .piece { 
             text-shadow: 0 0 10px var(--mark); 
             color: var(--mark);
         }
@@ -276,6 +267,33 @@
             animation: pulse 1s infinite;
         }
 
+        /* Nhãn chỉ số đường chéo */
+        .d1-lbl {
+            position: absolute; top: 2px; left: 3px;
+            font-size: 0.55rem; color: var(--accent2);
+            font-family: 'JetBrains Mono', monospace;
+            opacity: 0.35; transition: all 0.2s;
+            line-height: 1;
+        }
+        .d2-lbl {
+            position: absolute; bottom: 2px; right: 3px;
+            font-size: 0.55rem; color: var(--mark);
+            font-family: 'JetBrains Mono', monospace;
+            opacity: 0.35; transition: all 0.2s;
+            line-height: 1;
+        }
+        .piece { z-index: 2; }
+
+        /* Highlight chỉ số trong Mini Lab */
+        .cell.hl-d1 .d1-lbl { opacity: 1; font-weight: bold; font-size: 0.65rem; }
+        .cell.hl-d2 .d2-lbl { opacity: 1; font-weight: bold; font-size: 0.65rem; }
+        .cell.hl-center .d1-lbl, .cell.hl-center .d2-lbl { opacity: 1; color: #000; font-weight: bold; }
+
+        /* Highlight chỉ số trong Lab 2 */
+        .cell.queen .d1-lbl, .cell.queen .d2-lbl { opacity: 0.6; }
+        .cell.checking .d1-lbl, .cell.checking .d2-lbl { opacity: 1; font-weight: bold; color: #fff; }
+        .cell.collision .d1-lbl, .cell.collision .d2-lbl { opacity: 1; font-weight: bold; color: #fff; }
+
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.1); }
@@ -288,7 +306,6 @@
         .cell.hl-d2 { background: rgba(255, 180, 84, 0.25); }
         .cell.hl-center { background: var(--accent); color: #000; font-weight: bold; box-shadow: var(--glow); }
 
-        /* Panel thông số */
         .info-panel {
             background: rgba(0,0,0,0.3);
             border: 1px solid rgba(255,255,255,0.1);
@@ -310,7 +327,6 @@
 
         .info-item .val { color: var(--accent); font-weight: bold; }
 
-        /* Tập hợp đánh dấu (Sets) */
         .sets-container {
             display: flex;
             gap: 12px;
@@ -328,12 +344,8 @@
             min-width: 120px;
         }
         .set-box span { color: var(--accent); }
-        .set-box.flash {
-            background: rgba(255, 107, 107, 0.2);
-            border-color: var(--red);
-        }
+        .set-box.flash { background: rgba(255, 107, 107, 0.2); border-color: var(--red); }
 
-        /* Nút điều khiển Lab */
         .lab-controls {
             display: flex;
             gap: 10px;
@@ -365,7 +377,6 @@
             min-height: 48px;
         }
 
-        /* Trắc nghiệm (Quiz) */
         .quiz {
             background: var(--bg2);
             border: 1px solid #334155;
@@ -403,7 +414,6 @@
             border-left: 3px solid var(--accent2);
         }
 
-        /* Cạm bẫy Table */
         .pitfalls {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -454,7 +464,6 @@
             <p><b>Cách 3 (Tối ưu nhất - O(N)):</b> Nếu bài toán mở rộng lên N = 10<sup>5</sup>, Cách 2 sẽ quá thời gian. Kỹ thuật thanh lịch nhất là <b>Mảng đánh dấu (Hash Map)</b>. Ta chỉ cần quét qua từng quân hậu một lần, và đánh dấu "chủ quyền" lên hàng, cột và đường chéo mà nó đang đứng. Nếu quân hậu tiếp theo rơi vào "đất đã đánh dấu", ta kết luận <code>YES</code> ngay.</p>
         </div>
 
-        <!-- MÔ-ĐUN 1: Toán học đường chéo -->
         <div class="card">
             <div class="snapbox">
                 <button class="snap-btn" onclick="snapBox(this)">Snap</button>
@@ -467,6 +476,7 @@
                     <li><b>Đường chéo phụ (Nghiêng phải sang trái):</b> Khi ta di chuyển xuống dưới và sang trái một ô, Dòng tăng 1 nhưng Cột lại giảm 1. Do phần tăng bù trừ cho phần giảm, nên <b>tổng số (Dòng + Cột) của chúng không thay đổi</b>.</li>
                 </ul>
                 <p class="hl-text">Hãy di chuột (hoặc chạm) vào lưới 8 × 8 dưới đây. Hãy quan sát cách các phép toán Dòng - Cột và Dòng + Cột tạo ra một mã số không đổi dọc theo toàn bộ chiều dài của mỗi đường chéo!</p>
+                <p style="font-size: 0.9rem; color: var(--text-muted);">* Các con số nhỏ trong ô: Màu <span style="color:var(--accent2)">xanh (trái)</span> là hiệu (D - C), màu <span style="color:var(--mark)">cam (phải)</span> là tổng (D + C).</p>
 
                 <div class="board-container">
                     <div id="ml-board" class="board"></div>
@@ -493,7 +503,6 @@
             </div>
         </div>
 
-        <!-- MÔ-ĐUN 2: Kỹ thuật mảng đánh dấu -->
         <div class="card">
             <div class="snapbox">
                 <button class="snap-btn" onclick="snapBox(this)">Snap</button>
@@ -506,7 +515,8 @@
                 </ul>
                 <p><b>Lưu ý quan trọng:</b> Mã đường chéo chính (Dòng - Cột) có thể ra số âm (ví dụ: 1 - 8 = -7). Trong C++, chỉ số mảng không được âm. Để khắc phục, ta <b>cộng thêm một hằng số 8</b> vào công thức, biến nó thành <code>(Dòng - Cột + 8)</code> để luôn dương, trải dài từ 1 đến 15.</p>
 
-                <p style="margin-top: 16px;"><b>Lab mô phỏng:</b> Chạy từng bước với một tình huống có 4 quân hậu (tọa độ tự tạo để minh họa tính chất va chạm).</p>
+                <p style="margin-top: 16px;"><b>Lab mô phỏng:</b> Chạy từng bước với một tình huống có 4 quân hậu (tọa độ tự tạo để minh họa tính chất va chạm). <br>
+                <i style="font-size: 0.9rem; color: var(--text-muted);">* Quan sát các số nhỏ trong ô: Màu <span style="color:var(--accent2)">xanh (trái)</span> là mã mảng chéo chính đã được cộng 8, màu <span style="color:var(--mark)">cam (phải)</span> là mã mảng chéo phụ.</i></p>
                 <div class="board-container">
                     <div id="l2-board" class="board"></div>
                 </div>
@@ -710,6 +720,13 @@
                     cell.className = 'cell ' + ((r+c)%2===0 ? 'light' : 'dark');
                     cell.id = `mlcell-${r}-${c}`;
                     
+                    // Thêm nhãn chỉ số chéo và vùng chứa quân cờ
+                    cell.innerHTML = `
+                        <span class="d1-lbl">${r - c}</span>
+                        <span class="d2-lbl">${r + c}</span>
+                        <span class="piece"></span>
+                    `;
+                    
                     cell.addEventListener('mouseover', () => mlHover(r, c));
                     cell.addEventListener('mouseleave', mlLeave);
                     board.appendChild(cell);
@@ -730,12 +747,17 @@
                 for(let c=1; c<=8; c++){
                     const cell = document.getElementById(`mlcell-${r}-${c}`);
                     cell.className = 'cell ' + ((r+c)%2===0 ? 'light' : 'dark'); // reset
+                    const piece = cell.querySelector('.piece');
+                    piece.textContent = '';
                     
-                    if (r === hr && c === hc) cell.classList.add('hl-center');
-                    else if (r === hr) cell.classList.add('hl-row');
-                    else if (c === hc) cell.classList.add('hl-col');
+                    if (r === hr && c === hc) {
+                        cell.classList.add('hl-center');
+                        piece.textContent = '🎯';
+                    }
                     else if (r - c === hr - hc) cell.classList.add('hl-d1');
                     else if (r + c === hr + hc) cell.classList.add('hl-d2');
+                    else if (r === hr) cell.classList.add('hl-row');
+                    else if (c === hc) cell.classList.add('hl-col');
                 }
             }
         }
@@ -751,6 +773,7 @@
                 for(let c=1; c<=8; c++){
                     const cell = document.getElementById(`mlcell-${r}-${c}`);
                     cell.className = 'cell ' + ((r+c)%2===0 ? 'light' : 'dark');
+                    cell.querySelector('.piece').textContent = '';
                 }
             }
         }
@@ -845,6 +868,14 @@
                     const cell = document.createElement('div');
                     cell.className = 'cell ' + ((r+c)%2===0 ? 'light' : 'dark');
                     cell.id = `l2cell-${r}-${c}`;
+                    
+                    // Lab 2 dùng công thức (r - c + 8) cho chéo chính
+                    cell.innerHTML = `
+                        <span class="d1-lbl">${r - c + 8}</span>
+                        <span class="d2-lbl">${r + c}</span>
+                        <span class="piece"></span>
+                    `;
+                    
                     board.appendChild(cell);
                 }
             }
@@ -871,18 +902,18 @@
             document.getElementById('l2-btn-prev').disabled = (sp === 0);
             document.getElementById('l2-btn-next').disabled = (sp === L2_steps.length - 1);
 
-            // Cập nhật Bàn cờ
+            // Cập nhật Bàn cờ (không làm mất nhãn d1/d2, chỉ thay .piece)
             for(let r=1; r<=8; r++){
                 for(let c=1; c<=8; c++){
                     const cell = document.getElementById(`l2cell-${r}-${c}`);
                     cell.className = 'cell ' + ((r+c)%2===0 ? 'light' : 'dark');
-                    cell.innerHTML = '';
+                    cell.querySelector('.piece').textContent = '';
                 }
             }
             
             for(let q of step.board) {
                 const cell = document.getElementById(`l2cell-${q.r}-${q.c}`);
-                cell.innerHTML = '♛';
+                cell.querySelector('.piece').textContent = '♛';
                 if(q.state === 'placed') cell.classList.add('queen');
                 else if(q.state === 'checking') cell.classList.add('checking');
                 else if(q.state === 'collision') cell.classList.add('collision');
@@ -930,4 +961,3 @@
     </script>
 </body>
 </html>
-```eof
