@@ -176,7 +176,7 @@
         .lab-msg {
             background: rgba(91,140,255,.1); border-left: 3px solid var(--accent2);
             padding: 12px 16px; border-radius: 0 8px 8px 0;
-            font-size: 0.95rem; min-height: 48px; display: flex; align-items: center;
+            font-size: 0.95rem; min-height: 48px; display: flex; flex-direction: column; justify-content: center; line-height: 1.5;
         }
 
         /* Quiz Box (Not snappable) */
@@ -287,6 +287,54 @@
                 </ol>
                 <p class="math-display">S[i][j] = S[i-1][j] + S[i][j-1] - S[i-1][j-1] + A[i][j]</p>
                 
+                <svg viewBox="0 0 530 150" class="w-full h-auto bg-[#0A1220] rounded-xl border border-[rgba(255,255,255,0.1)] my-5 p-2">
+                    <defs>
+                        <!-- Grid 3x3 mẫu dùng chung -->
+                        <path id="grid3" d="M0,0 h60 v60 h-60 Z M20,0 v60 M40,0 v60 M0,20 h60 M0,40 h60" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                    </defs>
+                    
+                    <text x="265" y="22" fill="#E2E8F0" font-family="sans-serif" font-size="14" font-weight="600" text-anchor="middle">Minh họa công thức tạo mảng S[i][j]</text>
+                    
+                    <!-- Phần Trên -->
+                    <g transform="translate(30, 50)">
+                        <use href="#grid3"/>
+                        <rect x="0" y="0" width="60" height="40" fill="rgba(91,140,255,0.4)" stroke="#5B8CFF" stroke-width="1.5" rx="2"/>
+                        <text x="30" y="82" fill="#94A3B8" font-family="monospace" font-size="11" text-anchor="middle">S[i-1][j]</text>
+                    </g>
+                    <text x="110" y="82" fill="#fff" font-size="20" font-weight="bold" text-anchor="middle">+</text>
+                    
+                    <!-- Phần Trái -->
+                    <g transform="translate(130, 50)">
+                        <use href="#grid3"/>
+                        <rect x="0" y="0" width="40" height="60" fill="rgba(255,180,84,0.4)" stroke="#FFB454" stroke-width="1.5" rx="2"/>
+                        <text x="30" y="82" fill="#94A3B8" font-family="monospace" font-size="11" text-anchor="middle">S[i][j-1]</text>
+                    </g>
+                    <text x="210" y="82" fill="#fff" font-size="20" font-weight="bold" text-anchor="middle">-</text>
+            
+                    <!-- Phần Giao (bị trừ đi) -->
+                    <g transform="translate(230, 50)">
+                        <use href="#grid3"/>
+                        <rect x="0" y="0" width="40" height="40" fill="rgba(255,107,107,0.4)" stroke="#FF6B6B" stroke-width="1.5" stroke-dasharray="3" rx="2"/>
+                        <text x="30" y="82" fill="#94A3B8" font-family="monospace" font-size="11" text-anchor="middle">S[i-1][j-1]</text>
+                    </g>
+                    <text x="310" y="82" fill="#fff" font-size="20" font-weight="bold" text-anchor="middle">+</text>
+            
+                    <!-- Ô hiện tại -->
+                    <g transform="translate(330, 50)">
+                        <use href="#grid3"/>
+                        <rect x="40" y="40" width="20" height="20" fill="rgba(255,255,255,0.2)" stroke="#fff" stroke-width="1.5" rx="2"/>
+                        <text x="30" y="82" fill="#94A3B8" font-family="monospace" font-size="11" text-anchor="middle">A[i][j]</text>
+                    </g>
+                    <text x="410" y="82" fill="#fff" font-size="20" font-weight="bold" text-anchor="middle">=</text>
+            
+                    <!-- Kết quả -->
+                    <g transform="translate(430, 50)">
+                        <use href="#grid3"/>
+                        <rect x="0" y="0" width="60" height="60" fill="rgba(56,214,196,0.3)" stroke="#38D6C4" stroke-width="1.5" rx="2"/>
+                        <text x="30" y="82" fill="#38D6C4" font-family="monospace" font-weight="bold" font-size="12" text-anchor="middle">S[i][j]</text>
+                    </g>
+                </svg>
+
                 <!-- LAB 2 -->
                 <div class="lab-ctrl">
                     <button class="btn" id="l2-btn-prev">◀ Lùi</button>
@@ -304,7 +352,8 @@
                     </div>
                     <div class="grid-box">
                         <div class="grid-title">Mảng cộng dồn S</div>
-                        <div class="grid" id="l2-grid-s" style="grid-template-columns: 20px repeat(4, var(--cell-w));"></div>
+                        <!-- Sửa lỗi: Lưới 3x3 cần repeat(3) để chứa 4 cột (1 cột nhãn + 3 cột số), không phải repeat(4) -->
+                        <div class="grid" id="l2-grid-s" style="grid-template-columns: 20px repeat(3, var(--cell-w));"></div>
                     </div>
                 </div>
             </div>
@@ -337,6 +386,53 @@
                 </ol>
                 <p class="math-display">Tổng = S[r2][c2] - S[r1-1][c2] - S[r2][c1-1] + S[r1-1][c1-1]</p>
 
+                <svg viewBox="0 0 620 170" class="w-full h-auto bg-[#0A1220] rounded-xl border border-[rgba(255,255,255,0.1)] my-5 p-2">
+                    <defs>
+                        <!-- Grid 4x4 mẫu dùng chung -->
+                        <path id="grid4" d="M0,0 h80 v80 h-80 Z M20,0 v80 M40,0 v80 M60,0 v80 M0,20 h80 M0,40 h80 M0,60 h80" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                    </defs>
+                    <text x="310" y="25" fill="#E2E8F0" font-family="sans-serif" font-size="14" font-weight="600" text-anchor="middle">Mô phỏng truy vấn: Nguyên lý bao hàm - loại trừ</text>
+            
+                    <!-- Toàn bộ góc trên trái đến đích -->
+                    <g transform="translate(20, 50)">
+                        <use href="#grid4"/>
+                        <rect x="0" y="0" width="80" height="80" fill="rgba(56,214,196,0.2)" stroke="#38D6C4" stroke-width="1.5" rx="2"/>
+                        <text x="40" y="105" fill="#94A3B8" font-family="monospace" font-size="11" text-anchor="middle">S[r2][c2]</text>
+                    </g>
+                    <text x="120" y="95" fill="#fff" font-size="20" font-weight="bold" text-anchor="middle">-</text>
+            
+                    <!-- Bỏ phần thừa phía trên -->
+                    <g transform="translate(140, 50)">
+                        <use href="#grid4"/>
+                        <rect x="0" y="0" width="80" height="40" fill="rgba(91,140,255,0.4)" stroke="#5B8CFF" stroke-width="1.5" rx="2"/>
+                        <text x="40" y="105" fill="#94A3B8" font-family="monospace" font-size="11" text-anchor="middle">S[r1-1][c2]</text>
+                    </g>
+                    <text x="240" y="95" fill="#fff" font-size="20" font-weight="bold" text-anchor="middle">-</text>
+            
+                    <!-- Bỏ phần thừa phía bên trái -->
+                    <g transform="translate(260, 50)">
+                        <use href="#grid4"/>
+                        <rect x="0" y="0" width="40" height="80" fill="rgba(255,180,84,0.4)" stroke="#FFB454" stroke-width="1.5" rx="2"/>
+                        <text x="40" y="105" fill="#94A3B8" font-family="monospace" font-size="11" text-anchor="middle">S[r2][c1-1]</text>
+                    </g>
+                    <text x="360" y="95" fill="#fff" font-size="20" font-weight="bold" text-anchor="middle">+</text>
+            
+                    <!-- Bù lại phần giao bị trừ lặp -->
+                    <g transform="translate(380, 50)">
+                        <use href="#grid4"/>
+                        <rect x="0" y="0" width="40" height="40" fill="rgba(255,107,107,0.4)" stroke="#FF6B6B" stroke-width="1.5" stroke-dasharray="3" rx="2"/>
+                        <text x="40" y="105" fill="#94A3B8" font-family="monospace" font-size="11" text-anchor="middle">S[r1-1][c1-1]</text>
+                    </g>
+                    <text x="480" y="95" fill="#fff" font-size="20" font-weight="bold" text-anchor="middle">=</text>
+            
+                    <!-- Phần được chọn cuối cùng -->
+                    <g transform="translate(500, 50)">
+                        <use href="#grid4"/>
+                        <rect x="40" y="40" width="40" height="40" fill="rgba(255,255,255,0.2)" stroke="#fff" stroke-width="2" rx="2"/>
+                        <text x="40" y="105" fill="#fff" font-family="monospace" font-weight="bold" font-size="12" text-anchor="middle">Kết quả</text>
+                    </g>
+                </svg>
+
                 <!-- LAB 3 -->
                 <div class="lab-ctrl">
                     <button class="btn" id="l3-btn-prev">◀ Lùi</button>
@@ -350,7 +446,8 @@
                 <div class="grid-wrapper" style="justify-content: center;">
                     <div class="grid-box">
                         <div class="grid-title">Lưới mảng S (đã tính trước)</div>
-                        <div class="grid" id="l3-grid-s" style="grid-template-columns: 20px repeat(5, var(--cell-w)); position:relative;"></div>
+                        <!-- Sửa lỗi: Lưới mẫu 3x4 cần repeat(4) để chứa 5 cột, không phải repeat(5) -->
+                        <div class="grid" id="l3-grid-s" style="grid-template-columns: 20px repeat(4, var(--cell-w)); position:relative;"></div>
                     </div>
                 </div>
             </div>
