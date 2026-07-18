@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lời giải: Giá trị thường xuyên [FREQK]</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
+            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
+            --text-main: #E2E8F0; --text-muted: #94A3B8;
+            --glow: 0 0 20px rgba(56, 214, 196, .4);
+            --shadow: 0 20px 60px -30px rgba(0, 0, 0, .9);
+            --border: 1px solid rgba(255, 255, 255, .1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -0.03em;
+            margin-bottom: 16px;
+        }
+
+        .topnav {
+            position: sticky; top: 0; z-index: 100;
+            display: flex; gap: 12px; align-items: center;
+            padding: 12px 20px;
+            background: rgba(11, 18, 32, .85);
+            backdrop-filter: blur(10px);
+            border-bottom: var(--border);
+        }
+
+        .nav-btn {
+            text-decoration: none; color: #000;
+            background: linear-gradient(135deg, var(--accent2), var(--accent));
+            padding: 8px 18px; border-radius: 8px; font-weight: 600;
+            box-shadow: var(--glow); transition: all .3s ease;
+        }
+        .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .nav-btn.outline {
+            background: transparent; border: 1px solid var(--accent);
+            color: var(--accent); box-shadow: none;
+        }
+        .nav-btn.outline:hover { background: rgba(56, 214, 196, .1); box-shadow: var(--glow); }
+
+        .container {
+            max-width: 1000px; margin: 0 auto; padding: 40px 24px;
+            display: flex; flex-direction: column; gap: 32px;
+        }
+
+        @media (max-width: 768px) { .container { padding: 24px 16px; } }
+
+        .card {
+            background: linear-gradient(180deg, var(--panel), var(--bg2));
+            border: var(--border); border-radius: 16px;
+            padding: 24px; box-shadow: var(--shadow);
+        }
+
+        .badge {
+            display: inline-block; padding: 4px 12px; border-radius: 20px;
+            font-size: 0.85rem; font-weight: 600; margin-bottom: 12px;
+            background: rgba(56, 214, 196, .1); color: var(--accent);
+            border: 1px solid rgba(56, 214, 196, .2);
+        }
+
+        .hero-desc { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 24px; }
+
+        .codewrap, .snapbox { position: relative; }
+        .copy-btn, .snap-btn {
+            position: absolute; top: 10px; z-index: 5;
+            font-family: "JetBrains Mono", monospace; font-size: .72rem; font-weight: 600;
+            padding: 5px 10px; border-radius: 7px; cursor: pointer;
+            background: rgba(255, 255, 255, .06); color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, .12); transition: all .2s;
+        }
+        .snap-btn { right: 10px; }
+        .copy-btn { right: 64px; }
+        .snapbox:not(.codewrap) .snap-btn { right: 10px; }
+        .copy-btn:hover, .snap-btn:hover {
+            color: var(--accent); border-color: var(--accent); background: rgba(56, 214, 196, .1);
+        }
+        .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
+
+        .code-block {
+            background: #0A1220; border: var(--border); border-radius: 12px;
+            padding: 16px 0; overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .codeline { padding: 0 16px; white-space: pre-wrap; word-break: break-all; transition: all 0.2s; }
+        .codeline.hot {
+            background: rgba(255, 180, 84, .1);
+            border-left: 3px solid var(--mark);
+            padding-left: 13px;
+        }
+
+        /* Syntax highlighting */
+        .c-kw { color: #FF7B72; } /* Keyword */
+        .c-num { color: #79C0FF; } /* Number */
+        .c-str { color: #A5D6FF; } /* String */
+        .c-fn { color: #D2A8FF; } /* Function */
+        .c-cm { color: #8B949E; font-style: italic; } /* Comment */
+        .c-op { color: #C9D1D9; } /* Operator */
+        .c-ty { color: #FF7B72; } /* Type */
+
+        .algo-steps {
+            background: linear-gradient(180deg, rgba(56, 214, 196, .06), transparent);
+            border: 1px solid rgba(56, 214, 196, .35);
+            border-left: 4px solid var(--accent);
+            border-radius: 14px; padding: 20px 24px;
+        }
+        .algo-steps h3 { color: var(--accent); margin-bottom: 10px; }
+        .algo-steps ol { margin: 0; padding-left: 22px; }
+        .algo-steps ol > li { margin-bottom: 10px; line-height: 1.6; }
+        .algo-steps ul { margin: 6px 0; padding-left: 18px; list-style: none; }
+        .algo-steps ul > li { position: relative; padding-left: 14px; margin-bottom: 4px; color: var(--text-muted); }
+        .algo-steps ul > li::before { content: "–"; position: absolute; left: 0; color: var(--accent); }
+        code, .inline-code {
+            background: rgba(91, 140, 255, .14); color: #A9C4FF;
+            padding: .1em .4em; border-radius: 5px;
+            font-family: "JetBrains Mono", monospace; font-size: .88em;
+        }
+
+        .pitfall-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+        .pitfall-col { padding: 16px; border-radius: 12px; border: var(--border); background: rgba(0,0,0,0.2); }
+        .pitfall-col.wrong { border-top: 3px solid var(--red); }
+        .pitfall-col.right { border-top: 3px solid var(--accent); }
+        .pitfall-col h4 { margin-top: 0; display: flex; align-items: center; gap: 8px; }
+        .pitfall-col.wrong h4 { color: var(--red); }
+        .pitfall-col.right h4 { color: var(--accent); }
+        @media (max-width: 600px) { .pitfall-grid { grid-template-columns: 1fr; } }
+
+        /* Quiz styles */
+        .quiz-box {
+            background: rgba(255, 255, 255, 0.03); border: var(--border);
+            border-radius: 12px; padding: 20px; margin-top: 24px;
+        }
+        .quiz-box h4 { color: var(--mark); margin-bottom: 12px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1);
+            background: transparent; color: var(--text-main); text-align: left;
+            cursor: pointer; transition: all 0.2s; font-size: 0.95rem; font-family: inherit;
+        }
+        .quiz-opt:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); }
+        .quiz-opt.correct { background: rgba(56, 214, 196, 0.15); border-color: var(--accent); color: var(--accent); }
+        .quiz-opt.wrong { background: rgba(255, 107, 107, 0.15); border-color: var(--red); color: var(--red); }
+        .quiz-opt:disabled { cursor: default; }
+        .quiz-expl {
+            margin-top: 12px; padding: 12px; border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3); font-size: 0.9rem; display: none;
+        }
+
+        /* Lab Controls & Visuals */
+        .lab-visual {
+            padding: 24px; background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px; margin-bottom: 16px; overflow-x: auto;
+        }
+        .lab-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+        .lab-btn {
+            background: rgba(255, 255, 255, 0.1); border: none; color: white;
+            padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;
+            transition: all 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .lab-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.2); }
+        .lab-btn.primary { background: rgba(56, 214, 196, 0.2); color: var(--accent); }
+        .lab-btn.primary:hover:not(:disabled) { background: rgba(56, 214, 196, 0.3); }
+        .lab-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .lab-msg { margin-top: 16px; padding: 12px 16px; border-left: 3px solid var(--accent); background: rgba(56, 214, 196, 0.05); font-size: 0.95rem; min-height: 48px; }
+        .lab-counter { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--text-muted); margin-left: auto; }
+
+        .array-row { display: flex; gap: 8px; flex-wrap: nowrap; margin-bottom: 16px; align-items: flex-end; }
+        .array-cell {
+            display: flex; flex-direction: column; align-items: center; gap: 4px; flex: none;
+        }
+        .cell-idx { font-size: 0.75rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+        .cell-val {
+            width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+            background: var(--panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+            font-weight: 600; font-family: 'JetBrains Mono', monospace; transition: all 0.3s;
+        }
+        .cell-val.active { border-color: var(--mark); box-shadow: 0 0 10px rgba(255,180,84,0.3); transform: translateY(-4px); }
+        .cell-val.reached { background: rgba(56,214,196,0.15); border-color: var(--accent); color: var(--accent); }
+        
+        .var-box { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 8px; margin-right: 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;}
+        .var-name { color: var(--accent2); }
+        
+        table.styled-table {
+            width: 100%; border-collapse: collapse; margin: 16px 0;
+            font-size: 0.9rem; border-radius: 8px; overflow: hidden;
+        }
+        table.styled-table thead tr { background-color: rgba(255,255,255,0.05); text-align: left; }
+        table.styled-table th, table.styled-table td { padding: 12px 15px; border: 1px solid rgba(255,255,255,0.1); }
+        table.styled-table tbody tr:nth-of-type(even) { background-color: rgba(0,0,0,0.15); }
+
+    </style>
+</head>
+<body>
+
+    <nav class="topnav">
+        <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
+        <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+    </nav>
+
+    <div class="container">
+        
+        <!-- 3.1. HERO -->
+        <div class="card snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <div class="badge">Phân tích tần suất • Toán học</div>
+            <h1>Giá trị thường xuyên</h1>
+            <p class="hero-desc">Bản chất bài toán: Sinh dãy số giả ngẫu nhiên có độ dài cực lớn (lên tới 30 triệu phần tử) nhưng miền giá trị lại rất nhỏ. Bài toán đòi hỏi ta phải đếm tần suất trên miền giá trị hữu hạn thay vì lưu trữ toàn bộ dãy số.</p>
+        </div>
+
+        <!-- 3.2. TÓM TẮT ĐỀ BÀI -->
+        <div class="card snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>Tóm tắt đề bài</h2>
+            <p>Cho dãy số nguyên x<sub>1</sub>, x<sub>2</sub>, ..., x<sub>n</sub> được sinh theo công thức:</p>
+            <p style="text-align: center; margin: 16px 0; font-family: 'JetBrains Mono', monospace; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                x<sub>i+2</sub> = ((x<sub>i</sub> · A + x<sub>i+1</sub> · B + C) mod D) - ⌊D/2⌋ (với mọi i ≥ 1)
+            </p>
+            <p><em>Lưu ý: Phép mod lấy số dư không âm. ⌊D/2⌋ là phép chia nguyên D cho 2.</em></p>
+            <ul style="margin: 12px 0 12px 24px;">
+                <li><strong>Yêu cầu:</strong> Đếm số lượng các giá trị khác nhau xuất hiện ít nhất <code>k</code> lần trong dãy.</li>
+                <li><strong>Ràng buộc:</strong> n ≤ 3 · 10<sup>7</sup>; k ≤ 10; D ≤ 2 · 10<sup>5</sup>.</li>
+                <li><strong>Input:</strong> Dòng 1: n, k. Dòng 2: x<sub>1</sub>, x<sub>2</sub>, A, B, C, D.</li>
+            </ul>
+            
+            <h4>Ví dụ:</h4>
+            <table class="styled-table">
+                <thead><tr><th>Input</th><th>Output</th><th>Giải thích</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td style="white-space: pre-wrap; font-family: monospace;">8 2
+1 2 1 2 1 5</td>
+                        <td>3</td>
+                        <td>Các phần tử của dãy sinh ra là: 1, 2, -1, -1, 1, 0, 1, 0. <br>Tần suất: số -1 (2 lần), số 0 (2 lần), số 1 (3 lần), số 2 (1 lần).<br>Có 3 giá trị xuất hiện ≥ k=2 lần là {-1, 0, 1}.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 3.3. PHÂN TÍCH BAN ĐẦU -->
+        <div class="card snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>Phân tích ban đầu</h2>
+            <p>Cách tiếp cận "ngây thơ" nhất là dùng một mảng độ dài <code>n</code>, sinh đủ <code>n</code> số, rồi sắp xếp mảng để đếm tần suất. </p>
+            <p><strong>Vì sao cách này thất bại?</strong> Với n = 3 · 10<sup>7</sup>, việc cấp phát mảng <code>int</code> cần khoảng 120MB (có thể chấp nhận được), nhưng việc sắp xếp mảng sẽ mất O(n log n) phép toán (hơn 7 · 10<sup>8</sup> thao tác), chắc chắn bị quá thời gian (Time Limit Exceeded). Hơn nữa, việc sinh và lưu toàn bộ mảng cũng làm chậm tốc độ xử lý do cache miss.</p>
+            <p>Điểm then chốt nằm ở phép toán modulo <code>D</code>. Vì kết quả của modulo <code>D</code> luôn nằm trong khoảng [0, D-1], nên sau khi trừ đi ⌊D/2⌋, miền giá trị của các phần tử x<sub>i</sub> bị giới hạn trong một khoảng rất nhỏ. Chúng ta sẽ khai thác tính chất này qua các mô-đun dưới đây.</p>
+        </div>
+
+        <!-- 3.4. MÔ-ĐUN 1 -->
+        <div class="card">
+            <div class="snapbox">
+                <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+                <h2>1. Đếm phân phối trên miền giá trị hữu hạn</h2>
+                <p><strong>Ta muốn gì?</strong> Đếm số lần xuất hiện của mỗi phần tử mà không cần phải lưu trữ và sắp xếp toàn bộ <code>n</code> phần tử.</p>
+                <p><strong>Quan sát then chốt:</strong> Nhìn vào công thức <code>(... mod D) - ⌊D/2⌋</code>, ta thấy phần <code>mod D</code> cho ra kết quả từ <code>0</code> đến <code>D-1</code>. Do đó, x<sub>i</sub> sẽ chỉ nhận các giá trị trong đoạn <code>[-⌊D/2⌋, D - 1 - ⌊D/2⌋]</code>. Tổng cộng chỉ có đúng <code>D</code> giá trị khả dĩ!</p>
+                <p><strong>Ý tưởng:</strong> Thay vì tạo mảng kích thước 3 · 10<sup>7</sup> để chứa các số, ta chỉ cần tạo một mảng đếm tần suất <code>freq[]</code> có kích thước đúng bằng <code>D</code> (tối đa 2 · 10<sup>5</sup>). Mỗi khi sinh ra một số x<sub>i</sub>, ta tăng <code>freq[x<sub>i</sub>]</code> lên 1. Vì mảng không thể có chỉ số âm, ta cần <strong>tịnh tiến</strong> giá trị bằng cách cộng thêm <code>offset = ⌊D/2⌋</code> vào mọi x<sub>i</sub> trước khi làm chỉ số mảng.</p>
+                <p><strong>Vì sao đúng?</strong> Phép tịnh tiến biến đoạn <code>[-⌊D/2⌋, D - 1 - ⌊D/2⌋]</code> thành <code>[0, D-1]</code>. Mọi giá trị được ánh xạ 1-1 vào chỉ số mảng một cách an toàn.</p>
+                
+                <!-- LAB 1 VISUAL -->
+                <div class="lab-visual" id="lab1-visual">
+                    <p style="margin-bottom: 8px; font-weight: 600; font-size: 0.9rem;">Mô phỏng: Ánh xạ giá trị sinh ra vào mảng tần suất (Ví dụ D=5, offset = 2)</p>
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+                        <div>
+                            <p style="font-size: 0.8rem; color: var(--text-muted);">Số vừa sinh ra (x<sub>i</sub>)</p>
+                            <div class="cell-val active" id="lab1-val">-1</div>
+                        </div>
+                        <div style="font-size: 1.5rem; color: var(--accent);">→ +2 →</div>
+                        <div>
+                            <p style="font-size: 0.8rem; color: var(--text-muted);">Chỉ số lưu mảng (idx)</p>
+                            <div class="cell-val active" id="lab1-idx" style="border-color: var(--accent2);">1</div>
+                        </div>
+                    </div>
+
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">Mảng đếm freq[]</p>
+                    <div class="array-row" id="lab1-freq">
+                        <!-- Rendered by JS -->
+                    </div>
+                    
+                    <div class="lab-msg" id="lab1-msg">Nhấn nút bên dưới để sinh một số ngẫu nhiên.</div>
+                    
+                    <div class="lab-controls">
+                        <button class="lab-btn primary" id="lab1-btn-run">Sinh số x<sub>i</sub> ngẫu nhiên</button>
+                        <button class="lab-btn" id="lab1-btn-reset">Làm lại</button>
+                    </div>
+                </div>
+            </div> <!-- End snapbox -->
+
+            <!-- QUIZ 1 -->
+            <div class="quiz-box">
+                <h4>Kiểm tra nhanh</h4>
+                <p style="margin-bottom: 12px;">Vì sao phương pháp dùng mảng đếm tần suất <code>freq[]</code> kích thước D lại tối ưu hơn việc dùng mảng lưu <code>n</code> phần tử và sắp xếp?</p>
+                <div class="quiz-options" id="quiz1">
+                    <button class="quiz-opt" onclick="checkQuiz(1, 0, this)">A. Vì nó giảm độ phức tạp thời gian từ O(n log n) xuống O(n).</button>
+                    <button class="quiz-opt" onclick="checkQuiz(1, 1, this)">B. Vì mảng đếm tần suất chiếm ít bộ nhớ hơn, chỉ tốn bộ nhớ O(D) thay vì O(n).</button>
+                    <button class="quiz-opt" onclick="checkQuiz(1, 2, this)">C. Cả A và B đều đúng.</button>
+                </div>
+                <div class="quiz-expl" id="quiz1-expl">
+                    <strong>Giải thích:</strong> Đáp án đúng là C. Cách đếm tần suất chỉ duyệt qua n phần tử một lần duy nhất nên mất thời gian O(n). Kích thước bộ nhớ cần dùng chỉ phụ thuộc vào miền giá trị D (tối đa 2 · 10<sup>5</sup>), rất nhỏ so với n = 3 · 10<sup>7</sup>.
+                </div>
+            </div>
+        </div>
+
+        <!-- 3.4. MÔ-ĐUN 2 -->
+        <div class="card">
+            <div class="snapbox">
+                <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+                <h2>2. Tối ưu bộ nhớ và Xử lý tràn số</h2>
+                <p><strong>Ta muốn gì?</strong> Cài đặt vòng lặp sinh số hiệu quả mà không bị lỗi bộ nhớ hay tính sai do số quá lớn.</p>
+                <p><strong>Khó khăn then chốt:</strong>
+                    <br>1. Ngay cả khi đã dùng mảng đếm, nếu ta vẫn lưu <code>x[]</code> kích thước <code>n</code> để chạy vòng lặp, hệ thống vẫn có thể bị hết bộ nhớ (Memory Limit).
+                    <br>2. Trong biểu thức <code>(x<sub>i</sub> · A + x<sub>i+1</sub> · B + C)</code>, mỗi thành phần có thể đạt tới 2 · 10<sup>5</sup>. Tích của chúng có thể lên tới 4 · 10<sup>10</sup>, vượt quá giới hạn của kiểu số nguyên 32-bit (khoảng 2 · 10<sup>9</sup>).
+                    <br>3. Ở một số ngôn ngữ (như C++), toán tử <code>%</code> với số âm sẽ ra kết quả âm (ví dụ <code>-5 % 3 = -2</code>). Nhưng đề yêu cầu "phép mod lấy dư không âm".
+                </p>
+                <p><strong>Ý tưởng vượt qua:</strong>
+                    <br>- <strong>Không lưu mảng:</strong> Để tính phần tử tiếp theo, ta chỉ cần nhớ đúng 2 phần tử liền trước nó. Ta dùng hai biến <code>prev2</code> (tương đương x<sub>i</sub>) và <code>prev1</code> (tương đương x<sub>i+1</sub>) và cập nhật cuốn chiếu.
+                    <br>- <strong>Ép kiểu:</strong> Nhân các số bằng kiểu 64-bit (như <code>long long</code> trong C++) trước khi cộng: <code>1LL * prev2 * A</code>.
+                    <br>- <strong>Mod không âm:</strong> Biến đổi <code>val = (val % D + D) % D</code> để luôn đảm bảo dư không âm.
+                </p>
+
+                <!-- LAB 2 VISUAL -->
+                <div class="lab-visual" id="lab2-visual">
+                    <p style="margin-bottom: 8px; font-weight: 600; font-size: 0.9rem;">Mô phỏng toàn bộ thuật toán (Ví dụ: n=8, k=2. D=5, offset=2)</p>
+                    
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+                        <div class="var-box"><span class="var-name">i:</span> <span id="lab2-i">-</span></div>
+                        <div class="var-box"><span class="var-name">prev2:</span> <span id="lab2-prev2">-</span></div>
+                        <div class="var-box"><span class="var-name">prev1:</span> <span id="lab2-prev1">-</span></div>
+                        <div class="var-box"><span class="var-name">x_new:</span> <span id="lab2-xnew">-</span></div>
+                        <div class="var-box" style="background: rgba(56,214,196,0.2); border: 1px solid var(--accent);"><span class="var-name">Kết quả (ans):</span> <strong id="lab2-ans">0</strong></div>
+                    </div>
+
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">Mảng tần suất freq[] (chỉ số 0 đến 4, tương ứng giá trị -2 đến 2)</p>
+                    <div class="array-row" id="lab2-freq">
+                        <!-- Rendered by JS -->
+                    </div>
+
+                    <div class="lab-msg" id="lab2-msg">Sẵn sàng mô phỏng.</div>
+                    
+                    <div class="lab-controls">
+                        <button class="lab-btn" id="lab2-btn-reset">Reset</button>
+                        <button class="lab-btn" id="lab2-btn-prev">Lùi</button>
+                        <button class="lab-btn" id="lab2-btn-next">Tiến</button>
+                        <button class="lab-btn primary" id="lab2-btn-play">Tự chạy</button>
+                        <span class="lab-counter"><span id="lab2-step-cur">0</span>/<span id="lab2-step-tot">0</span></span>
+                    </div>
+                </div>
+            </div> <!-- End snapbox -->
+
+            <!-- QUIZ 2 -->
+            <div class="quiz-box">
+                <h4>Kiểm tra nhanh</h4>
+                <p style="margin-bottom: 12px;">Vì sao trong đoạn mã, ta chỉ tăng biến đếm kết quả <code>ans++</code> khi <code>freq[idx] == k</code> mà không phải là <code>freq[idx] >= k</code>?</p>
+                <div class="quiz-options" id="quiz2">
+                    <button class="quiz-opt" onclick="checkQuiz(2, 0, this)">A. Để tránh đếm lặp. Một giá trị chỉ được tính là "đạt yêu cầu" đúng một lần tại khoảnh khắc nó chạm mốc k.</button>
+                    <button class="quiz-opt" onclick="checkQuiz(2, 1, this)">B. Vì nếu để <code>>= k</code> chương trình sẽ chạy chậm hơn.</button>
+                    <button class="quiz-opt" onclick="checkQuiz(2, 2, this)">C. Cả hai điều trên đều sai, bắt buộc phải dùng vòng lặp duyệt mảng freq[] ở cuối để đếm.</button>
+                </div>
+                <div class="quiz-expl" id="quiz2-expl">
+                    <strong>Giải thích:</strong> Đáp án đúng là A. Nếu ta dùng <code>freq[idx] >= k</code>, thì khi một phần tử xuất hiện lần thứ k+1, k+2..., biến <code>ans</code> sẽ bị cộng thêm nhiều lần cho cùng một giá trị đó, dẫn đến sai kết quả. Việc duyệt mảng freq ở cuối (như đáp án C) cũng đúng nhưng sẽ tốn thêm 1 vòng lặp O(D), cách tăng ngay khi chạm k tinh tế và gọn gàng hơn.
+                </div>
+            </div>
+        </div>
+
+        <!-- 3.4bis. THUẬT TOÁN TỪNG BƯỚC -->
+        <div class="algo-steps snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h3>Thuật toán từng bước</h3>
+            <ol>
+                <li><strong>Khởi tạo dữ liệu:</strong>
+                    <ul>
+                        <li>Đọc vào các giá trị <code>n, k, x1, x2, A, B, C, D</code>.</li>
+                        <li>Tính độ lệch <code>offset = D / 2</code> (chia nguyên).</li>
+                        <li>Tạo mảng <code>freq[]</code> kích thước <code>D + 2</code> (khởi tạo toàn số 0) để lưu tần suất.</li>
+                        <li>Biến <code>ans = 0</code> để đếm số lượng giá trị đạt yêu cầu.</li>
+                    </ul>
+                </li>
+                <li><strong>Định nghĩa hàm cập nhật <code>add(val)</code>:</strong>
+                    <ul>
+                        <li>Tính chỉ số thực sự: <code>idx = val + offset</code>.</li>
+                        <li>Kiểm tra biên an toàn: nếu <code>0 ≤ idx ≤ D</code>, tăng <code>freq[idx]</code> lên 1.</li>
+                        <li>Ngay sau khi tăng, nếu <code>freq[idx] == k</code> thì tăng đáp án <code>ans++</code>.</li>
+                    </ul>
+                </li>
+                <li><strong>Xử lý các phần tử đầu tiên:</strong>
+                    <ul>
+                        <li>Nếu <code>n ≥ 1</code>, gọi <code>add(x1)</code>.</li>
+                        <li>Nếu <code>n ≥ 2</code>, gọi <code>add(x2)</code>.</li>
+                        <li>Khởi tạo hai biến nhớ: <code>prev2 = x1</code> và <code>prev1 = x2</code>.</li>
+                    </ul>
+                </li>
+                <li><strong>Vòng lặp sinh dãy (từ <code>i = 3</code> đến <code>n</code>):</strong>
+                    <ul>
+                        <li>Tính giá trị tạm (cẩn thận tràn số): <code>temp = (1LL · prev2 · A + 1LL · prev1 · B + C) mod D</code>.</li>
+                        <li>Chỉnh thành số dư không âm: nếu <code>temp &lt; 0</code> thì <code>temp = temp + D</code>.</li>
+                        <li>Tính giá trị thực tế của phần tử mới: <code>x_new = temp - offset</code>.</li>
+                        <li>Cập nhật tần suất: gọi <code>add(x_new)</code>.</li>
+                        <li>Cập nhật biến nhớ để chuẩn bị vòng lặp sau: <code>prev2 = prev1</code> và <code>prev1 = x_new</code>.</li>
+                    </ul>
+                </li>
+                <li><strong>In kết quả:</strong>
+                    <ul>
+                        <li>In ra biến <code>ans</code>.</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <!-- 3.5. CÀI ĐẶT -->
+        <div class="card codewrap snapbox">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>Cài đặt (C++)</h2>
+            <div class="code-block"><div class="code" id="code-impl"></div></div>
+        </div>
+
+        <!-- 3.6. ĐỘ PHỨC TẠP -->
+        <div class="card snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>Độ phức tạp</h2>
+            <p><strong>Thời gian (Time Complexity):</strong> O(n). Ta có một vòng lặp chạy từ 3 đến n. Mỗi bước lặp chỉ thực hiện các phép toán cơ bản (nhân, cộng, modulo, truy xuất mảng) mất thời gian O(1). Do n ≤ 3 · 10<sup>7</sup>, thuật toán thực hiện khoảng 3 · 10<sup>7</sup> phép toán, chạy cực kỳ nhanh và vượt qua giới hạn thời gian một cách dễ dàng.</p>
+            <p><strong>Không gian (Space/Memory Complexity):</strong> O(D). Ta không dùng mảng để lưu dãy n phần tử, mà chỉ lưu tần suất trong mảng <code>freq[]</code> có kích thước tương đương với D. Với D ≤ 2 · 10<sup>5</sup>, mảng này chỉ chiếm khoảng 800KB bộ nhớ, rất tối ưu và an toàn trước giới hạn bộ nhớ chặt chẽ.</p>
+        </div>
+
+        <!-- 3.7. CẠM BẪY KHI CÀI -->
+        <div class="card snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>Cạm bẫy thường gặp</h2>
+            <div class="pitfall-grid">
+                <div class="pitfall-col wrong">
+                    <h4>✕ Lỗi ngây thơ</h4>
+                    <p>Sử dụng kiểu <code>int</code> bình thường khi tính phần tử bên trong dấu ngoặc: <code>(prev2 * A + prev1 * B + C)</code>.</p>
+                    <p style="margin-top: 8px; font-size: 0.9rem; color: var(--text-muted);">Với giá trị lớn nhất của D là 200,000, các biến x<sub>i</sub>, A, B cũng có thể xấp xỉ mức này. Tích của chúng có thể lên đến 4 · 10<sup>10</sup>, làm tràn bộ nhớ số nguyên 32-bit (vượt quá mức 2 · 10<sup>9</sup>) sinh ra số âm vô lý.</p>
+                </div>
+                <div class="pitfall-col right">
+                    <h4>✓ Xử lý đúng</h4>
+                    <p>Ép kiểu sang số nguyên 64-bit (<code>long long</code>) trước khi nhân để chống tràn số.</p>
+                    <p style="margin-top: 8px; font-size: 0.9rem; color: var(--text-muted);">Cách viết chuẩn trong C++ là nhân với <code>1LL</code> (một hằng số kiểu long long):<br><code>long long temp = (1LL * prev2 * A + ...) % D;</code></p>
+                </div>
+                <div class="pitfall-col wrong">
+                    <h4>✕ Lỗi ngây thơ</h4>
+                    <p>Tin tưởng phép toán <code>%</code> trong C++ luôn trả về số không âm.</p>
+                    <p style="margin-top: 8px; font-size: 0.9rem; color: var(--text-muted);">Nếu biểu thức bên trong là số âm, phép <code>% D</code> sẽ cho ra một số âm. Việc này làm x<sub>i</sub> sinh ra bị sai lệch so với đề bài yêu cầu "phép mod lấy số dư không âm".</p>
+                </div>
+                <div class="pitfall-col right">
+                    <h4>✓ Xử lý đúng</h4>
+                    <p>Ép modulo luôn dương.</p>
+                    <p style="margin-top: 8px; font-size: 0.9rem; color: var(--text-muted);">Cách nhanh nhất để biến đổi là kiểm tra sau khi lấy dư: <code>if (temp &lt; 0) temp += D;</code>. Cách này đảm bảo kết quả luôn nằm từ 0 đến D-1 theo đúng định nghĩa toán học.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 1. Utilities (Copy, Snap, Escape) ---
+        function flash(btn, text) {
+            const o = btn.textContent; btn.textContent = text;
+            setTimeout(() => btn.textContent = o, 1200);
+        }
+
+        async function copyCode(btn) {
+            const codeEl = btn.closest('.codewrap').querySelector('.code');
+            const text = codeEl.innerText;
+            try {
+                await navigator.clipboard.writeText(text);
+                flash(btn, 'Đã chép!');
+            } catch (e) {
+                const ta = document.createElement('textarea');
+                ta.value = text; document.body.appendChild(ta);
+                ta.select(); document.execCommand('copy');
+                document.body.removeChild(ta);
+                flash(btn, 'Đã chép!');
+            }
+        }
+
+        async function snapBox(btn) {
+            const box = btn.closest('.snapbox');
+            box.classList.add('snapping');
+            await document.fonts.ready;
+            const canvas = await html2canvas(box, { backgroundColor: '#0B1220', scale: 2, logging: false });
+            box.classList.remove('snapping');
+            canvas.toBlob(async (blob) => {
+                try {
+                    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                    flash(btn, 'Đã chụp!');
+                } catch (e) {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob); a.download = 'snap.png'; a.click();
+                    flash(btn, 'Đã tải ảnh');
+                }
+            });
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // --- 2. Code Rendering ---
+        const cppCode = `#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int main() {
+    // Tối ưu I/O cho dữ liệu lớn
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n, k;
+    if (!(cin >> n >> k)) return 0;
+
+    int x1, x2, A, B, C, D;
+    cin >> x1 >> x2 >> A >> B >> C >> D;
+
+    int offset = D / 2;
+    vector<int> freq(D + 2, 0); // Mảng đếm tần suất
+    int ans = 0; // Đếm số giá trị thỏa mãn
+
+    // Hàm lambda xử lý việc tăng tần suất
+    auto add = [&](int val) {
+        int idx = val + offset;
+        // Kiểm tra an toàn để tránh Out of Bounds
+        if (idx >= 0 && idx <= D) {
+            freq[idx]++;
+            // Chỉ tăng ans đúng vào lúc vừa đạt đủ k
+            if (freq[idx] == k) {
+                ans++;
+            }
+        }
+    };
+
+    // Xử lý riêng biệt các phần tử đầu tiên
+    if (n >= 1) add(x1);
+    if (n >= 2) add(x2);
+
+    // Không dùng mảng, chỉ dùng 2 biến để nhớ trạng thái trước
+    int prev2 = x1;
+    int prev1 = x2;
+
+    for (int i = 3; i <= n; i++) {
+        // Ép kiểu 1LL để nhân tránh tràn số nguyên int 32-bit
+        long long temp = (1LL * prev2 * A + 1LL * prev1 * B + C) % D;
+        
+        // Đảm bảo phép toán mod lấy dư không âm
+        if (temp < 0) temp += D; 
+        
+        int x_new = temp - offset;
+
+        // Thêm vào mảng đếm
+        add(x_new);
+
+        // Cập nhật biến cuốn chiếu
+        prev2 = prev1;
+        prev1 = x_new;
+    }
+
+    cout << ans << "\\n";
+    return 0;
+}`;
+
+        function renderCode(codeStr, containerId, prefix) {
+            const container = document.getElementById(containerId);
+            const lines = codeStr.split('\n');
+            let html = '';
+            
+            // Rất basic tokenizer for C++
+            lines.forEach((line, idx) => {
+                let escaped = escapeHTML(line);
+                // Highlight comments
+                if (escaped.includes('//')) {
+                    const parts = escaped.split('//');
+                    escaped = parts[0] + '<span class="c-cm">//' + parts.slice(1).join('//') + '</span>';
+                } else {
+                    // Keywords
+                    const keywords = ['int', 'long', 'void', 'if', 'else', 'for', 'while', 'return', 'auto', 'using', 'namespace'];
+                    keywords.forEach(kw => {
+                        const regex = new RegExp(`\\b${kw}\\b`, 'g');
+                        escaped = escaped.replace(regex, `<span class="c-kw">${kw}</span>`);
+                    });
+                    // Includes
+                    escaped = escaped.replace(/(#include)/g, '<span class="c-kw">$1</span>');
+                    // Numbers
+                    escaped = escaped.replace(/\b(\d+LL|\d+)\b/g, '<span class="c-num">$1</span>');
+                }
+                html += `<div class="codeline" id="${prefix}-l${idx + 1}">${escaped}</div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // --- 3. Quizzes ---
+        function checkQuiz(quizId, optIdx, btn) {
+            const opts = document.querySelectorAll(`#quiz${quizId} .quiz-opt`);
+            opts.forEach(o => o.disabled = true);
+            
+            // Hardcode correct answers: Quiz 1 is C (idx 2), Quiz 2 is A (idx 0)
+            const correctIdx = quizId === 1 ? 2 : 0;
+            
+            if (optIdx === correctIdx) {
+                btn.classList.add('correct');
+            } else {
+                btn.classList.add('wrong');
+                opts[correctIdx].classList.add('correct');
+            }
+            document.getElementById(`quiz${quizId}-expl`).style.display = 'block';
+        }
+
+        // --- 4. Lab 1 Logic (Mini interactive) ---
+        const lab1 = (() => {
+            let freq = [0, 0, 0, 0, 0];
+            const render = () => {
+                const fContainer = document.getElementById('lab1-freq');
+                fContainer.innerHTML = freq.map((v, i) => `
+                    <div class="array-cell">
+                        <span class="cell-idx">[${i}]</span>
+                        <div class="cell-val ${v > 0 ? 'reached' : ''}">${v}</div>
+                    </div>
+                `).join('');
+            };
+
+            const run = () => {
+                const val = Math.floor(Math.random() * 5) - 2; // -2 to 2
+                const idx = val + 2;
+                
+                document.getElementById('lab1-val').textContent = val;
+                document.getElementById('lab1-idx').textContent = idx;
+                
+                // Animate
+                const vEl = document.getElementById('lab1-val');
+                const iEl = document.getElementById('lab1-idx');
+                vEl.classList.remove('active'); iEl.classList.remove('active');
+                void vEl.offsetWidth; // trigger reflow
+                vEl.classList.add('active'); iEl.classList.add('active');
+                
+                freq[idx]++;
+                render();
+                document.getElementById('lab1-msg').innerHTML = `Giá trị <strong>${val}</strong> được cộng 2 để trở thành chỉ số <strong>${idx}</strong>. Tăng freq[${idx}] lên 1.`;
+            };
+
+            const reset = () => {
+                freq = [0, 0, 0, 0, 0];
+                document.getElementById('lab1-val').textContent = "-";
+                document.getElementById('lab1-idx').textContent = "-";
+                document.getElementById('lab1-msg').innerHTML = `Nhấn nút bên dưới để sinh một số ngẫu nhiên.`;
+                render();
+            };
+
+            return { init: () => {
+                render();
+                document.getElementById('lab1-btn-run').onclick = run;
+                document.getElementById('lab1-btn-reset').onclick = reset;
+            }};
+        })();
+
+        // --- 5. Lab 2 Logic (Full Simulation) ---
+        const lab2 = (() => {
+            let steps = [];
+            let sp = 0;
+            let timer = null;
+
+            // Generate steps for: n=8, k=2, x1=1, x2=2, A=1, B=2, C=1, D=5
+            const makeSteps = () => {
+                steps = [];
+                let f = [0, 0, 0, 0, 0];
+                let ans = 0;
+                let offset = 2;
+                let D = 5, A = 1, B = 2, C = 1;
+                let p2 = "-", p1 = "-";
+
+                // Initial step
+                steps.push({ i: "-", p2: "-", p1: "-", xnew: "-", freq: [...f], ans: 0, msg: "Bắt đầu mô phỏng. Mảng tần suất khởi tạo toàn 0." });
+
+                // Step i=1 (x1 = 1)
+                p2 = 1;
+                f[1+offset]++;
+                steps.push({ i: 1, p2: p2, p1: "-", xnew: 1, freq: [...f], ans: ans, msg: "Nhận phần tử đầu x<sub>1</sub> = 1. Tính chỉ số: 1 + 2 = 3. Tăng freq[3]." });
+
+                // Step i=2 (x2 = 2)
+                p1 = 2;
+                f[2+offset]++;
+                steps.push({ i: 2, p2: p2, p1: p1, xnew: 2, freq: [...f], ans: ans, msg: "Nhận phần tử x<sub>2</sub> = 2. Tính chỉ số: 2 + 2 = 4. Tăng freq[4]." });
+
+                // Generate rest
+                for (let i = 3; i <= 8; i++) {
+                    let temp = (p2 * A + p1 * B + C) % D;
+                    if (temp < 0) temp += D;
+                    let x_new = temp - offset;
+                    
+                    steps.push({ i: i, p2: p2, p1: p1, xnew: x_new, freq: [...f], ans: ans, 
+                        msg: `Bước ${i}: Tính ((${p2}·1 + ${p1}·2 + 1) mod 5) - 2 = ${x_new}.` });
+                    
+                    let idx = x_new + offset;
+                    f[idx]++;
+                    let msg2 = `Ánh xạ ${x_new} vào chỉ số ${idx}. Tăng freq[${idx}] lên ${f[idx]}.`;
+                    
+                    if (f[idx] === 2) { // k = 2
+                        ans++;
+                        msg2 += ` Đã chạm ngưỡng k=2! Biến đếm ans tăng lên ${ans}.`;
+                    }
+                    
+                    steps.push({ i: i, p2: p2, p1: p1, xnew: x_new, freq: [...f], ans: ans, msg: msg2 });
+
+                    p2 = p1;
+                    p1 = x_new;
+                }
+                
+                steps.push({ i: "Xong", p2: p2, p1: p1, xnew: "-", freq: [...f], ans: ans, msg: "Hoàn tất! Có tổng cộng 3 giá trị đạt yêu cầu (tần suất ≥ 2)." });
+            };
+
+            const paint = (s_idx) => {
+                const s = steps[s_idx];
+                document.getElementById('lab2-i').textContent = s.i;
+                document.getElementById('lab2-prev2').textContent = s.p2;
+                document.getElementById('lab2-prev1').textContent = s.p1;
+                document.getElementById('lab2-xnew').textContent = s.xnew;
+                document.getElementById('lab2-ans').textContent = s.ans;
+                document.getElementById('lab2-msg').innerHTML = s.msg;
+                document.getElementById('lab2-step-cur').textContent = s_idx;
+
+                const fContainer = document.getElementById('lab2-freq');
+                fContainer.innerHTML = s.freq.map((v, i) => `
+                    <div class="array-cell">
+                        <span class="cell-idx">[${i}]</span>
+                        <div class="cell-val ${v >= 2 ? 'reached' : (v==1 ? 'active' : '')}" ${v >= 2 ? 'style="background: rgba(56,214,196,0.2);"' : ''}>${v}</div>
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">gt: ${i-2}</span>
+                    </div>
+                `).join('');
+
+                // Manage buttons
+                document.getElementById('lab2-btn-prev').disabled = (s_idx === 0);
+                document.getElementById('lab2-btn-next').disabled = (s_idx === steps.length - 1);
+                
+                if (s_idx === steps.length - 1 && timer) stop();
+            };
+
+            const prev = () => { if (sp > 0) paint(--sp); };
+            const next = () => { if (sp < steps.length - 1) paint(++sp); };
+            const reset = () => { stop(); sp = 0; paint(sp); };
+            
+            const play = () => {
+                if (timer) { stop(); return; }
+                if (sp === steps.length - 1) reset();
+                document.getElementById('lab2-btn-play').textContent = "Dừng";
+                timer = setInterval(() => {
+                    if (sp < steps.length - 1) paint(++sp);
+                    else stop();
+                }, 800);
+            };
+            const stop = () => {
+                clearInterval(timer); timer = null;
+                document.getElementById('lab2-btn-play').textContent = "Tự chạy";
+            };
+
+            return { init: () => {
+                makeSteps();
+                document.getElementById('lab2-step-tot').textContent = steps.length - 1;
+                paint(0);
+                
+                document.getElementById('lab2-btn-prev').onclick = prev;
+                document.getElementById('lab2-btn-next').onclick = next;
+                document.getElementById('lab2-btn-reset').onclick = reset;
+                document.getElementById('lab2-btn-play').onclick = play;
+            }};
+        })();
+
+        // --- Initialization ---
+        window.onload = () => {
+            renderCode(cppCode, 'code-impl', 'c1');
+            lab1.init();
+            lab2.init();
+        };
+    </script>
+</body>
+</html>
+```eof
