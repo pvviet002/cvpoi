@@ -14,201 +14,888 @@
             --glow: 0 0 20px rgba(56,214,196,.4);
             --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
             --border: 1px solid rgba(255,255,255,.1);
-            --cell-w: 40px; --cell-h: 40px;
+            
+            --cell-w: 44px; --cell-h: 44px;
         }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); line-height: 1.6; padding-bottom: 60px; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
         h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.03em; color: #fff; }
         h1 { font-size: 2.2rem; margin-bottom: 10px; }
         h2 { font-size: 1.5rem; margin: 30px 0 15px; border-bottom: var(--border); padding-bottom: 8px; }
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
-        
-        .topnav { position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center; padding: 12px 24px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px); border-bottom: var(--border); margin-bottom: 30px; }
-        .nav-btn { text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent)); padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease; }
+        h3 { font-size: 1.2rem; margin: 20px 0 10px; color: var(--accent); }
+        p { margin-bottom: 16px; }
+        strong { color: #fff; }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topnav {
+            position: sticky; top: 0; z-index: 100;
+            display: flex; gap: 12px; align-items: center;
+            padding: 12px 24px;
+            background: rgba(11,18,32,.85); backdrop-filter: blur(10px);
+            border-bottom: var(--border);
+            margin-bottom: 30px;
+        }
+        .nav-btn {
+            text-decoration: none; color: #000;
+            background: linear-gradient(135deg, var(--accent2), var(--accent));
+            padding: 8px 18px; border-radius: 8px; font-weight: 600;
+            box-shadow: var(--glow); transition: all .3s ease;
+        }
+        .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
-        
-        .card { background: linear-gradient(145deg, var(--panel), var(--bg2)); border: var(--border); border-radius: 16px; box-shadow: var(--shadow); padding: 24px; margin-bottom: 24px; }
-        .codewrap { position: relative; }
-        .code { background: #0A1220; border: var(--border); border-radius: 12px; padding: 16px 0; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6; }
+        .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
+
+        .badge {
+            display: inline-block; padding: 4px 10px; border-radius: 6px;
+            font-size: 0.85rem; font-weight: 600; font-family: 'JetBrains Mono', monospace;
+            background: rgba(56,214,196,.15); color: var(--accent);
+            margin-bottom: 15px; border: 1px solid rgba(56,214,196,.3);
+        }
+        .card {
+            background: linear-gradient(145deg, var(--panel), var(--bg2));
+            border: var(--border); border-radius: 16px; box-shadow: var(--shadow);
+            padding: 24px; margin-bottom: 24px;
+        }
+
+        .codewrap, .snapbox { position: relative; }
+        .code {
+            background: #0A1220; border: var(--border); border-radius: 12px;
+            padding: 16px 0; overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6;
+            margin-bottom: 16px;
+        }
         .codeline { padding: 0 16px; white-space: pre-wrap; display: block; border-left: 3px solid transparent; }
         .codeline.hot { background: rgba(255,180,84,.1); border-left-color: var(--mark); }
-        .copy-btn, .snap-btn { position: absolute; top: 10px; z-index: 5; font-family: "JetBrains Mono", monospace; font-size: 0.72rem; padding: 5px 10px; border-radius: 7px; cursor: pointer; background: rgba(255,255,255,.06); color: var(--text-muted); border: 1px solid rgba(255,255,255,.12); }
-        .snap-btn { right: 10px; } .copy-btn { right: 64px; }
         
-        .algo-steps { background: linear-gradient(180deg, rgba(56,214,196,.06), transparent); border: 1px solid rgba(56,214,196,.35); border-left: 4px solid var(--accent); border-radius: 14px; padding: 20px 24px; margin-bottom: 24px; }
-        .algo-steps h3 { color: var(--accent); }
-        .algo-steps code { background: rgba(91,140,255,.14); color: #A9C4FF; padding: .05em .4em; border-radius: 5px; font-family: "JetBrains Mono", monospace; }
+        .copy-btn, .snap-btn {
+            position: absolute; top: 10px; z-index: 5;
+            font-family: "JetBrains Mono", monospace; font-size: 0.72rem; font-weight: 600;
+            padding: 5px 10px; border-radius: 7px; cursor: pointer;
+            background: rgba(255,255,255,.06); color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,.12); transition: all .2s;
+        }
+        .snap-btn { right: 10px; }
+        .copy-btn { right: 64px; }
+        .snapbox:not(.codewrap) .snap-btn { right: 10px; }
+        .copy-btn:hover, .snap-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(56,214,196,.1); }
+        .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
 
-        .grid { display: grid; gap: 4px; background: var(--bg); padding: 4px; border-radius: 8px; border: var(--border); }
-        .cell { width: var(--cell-w); height: var(--cell-h); background: var(--panel); display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; border: 1px solid rgba(255,255,255,.05); border-radius: 4px; }
+        .c-kw { color: #FF7B72; } 
+        .c-num { color: #79C0FF; } 
+        .c-cm { color: #8B949E; font-style: italic; } 
+        .c-str { color: #A5D6FF; } 
+        .c-fn { color: #D2A8FF; } 
+        .c-ty { color: #FF7B72; } 
+        .c-op { color: #C9D1D9; } 
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(255,255,255,.08); color: #A9C4FF;
+            padding: 2px 6px; border-radius: 4px; font-size: 0.9em;
+        }
+
+        .algo-steps {
+            background: linear-gradient(180deg, rgba(56,214,196,.06), transparent);
+            border: 1px solid rgba(56,214,196,.35); border-left: 4px solid var(--accent);
+            border-radius: 14px; padding: 20px 24px; margin-bottom: 24px;
+        }
+        .algo-steps h3 { color: var(--accent); margin-top: 0; margin-bottom: 12px; }
+        .algo-steps ol { margin: 0; padding-left: 22px; }
+        .algo-steps ol > li { margin-bottom: 12px; line-height: 1.6; }
+        .algo-steps ul { margin: 6px 0; padding-left: 18px; list-style: none; }
+        .algo-steps ul > li { position: relative; padding-left: 14px; margin-bottom: 4px; color: var(--text-muted); }
+        .algo-steps ul > li::before { content: "–"; position: absolute; left: 0; color: var(--accent); }
+
+        .grid-wrapper { display: flex; gap: 24px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 16px; align-items: flex-start; justify-content: center; }
+        .grid-box { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: none; }
+        .grid-title { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--accent2); font-weight: 600; text-align: center; }
+        .grid {
+            display: grid; gap: 4px;
+            background: var(--bg); padding: 4px; border-radius: 8px; border: var(--border);
+        }
+        .cell {
+            width: var(--cell-w); height: var(--cell-h);
+            background: var(--panel); border: 1px solid rgba(255,255,255,.05); border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--text-main);
+            transition: all .2s; position: relative; cursor: default;
+        }
+        .cell.hl-main { background: rgba(56,214,196,.2); border-color: var(--accent); color: #fff; box-shadow: inset 0 0 8px rgba(56,214,196,.4); }
+        .cell.hl-bool { background: rgba(255,180,84,.2); border-color: var(--mark); color: #fff; }
+        .cell.hl-sum { background: rgba(91,140,255,.2); border-color: var(--accent2); color: #fff; }
+        .cell.fade { opacity: 0.3; }
+        .r-label, .c-label { 
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;
+        }
+
+        .lab-ctrl { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; justify-content: center;}
+        .btn {
+            background: rgba(255,255,255,.1); border: var(--border); color: #fff;
+            padding: 8px 16px; border-radius: 8px; cursor: pointer;
+            font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.9rem;
+            transition: all .2s; display: flex; align-items: center; gap: 6px;
+        }
+        .btn:hover:not(:disabled) { background: rgba(255,255,255,.15); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn.primary { background: rgba(56,214,196,.15); color: var(--accent); border-color: var(--accent); }
+        .btn.primary:hover:not(:disabled) { background: rgba(56,214,196,.25); }
+        .step-counter { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--text-muted); min-width: 70px; text-align: center; }
         
-        .quiz-box { background: rgba(0,0,0,.2); border: 1px dashed rgba(255,255,255,.2); border-radius: 12px; padding: 20px; margin-top: 20px; }
-        .quiz-opt { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); padding: 10px 16px; border-radius: 8px; cursor: pointer; display: block; width: 100%; text-align: left; color: var(--text-main); margin-bottom: 8px; }
-        .quiz-opt.correct { background: rgba(56,214,196,.15); border-color: var(--accent); }
-        .quiz-opt.wrong { background: rgba(255,107,107,.15); border-color: var(--red); }
-        .quiz-expl { margin-top: 12px; color: var(--accent); display: none; }
+        .lab-msg {
+            background: rgba(91,140,255,.1); border-left: 3px solid var(--accent2);
+            padding: 12px 16px; border-radius: 0 8px 8px 0;
+            font-size: 0.95rem; min-height: 48px; display: flex; flex-direction: column; justify-content: center; line-height: 1.5; margin-bottom: 15px;
+        }
+
+        .quiz-box {
+            background: rgba(0,0,0,.2); border: 1px dashed rgba(255,255,255,.2);
+            border-radius: 12px; padding: 20px; margin-top: 20px;
+        }
+        .quiz-q { font-weight: 600; margin-bottom: 12px; font-size: 1.05rem; }
+        .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+        .quiz-opt {
+            background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+            padding: 10px 16px; border-radius: 8px; cursor: pointer;
+            transition: all .2s; text-align: left; color: var(--text-main);
+            font-size: 0.95rem; font-family: 'Inter', sans-serif;
+        }
+        .quiz-opt:hover:not(.locked) { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.3); }
+        .quiz-opt.locked { cursor: default; }
+        .quiz-opt.correct { background: rgba(56,214,196,.15); border-color: var(--accent); color: #fff; }
+        .quiz-opt.wrong { background: rgba(255,107,107,.15); border-color: var(--red); color: #fff; opacity: 0.7; }
+        .quiz-expl {
+            margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.1);
+            font-size: 0.9rem; color: var(--accent); display: none;
+        }
+
+        .pitfall-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+        .pf-box { padding: 16px; border-radius: 12px; border: 1px solid; }
+        .pf-wrong { background: rgba(255,107,107,.05); border-color: rgba(255,107,107,.2); }
+        .pf-wrong h4 { color: var(--red); margin-bottom: 8px; }
+        .pf-right { background: rgba(56,214,196,.05); border-color: rgba(56,214,196,.2); }
+        .pf-right h4 { color: var(--accent); margin-bottom: 8px; }
+        @media (max-width: 768px) { .pitfall-grid { grid-template-columns: 1fr; } }
+        
+        .math-display { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; text-align: center; margin: 15px 0; color: #fff; }
+        select { background: rgba(255,255,255,.1); border: 1px solid var(--accent); color: white; padding: 6px 12px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; outline: none; }
+        select:focus { box-shadow: var(--glow); }
+        option { background: var(--bg2); color: white; }
     </style>
 </head>
 <body>
+
     <nav class="topnav">
         <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
         <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
     </nav>
+
     <div class="container">
-        <h1>Sự Đa Dạng Của Bức Tranh</h1>
-        <div class="card">
-            <h2>Tóm tắt đề bài</h2>
-            <p>Cho lưới <code>N × M</code> với mỗi ô là một ký tự 'a'-'z'. Với mỗi truy vấn <code>(r1, c1, r2, c2)</code>, đếm số ký tự khác nhau trong vùng chữ nhật.</p>
-            <p><strong>Ràng buộc:</strong> <code>N, M ≤ 300</code>, <code>Q ≤ 10<sup>5</sup></code>.</p>
-        </div>
         
+        <header>
+            <div class="badge">Độ khó: Trung bình (O(26 · N · M + 26 · Q))</div>
+            <h1>Sự Đa Dạng Của Bức Tranh</h1>
+            <p><strong>Bản chất:</strong> Chuyển bài toán "đếm số màu" trong một tập hợp nhỏ (26 ký tự) thành 26 bài toán "kiểm tra sự tồn tại" riêng biệt, xử lý bằng Mảng cộng dồn 2D.</p>
+        </header>
+
+        <div class="card snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>Tóm tắt đề bài</h2>
+            <p>Cho một lưới <code>N × M</code> với mỗi ô là một ký tự từ 'a' đến 'z'. Với mỗi truy vấn dạng <code>(r<sub>1</sub>, c<sub>1</sub>, r<sub>2</sub>, c<sub>2</sub>)</code>, yêu cầu đếm xem có bao nhiêu ký tự (màu sắc) khác nhau xuất hiện trong vùng chữ nhật đó.</p>
+            <ul>
+                <li><strong>Ràng buộc:</strong> N, M ≤ 300; Q ≤ 10<sup>5</sup>.</li>
+                <li><strong>Ví dụ:</strong> Vùng có các ký tự <code>a, b, a, c, c</code> thì trả về 3 (vì có 3 loại: a, b, c).</li>
+            </ul>
+        </div>
+
+        <div class="card snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>Phân tích ngây thơ</h2>
+            <p>Cách đơn giản nhất là với mỗi truy vấn, dùng 2 vòng lặp lồng nhau duyệt qua mọi ô trong hình chữ nhật đó. Dùng một mảng boolean đánh dấu hoặc <code>std::set</code> để đếm các ký tự khác nhau.</p>
+            <p><strong>Tại sao không đủ tốt?</strong> Một vùng truy vấn có thể lớn bằng cả bức tranh (300 × 300 = 90,000 ô). Nếu có 10<sup>5</sup> truy vấn, tổng số phép duyệt lên tới 9 × 10<sup>9</sup>, sẽ gây ra lỗi Quá thời gian (TLE). Chúng ta cần công cụ O(1) để trả lời truy vấn. Mảng cộng dồn 2D sinh ra để làm điều này, nhưng nó chỉ tính <em>tổng</em> chứ không đếm <em>tập hợp</em>.</p>
+        </div>
+
         <div class="card">
-            <h2>Phân tích</h2>
-            <p>Vì tập ký tự rất nhỏ (chỉ 26 chữ cái), ta có thể đếm sự xuất hiện của từng loại ký tự một cách độc lập.</p>
-            <p>Với mỗi ký tự <code>k</code> ∈ {'a'...'z'}, ta xây dựng một mảng cộng dồn 2D <code>S<sub>k</sub>[N+1][M+1]</code>, trong đó <code>S<sub>k</sub>[i][j]</code> là số lần ký tự <code>k</code> xuất hiện trong hình chữ nhật <code>(1, 1)</code> đến <code>(i, j)</code>.</p>
-            <p>Khi đó, số lần xuất hiện của ký tự <code>k</code> trong vùng <code>(r1, c1, r2, c2)</code> được tính bằng công thức cộng dồn 2D quen thuộc:</p>
-            <p style="font-family: monospace; text-align: center; color: var(--mark);">Sum<sub>k</sub> = S<sub>k</sub>[r2][c2] - S<sub>k</sub>[r1-1][c2] - S<sub>k</sub>[r2][c1-1] + S<sub>k</sub>[r1-1][c1-1]</p>
-            <p>Nếu <code>Sum<sub>k</sub> > 0</code>, nghĩa là màu <code>k</code> có xuất hiện trong vùng. Ta đếm tổng số ký tự có <code>Sum<sub>k</sub> > 0</code>.</p>
-        </div>
+            <div class="snapbox">
+                <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+                <h2>1. Ý tưởng: Tách lớp màu sắc</h2>
+                <p>Một điểm mấu chốt: Bảng màu rất nhỏ (chỉ có 26 chữ cái). Thay vì hỏi câu hỏi khó <em>"Trong vùng này có bao nhiêu màu?"</em>, ta có thể hỏi 26 câu hỏi dễ: <em>"Màu 'a' có ở trong vùng này không?", "Màu 'b' có không?"...</em> rồi đếm số câu trả lời CÓ.</p>
+                <p>Với một ký tự cụ thể <code>k</code> (ví dụ 'a'), ta có thể tưởng tượng việc "chiếu tia X" vào bức tranh chỉ để nhìn thấy chữ 'a'. Ta tạo một mảng 2D mới, trong đó các ô có chữ 'a' biến thành số <strong>1</strong>, còn chữ khác biến thành số <strong>0</strong>.</p>
+                
+                <svg viewBox="0 0 800 240" class="w-full h-auto bg-[#0A1220] rounded-xl border border-[rgba(255,255,255,0.1)] my-5 p-4">
+                    <!-- SVG: Minh họa tách ma trận gốc thành các lớp 0/1 -->
+                    <defs>
+                        <path id="g3x3" d="M0,0 h90 v90 h-90 Z M30,0 v90 M60,0 v90 M0,30 h90 M0,60 h90" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+                    </defs>
+                    <text x="400" y="20" fill="#E2E8F0" font-family="sans-serif" font-size="16" font-weight="600" text-anchor="middle">Chiếu tia X: Tách bức tranh thành các mảng Boolean</text>
+                    
+                    <!-- Lưới Gốc -->
+                    <g transform="translate(50, 80)">
+                        <rect x="-10" y="-30" width="110" height="140" fill="rgba(255,255,255,0.03)" rx="8"/>
+                        <text x="45" y="-10" fill="#fff" font-family="monospace" font-size="13" font-weight="bold" text-anchor="middle">Lưới Gốc (A)</text>
+                        <use href="#g3x3"/>
+                        <!-- Row 1 -->
+                        <text x="15" y="20" fill="#5B8CFF" font-family="monospace" font-weight="bold" font-size="16" text-anchor="middle">a</text>
+                        <text x="45" y="20" fill="#FFB454" font-family="monospace" font-weight="bold" font-size="16" text-anchor="middle">b</text>
+                        <text x="75" y="20" fill="#5B8CFF" font-family="monospace" font-weight="bold" font-size="16" text-anchor="middle">a</text>
+                        <!-- Row 2 -->
+                        <text x="15" y="50" fill="#38D6C4" font-family="monospace" font-weight="bold" font-size="16" text-anchor="middle">c</text>
+                        <text x="45" y="50" fill="#38D6C4" font-family="monospace" font-weight="bold" font-size="16" text-anchor="middle">c</text>
+                        <text x="75" y="50" fill="#38D6C4" font-family="monospace" font-weight="bold" font-size="16" text-anchor="middle">c</text>
+                        <!-- Row 3 -->
+                        <text x="15" y="80" fill="#94A3B8" font-family="monospace" font-weight="bold" font-size="16" text-anchor="middle">x</text>
+                        <text x="45" y="80" fill="#94A3B8" font-family="monospace" font-weight="bold" font-size="16" text-anchor="middle">y</text>
+                        <text x="75" y="80" fill="#94A3B8" font-family="monospace" font-weight="bold" font-size="16" text-anchor="middle">z</text>
+                    </g>
+                    
+                    <!-- Mũi tên -->
+                    <g transform="translate(190, 110)">
+                        <path d="M0,0 Q60,-70 120,-70 L115,-75 M120,-70 L115,-65" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+                        <path d="M0,15 L120,15 L115,10 M120,15 L115,20" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+                        <path d="M0,30 Q60,100 120,100 L115,95 M120,100 L115,105" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+                        <text x="60" y="-40" fill="#94A3B8" font-size="12" font-family="sans-serif" text-anchor="middle">Chỉ lấy 'a'</text>
+                        <text x="60" y="10" fill="#94A3B8" font-size="12" font-family="sans-serif" text-anchor="middle">Chỉ lấy 'b'</text>
+                        <text x="60" y="80" fill="#94A3B8" font-size="12" font-family="sans-serif" text-anchor="middle">Chỉ lấy 'c'</text>
+                    </g>
+                    
+                    <!-- Lớp A -->
+                    <g transform="translate(340, 10)">
+                        <use href="#g3x3"/>
+                        <rect x="0" y="0" width="30" height="30" fill="rgba(91,140,255,0.2)"/>
+                        <rect x="60" y="0" width="30" height="30" fill="rgba(91,140,255,0.2)"/>
+                        <text x="-15" y="50" fill="#5B8CFF" font-family="sans-serif" font-weight="bold" font-size="16" text-anchor="end">Lớp 'a'</text>
+                        <!-- Nét chữ -->
+                        <text x="15" y="20" fill="#fff" font-family="monospace" font-size="14" text-anchor="middle">1</text>
+                        <text x="45" y="20" fill="#94A3B8" font-family="monospace" font-size="14" text-anchor="middle">0</text>
+                        <text x="75" y="20" fill="#fff" font-family="monospace" font-size="14" text-anchor="middle">1</text>
+                        <text x="45" y="50" fill="#94A3B8" font-family="monospace" font-size="14" text-anchor="middle">0 0 0</text>
+                        <text x="45" y="80" fill="#94A3B8" font-family="monospace" font-size="14" text-anchor="middle">0 0 0</text>
+                    </g>
+                    
+                    <!-- Lớp B -->
+                    <g transform="translate(340, 110)">
+                        <use href="#g3x3"/>
+                        <rect x="30" y="0" width="30" height="30" fill="rgba(255,180,84,0.2)"/>
+                        <text x="-15" y="50" fill="#FFB454" font-family="sans-serif" font-weight="bold" font-size="16" text-anchor="end">Lớp 'b'</text>
+                        <text x="45" y="20" fill="#fff" font-family="monospace" font-size="14" text-anchor="middle">0 1 0</text>
+                        <text x="45" y="50" fill="#94A3B8" font-family="monospace" font-size="14" text-anchor="middle">0 0 0</text>
+                        <text x="45" y="80" fill="#94A3B8" font-family="monospace" font-size="14" text-anchor="middle">0 0 0</text>
+                    </g>
+                    
+                    <!-- Mũi tên đến S -->
+                    <g transform="translate(460, 110)">
+                        <path d="M0,15 L70,15 L65,10 M70,15 L65,20" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+                        <text x="35" y="-5" fill="#38D6C4" font-size="12" font-family="sans-serif" text-anchor="middle">Mảng</text>
+                        <text x="35" y="10" fill="#38D6C4" font-size="12" font-family="sans-serif" text-anchor="middle">Cộng Dồn</text>
+                        <text x="35" y="30" fill="#38D6C4" font-size="12" font-family="sans-serif" text-anchor="middle">2D</text>
+                    </g>
+                    
+                    <!-- Mảng S_b -->
+                    <g transform="translate(560, 110)">
+                        <use href="#g3x3"/>
+                        <rect x="-10" y="-30" width="110" height="140" fill="rgba(56,214,196,0.05)" rx="8"/>
+                        <text x="45" y="-10" fill="#38D6C4" font-family="monospace" font-size="13" font-weight="bold" text-anchor="middle">Mảng S của 'b'</text>
+                        <text x="15" y="20" fill="#94A3B8" font-family="monospace" font-size="14" text-anchor="middle">0</text>
+                        <text x="45" y="20" fill="#38D6C4" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle">1</text>
+                        <text x="75" y="20" fill="#38D6C4" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle">1</text>
+                        <text x="15" y="50" fill="#94A3B8" font-family="monospace" font-size="14" text-anchor="middle">0</text>
+                        <text x="45" y="50" fill="#38D6C4" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle">1</text>
+                        <text x="75" y="50" fill="#38D6C4" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle">1</text>
+                        <text x="15" y="80" fill="#94A3B8" font-family="monospace" font-size="14" text-anchor="middle">0</text>
+                        <text x="45" y="80" fill="#38D6C4" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle">1</text>
+                        <text x="75" y="80" fill="#38D6C4" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle">1</text>
+                    </g>
+                    <text x="605" y="80" fill="#94A3B8" font-size="13" font-family="sans-serif" text-anchor="middle" font-style="italic">Làm tương tự với 'a', 'c',...</text>
+                </svg>
 
-        <div class="card snapbox" id="lab1">
-            <h2>Minh họa: Tách lớp màu sắc</h2>
-            <p>Chọn một ký tự để xem lưới cộng dồn của nó:</p>
-            <select id="char-select" onchange="updateLab()" class="bg-gray-800 text-white p-2 rounded">
-                <option value="a">a</option>
-                <option value="b">b</option>
-                <option value="c">c</option>
-            </select>
-            <div id="grid-viz" class="grid mt-4" style="grid-template-columns: repeat(4, var(--cell-w));"></div>
-            <p class="mt-4 text-sm text-gray-400">Số lần xuất hiện của ký tự đã chọn trong vùng 2x2 góc trên trái: <span id="res-cnt">0</span></p>
-        </div>
-
-        <div class="quiz-box">
-            <div class="quiz-q">Tại sao cách tiếp cận này lại hiệu quả với N, M = 300?</div>
-            <div class="quiz-opts">
-                <button class="quiz-opt" onclick="checkQuiz(this, true)">Tổng độ phức tạp là O(26 × N × M + 26 × Q), với 26 rất nhỏ nên vẫn chạy nhanh.</button>
-                <button class="quiz-opt" onclick="checkQuiz(this, false)">Vì chúng ta không cần dùng mảng cộng dồn, chỉ cần duyệt trực tiếp.</button>
+                <p>Một khi đã có mảng Boolean 1/0 này, ta chỉ việc tính <strong>Mảng Cộng Dồn 2D</strong> cho riêng lớp đó (như bài Tổng hình chữ nhật con). Bằng cách này, ta sở hữu tận 26 mảng cộng dồn 2D độc lập. Ta ký hiệu <code>S<sub>k</sub>[i][j]</code> là mảng cộng dồn của ký tự thứ <code>k</code>.</p>
+                
+                <div class="lab-ctrl mt-4">
+                    <span class="mr-2 text-sm font-semibold">Khảo sát mảng cộng dồn của màu:</span>
+                    <select id="l1-color">
+                        <option value="a">Màu 'a'</option>
+                        <option value="b">Màu 'b'</option>
+                        <option value="c">Màu 'c'</option>
+                        <option value="x">Màu 'x'</option>
+                    </select>
+                </div>
+                
+                <div class="grid-wrapper">
+                    <div class="grid-box">
+                        <div class="grid-title">Bức tranh</div>
+                        <div class="grid" id="l1-grid-a" style="grid-template-columns: 20px repeat(3, var(--cell-w));"></div>
+                    </div>
+                    <div class="grid-box">
+                        <div class="grid-title">Lớp 1/0</div>
+                        <div class="grid" id="l1-grid-bool" style="grid-template-columns: 20px repeat(3, var(--cell-w));"></div>
+                    </div>
+                    <div class="grid-box">
+                        <div class="grid-title">Mảng S của màu này</div>
+                        <div class="grid" id="l1-grid-s" style="grid-template-columns: 20px repeat(3, var(--cell-w));"></div>
+                    </div>
+                </div>
             </div>
-            <div class="quiz-expl" id="expl">Đúng! Với 26 lần tính toán độc lập, tổng số thao tác xấp xỉ 5 triệu, hoàn toàn nằm trong giới hạn thời gian.</div>
+            
+            <div class="quiz-box">
+                <div class="quiz-q">Tại sao cách tách lớp này chỉ khả thi với các bài toán có tập hợp phần tử nhỏ (ví dụ 26 chữ cái)?</div>
+                <div class="quiz-opts" id="q1-opts">
+                    <button class="quiz-opt" onclick="checkQuiz(this, 'q1', false)">A. Vì chữ cái tiếng Anh dễ chuyển đổi thành mã ASCII hơn số nguyên.</button>
+                    <button class="quiz-opt" onclick="checkQuiz(this, 'q1', true)">B. Vì ta cần tạo ra một mảng cộng dồn cho MỖI loại màu. Nếu có 100,000 loại màu khác nhau, ta sẽ hết bộ nhớ và vượt quá thời gian để xây dựng tất cả các mảng đó.</button>
+                    <button class="quiz-opt" onclick="checkQuiz(this, 'q1', false)">C. Không có giới hạn. Nếu các số trong bảng lớn đến 10<sup>9</sup>, ta vẫn có thể dùng 10<sup>9</sup> mảng cộng dồn 2D.</button>
+                </div>
+                <div class="quiz-expl" id="q1-expl">
+                    <strong>Giải thích:</strong> Mảng 3D để lưu các lớp là <code>S[Số_lượng_màu][N][M]</code>. Với N, M = 300, nếu chỉ có 26 màu, mảng cần <code>26 × 300 × 300</code> (khoảng 2.3 triệu phần tử) -> rất an toàn. Nhưng nếu có số lượng màu tuỳ ý (ví dụ số nguyên lên đến 10<sup>5</sup> loại), bộ nhớ cần sẽ là <code>100000 × 300 × 300</code>, gây vỡ bộ nhớ (Memory Limit Exceeded) ngay lập tức!
+                </div>
+            </div>
         </div>
 
-        <div class="card algo-steps">
-            <h3>Thuật toán từng bước</h3>
-            <ol>
-                <li><strong>Tiền xử lý (Xây dựng 26 lưới cộng dồn):</strong>
-                    <ul>
-                        <li>Tạo mảng 3D <code>S[26][N+1][M+1]</code>.</li>
-                        <li>Với mỗi màu <code>k</code> (0 đến 25):
-                            <ul>
-                                <li>Duyệt qua lưới <code>A</code>, nếu <code>A[i][j] == k</code> thì gán <code>val = 1</code>, ngược lại <code>val = 0</code>.</li>
-                                <li>Tính <code>S[k][i][j] = S[k][i-1][j] + S[k][i][j-1] - S[k][i-1][j-1] + val</code>.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-                <li><strong>Xử lý truy vấn:</strong>
-                    <ul>
-                        <li>Với mỗi truy vấn <code>(r1, c1, r2, c2)</code>:
-                            <ul>
-                                <li>Khởi tạo <code>ans = 0</code>.</li>
-                                <li>Lặp <code>k</code> từ 0 đến 25:
-                                    <ul>
-                                        <li>Tính <code>cnt = S[k][r2][c2] - S[k][r1-1][c2] - S[k][r2][c1-1] + S[k][r1-1][c1-1]</code>.</li>
-                                        <li>Nếu <code>cnt > 0</code>, <code>ans++</code>.</li>
-                                    </ul>
-                                </li>
-                                <li>In <code>ans</code>.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-            </ol>
+        <div class="card">
+            <div class="snapbox">
+                <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+                <h2>2. Giải quyết truy vấn</h2>
+                <p>Giả sử ta nhận được truy vấn: <em>Đếm số màu trong vùng từ <code>(r<sub>1</sub>, c<sub>1</sub>)</code> đến <code>(r<sub>2</sub>, c<sub>2</sub>)</code></em>.</p>
+                <p>Ta sẽ tạo một biến đếm <code>ans = 0</code>. Sau đó, dùng một vòng lặp duyệt qua 26 màu (từ <code>k = 0</code> đến <code>25</code>):</p>
+                <ol>
+                    <li>Sử dụng mảng <code>S<sub>k</sub></code>, tính số lần xuất hiện của màu <code>k</code> trong vùng truy vấn bằng công thức:
+                        <p class="math-display">cnt = S<sub>k</sub>[r<sub>2</sub>][c<sub>2</sub>] - S<sub>k</sub>[r<sub>1</sub>-1][c<sub>2</sub>] - S<sub>k</sub>[r<sub>2</sub>][c<sub>1</sub>-1] + S<sub>k</sub>[r<sub>1</sub>-1][c<sub>1</sub>-1]</p>
+                    </li>
+                    <li>Nếu <code>cnt &gt; 0</code> (nghĩa là màu <code>k</code> có mặt), ta tăng <code>ans++</code>.</li>
+                </ol>
+                <p>Bằng cách này, mỗi truy vấn chỉ mất 26 phép tính, tức là O(26) ≈ O(1).</p>
+                
+                <svg viewBox="0 0 600 120" class="w-full h-auto bg-[#0A1220] rounded-xl border border-[rgba(255,255,255,0.1)] my-5 p-2">
+                    <text x="300" y="20" fill="#E2E8F0" font-family="sans-serif" font-size="14" font-weight="600" text-anchor="middle">Hình ảnh hóa thuật toán đếm</text>
+                    <path d="M50,70 L550,70" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                    
+                    <g transform="translate(100, 55)">
+                        <circle cx="0" cy="15" r="25" fill="rgba(91,140,255,0.2)" stroke="#5B8CFF" stroke-width="2"/>
+                        <text x="0" y="20" fill="#5B8CFF" font-family="monospace" font-weight="bold" font-size="16" text-anchor="middle">a</text>
+                        <text x="0" y="-15" fill="#fff" font-family="monospace" font-size="13" text-anchor="middle">cnt = 2</text>
+                        <text x="0" y="65" fill="#38D6C4" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle">ans + 1</text>
+                    </g>
+                    <g transform="translate(233, 55)">
+                        <circle cx="0" cy="15" r="25" fill="rgba(255,180,84,0.2)" stroke="#FFB454" stroke-width="2"/>
+                        <text x="0" y="20" fill="#FFB454" font-family="monospace" font-weight="bold" font-size="16" text-anchor="middle">b</text>
+                        <text x="0" y="-15" fill="#fff" font-family="monospace" font-size="13" text-anchor="middle">cnt = 1</text>
+                        <text x="0" y="65" fill="#38D6C4" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle">ans + 1</text>
+                    </g>
+                    <g transform="translate(366, 55)">
+                        <circle cx="0" cy="15" r="25" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                        <text x="0" y="20" fill="#94A3B8" font-family="monospace" font-weight="bold" font-size="16" text-anchor="middle">c</text>
+                        <text x="0" y="-15" fill="#94A3B8" font-family="monospace" font-size="13" text-anchor="middle">cnt = 0</text>
+                        <text x="0" y="65" fill="#FF6B6B" font-family="sans-serif" font-size="13" font-weight="bold" text-anchor="middle">Bỏ qua</text>
+                    </g>
+                    <g transform="translate(500, 55)">
+                        <text x="0" y="20" fill="#fff" font-family="monospace" font-weight="bold" font-size="20" text-anchor="middle">...</text>
+                    </g>
+                </svg>
+
+                <div class="lab-ctrl mt-4">
+                    <button class="btn" id="l2-btn-prev">◀ Lùi</button>
+                    <button class="btn" id="l2-btn-next">Tiến ▶</button>
+                    <button class="btn primary" id="l2-btn-play">▶ Tự chạy</button>
+                    <button class="btn" id="l2-btn-reset">↺ Đặt lại</button>
+                    <div class="step-counter"><span id="l2-lbl-cur">0</span>/<span id="l2-lbl-tot">0</span></div>
+                </div>
+                
+                <div class="flex gap-4" style="flex-wrap: wrap;">
+                    <div class="lab-msg w-full" id="l2-msg" style="flex:1;">Truy vấn: (1,1) đến (2,2). Duyệt các màu...</div>
+                    <div class="quiz-box m-0" style="flex:1; margin-top: 0; min-width: 250px;">
+                        <div class="font-bold mb-2">Trạng thái Truy Vấn</div>
+                        <p class="mb-1">Đang xét màu: <strong id="l2-k" class="text-[var(--accent2)]">-</strong></p>
+                        <p class="mb-1">Số lần xuất hiện (cnt): <strong id="l2-cnt">-</strong></p>
+                        <p style="color: var(--mark); font-weight: bold; font-size: 1.1rem; margin-top: 10px;">Đếm màu: ans = <span id="l2-ans">0</span></p>
+                    </div>
+                </div>
+
+                <div class="grid-wrapper mt-4">
+                    <div class="grid-box">
+                        <div class="grid-title">Vùng truy vấn (trên A)</div>
+                        <div class="grid" id="l2-grid-a" style="grid-template-columns: 20px repeat(3, var(--cell-w)); position: relative;"></div>
+                    </div>
+                    <div class="grid-box">
+                        <div class="grid-title">Mảng S của màu đang xét</div>
+                        <div class="grid" id="l2-grid-s" style="grid-template-columns: 20px repeat(3, var(--cell-w)); position: relative;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quiz-box">
+                <div class="quiz-q">Tại sao ta lại đếm bằng lệnh <code>if (cnt &gt; 0) ans++</code> thay vì lấy <code>ans += cnt</code>?</div>
+                <div class="quiz-opts" id="q2-opts">
+                    <button class="quiz-opt" onclick="checkQuiz(this, 'q2', true)">A. Vì đề bài yêu cầu đếm số LOẠI màu sắc khác nhau, chứ không phải tổng số ký tự. Màu xuất hiện 1 lần hay 10 lần thì cũng chỉ tính là 1 loại.</button>
+                    <button class="quiz-opt" onclick="checkQuiz(this, 'q2', false)">B. Vì <code>ans += cnt</code> có nguy cơ gây ra lỗi tràn số nguyên do <code>cnt</code> có thể rất lớn.</button>
+                    <button class="quiz-opt" onclick="checkQuiz(this, 'q2', false)">C. Vì <code>cnt</code> có thể là số âm nên cộng trực tiếp sẽ làm sai lệch đáp án.</button>
+                </div>
+                <div class="quiz-expl" id="q2-expl">
+                    <strong>Giải thích:</strong> Chính xác! Biến <code>cnt</code> cho biết số lượng ký tự của một màu trong vùng (ví dụ có 3 chữ 'a' thì cnt = 3). Nhưng nếu ta muốn biết "Sự đa dạng của bức tranh" (số LOẠI màu), ta chỉ quan tâm xem màu đó "có tồn tại không" (tức là cnt > 0). Sự tồn tại đó sẽ đóng góp đúng 1 đơn vị vào tổng số loài màu.
+                </div>
+            </div>
         </div>
 
-        <div class="card codewrap">
-            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-            <div class="code">
-<div class="codeline"><span class="c-kw">#include</span> &lt;iostream&gt;</div>
-<div class="codeline"><span class="c-kw">#include</span> &lt;vector&gt;</div>
+        <div class="card snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <div class="algo-steps">
+                <h3>Công thức nấu ăn (Thuật toán từng bước)</h3>
+                <ol>
+                    <li><strong>Khai báo và Đọc dữ liệu:</strong>
+                        <ul>
+                            <li>Khai báo mảng 3 chiều <code>S[26][N+1][M+1]</code>.</li>
+                            <li>Đọc vòng lặp qua <code>i</code> (1 đến N) và <code>j</code> (1 đến M). Với mỗi ô, đọc ký tự <code>c</code>.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Tiền xử lý (Tính cộng dồn khi đang đọc):</strong>
+                        <ul>
+                            <li>Dùng vòng lặp màu <code>k</code> chạy từ 0 đến 25.</li>
+                            <li>Xác định xem ô hiện tại có phải màu <code>k</code> không: Nếu <code>c - 'a' == k</code>, gán <code>val = 1</code>, ngược lại <code>val = 0</code>.</li>
+                            <li>Tính mảng cộng dồn cho lớp <code>k</code>: <code>S[k][i][j] = S[k][i-1][j] + S[k][i][j-1] - S[k][i-1][j-1] + val</code>.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Xử lý truy vấn:</strong>
+                        <ul>
+                            <li>Với mỗi truy vấn <code>(r1, c1, r2, c2)</code>, đặt <code>ans = 0</code>.</li>
+                            <li>Lặp <code>k</code> từ 0 đến 25:
+                                <ul>
+                                    <li>Tính số lần màu <code>k</code> xuất hiện: <code>cnt = S[k][r2][c2] - S[k][r1-1][c2] - S[k][r2][c1-1] + S[k][r1-1][c1-1]</code>.</li>
+                                    <li>Nếu <code>cnt > 0</code>, tăng <code>ans++</code>.</li>
+                                </ul>
+                            </li>
+                            <li>In ra <code>ans</code>.</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="card snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>Cài đặt (C++)</h2>
+            <div class="codewrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code">
+<div class="codeline"><span class="c-kw">#include</span> <span class="c-str">&lt;iostream&gt;</span></div>
+<div class="codeline"><span class="c-kw">#include</span> <span class="c-str">&lt;vector&gt;</span></div>
 <div class="codeline"><span class="c-kw">using namespace</span> std;</div>
 <div class="codeline"></div>
+<div class="codeline"><span class="c-cm">// S[màu][hàng][cột]</span></div>
 <div class="codeline"><span class="c-ty">int</span> S[<span class="c-num">26</span>][<span class="c-num">305</span>][<span class="c-num">305</span>];</div>
 <div class="codeline"></div>
 <div class="codeline"><span class="c-ty">int</span> <span class="c-fn">main</span>() {</div>
-<div class="codeline">    <span class="c-ty">int</span> N, M, Q; cin &gt;&gt; N &gt;&gt; M &gt;&gt; Q;</div>
+<div class="codeline">    <span class="c-cm">// Tối ưu I/O cho số lượng truy vấn lớn</span></div>
+<div class="codeline">    ios_base::sync_with_stdio(<span class="c-kw">false</span>);</div>
+<div class="codeline">    cin.tie(NULL);</div>
+<div class="codeline"></div>
+<div class="codeline">    <span class="c-ty">int</span> N, M, Q;</div>
+<div class="codeline">    <span class="c-kw">if</span> (!(cin &gt;&gt; N &gt;&gt; M &gt;&gt; Q)) <span class="c-kw">return</span> <span class="c-num">0</span>;</div>
+<div class="codeline"></div>
+<div class="codeline">    <span class="c-cm">// Bước 1 &amp; 2: Xây dựng 26 lớp mảng cộng dồn</span></div>
 <div class="codeline">    <span class="c-kw">for</span> (<span class="c-ty">int</span> i = <span class="c-num">1</span>; i &lt;= N; i++) {</div>
 <div class="codeline">        <span class="c-kw">for</span> (<span class="c-ty">int</span> j = <span class="c-num">1</span>; j &lt;= M; j++) {</div>
-<div class="codeline">            <span class="c-ty">char</span> c; cin &gt;&gt; c;</div>
+<div class="codeline">            <span class="c-ty">char</span> c;</div>
+<div class="codeline">            cin &gt;&gt; c;</div>
+<div class="codeline">            <span class="c-ty">int</span> color_idx = c - <span class="c-str">'a'</span>;</div>
+<div class="codeline">            </div>
 <div class="codeline">            <span class="c-kw">for</span> (<span class="c-ty">int</span> k = <span class="c-num">0</span>; k &lt; <span class="c-num">26</span>; k++) {</div>
-<div class="codeline">                <span class="c-ty">int</span> val = (c - <span class="c-str">'a'</span> == k) ? <span class="c-num">1</span> : <span class="c-num">0</span>;</div>
+<div class="codeline">                <span class="c-ty">int</span> val = (k == color_idx) ? <span class="c-num">1</span> : <span class="c-num">0</span>;</div>
 <div class="codeline">                S[k][i][j] = S[k][i-<span class="c-num">1</span>][j] + S[k][i][j-<span class="c-num">1</span>] - S[k][i-<span class="c-num">1</span>][j-<span class="c-num">1</span>] + val;</div>
 <div class="codeline">            }</div>
 <div class="codeline">        }</div>
 <div class="codeline">    }</div>
+<div class="codeline"></div>
+<div class="codeline">    <span class="c-cm">// Bước 3: Trả lời truy vấn</span></div>
 <div class="codeline">    <span class="c-kw">while</span> (Q--) {</div>
-<div class="codeline">        <span class="c-ty">int</span> r1, c1, r2, c2; cin &gt;&gt; r1 &gt;&gt; c1 &gt;&gt; r2 &gt;&gt; c2;</div>
+<div class="codeline">        <span class="c-ty">int</span> r1, c1, r2, c2;</div>
+<div class="codeline">        cin &gt;&gt; r1 &gt;&gt; c1 &gt;&gt; r2 &gt;&gt; c2;</div>
+<div class="codeline">        </div>
 <div class="codeline">        <span class="c-ty">int</span> ans = <span class="c-num">0</span>;</div>
+<div class="codeline">        <span class="c-cm">// Duyệt kiểm tra sự tồn tại của 26 màu độc lập</span></div>
 <div class="codeline">        <span class="c-kw">for</span> (<span class="c-ty">int</span> k = <span class="c-num">0</span>; k &lt; <span class="c-num">26</span>; k++) {</div>
 <div class="codeline">            <span class="c-ty">int</span> cnt = S[k][r2][c2] - S[k][r1-<span class="c-num">1</span>][c2] - S[k][r2][c1-<span class="c-num">1</span>] + S[k][r1-<span class="c-num">1</span>][c1-<span class="c-num">1</span>];</div>
-<div class="codeline">            <span class="c-kw">if</span> (cnt &gt; <span class="c-num">0</span>) ans++;</div>
+<div class="codeline">            <span class="c-kw">if</span> (cnt &gt; <span class="c-num">0</span>) {</div>
+<div class="codeline">                ans++;</div>
+<div class="codeline">            }</div>
 <div class="codeline">        }</div>
 <div class="codeline">        cout &lt;&lt; ans &lt;&lt; <span class="c-str">"\n"</span>;</div>
 <div class="codeline">    }</div>
+<div class="codeline">    <span class="c-kw">return</span> <span class="c-num">0</span>;</div>
 <div class="codeline">}</div>
+                </div>
             </div>
         </div>
 
-        <div class="card">
+        <div class="card snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
             <h2>Độ phức tạp</h2>
-            <p>Thời gian: O(26 × N × M + 26 × Q). Với N, M = 300, Q = 10<sup>5</sup>, số phép tính khoảng ~5 triệu, hoàn toàn trong giới hạn 1 giây.</p>
+            <ul>
+                <li><strong>Thời gian:</strong> 
+                    <ul>
+                        <li>Xây dựng mảng: Mất 26 vòng lặp cho mỗi ô → <strong>O(26 · N · M)</strong>.</li>
+                        <li>Truy vấn: Mất 26 vòng lặp kiểm tra cho mỗi truy vấn → <strong>O(26 · Q)</strong>.</li>
+                        <li>Tổng thời gian: <strong>O(26 · N · M + 26 · Q)</strong>. Với N, M = 300 (khoảng 90,000 ô) và Q = 10<sup>5</sup>, tổng số phép tính khoảng 2.3 triệu + 2.6 triệu ≈ 5 triệu thao tác. Chạy cực nhanh (chỉ khoảng 0.01 giây trong C++).</li>
+                    </ul>
+                </li>
+                <li><strong>Không gian bộ nhớ:</strong> Cần mảng 3D kích thước 26 × 305 × 305 số nguyên. Kích thước khoảng ~9.6 MB, hoàn toàn thỏa mãn giới hạn bộ nhớ thông thường (thường là 256 MB).</li>
+            </ul>
         </div>
 
-        <div class="card">
-            <h2>Cạm bẫy</h2>
-            <div class="pitfall-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="pf-box" style="background: rgba(255,107,107,.05); border: 1px solid rgba(255,107,107,.2); padding: 16px;">
-                    <h4 style="color: var(--red);">✕ Quên mảng 1-based</h4>
-                    <p>Truy cập S[k][-1] dẫn đến lỗi bộ nhớ.</p>
+        <div class="card snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>Cạm bẫy khi cài đặt</h2>
+            <div class="pitfall-grid">
+                <div class="pf-box pf-wrong">
+                    <h4>✕ Thứ tự mảng không tối ưu</h4>
+                    <p>Khai báo <code>int S[305][305][26]</code>.</p>
+                    <p>Mặc dù vẫn đúng kết quả, nhưng việc để lớp màu ở chiều cuối cùng làm cho bộ nhớ không liên tục khi duyệt mảng theo cùng một màu, gây chậm do hiệu ứng "Cache miss".</p>
                 </div>
-                <div class="pf-box" style="background: rgba(56,214,196,.05); border: 1px solid rgba(56,214,196,.2); padding: 16px;">
-                    <h4 style="color: var(--accent);">✓ Padding mảng</h4>
-                    <p>Sử dụng mảng [305][305] và bắt đầu từ 1.</p>
+                <div class="pf-box pf-right">
+                    <h4>✓ Lớp màu ở chiều đầu tiên</h4>
+                    <p>Khai báo <code>int S[26][305][305]</code>.</p>
+                    <p>Tương đương với việc ta có 26 mảng 2D hoàn toàn tách biệt. Khi truy cập <code>S[k]</code>, toàn bộ mảng của lớp <code>k</code> nằm liền kề nhau trong bộ nhớ, truy xuất rất mượt mà.</p>
+                </div>
+            </div>
+            
+            <div class="pitfall-grid" style="margin-top: 20px;">
+                <div class="pf-box pf-wrong">
+                    <h4>✕ In sai số lượng</h4>
+                    <p>Cộng dồn đáp án: <code>ans += cnt;</code></p>
+                    <p>Như đã phân tích ở Quiz 2, bạn sẽ đếm tổng toàn bộ <em>số ký tự</em> trong vùng thay vì đếm <em>số loại màu sắc</em>.</p>
+                </div>
+                <div class="pf-box pf-right">
+                    <h4>✓ Đếm sự tồn tại</h4>
+                    <p>Luôn bọc trong điều kiện: <code>if (cnt > 0) ans++;</code>.</p>
+                    <p>Chỉ cần màu sắc có xuất hiện (ít nhất 1 pixel) là đã tính là một loại màu trong độ phong phú của bức tranh.</p>
                 </div>
             </div>
         </div>
+
     </div>
 
 <script>
-    function flash(btn, text) { const o = btn.textContent; btn.textContent = text; setTimeout(() => btn.textContent = o, 1200); }
-    function copyCode(btn) { 
-        const text = btn.closest('.codewrap').querySelector('.code').innerText;
-        navigator.clipboard.writeText(text).then(() => flash(btn, 'Đã chép!'));
-    }
-    function checkQuiz(btn, isCorrect) {
-        btn.classList.add(isCorrect ? 'correct' : 'wrong');
-        document.getElementById('expl').style.display = 'block';
-    }
+/* =================== UTILS: COPY & SNAP =================== */
+function flash(btn, text) {
+    const o = btn.textContent;
+    btn.textContent = text;
+    setTimeout(() => btn.textContent = o, 1200);
+}
+
+function copyCode(btn) {
+    const wrap = btn.closest('.codewrap');
+    const codeEl = wrap.querySelector('.code');
+    const text = codeEl.innerText;
     
-    // Lab data
-    const A = [['a','b','a'],['c','c','c'],['x','y','z']];
-    function updateLab() {
-        const char = document.getElementById('char-select').value;
-        const grid = document.getElementById('grid-viz');
-        grid.innerHTML = '';
-        let cnt = 0;
-        for(let r=0; r<3; r++) {
-            for(let c=0; c<3; c++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                cell.textContent = A[r][c];
-                if(A[r][c] === char && r < 2 && c < 2) { cell.style.background = 'var(--accent2)'; cnt++; }
-                else if(A[r][c] === char) cell.style.opacity = '0.5';
-                grid.appendChild(cell);
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => flash(btn, 'Đã chép!'));
+    } else {
+        let textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "absolute"; textArea.style.left = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus(); textArea.select();
+        try {
+            document.execCommand('copy');
+            flash(btn, 'Đã chép!');
+        } catch (err) {
+            flash(btn, 'Lỗi copy');
+        }
+        textArea.remove();
+    }
+}
+
+async function snapBox(btn) {
+    const box = btn.closest('.snapbox');
+    box.classList.add('snapping');
+    await document.fonts.ready;
+    try {
+        const canvas = await html2canvas(box, {backgroundColor: '#0B1220', scale: 2, logging: false});
+        box.classList.remove('snapping');
+        canvas.toBlob(async (blob) => {
+            try {
+                await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+                flash(btn, 'Đã chụp!');
+            } catch(e) {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'snap.png';
+                a.click();
+                flash(btn, 'Đã tải ảnh');
+            }
+        });
+    } catch(e) {
+        box.classList.remove('snapping');
+        flash(btn, 'Lỗi!');
+    }
+}
+
+function checkQuiz(btn, quizId, isCorrect) {
+    const container = btn.closest('.quiz-opts');
+    const buttons = container.querySelectorAll('.quiz-opt');
+    buttons.forEach(b => b.classList.add('locked'));
+    
+    if (isCorrect) {
+        btn.classList.add('correct');
+    } else {
+        btn.classList.add('wrong');
+        buttons.forEach(b => {
+            if(b.getAttribute('onclick').includes('true')) b.classList.add('correct');
+        });
+    }
+    document.getElementById(quizId + '-expl').style.display = 'block';
+}
+
+/* =================== COMMON DATA =================== */
+const A = [
+    ['#', '#', '#', '#'], // Padding
+    ['#', 'a', 'b', 'a'],
+    ['#', 'c', 'c', 'c'],
+    ['#', 'x', 'y', 'z']
+];
+
+function getLayer(char) {
+    let layer = [];
+    for (let i=0; i<=3; i++) {
+        layer[i] = [];
+        for (let j=0; j<=3; j++) {
+            if (i==0 || j==0) layer[i][j] = 0;
+            else layer[i][j] = (A[i][j] === char) ? 1 : 0;
+        }
+    }
+    return layer;
+}
+
+function getPrefixSum(layer) {
+    let sum = [];
+    for (let i=0; i<=3; i++) {
+        sum[i] = [];
+        for (let j=0; j<=3; j++) {
+            if (i==0 || j==0) sum[i][j] = 0;
+            else {
+                sum[i][j] = sum[i-1][j] + sum[i][j-1] - sum[i-1][j-1] + layer[i][j];
             }
         }
-        document.getElementById('res-cnt').textContent = cnt;
     }
-    window.onload = updateLab;
+    return sum;
+}
+
+/* =================== LAB 1: LAYER SPLIT =================== */
+const Lab1 = (function() {
+    function renderGridStatic(id, data, isChar, highlightChar) {
+        const grid = document.getElementById(id);
+        let html = '';
+        for(let r=0; r<=3; r++) {
+            for(let c=0; c<=3; c++) {
+                if(r===0 && c===0) html += `<div></div>`;
+                else if(r===0) html += `<div class="c-label">${c}</div>`;
+                else if(c===0) html += `<div class="r-label">${r}</div>`;
+                else {
+                    let val = isChar ? A[r][c] : data[r][c];
+                    let cls = 'cell';
+                    if (isChar) {
+                        if (A[r][c] === highlightChar) cls += ' hl-main';
+                        else cls += ' fade';
+                    } else {
+                        if (data[r][c] > 0) cls += (id.includes('bool') ? ' hl-bool' : ' hl-sum');
+                        else cls += ' fade';
+                    }
+                    html += `<div class="${cls}">${val}</div>`;
+                }
+            }
+        }
+        grid.innerHTML = html;
+    }
+
+    function update() {
+        const char = document.getElementById('l1-color').value;
+        const layer = getLayer(char);
+        const prefix = getPrefixSum(layer);
+        
+        renderGridStatic('l1-grid-a', A, true, char);
+        renderGridStatic('l1-grid-bool', layer, false, char);
+        renderGridStatic('l1-grid-s', prefix, false, char);
+    }
+
+    return {
+        init: function() {
+            document.getElementById('l1-color').onchange = update;
+            update();
+        }
+    };
+})();
+
+/* =================== LAB 2: STATE MACHINE QUERY =================== */
+const Lab2 = (function() {
+    let steps = [];
+    let sp = 0;
+    let timer = null;
+    
+    // We query rectangle (1,1) to (2,2)
+    // A:
+    // a b a
+    // c c c
+    // x y z
+    // Colors in rect (1,1)-(2,2): a, b, c, c -> answer is 3.
+
+    function makeSteps() {
+        steps = [];
+        const charsToTest = ['a', 'b', 'c', 'x']; // Just test a few interesting ones to keep it short
+        let curAns = 0;
+        
+        steps.push({
+            k: '-', cnt: '-', ans: 0,
+            layer: null, s: null,
+            msg: "Truy vấn yêu cầu đếm số màu trong vùng r1=1, c1=1, r2=2, c2=2. Khu vực này bao gồm 4 ô góc trên bên trái của bức tranh.",
+            hlArea: true
+        });
+
+        for (let char of charsToTest) {
+            let layer = getLayer(char);
+            let s = getPrefixSum(layer);
+            
+            // Calc sum for (1,1) to (2,2)
+            // cnt = s[2][2] - s[0][2] - s[2][0] + s[0][0]
+            let cnt = s[2][2] - s[0][2] - s[2][0] + s[0][0];
+            
+            steps.push({
+                k: char, cnt: '...', ans: curAns,
+                layer: layer, s: s,
+                msg: `Lấy mảng cộng dồn 2D của riêng màu <strong>'${char}'</strong> ra để khảo sát...`,
+                hlArea: true
+            });
+            
+            let isFound = cnt > 0;
+            let msg = `Tính tổng vùng của màu '${char}': <br>cnt = S[2][2] - S[0][2] - S[2][0] + S[0][0]<br>
+                       cnt = ${s[2][2]} - ${s[0][2]} - ${s[2][0]} + ${s[0][0]} = <strong>${cnt}</strong>.`;
+                       
+            if (isFound) {
+                curAns++;
+                msg += `<br>Vì cnt > 0, màu '${char}' <strong>CÓ XUẤT HIỆN</strong>. Tăng biến đếm ans lên 1.`;
+            } else {
+                msg += `<br>Vì cnt = 0, màu '${char}' không có mặt. Bỏ qua.`;
+            }
+
+            steps.push({
+                k: char, cnt: cnt, ans: curAns,
+                layer: layer, s: s,
+                msg: msg,
+                hlArea: true
+            });
+        }
+        
+        steps.push({
+            k: '...', cnt: '...', ans: curAns,
+            layer: null, s: null,
+            msg: `Sau khi kiểm tra nhanh 26 màu, ta đếm được <strong>ans = ${curAns}</strong>. Thuật toán kết thúc truy vấn lập tức trong O(26).`,
+            hlArea: true
+        });
+    }
+
+    function paint(sIdx) {
+        const state = steps[sIdx];
+        document.getElementById('l2-msg').innerHTML = state.msg;
+        document.getElementById('l2-lbl-cur').textContent = sIdx;
+        
+        // Update stats
+        document.getElementById('l2-k').textContent = state.k;
+        document.getElementById('l2-cnt').textContent = state.cnt;
+        document.getElementById('l2-ans').textContent = state.ans;
+        
+        // Render Grids
+        const gridA = document.getElementById('l2-grid-a');
+        let htmlA = '';
+        for(let r=0; r<=3; r++) {
+            for(let c=0; c<=3; c++) {
+                if(r===0 && c===0) htmlA += `<div></div>`;
+                else if(r===0) htmlA += `<div class="c-label">${c}</div>`;
+                else if(c===0) htmlA += `<div class="r-label">${r}</div>`;
+                else {
+                    let cls = 'cell';
+                    if (state.hlArea && r >= 1 && r <= 2 && c >= 1 && c <= 2) {
+                        cls += ' hl-main';
+                    } else {
+                        cls += ' fade';
+                    }
+                    htmlA += `<div class="${cls}">${A[r][c]}</div>`;
+                }
+            }
+        }
+        gridA.innerHTML = htmlA;
+        
+        const gridS = document.getElementById('l2-grid-s');
+        let htmlS = '';
+        if (state.s) {
+            for(let r=0; r<=3; r++) {
+                for(let c=0; c<=3; c++) {
+                    if(r===0 && c===0) htmlS += `<div></div>`;
+                    else if(r===0) htmlS += `<div class="c-label">${c}</div>`;
+                    else if(c===0) htmlS += `<div class="r-label">${r}</div>`;
+                    else {
+                        let cls = 'cell';
+                        if (state.hlArea && r >= 1 && r <= 2 && c >= 1 && c <= 2) {
+                            cls += ' hl-sum';
+                        }
+                        htmlS += `<div class="${cls}">${state.s[r][c]}</div>`;
+                    }
+                }
+            }
+        } else {
+            // Empty placeholder
+            htmlS = '<div class="text-[var(--text-muted)] text-sm flex items-center justify-center h-full w-full col-span-4">(Không có dữ liệu mảng)</div>';
+            gridS.style.display = 'flex';
+        }
+        
+        if (state.s) gridS.style.display = 'grid'; // Restore grid if it was flex
+        gridS.innerHTML = htmlS;
+
+        document.getElementById('l2-btn-prev').disabled = (sIdx === 0);
+        document.getElementById('l2-btn-next').disabled = (sIdx === steps.length - 1);
+        if (sIdx === steps.length - 1) {
+            clearInterval(timer); timer = null;
+            document.getElementById('l2-btn-play').textContent = "▶ Tự chạy";
+        }
+    }
+
+    return {
+        init: function() {
+            makeSteps();
+            document.getElementById('l2-lbl-tot').textContent = steps.length - 1;
+            paint(0);
+
+            document.getElementById('l2-btn-prev').onclick = () => { if(sp>0) paint(--sp); };
+            document.getElementById('l2-btn-next').onclick = () => { if(sp<steps.length-1) paint(++sp); };
+            document.getElementById('l2-btn-reset').onclick = () => { 
+                sp = 0; clearInterval(timer); timer=null;
+                document.getElementById('l2-btn-play').textContent = "▶ Tự chạy";
+                paint(sp); 
+            };
+            document.getElementById('l2-btn-play').onclick = function() {
+                if(timer) { clearInterval(timer); timer=null; this.textContent="▶ Tự chạy"; }
+                else {
+                    if(sp === steps.length-1) sp = 0;
+                    this.textContent = "⏸ Tạm dừng";
+                    timer = setInterval(()=>{ if(sp<steps.length-1) paint(++sp); else { clearInterval(timer); timer=null; this.textContent="▶ Tự chạy"; } }, 1800);
+                }
+            };
+        }
+    };
+})();
+
+/* =================== INIT ALL =================== */
+window.onload = function() {
+    Lab1.init();
+    Lab2.init();
+};
 </script>
 </body>
 </html>
