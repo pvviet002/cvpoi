@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lời giải: Phần tử thủ lĩnh</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
+            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
+            --text-main: #E2E8F0; --text-muted: #94A3B8;
+            --glow: 0 0 20px rgba(56,214,196,.4);
+            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
+            --border: 1px solid rgba(255,255,255,.1);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; padding: 0; background-color: var(--bg); color: var(--text-main);
+            font-family: "Inter", sans-serif; line-height: 1.6;
+        }
+        h1, h2, h3, h4 { font-family: "Space Grotesk", sans-serif; letter-spacing: -.03em; margin-top: 0; }
+        code, .mono { font-family: "JetBrains Mono", monospace; }
+        
+        .topnav {
+            position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center;
+            padding: 12px 20px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px);
+            border-bottom: var(--border);
+        }
+        .nav-btn {
+            text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent));
+            padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease;
+        }
+        .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
+        .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
+        
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px; display: flex; flex-direction: column; gap: 40px; }
+        
+        .card {
+            background: linear-gradient(180deg, var(--panel), var(--bg2)); border: var(--border);
+            border-radius: 16px; padding: 30px; box-shadow: var(--shadow);
+        }
+        .hero-title { font-size: 2.5rem; color: var(--accent); margin-bottom: 10px; }
+        .badge {
+            display: inline-block; padding: 4px 10px; background: rgba(91,140,255,.15);
+            color: var(--accent2); border-radius: 6px; font-size: 0.85rem; font-weight: 600; margin-bottom: 20px;
+        }
+        
+        .codewrap, .snapbox { position: relative; }
+        .copy-btn, .snap-btn {
+            position: absolute; top: 10px; z-index: 5;
+            font-family: "JetBrains Mono", monospace; font-size: .72rem; font-weight: 600;
+            padding: 5px 10px; border-radius: 7px; cursor: pointer;
+            background: rgba(255,255,255,.06); color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,.12); transition: all .2s;
+        }
+        .snap-btn { right: 10px; }
+        .copy-btn { right: 64px; }
+        .snapbox:not(.codewrap) .snap-btn { right: 10px; }
+        .copy-btn:hover, .snap-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(56,214,196,.1); }
+        .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
+
+        .code-container {
+            background: #0A1220; border: var(--border); border-radius: 12px;
+            overflow-x: auto; padding: 20px 0; font-size: 0.9rem; margin-top: 15px;
+            line-height: 1.6;
+        }
+        .codeline { padding: 0 20px; white-space: pre-wrap; word-break: break-all; margin: 0; }
+        .codeline.hot { background: rgba(255,180,84,.1); border-left: 3px solid var(--mark); padding-left: 17px; }
+        .c-kw { color: #FF7B72; } 
+        .c-type { color: #FF7B72; } 
+        .c-fn { color: #D2A8FF; } 
+        .c-num { color: #79C0FF; } 
+        .c-str { color: #A5D6FF; } 
+        .c-cm { color: #8B949E; } 
+        .c-op { color: #C9D1D9; } 
+
+        .lab-area {
+            background: #0A1220; border: var(--border); border-radius: 12px;
+            padding: 20px; margin: 20px 0; text-align: center; overflow: hidden; position: relative;
+        }
+        .controls {
+            display: flex; gap: 10px; justify-content: center; align-items: center;
+            margin-top: 20px; flex-wrap: wrap;
+        }
+        .btn {
+            background: var(--panel); border: var(--border); color: var(--text-main);
+            padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600;
+            transition: all .2s; font-family: "Inter", sans-serif;
+        }
+        .btn:hover:not(:disabled) { background: rgba(255,255,255,.1); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn.primary { background: rgba(56,214,196,.15); color: var(--accent); border-color: var(--accent); }
+        
+        .msg-box {
+            background: rgba(91,140,255,.1); border-left: 4px solid var(--accent2);
+            padding: 12px 20px; border-radius: 0 8px 8px 0; margin-bottom: 15px;
+            font-size: 0.95rem; text-align: left; min-height: 48px;
+        }
+        
+        .algo-steps {
+            background: linear-gradient(180deg, rgba(56,214,196,.06), transparent);
+            border: 1px solid rgba(56,214,196,.35); border-left: 4px solid var(--accent);
+            border-radius: 14px; padding: 20px 24px; margin: 30px 0;
+        }
+        .algo-steps h3 { color: var(--accent); margin-bottom: 10px; }
+        .algo-steps ol { margin: 0; padding-left: 22px; }
+        .algo-steps ol > li { margin-bottom: 10px; line-height: 1.6; }
+        .algo-steps ul { margin: 6px 0; padding-left: 18px; list-style: none; }
+        .algo-steps ul > li { position: relative; padding-left: 14px; margin-bottom: 4px; color: var(--text-muted); }
+        .algo-steps ul > li::before { content: "–"; position: absolute; left: 0; color: var(--accent); }
+        .algo-steps code {
+            background: rgba(91,140,255,.14); color: #A9C4FF; padding: .05em .4em;
+            border-radius: 5px; font-family: "JetBrains Mono", monospace; font-size: .88em;
+        }
+
+        .quiz-box {
+            background: #111E36; border: var(--border); border-radius: 12px; padding: 20px; margin-top: 20px;
+        }
+        .quiz-opts { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .q-opt {
+            background: #0A1220; border: 1px solid rgba(255,255,255,.1); padding: 12px 16px;
+            border-radius: 8px; cursor: pointer; transition: all .2s; text-align: left; color: var(--text-main);
+        }
+        .q-opt:hover:not(.locked) { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.3); }
+        .q-opt.correct { background: rgba(56,214,196,.15); border-color: var(--accent); }
+        .q-opt.wrong { background: rgba(255,107,107,.15); border-color: var(--red); }
+        .q-opt.locked { cursor: default; }
+        .explain { margin-top: 15px; padding: 12px; background: rgba(255,255,255,.05); border-radius: 8px; display: none; font-size: 0.95rem; }
+        
+        .pitfalls { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .pit-col { background: rgba(0,0,0,.2); padding: 20px; border-radius: 12px; border: var(--border); }
+        .pit-col h4 { margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .pit-col.wrong-col h4 { color: var(--red); }
+        .pit-col.correct-col h4 { color: var(--accent); }
+        
+        @media (max-width: 768px) {
+            .container { padding: 20px 16px; }
+            .pitfalls { grid-template-columns: 1fr; }
+        }
+
+        /* Custom styles for array visualization */
+        .array-container { display: flex; justify-content: center; gap: 10px; margin: 20px 0; overflow-x: auto; padding: 10px; }
+        .array-cell { 
+            width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;
+            background: #111E36; border: 2px solid #38D6C4; border-radius: 8px;
+            font-size: 1.2rem; font-weight: 600; position: relative; transition: all 0.3s; flex: none;
+        }
+        .array-cell.inactive { border-color: #475569; background: #0F1A2E; color: #475569; }
+        .array-cell.checking { border-color: #FFB454; box-shadow: 0 0 15px rgba(255,180,84,0.4); transform: scale(1.1); z-index: 2; }
+        .array-cell.leader { border-color: #38D6C4; background: rgba(56,214,196,.15); color: #38D6C4; }
+        .cell-idx { position: absolute; bottom: -25px; font-size: 0.75rem; color: #94A3B8; font-family: "JetBrains Mono", monospace; }
+        .cell-label { position: absolute; top: -25px; font-size: 0.7rem; color: #FFB454; font-weight: bold; white-space: nowrap;}
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
+    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+</nav>
+
+<div class="container">
+    
+    <header class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <span class="badge">Mảng - Tư duy quan sát</span>
+        <h1 class="hero-title">Phần tử thủ lĩnh</h1>
+        <p style="font-size: 1.1rem; color: var(--text-muted); max-width: 800px;">
+            Bản chất của bài toán này nằm ở việc tối ưu số lần so sánh. Thay vì bắt mỗi người nhìn về phía trước xem có ai cao hơn mình không, ta để <strong>kỷ lục chiều cao</strong> đi ngược từ cuối về đầu, ai phá được kỷ lục thì người đó là thủ lĩnh.
+        </p>
+        
+        <div class="lab-area" style="margin-top: 30px;">
+            <p style="margin-bottom: 15px; color: var(--accent2); font-weight: 600;">Mini-lab: Tư duy ngược</p>
+            <div class="msg-box" id="hero-msg">Hãy lật mở từ phải sang trái. Cập nhật số lớn nhất bạn từng thấy.</div>
+            <div class="array-container" id="hero-array">
+                <div class="array-cell inactive" id="hc-0">?</div>
+                <div class="array-cell inactive" id="hc-1">?</div>
+                <div class="array-cell inactive" id="hc-2">?</div>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; color: var(--mark); margin-top: 10px;">Max hiện tại: <span id="hero-max">None</span></div>
+            <div class="controls">
+                <button class="btn primary" onclick="runHeroLab()">Mở tiếp từ phải sang trái</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Tóm tắt đề bài</h2>
+        <p>Cho mảng gồm n phần tử nguyên a<sub>1</sub>, a<sub>2</sub>, ..., a<sub>n</sub>. Một phần tử được gọi là "thủ lĩnh" nếu nó <strong>lớn hơn mọi phần tử nằm bên phải nó</strong> trong mảng.</p>
+        <p>Lưu ý đặc biệt: Phần tử cuối cùng (a<sub>n</sub>) <strong>KHÔNG</strong> được coi là thủ lĩnh vì không có phần tử nào ở bên phải nó.</p>
+        <p><strong>Yêu cầu:</strong> Đếm số lượng phần tử thủ lĩnh trong mảng.</p>
+        
+        <div style="background: rgba(0,0,0,.2); padding: 15px; border-radius: 8px; margin-top: 15px; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">
+            <strong>Ràng buộc:</strong><br>
+            1 ≤ n ≤ 10<sup>5</sup><br>
+            1 ≤ a<sub>i</sub> ≤ 10<sup>6</sup><br>
+            <br>
+            <strong>Ví dụ Input:</strong><br>
+            5<br>
+            5 3 2 4 1<br>
+            <br>
+            <strong>Output:</strong> 2<br>
+            (Giải thích: Có hai phần tử thủ lĩnh là 5 và 4. Số 1 đứng cuối cùng không được tính).
+        </div>
+    </section>
+
+    <section class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Phân tích ban đầu: Tại sao vòng lặp lồng nhau thất bại?</h2>
+        <p>Cách tiếp cận trực quan nhất (ngây thơ) là: Với mỗi phần tử a<sub>i</sub>, ta dùng một vòng lặp nữa duyệt tất cả các phần tử a<sub>j</sub> (với j &gt; i) để kiểm tra xem a<sub>i</sub> có thực sự lớn hơn tất cả hay không.</p>
+        <p><strong>Khó khăn:</strong> Cách làm này có độ phức tạp là O(n<sup>2</sup>). Với n = 10<sup>5</sup>, số phép tính lên tới 10<sup>10</sup>, vượt qua giới hạn 1 giây của hệ thống chấm bài (thường cho phép khoảng 10<sup>8</sup> phép tính). Mã của bạn sẽ bị lỗi <strong>Time Limit Exceeded (TLE)</strong>.</p>
+        <p>Chúng ta cần một giải pháp chỉ duyệt qua mảng đúng một lần (độ phức tạp O(n)).</p>
+    </section>
+
+    <section class="card">
+        <div class="snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>Mô-đun 1: Kỹ thuật duy trì "Kỷ lục" (Duyệt ngược)</h2>
+            <p><strong>(a) Ta muốn gì?</strong> Ta muốn biết một số có lớn hơn TẤT CẢ các số bên phải nó hay không, mà không cần phải nhìn lại từng số một.</p>
+            <p><strong>(b) Khó khăn then chốt:</strong> Nếu đi từ trái sang phải, khi đứng ở một vị trí, ta mù tịt về tương lai (các số bên phải chưa xuất hiện). Muốn biết tương lai, ta phải đi trước thời gian.</p>
+            <p><strong>(c) Ý tưởng vượt qua:</strong> Hãy <strong>duyệt mảng từ phải sang trái</strong>. Khi đi ngược như vậy, "tương lai" (các số bên phải) đã trở thành "quá khứ" (các số đã duyệt qua). Ta chỉ cần duy trì một biến <code>max_right</code> lưu lại <strong>giá trị lớn nhất</strong> trong số các phần tử đã đi qua.</p>
+            <p><strong>(d) Vì sao đúng?</strong> Trực giác toán học: Nếu một số x lớn hơn số lớn nhất trong một tập hợp, thì hiển nhiên x lớn hơn tất cả các số trong tập hợp đó (x &gt; max(S) ⇒ x &gt; y với mọi y ∈ S).</p>
+            
+            <div class="lab-area" id="lab1-area">
+                <p style="color: var(--accent2); font-weight: 600;">Mô phỏng 1: Duyệt ngược mảng Ví dụ [5, 3, 2, 4, 1]</p>
+                <div class="msg-box" id="lab1-msg">Nhấn nút bên dưới để bắt đầu quá trình duyệt ngược mảng.</div>
+                
+                <div class="array-container" id="lab1-array">
+                    <!-- DOM elements injected via JS -->
+                </div>
+                
+                <div style="display: flex; justify-content: center; gap: 30px; margin-top: 15px; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem;">
+                    <div style="background: rgba(255,180,84,.15); border: 1px solid var(--mark); padding: 8px 16px; border-radius: 8px; color: var(--mark);">
+                        max_right: <span id="lab1-max">-</span>
+                    </div>
+                    <div style="background: rgba(56,214,196,.15); border: 1px solid var(--accent); padding: 8px 16px; border-radius: 8px; color: var(--accent);">
+                        Thủ lĩnh tìm được: <span id="lab1-count">0</span>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn" id="lab1-prev">Lùi lại</button>
+                    <button class="btn" id="lab1-next">Tiếp theo</button>
+                    <button class="btn primary" id="lab1-auto">Tự chạy</button>
+                    <button class="btn outline" id="lab1-reset">Reset</button>
+                    <span style="color: var(--text-muted); font-family: 'JetBrains Mono', monospace;" id="lab1-counter">Bước: 0/0</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quiz decoupled from snapbox -->
+        <div class="quiz-box" id="quiz1">
+            <h4 style="margin-bottom: 5px;">Câu hỏi kiểm tra</h4>
+            <p>Vì sao chúng ta không khởi tạo <code>max_right = 0</code> ngay từ đầu trước khi duyệt, mà lại gán <code>max_right = a[n-1]</code> và bắt đầu duyệt từ <code>n-2</code> trở xuống?</p>
+            <div class="quiz-opts">
+                <button class="q-opt" data-correct="false">Để vòng lặp chạy nhanh hơn 1 bước, tối ưu thời gian.</button>
+                <button class="q-opt" data-correct="true">Vì yêu cầu bài toán nói rõ phần tử cuối cùng KHÔNG bao giờ là thủ lĩnh. Nếu duyệt qua nó, nó có thể vô tình đếm vào thủ lĩnh nếu ta không cẩn thận.</button>
+                <button class="q-opt" data-correct="false">Vì các phần tử trong mảng có thể mang giá trị âm, nếu gán max_right = 0 sẽ bị sai kết quả.</button>
+            </div>
+            <div class="explain">
+                <strong>Đúng vậy!</strong> Đề bài có nhấn mạnh một luật đặc biệt: "phần tử cuối cùng không được coi là thủ lĩnh". Cách an toàn và sạch sẽ nhất là ta lấy thẳng phần tử cuối (a<sub>n</sub>) làm giá trị khởi điểm cho <code>max_right</code>, và bắt đầu xét tính thủ lĩnh từ phần tử kế cuối (a<sub>n-1</sub>) ngược về đầu. (Lưu ý thêm: mảng bài này chỉ toàn số dương ≥ 1, nên việc khởi tạo bằng số âm hay 0 thực tế không ảnh hưởng logic tìm max, nhưng luật bài toán mới là lý do chính).
+            </div>
+        </div>
+    </section>
+
+    <section class="algo-steps snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h3>Thuật toán từng bước</h3>
+        <ol>
+            <li><strong>Xử lý trường hợp mảng quá ngắn:</strong>
+                <ul>
+                    <li>Nếu <code>n ≤ 1</code>, mảng có tối đa 1 phần tử. Mà phần tử cuối không được tính, nên chắc chắn đáp án là <code>0</code>. Dừng thuật toán.</li>
+                </ul>
+            </li>
+            <li><strong>Khởi tạo các biến theo dõi:</strong>
+                <ul>
+                    <li>Biến đếm kết quả <code>leaders = 0</code>.</li>
+                    <li>Biến lưu kỷ lục giá trị lớn nhất <code>max_right = a[n - 1]</code> (chỉ số cuối cùng trong mảng 0-indexed).</li>
+                </ul>
+            </li>
+            <li><strong>Duyệt ngược tìm thủ lĩnh:</strong>
+                <ul>
+                    <li>Tạo vòng lặp chạy biến <code>i</code> từ <code>n - 2</code> lùi dần về <code>0</code>.</li>
+                    <li>Kiểm tra: Nếu <code>a[i] &gt; max_right</code>:
+                        <ul>
+                            <li>Đây là một thủ lĩnh. Tăng <code>leaders++</code>.</li>
+                            <li>Cập nhật kỷ lục mới: <code>max_right = a[i]</code>.</li>
+                        </ul>
+                    </li>
+                    <li>Nếu không lớn hơn, chỉ việc bỏ qua và đi tiếp.</li>
+                </ul>
+            </li>
+            <li><strong>In ra kết quả:</strong>
+                <ul>
+                    <li>Biến <code>leaders</code> lúc này chính là tổng số lượng thủ lĩnh cần tìm.</li>
+                </ul>
+            </li>
+        </ol>
+    </section>
+
+    <section class="card snapbox">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Cài đặt (C++)</h2>
+        <div class="code-container codewrap">
+            <div class="code">
+<div class="codeline" id="code-l1"><span class="c-kw">#include</span> <span class="c-str">&lt;iostream&gt;</span></div>
+<div class="codeline" id="code-l2"><span class="c-kw">#include</span> <span class="c-str">&lt;vector&gt;</span></div>
+<div class="codeline" id="code-l3"></div>
+<div class="codeline" id="code-l4"><span class="c-kw">using</span> <span class="c-kw">namespace</span> std;</div>
+<div class="codeline" id="code-l5"></div>
+<div class="codeline" id="code-l6"><span class="c-type">int</span> <span class="c-fn">main</span>() {</div>
+<div class="codeline" id="code-l7">    <span class="c-cm">// Tối ưu I/O để đọc dữ liệu lớn (n = 10^5) nhanh hơn</span></div>
+<div class="codeline" id="code-l8">    ios_base::sync_with_stdio(<span class="c-num">false</span>); </div>
+<div class="codeline" id="code-l9">    cin.tie(<span class="c-num">NULL</span>);</div>
+<div class="codeline" id="code-l10"></div>
+<div class="codeline" id="code-l11">    <span class="c-type">int</span> n;</div>
+<div class="codeline" id="code-l12">    <span class="c-kw">if</span> (!(cin &gt;&gt; n)) <span class="c-kw">return</span> <span class="c-num">0</span>;</div>
+<div class="codeline" id="code-l13"></div>
+<div class="codeline" id="code-l14">    vector&lt;<span class="c-type">int</span>&gt; a(n);</div>
+<div class="codeline" id="code-l15">    <span class="c-kw">for</span> (<span class="c-type">int</span> i = <span class="c-num">0</span>; i &lt; n; i++) {</div>
+<div class="codeline" id="code-l16">        cin &gt;&gt; a[i];</div>
+<div class="codeline" id="code-l17">    }</div>
+<div class="codeline" id="code-l18"></div>
+<div class="codeline" id="code-l19">    <span class="c-cm">// Edge case: Mảng chỉ có 1 phần tử, nó không có số bên phải nên không thể là thủ lĩnh</span></div>
+<div class="codeline" id="code-l20">    <span class="c-kw">if</span> (n &lt;= <span class="c-num">1</span>) {</div>
+<div class="codeline" id="code-l21">        cout &lt;&lt; <span class="c-num">0</span> &lt;&lt; <span class="c-str">"\n"</span>;</div>
+<div class="codeline" id="code-l22">        <span class="c-kw">return</span> <span class="c-num">0</span>;</div>
+<div class="codeline" id="code-l23">    }</div>
+<div class="codeline" id="code-l24"></div>
+<div class="codeline" id="code-l25">    <span class="c-type">int</span> leaders = <span class="c-num">0</span>;</div>
+<div class="codeline" id="code-l26">    <span class="c-type">int</span> max_right = a[n - <span class="c-num">1</span>]; <span class="c-cm">// Ghi nhận phần tử cuối cùng là mức cao nhất hiện tại</span></div>
+<div class="codeline" id="code-l27"></div>
+<div class="codeline" id="code-l28">    <span class="c-cm">// Bắt đầu duyệt ngược từ phần tử kề cuối về đầu mảng</span></div>
+<div class="codeline" id="code-l29">    <span class="c-kw">for</span> (<span class="c-type">int</span> i = n - <span class="c-num">2</span>; i &gt;= <span class="c-num">0</span>; i--) {</div>
+<div class="codeline" id="code-l30">        <span class="c-kw">if</span> (a[i] &gt; max_right) {</div>
+<div class="codeline" id="code-l31">            leaders++;             <span class="c-cm">// Đếm thêm 1 thủ lĩnh</span></div>
+<div class="codeline" id="code-l32">            max_right = a[i];      <span class="c-cm">// Cập nhật kỷ lục mới (vì a[i] đã lớn hơn max cũ)</span></div>
+<div class="codeline" id="code-l33">        }</div>
+<div class="codeline" id="code-l34">    }</div>
+<div class="codeline" id="code-l35"></div>
+<div class="codeline" id="code-l36">    cout &lt;&lt; leaders &lt;&lt; <span class="c-str">"\n"</span>;</div>
+<div class="codeline" id="code-l37">    <span class="c-kw">return</span> <span class="c-num">0</span>;</div>
+<div class="codeline" id="code-l38">}</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Đánh giá & Cạm bẫy</h2>
+        <p style="margin-bottom: 20px;">
+            <strong>Độ phức tạp Thời gian:</strong> O(n). Thuật toán chỉ duyệt qua mảng đúng một lần với một vòng lặp <code>for</code>. Bên trong vòng lặp chỉ thực hiện phép so sánh và gán O(1). Hoàn toàn vượt qua mốc n = 10<sup>5</sup> một cách dư dả.<br>
+            <strong>Độ phức tạp Không gian:</strong> O(n) do dùng một `vector` lưu trữ nguyên trạng mảng để có thể duyệt ngược. Không sử dụng thêm mảng phụ nào khác.
+        </p>
+        
+        <div class="pitfalls">
+            <div class="pit-col wrong-col">
+                <h4><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg> Cạm bẫy dễ sai</h4>
+                <p>Khởi tạo <code>leaders = 1</code> rồi chạy vòng lặp lùi từ <code>n - 2</code> vì nghĩ rằng "số ngoài cùng bên phải nghiễm nhiên lớn hơn rỗng". Tuy nhiên, đề bài bài này có một quy định cực dị: phần tử cuối KHÔNG BAO GIỜ là thủ lĩnh. Nếu khởi tạo 1, đáp án sẽ luôn dư ra 1.</p>
+            </div>
+            <div class="pit-col correct-col">
+                <h4><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg> Cách xử lý đúng</h4>
+                <p>Luôn đặt biến đếm <code>leaders = 0</code>. Lấy phần tử cuối cùng (a<sub>n</sub>) gán cho <code>max_right</code> (để làm barie chặn các số bên trái), nhưng tuyệt đối không cộng nó vào số đếm thủ lĩnh.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    // 1. Utilities for Copy and Snap
+    function flash(btn, text) {
+        const o = btn.textContent;
+        btn.textContent = text;
+        setTimeout(() => btn.textContent = o, 1200);
+    }
+    
+    function copyCode(btn) {
+        const wrap = btn.closest('.codewrap');
+        const codeEl = wrap.querySelector('.code');
+        const text = codeEl.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            flash(btn, 'Đã chép!');
+        }).catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            flash(btn, 'Đã chép!');
+        });
+    }
+
+    async function snapBox(btn) {
+        const box = btn.closest('.snapbox');
+        box.classList.add('snapping');
+        await document.fonts.ready;
+        try {
+            const canvas = await html2canvas(box, { backgroundColor: '#0B1220', scale: 2, logging: false });
+            box.classList.remove('snapping');
+            canvas.toBlob(async (blob) => {
+                try {
+                    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                    flash(btn, 'Đã chụp!');
+                } catch(e) {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'snap.png';
+                    a.click();
+                    flash(btn, 'Đã tải ảnh');
+                }
+            });
+        } catch(e) {
+            box.classList.remove('snapping');
+            alert('Lỗi chụp ảnh: ' + e.message);
+        }
+    }
+
+    // 2. Quiz Logic (Independent)
+    document.querySelectorAll('.quiz-box').forEach(box => {
+        const opts = box.querySelectorAll('.q-opt');
+        const expl = box.querySelector('.explain');
+        opts.forEach(opt => {
+            opt.addEventListener('click', function() {
+                if (this.classList.contains('locked')) return;
+                const isCorrect = this.getAttribute('data-correct') === 'true';
+                opts.forEach(o => o.classList.add('locked'));
+                this.classList.add(isCorrect ? 'correct' : 'wrong');
+                expl.style.display = 'block';
+            });
+        });
+    });
+
+    // 3. Hero Mini Lab
+    let heroStep = 0;
+    const heroArr = [15, 8, 10]; // 10 is max right, 8 is not leader, 15 is leader.
+    function runHeroLab() {
+        const els = [document.getElementById('hc-2'), document.getElementById('hc-1'), document.getElementById('hc-0')];
+        const maxEl = document.getElementById('hero-max');
+        const msgEl = document.getElementById('hero-msg');
+        
+        if (heroStep === 0) {
+            els[0].innerText = heroArr[2];
+            els[0].classList.remove('inactive');
+            maxEl.innerText = heroArr[2];
+            msgEl.innerHTML = `Mở số <b>${heroArr[2]}</b>. Kỷ lục hiện tại là <b>${heroArr[2]}</b>. (Nó ở cuối nên không phải thủ lĩnh)`;
+            heroStep++;
+        } else if (heroStep === 1) {
+            els[1].innerText = heroArr[1];
+            els[1].classList.remove('inactive');
+            msgEl.innerHTML = `Mở số <b>${heroArr[1]}</b>. Do ${heroArr[1]} &le; ${maxEl.innerText}, nó không phá được kỷ lục.`;
+            heroStep++;
+        } else if (heroStep === 2) {
+            els[2].innerText = heroArr[0];
+            els[2].classList.remove('inactive');
+            els[2].style.borderColor = '#38D6C4';
+            els[2].style.color = '#38D6C4';
+            maxEl.innerText = heroArr[0];
+            msgEl.innerHTML = `Mở số <b>${heroArr[0]}</b>. Phá kỷ lục! (${heroArr[0]} > 10). Đây là <b>Thủ lĩnh</b>!`;
+            heroStep++;
+            document.querySelector('#hero-array + div + .controls button').disabled = true;
+            document.querySelector('#hero-array + div + .controls button').innerText = 'Hoàn thành';
+        }
+    }
+
+    // 4. Lab 1: Main State Machine for Module 1
+    (function() {
+        const arr = [5, 3, 2, 4, 1];
+        let steps = [];
+        let sp = 0;
+        let timer = null;
+        
+        const container = document.getElementById('lab1-array');
+        const msgEl = document.getElementById('lab1-msg');
+        const maxEl = document.getElementById('lab1-max');
+        const countEl = document.getElementById('lab1-count');
+        const counterEl = document.getElementById('lab1-counter');
+        
+        // Initial DOM build
+        for (let i = 0; i < arr.length; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'array-cell';
+            cell.id = 'lab1-cell-' + i;
+            cell.innerHTML = `${arr[i]}<span class="cell-idx">i=${i}</span>`;
+            container.appendChild(cell);
+        }
+
+        function makeSteps() {
+            steps = [];
+            let n = arr.length;
+            
+            // Step 0: Init
+            steps.push({
+                idx: -1, max_right: '-', leaders: 0, highlights: [],
+                msg: "Bắt đầu. Mảng có 5 phần tử."
+            });
+            
+            // Step 1: Set max_right to last element
+            let cur_max = arr[n-1];
+            let leaders_cnt = 0;
+            let current_leaders = [];
+            
+            steps.push({
+                idx: n-1, max_right: cur_max, leaders: leaders_cnt, highlights: [...current_leaders],
+                msg: `<b>Khởi tạo:</b> Đứng ở vị trí cuối (i=4, giá trị ${arr[4]}). Trái với suy nghĩ thông thường, quy tắc đặc biệt nói số cuối KHÔNG phải thủ lĩnh. Ta ghi nhận nó làm mốc <code>max_right = ${cur_max}</code>.`
+            });
+            
+            // Iterate backwards
+            for (let i = n - 2; i >= 0; i--) {
+                // Peek phase
+                steps.push({
+                    idx: i, max_right: cur_max, leaders: leaders_cnt, highlights: [...current_leaders],
+                    msg: `<b>Xét i = ${i}:</b> Giá trị a[${i}] = ${arr[i]}. Kỷ lục bên phải hiện tại là <b>${cur_max}</b>. Ta so sánh ${arr[i]} với ${cur_max}.`
+                });
+                
+                if (arr[i] > cur_max) {
+                    leaders_cnt++;
+                    current_leaders.push(i);
+                    cur_max = arr[i];
+                    steps.push({
+                        idx: i, max_right: cur_max, leaders: leaders_cnt, highlights: [...current_leaders],
+                        msg: `<b>Cập nhật:</b> Rõ ràng ${arr[i]} > kỷ lục cũ. Vậy ${arr[i]} là <b>Thủ lĩnh</b>! Tăng biến đếm và thiết lập kỷ lục mới <code>max_right = ${cur_max}</code>.`
+                    });
+                } else {
+                    steps.push({
+                        idx: i, max_right: cur_max, leaders: leaders_cnt, highlights: [...current_leaders],
+                        msg: `<b>Bỏ qua:</b> Do ${arr[i]} &le; ${cur_max}, nó không phải là thủ lĩnh. Kỷ lục giữ nguyên, ta đi tiếp.`
+                    });
+                }
+            }
+            
+            steps.push({
+                idx: -1, max_right: cur_max, leaders: leaders_cnt, highlights: [...current_leaders],
+                msg: `<b>Kết thúc:</b> Đã duyệt hết mảng. Tổng cộng tìm được <b>${leaders_cnt}</b> phần tử thủ lĩnh.`
+            });
+        }
+
+        function paint(idx) {
+            const state = steps[idx];
+            msgEl.innerHTML = state.msg;
+            maxEl.innerText = state.max_right;
+            countEl.innerText = state.leaders;
+            counterEl.innerText = `Bước: ${idx}/${steps.length - 1}`;
+            
+            // Reset cell visuals
+            for (let i = 0; i < arr.length; i++) {
+                let cell = document.getElementById('lab1-cell-' + i);
+                cell.className = 'array-cell';
+                let oldLbl = cell.querySelector('.cell-label');
+                if (oldLbl) oldLbl.remove();
+                
+                // Dim elements we haven't visited yet (to the left)
+                if (state.idx !== -1 && i < state.idx) {
+                    cell.classList.add('inactive');
+                }
+                
+                // Highlight current
+                if (i === state.idx) {
+                    cell.classList.add('checking');
+                }
+                
+                // Highlight found leaders
+                if (state.highlights.includes(i)) {
+                    cell.classList.add('leader');
+                    if(i === state.idx && cell.classList.contains('checking')) {
+                         cell.style.borderColor = '#38D6C4';
+                    }
+                }
+                
+                // Add "MAX" label to the cell that represents the max_right
+                if (arr[i] === state.max_right && i >= Math.max(0, state.idx)) {
+                    // Only put label on the actual max cell we've seen so far
+                    let foundMax = false;
+                    for(let j=arr.length-1; j>=Math.max(0, state.idx); j--){
+                         if(arr[j] === state.max_right) {
+                             if(i===j) foundMax = true;
+                             break;
+                         }
+                    }
+                    if(foundMax){
+                        const lbl = document.createElement('div');
+                        lbl.className = 'cell-label';
+                        lbl.innerText = 'MAX';
+                        cell.appendChild(lbl);
+                    }
+                }
+            }
+            
+            // Highlight code logic (if we had specific lines mapped, which is optional for simple algorithms, but we can do button states here)
+            document.getElementById('lab1-prev').disabled = (idx === 0);
+            document.getElementById('lab1-next').disabled = (idx === steps.length - 1);
+        }
+
+        document.getElementById('lab1-prev').onclick = () => { if (sp > 0) paint(--sp); clearInterval(timer); };
+        document.getElementById('lab1-next').onclick = () => { if (sp < steps.length - 1) paint(++sp); clearInterval(timer); };
+        document.getElementById('lab1-auto').onclick = () => {
+            clearInterval(timer);
+            if (sp === steps.length - 1) sp = 0;
+            timer = setInterval(() => {
+                if (sp < steps.length - 1) paint(++sp);
+                else clearInterval(timer);
+            }, 1500);
+        };
+        document.getElementById('lab1-reset').onclick = () => {
+            clearInterval(timer);
+            sp = 0;
+            paint(sp);
+        };
+
+        window.addEventListener('load', () => {
+            makeSteps();
+            paint(0);
+        });
+    })();
+</script>
+
+</body>
+</html>
