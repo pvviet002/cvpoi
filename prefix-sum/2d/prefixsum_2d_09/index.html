@@ -214,12 +214,12 @@
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
         <h2>Phân tích ban đầu</h2>
         <p><strong>Cách Ngây Thơ:</strong> Với mỗi hình chữ nhật từ (r<sub>1</sub>, c<sub>1</sub>) đến (r<sub>2</sub>, c<sub>2</sub>), ta dùng hai vòng lặp lồng nhau duyệt qua tất cả các ô nằm trong vùng đó và cộng thêm 1 vào mảng kết quả <code>a[r][c]</code>.</p>
-        <p><strong>Vì sao thất bại?</strong> Một hình chữ nhật có thể rộng tới 1000 × 1000 = 10<sup>6</sup> ô. Nếu có 10<sup>5</sup> hình chữ nhật lớn như vậy, số phép toán lên tới 10<sup>5</sup> × 10<sup>6</sup> = 10<sup>11</sup> phép toán. Cách này chắc chắn sẽ bị <strong>Quá thời gian (TLE)</strong>.</p>
+        <p><strong>Độ phức tạp:</strong> Một hình chữ nhật có thể rộng tới 1000 × 1000 = 10<sup>6</sup> ô. Nếu có 10<sup>5</sup> hình chữ nhật lớn như vậy, số phép toán lên tới 10<sup>5</sup> × 10<sup>6</sup> = 10<sup>11</sup> phép toán. Cách này chắc chắn sẽ bị <strong>Quá thời gian (TLE)</strong>.</p>
         <p>Chúng ta cần một cách đánh dấu cả một vùng chữ nhật mà chỉ mất số bước cố định O(1). Khởi nguồn từ bài toán 1 chiều, ta sẽ xây dựng ý tưởng Mảng Hiệu (Difference Array).</p>
     </div>
 
     <!-- MÔ-ĐUN 1: Mảng Hiệu 1 Chiều -->
-    <h2 style="margin-top: 40px;">Mô-đun 1: Ý tưởng Mảng Hiệu 1D (Tiền đề)</h2>
+    <h2 style="margin-top: 40px;">Ý tưởng Mảng Hiệu 1D (Tiền đề)</h2>
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
         <p><strong>Mục tiêu:</strong> Tăng tất cả các phần tử trong đoạn từ chỉ số <code>L</code> đến <code>R</code> lên 1 mà chỉ tốn O(1) thao tác.</p>
@@ -256,7 +256,7 @@
     </div>
 
     <!-- MÔ-ĐUN 2: Mảng Hiệu 2 Chiều -->
-    <h2 style="margin-top: 40px;">Mô-đun 2: Mở rộng lên Mảng Hiệu 2D</h2>
+    <h2 style="margin-top: 40px;">Mở rộng lên Mảng Hiệu 2D</h2>
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
         <p><strong>Khó khăn:</strong> Bây giờ ta làm việc trên mặt phẳng 2 chiều. Làm sao để "mở vòi nước" và "đóng vòi nước" cho một vùng chữ nhật từ (r<sub>1</sub>, c<sub>1</sub>) đến (r<sub>2</sub>, c<sub>2</sub>)?</p>
