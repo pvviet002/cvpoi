@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lời giải: Chi Phí Chuyển Tuyến</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
+            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
+            --text-main: #E2E8F0; --text-muted: #94A3B8;
+            --glow: 0 0 20px rgba(56,214,196,.4);
+            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
+            --border: 1px solid rgba(255,255,255,.1);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; padding: 0; background-color: var(--bg); color: var(--text-main);
+            font-family: "Inter", sans-serif; line-height: 1.6;
+        }
+        h1, h2, h3, h4 { font-family: "Space Grotesk", sans-serif; letter-spacing: -.03em; margin-top: 0; }
+        code, .mono { font-family: "JetBrains Mono", monospace; }
+        
+        .topnav {
+            position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center;
+            padding: 12px 20px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px);
+            border-bottom: var(--border);
+        }
+        .nav-btn {
+            text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent));
+            padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease;
+        }
+        .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
+        .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
+        
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px; display: flex; flex-direction: column; gap: 40px; }
+        
+        .card {
+            background: linear-gradient(180deg, var(--panel), var(--bg2)); border: var(--border);
+            border-radius: 16px; padding: 30px; box-shadow: var(--shadow);
+        }
+        .hero-title { font-size: 2.5rem; color: var(--accent); margin-bottom: 10px; }
+        .badge {
+            display: inline-block; padding: 4px 10px; background: rgba(91,140,255,.15);
+            color: var(--accent2); border-radius: 6px; font-size: 0.85rem; font-weight: 600; margin-bottom: 20px;
+        }
+        
+        .codewrap, .snapbox { position: relative; }
+        .copy-btn, .snap-btn {
+            position: absolute; top: 10px; z-index: 5;
+            font-family: "JetBrains Mono", monospace; font-size: .72rem; font-weight: 600;
+            padding: 5px 10px; border-radius: 7px; cursor: pointer;
+            background: rgba(255,255,255,.06); color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,.12); transition: all .2s;
+        }
+        .snap-btn { right: 10px; }
+        .copy-btn { right: 64px; }
+        .snapbox:not(.codewrap) .snap-btn { right: 10px; }
+        .copy-btn:hover, .snap-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(56,214,196,.1); }
+        .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
+
+        .code-container {
+            background: #0A1220; border: var(--border); border-radius: 12px;
+            overflow-x: auto; padding: 20px 0; font-size: 0.9rem; margin-top: 15px;
+        }
+        .codeline { padding: 0 20px; white-space: pre-wrap; word-break: break-all; }
+        .codeline.hot { background: rgba(255,180,84,.1); border-left: 3px solid var(--mark); padding-left: 17px; }
+        .c-kw { color: #FF7B72; } /* Keyword */
+        .c-type { color: #FF7B72; } /* Type */
+        .c-fn { color: #D2A8FF; } /* Function */
+        .c-num { color: #79C0FF; } /* Number */
+        .c-str { color: #A5D6FF; } /* String */
+        .c-cm { color: #8B949E; } /* Comment */
+        .c-op { color: #C9D1D9; } /* Operator */
+
+        .lab-area {
+            background: #0A1220; border: var(--border); border-radius: 12px;
+            padding: 20px; margin: 20px 0; text-align: center; overflow: hidden; position: relative;
+        }
+        canvas { max-width: 100%; border-radius: 8px; }
+        .controls {
+            display: flex; gap: 10px; justify-content: center; align-items: center;
+            margin-top: 15px; flex-wrap: wrap;
+        }
+        .btn {
+            background: var(--panel); border: var(--border); color: var(--text-main);
+            padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600;
+            transition: all .2s; font-family: "Inter", sans-serif;
+        }
+        .btn:hover:not(:disabled) { background: rgba(255,255,255,.1); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn.primary { background: rgba(56,214,196,.15); color: var(--accent); border-color: var(--accent); }
+        
+        .msg-box {
+            background: rgba(91,140,255,.1); border-left: 4px solid var(--accent2);
+            padding: 12px 20px; border-radius: 0 8px 8px 0; margin-bottom: 15px;
+            font-size: 0.95rem; text-align: left; min-height: 48px;
+        }
+        
+        .algo-steps {
+            background: linear-gradient(180deg, rgba(56,214,196,.06), transparent);
+            border: 1px solid rgba(56,214,196,.35); border-left: 4px solid var(--accent);
+            border-radius: 14px; padding: 20px 24px; margin: 30px 0;
+        }
+        .algo-steps h3 { color: var(--accent); margin-bottom: 15px; }
+        .algo-steps ol { margin: 0; padding-left: 22px; }
+        .algo-steps ol > li { margin-bottom: 12px; line-height: 1.6; }
+        .algo-steps ul { margin: 6px 0; padding-left: 18px; list-style: none; }
+        .algo-steps ul > li { position: relative; padding-left: 14px; margin-bottom: 4px; color: var(--text-muted); }
+        .algo-steps ul > li::before { content: "–"; position: absolute; left: 0; color: var(--accent); }
+        .algo-steps code {
+            background: rgba(91,140,255,.14); color: #A9C4FF; padding: .1em .4em;
+            border-radius: 5px; font-family: "JetBrains Mono", monospace; font-size: .88em;
+        }
+
+        .quiz-box {
+            background: #111E36; border: var(--border); border-radius: 12px; padding: 20px; margin-top: 20px;
+        }
+        .quiz-opts { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .q-opt {
+            background: #0A1220; border: 1px solid rgba(255,255,255,.1); padding: 12px 16px;
+            border-radius: 8px; cursor: pointer; transition: all .2s; text-align: left; color: var(--text-main);
+        }
+        .q-opt:hover:not(.locked) { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.3); }
+        .q-opt.correct { background: rgba(56,214,196,.15); border-color: var(--accent); }
+        .q-opt.wrong { background: rgba(255,107,107,.15); border-color: var(--red); }
+        .q-opt.locked { cursor: default; }
+        .explain { margin-top: 15px; padding: 12px; background: rgba(255,255,255,.05); border-radius: 8px; display: none; font-size: 0.95rem; }
+        
+        .pitfalls { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .pit-col { background: rgba(0,0,0,.2); padding: 20px; border-radius: 12px; border: var(--border); }
+        .pit-col h4 { margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .pit-col.wrong-col h4 { color: var(--red); }
+        .pit-col.correct-col h4 { color: var(--accent); }
+        
+        @media (max-width: 768px) {
+            .container { padding: 20px 16px; }
+            .pitfalls { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
+    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+</nav>
+
+<div class="container">
+    
+    <header class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <span class="badge">Đồ thị - Trạng thái</span>
+        <h1 class="hero-title">Chi Phí Chuyển Tuyến</h1>
+        <p style="font-size: 1.1rem; color: var(--text-muted); max-width: 800px;">
+            Bản chất của bài toán này không nằm ở khoảng cách vật lý giữa các trạm, mà nằm ở <strong>chi phí lên xe (chuyển tuyến)</strong>. Bằng cách phân rã mỗi trạm thành các trạng thái "đang ngồi trên tuyến cụ thể", ta đưa bài toán về tìm đường đi ngắn nhất thông thường.
+        </p>
+        
+        <div class="lab-area" style="margin-top: 30px;">
+            <p style="margin-bottom: 10px; color: var(--accent2); font-weight: 600;">Mini-lab: Chi phí đi từ A đến B</p>
+            <div style="display: flex; justify-content: center; gap: 30px; align-items: center;">
+                <div style="padding: 15px; background: rgba(255,255,255,.05); border-radius: 8px; border: 1px dashed var(--accent);">
+                    Trạm A (Đang đi bộ)
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button class="btn" onclick="document.getElementById('mini-res').innerHTML='Đi tuyến 1: Trả giá vé <strong>10</strong>'">Tuyến 1 (Vé: 10)</button>
+                    <button class="btn" onclick="document.getElementById('mini-res').innerHTML='Đi tuyến 2: Trả giá vé <strong>5</strong>'">Tuyến 2 (Vé: 5)</button>
+                </div>
+                <div style="padding: 15px; background: rgba(255,255,255,.05); border-radius: 8px; border: 1px dashed var(--accent);">
+                    Trạm B
+                </div>
+            </div>
+            <p id="mini-res" style="margin-top: 15px; color: var(--mark); min-height: 24px;"></p>
+        </div>
+    </header>
+
+    <section class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Tóm tắt đề bài</h2>
+        <p>Có n trạm và m đoạn đường. Mỗi đoạn đường thuộc đúng một trong k tuyến xe. Tuyến c có giá vé là p<sub>c</sub>.</p>
+        <p>Hành khách chỉ bị trừ tiền (bằng p<sub>c</sub>) khi <strong>bắt đầu bước lên</strong> tuyến c. Nếu đi liên tiếp nhiều đoạn trên CÙNG tuyến c thì không mất thêm phí. Nếu đổi sang tuyến khác rồi quay lại tuyến c, phải trả lại p<sub>c</sub>.</p>
+        <p><strong>Yêu cầu:</strong> Tìm chi phí nhỏ nhất đi từ trạm 1 đến trạm n.</p>
+        
+        <div style="background: rgba(0,0,0,.2); padding: 15px; border-radius: 8px; margin-top: 15px; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">
+            <strong>Ràng buộc:</strong><br>
+            1 ≤ n, k ≤ 200000<br>
+            0 ≤ m ≤ 300000<br>
+            1 ≤ p<sub>c</sub> ≤ 10<sup>9</sup><br>
+            <br>
+            <strong>Ví dụ Input:</strong><br>
+            6 6 3 (6 trạm, 6 đường, 3 tuyến)<br>
+            5 2 9 (giá tuyến 1, 2, 3)<br>
+            1 2 1 (từ 1-2 tuyến 1)<br>
+            2 3 1 (từ 2-3 tuyến 1)<br>
+            ...
+        </div>
+    </section>
+
+    <section class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Phân tích ban đầu: Tại sao Dijkstra thông thường thất bại?</h2>
+        <p>Nếu ta chạy thuật toán Dijkstra trên đồ thị n đỉnh (mỗi đỉnh là 1 trạm), trọng số cạnh là gì? Nếu gán cạnh (u, v) trên tuyến c có trọng số p<sub>c</sub>, ta sẽ cộng dồn sai chi phí khi đi liên tiếp trên cùng một tuyến. Nếu gán trọng số bằng 0, ta lại không tính được chi phí lúc mới lên xe.</p>
+        <p><strong>Khó khăn then chốt:</strong> Chi phí đi qua một cạnh (u, v) thuộc tuyến c phụ thuộc vào <em>cạnh trước đó</em> bạn vừa đi thuộc tuyến nào. Đồ thị thiếu "ký ức".</p>
+    </section>
+
+    <section class="card">
+        <div class="snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>Mô-đun 1: Tách Trạm thành Trạng thái (Đồ thị Ký ức)</h2>
+            <p><strong>(a) Ta muốn gì?</strong> Ta muốn đồ thị có khả năng "nhớ" được hành khách đang ngồi trên tuyến xe nào, để quyết định có thu tiền hay không.</p>
+            <p><strong>(b) Khó khăn:</strong> Một trạm u có thể là điểm giao của rất nhiều tuyến xe.</p>
+            <p><strong>(c) Ý tưởng vượt qua:</strong> Thay vì chỉ có đỉnh <code>u</code> đại diện cho trạm, ta tạo ra các <strong>đỉnh ảo</strong> dạng <code>(u, c)</code>, mang ý nghĩa: "Đang ở trạm u, và ĐANG NGỒI trên xe của tuyến c".<br>
+            Ngoài ra, ta giữ lại đỉnh <code>u</code> nguyên bản mang ý nghĩa "Đang đứng dưới đất tại trạm u".</p>
+            <p><strong>(d) Vì sao đúng?</strong> Khi tách như vậy, quá trình đi lại được phân tách rõ ràng:<br>
+            - Từ <code>u</code> (đứng dưới đất) bước lên <code>(u, c)</code> (lên xe): Trả phí p<sub>c</sub>.<br>
+            - Từ <code>(u, c)</code> đi tới <code>(v, c)</code> (xe di chuyển): Trả phí 0.<br>
+            - Từ <code>(v, c)</code> xuống <code>v</code> (xuống đất): Trả phí 0.</p>
+            
+            <div class="lab-area" id="lab1-area">
+                <p style="color: var(--accent2); font-weight: 600;">Mô phỏng 1: Các thao tác chuyển trạng thái tại trạm 3</p>
+                <div class="msg-box" id="lab1-msg">Đang đứng dưới đất tại Trạm 3. Chi phí hiện tại: 0. Hãy thử lên xe.</div>
+                <canvas id="lab1-canvas" width="600" height="250"></canvas>
+                <div class="controls">
+                    <button class="btn" id="lab1-btn-board1">Lên Tuyến 1 (Vé: 5)</button>
+                    <button class="btn" id="lab1-btn-board2">Lên Tuyến 2 (Vé: 2)</button>
+                    <button class="btn primary" id="lab1-btn-alight" disabled>Xuống xe (Trở về đất)</button>
+                    <button class="btn outline" id="lab1-btn-reset">Reset</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="quiz-box" id="quiz1">
+            <h4 style="margin-bottom: 5px;">Câu hỏi kiểm tra</h4>
+            <p>Giả sử bạn đang ở trạng thái <code>(u, Tuyến 1)</code>. Bạn muốn đi tiếp sang một đỉnh v thông qua cạnh thuộc Tuyến 2. Chuỗi thao tác đúng (và rẻ nhất) trên đồ thị mới là gì?</p>
+            <div class="quiz-opts">
+                <button class="q-opt" data-correct="false">Từ (u, Tuyến 1) đi thẳng sang (v, Tuyến 2) với giá p_2.</button>
+                <button class="q-opt" data-correct="false">Từ (u, Tuyến 1) đi thẳng sang (v, Tuyến 2) với giá p_1 + p_2.</button>
+                <button class="q-opt" data-correct="true">Từ (u, Tuyến 1) xuống đất u (giá 0), rồi từ u lên (u, Tuyến 2) (giá p_2), sau đó xe chạy tới (v, Tuyến 2) (giá 0).</button>
+            </div>
+            <div class="explain">
+                <strong>Đúng!</strong> Đồ thị của chúng ta KHÔNG có cạnh nối trực tiếp giữa hai tuyến xe khác nhau. Bắt buộc phải thực hiện thao tác "xuống xe" (quay về đỉnh u gốc) rồi mới "lên xe" (chuyển sang (u, Tuyến 2)). Điều này mô phỏng hoàn hảo việc đổi tuyến và tự động tính thêm phí p<sub>2</sub>.
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>Mô-đun 2: Tối ưu Không Gian (Đồ thị phân tầng)</h2>
+            <p><strong>(a) Ta muốn gì?</strong> Ta muốn biểu diễn trạng thái <code>(u, c)</code> vào một cấu trúc dữ liệu để chạy Dijkstra.</p>
+            <p><strong>(b) Khó khăn:</strong> Nếu tạo trạng thái cho MỌI trạm kết hợp với MỌI tuyến, số đỉnh sẽ là N × K (có thể lên tới 200,000 × 200,000 = 40 tỉ đỉnh). Bị Tràn Bộ Nhớ (MLE).</p>
+            <p><strong>(c) Ý tưởng vượt qua:</strong> Ta <strong>chỉ tạo</strong> trạng thái <code>(u, c)</code> NẾU có ít nhất một đoạn đường của tuyến c nối trực tiếp vào trạm u. Thay vì mảng 2 chiều, ta gán cho mỗi cặp <code>(u, c)</code> hợp lệ một số ID duy nhất bằng mảng 1 chiều liên tiếp.</p>
+            <p><strong>(d) Vì sao đúng?</strong> Mỗi cạnh của đồ thị gốc đóng góp tối đa 2 trạng thái hợp lệ. Tổng số đỉnh <code>(u, c)</code> tối đa chỉ là 2 × M. Cộng với N đỉnh trạm gốc, tổng số đỉnh trong đồ thị mới không vượt quá N + 2M ≤ 800,000. Dư sức chạy Dijkstra!</p>
+            
+            <div class="lab-area" id="lab2-area">
+                <p style="color: var(--accent2); font-weight: 600;">Mô phỏng 2: Quá trình xây dựng Đồ thị Phân tầng (từ ví dụ)</p>
+                <div class="msg-box" id="lab2-msg">...</div>
+                <canvas id="lab2-canvas" width="600" height="300"></canvas>
+                <div class="controls">
+                    <button class="btn" id="lab2-prev">Lùi lại</button>
+                    <button class="btn" id="lab2-next">Tiếp theo</button>
+                    <button class="btn primary" id="lab2-auto">Tự chạy</button>
+                    <span style="color: var(--text-muted); font-family: 'JetBrains Mono', monospace;" id="lab2-counter">Bước: 0/0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="quiz-box" id="quiz2">
+            <h4 style="margin-bottom: 5px;">Câu hỏi kiểm tra</h4>
+            <p>Trong đồ thị phân tầng mới, có bao nhiêu <strong>loại cạnh</strong>, và trọng số của chúng lần lượt là bao nhiêu?</p>
+            <div class="quiz-opts">
+                <button class="q-opt" data-correct="false">2 loại: Lên xe (phí 0) và Đi xe (phí p_c).</button>
+                <button class="q-opt" data-correct="true">3 loại: Lên xe u → (u, c) phí p_c; Xuống xe (u, c) → u phí 0; Đi xe (u, c) → (v, c) phí 0.</button>
+                <button class="q-opt" data-correct="false">3 loại: Lên xe phí p_c; Xuống xe phí p_c; Đi xe phí 0.</button>
+            </div>
+            <div class="explain">
+                <strong>Chính xác!</strong> Bí quyết là bạn chỉ trả phí MỘT LẦN khi bắt đầu lên xe (tức là cạnh đi từ dưới đất lên tầng tuyến xe). Mọi cạnh di chuyển ngang trên cùng một tầng, hoặc cạnh nhảy xuống đất đều MIỄN PHÍ.
+            </div>
+        </div>
+    </section>
+
+    <section class="algo-steps snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h3>Thuật toán từng bước</h3>
+        <ol>
+            <li><strong>Lưu các tuyến đi qua mỗi trạm:</strong>
+                <ul>
+                    <li>Tạo mảng 2 chiều động <code>vector&lt;int&gt; lines_at[n + 1]</code>.</li>
+                    <li>Với mỗi cạnh <code>(u, v)</code> thuộc tuyến <code>c</code>, đẩy <code>c</code> vào <code>lines_at[u]</code> và <code>lines_at[v]</code>.</li>
+                    <li>Loại bỏ phần tử trùng trong mỗi <code>lines_at[u]</code> bằng cách <code>sort()</code> rồi dùng <code>unique()</code>.</li>
+                </ul>
+            </li>
+            <li><strong>Định danh (ID) cho đỉnh ảo:</strong>
+                <ul>
+                    <li>Các đỉnh dưới đất có ID từ <code>1</code> đến <code>n</code>.</li>
+                    <li>Biến đếm tổng số đỉnh đồ thị mới: <code>V = n</code>.</li>
+                    <li>Tạo mảng <code>start_id[u]</code> để biết ID ảo của trạm <code>u</code> bắt đầu từ đâu. Với mỗi trạm <code>u</code>, gán <code>start_id[u] = V</code>, sau đó <code>V = V + lines_at[u].size()</code>.</li>
+                    <li>Hàm lấy ID của trạng thái <code>(u, c)</code>: tìm vị trí của <code>c</code> trong <code>lines_at[u]</code> (gọi là <code>idx</code>), ID trả về là <code>start_id[u] + idx + 1</code>.</li>
+                </ul>
+            </li>
+            <li><strong>Xây dựng tập cạnh đồ thị mới:</strong>
+                <ul>
+                    <li>Tạo danh sách kề <code>adj[V + 1]</code>.</li>
+                    <li>Với mỗi trạm <code>u</code> và mỗi tuyến <code>c</code> trong <code>lines_at[u]</code>:
+                        <ul>
+                            <li>Gọi <code>id = get_id(u, c)</code>.</li>
+                            <li>Thêm cạnh: <code>u → id</code> trọng số <code>p<sub>c</sub></code> (Lên xe).</li>
+                            <li>Thêm cạnh: <code>id → u</code> trọng số <code>0</code> (Xuống xe).</li>
+                        </ul>
+                    </li>
+                    <li>Với mỗi cạnh ban đầu <code>(u, v, c)</code>:
+                        <ul>
+                            <li>Gọi <code>id_u = get_id(u, c)</code> và <code>id_v = get_id(v, c)</code>.</li>
+                            <li>Thêm cạnh vô hướng: <code>id_u ↔ id_v</code> trọng số <code>0</code> (Di chuyển).</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Chạy Dijkstra:</strong>
+                <ul>
+                    <li>Khởi tạo mảng <code>dist[V + 1]</code> vô cùng lớn, <code>dist[1] = 0</code>.</li>
+                    <li>Dùng hàng đợi ưu tiên <code>priority_queue</code> lưu cặp <code>(khoảng cách, đỉnh)</code>.</li>
+                    <li>Chạy cho đến khi lấy ra đỉnh <code>n</code> (vì yêu cầu đến trạm n dưới đất). Đáp số chính là <code>dist[n]</code>. Nếu hàng đợi rỗng mà chưa tới <code>n</code>, in ra <code>-1</code>.</li>
+                </ul>
+            </li>
+        </ol>
+    </section>
+
+    <section class="card snapbox">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Cài đặt (C++)</h2>
+        <div class="code-container codewrap">
+            <div class="code">
+<div class="codeline" id="code-l1"><span class="c-cm"></span></div>
+<div class="codeline" id="code-l2"><span class="c-kw">#include</span> <span class="c-str">&lt;iostream&gt;</span></div>
+<div class="codeline" id="code-l3"><span class="c-kw">#include</span> <span class="c-str">&lt;vector&gt;</span></div>
+<div class="codeline" id="code-l4"><span class="c-kw">#include</span> <span class="c-str">&lt;queue&gt;</span></div>
+<div class="codeline" id="code-l5"><span class="c-kw">#include</span> <span class="c-str">&lt;algorithm&gt;</span></div>
+<div class="codeline" id="code-l6"></div>
+<div class="codeline" id="code-l7"><span class="c-kw">using</span> <span class="c-kw">namespace</span> std;</div>
+<div class="codeline" id="code-l8"><span class="c-kw">const</span> <span class="c-type">long long</span> INF = <span class="c-num">1e18</span>;</div>
+<div class="codeline" id="code-l9"></div>
+<div class="codeline" id="code-l10"><span class="c-kw">struct</span> <span class="c-type">Edge</span> { <span class="c-type">int</span> to, weight; };</div>
+<div class="codeline" id="code-l11"><span class="c-kw">struct</span> <span class="c-type">InputEdge</span> { <span class="c-type">int</span> u, v, c; };</div>
+<div class="codeline" id="code-l12"></div>
+<div class="codeline" id="code-l13"><span class="c-type">int</span> <span class="c-fn">main</span>() {</div>
+<div class="codeline" id="code-l14">    ios_base::sync_with_stdio(<span class="c-num">false</span>); cin.tie(<span class="c-num">NULL</span>);</div>
+<div class="codeline" id="code-l15">    <span class="c-type">int</span> n, m, k;</div>
+<div class="codeline" id="code-l16">    <span class="c-kw">if</span> (!(cin &gt;&gt; n &gt;&gt; m &gt;&gt; k)) <span class="c-kw">return</span> <span class="c-num">0</span>;</div>
+<div class="codeline" id="code-l17"></div>
+<div class="codeline" id="code-l18">    vector&lt;<span class="c-type">int</span>&gt; p(k + <span class="c-num">1</span>);</div>
+<div class="codeline" id="code-l19">    <span class="c-kw">for</span> (<span class="c-type">int</span> i = <span class="c-num">1</span>; i &lt;= k; i++) cin &gt;&gt; p[i];</div>
+<div class="codeline" id="code-l20"></div>
+<div class="codeline" id="code-l21">    vector&lt;InputEdge&gt; edges(m);</div>
+<div class="codeline" id="code-l22">    vector&lt;vector&lt;<span class="c-type">int</span>&gt;&gt; lines_at(n + <span class="c-num">1</span>);</div>
+<div class="codeline" id="code-l23"></div>
+<div class="codeline" id="code-l24">    <span class="c-kw">for</span> (<span class="c-type">int</span> i = <span class="c-num">0</span>; i &lt; m; i++) {</div>
+<div class="codeline" id="code-l25">        cin &gt;&gt; edges[i].u &gt;&gt; edges[i].v &gt;&gt; edges[i].c;</div>
+<div class="codeline" id="code-l26">        lines_at[edges[i].u].push_back(edges[i].c);</div>
+<div class="codeline" id="code-l27">        lines_at[edges[i].v].push_back(edges[i].c);</div>
+<div class="codeline" id="code-l28">    }</div>
+<div class="codeline" id="code-l29"></div>
+<div class="codeline" id="code-l30">    <span class="c-cm">// Bước 1 & 2: Lọc tuyến độc nhất và thiết lập hệ thống định danh ID</span></div>
+<div class="codeline" id="code-l31">    <span class="c-type">int</span> V = n;</div>
+<div class="codeline" id="code-l32">    vector&lt;<span class="c-type">int</span>&gt; start_id(n + <span class="c-num">1</span>, <span class="c-num">0</span>);</div>
+<div class="codeline" id="code-l33">    <span class="c-kw">for</span> (<span class="c-type">int</span> i = <span class="c-num">1</span>; i &lt;= n; i++) {</div>
+<div class="codeline" id="code-l34">        sort(lines_at[i].begin(), lines_at[i].end());</div>
+<div class="codeline" id="code-l35">        lines_at[i].erase(unique(lines_at[i].begin(), lines_at[i].end()), lines_at[i].end());</div>
+<div class="codeline" id="code-l36">        start_id[i] = V;</div>
+<div class="codeline" id="code-l37">        V += lines_at[i].size();</div>
+<div class="codeline" id="code-l38">    }</div>
+<div class="codeline" id="code-l39"></div>
+<div class="codeline" id="code-l40">    <span class="c-cm">// Hàm helper lấy ID ảo của trạng thái (trạm u, tuyến c)</span></div>
+<div class="codeline" id="code-l41">    <span class="c-kw">auto</span> get_id = [&amp;](<span class="c-type">int</span> u, <span class="c-type">int</span> c) {</div>
+<div class="codeline" id="code-l42">        <span class="c-kw">auto</span> it = lower_bound(lines_at[u].begin(), lines_at[u].end(), c);</div>
+<div class="codeline" id="code-l43">        <span class="c-type">int</span> idx = distance(lines_at[u].begin(), it);</div>
+<div class="codeline" id="code-l44">        <span class="c-kw">return</span> start_id[u] + idx + <span class="c-num">1</span>;</div>
+<div class="codeline" id="code-l45">    };</div>
+<div class="codeline" id="code-l46"></div>
+<div class="codeline" id="code-l47">    <span class="c-cm">// Bước 3: Xây dựng đồ thị mới</span></div>
+<div class="codeline" id="code-l48">    vector&lt;vector&lt;Edge&gt;&gt; adj(V + <span class="c-num">1</span>);</div>
+<div class="codeline" id="code-l49">    <span class="c-kw">for</span> (<span class="c-type">int</span> i = <span class="c-num">1</span>; i &lt;= n; i++) {</div>
+<div class="codeline" id="code-l50">        <span class="c-kw">for</span> (<span class="c-type">int</span> c : lines_at[i]) {</div>
+<div class="codeline" id="code-l51">            <span class="c-type">int</span> id = get_id(i, c);</div>
+<div class="codeline" id="code-l52">            adj[i].push_back({id, p[c]}); <span class="c-cm">// Đi lên xe tốn phí</span></div>
+<div class="codeline" id="code-l53">            adj[id].push_back({i, <span class="c-num">0</span>});    <span class="c-cm">// Đi xuống đất miễn phí</span></div>
+<div class="codeline" id="code-l54">        }</div>
+<div class="codeline" id="code-l55">    }</div>
+<div class="codeline" id="code-l56"></div>
+<div class="codeline" id="code-l57">    <span class="c-kw">for</span> (<span class="c-kw">auto</span>&amp; e : edges) {</div>
+<div class="codeline" id="code-l58">        <span class="c-type">int</span> id_u = get_id(e.u, e.c);</div>
+<div class="codeline" id="code-l59">        <span class="c-type">int</span> id_v = get_id(e.v, e.c);</div>
+<div class="codeline" id="code-l60">        adj[id_u].push_back({id_v, <span class="c-num">0</span>});   <span class="c-cm">// Xe chạy giữa 2 trạm miễn phí</span></div>
+<div class="codeline" id="code-l61">        adj[id_v].push_back({id_u, <span class="c-num">0</span>});</div>
+<div class="codeline" id="code-l62">    }</div>
+<div class="codeline" id="code-l63"></div>
+<div class="codeline" id="code-l64">    <span class="c-cm">// Bước 4: Dijkstra tìm đường ngắn nhất</span></div>
+<div class="codeline" id="code-l65">    vector&lt;<span class="c-type">long long</span>&gt; dist(V + <span class="c-num">1</span>, INF);</div>
+<div class="codeline" id="code-l66">    <span class="c-kw">using</span> pqi = pair&lt;<span class="c-type">long long</span>, <span class="c-type">int</span>&gt;;</div>
+<div class="codeline" id="code-l67">    priority_queue&lt;pqi, vector&lt;pqi&gt;, greater&lt;pqi&gt;&gt; pq;</div>
+<div class="codeline" id="code-l68"></div>
+<div class="codeline" id="code-l69">    dist[<span class="c-num">1</span>] = <span class="c-num">0</span>;</div>
+<div class="codeline" id="code-l70">    pq.push({<span class="c-num">0</span>, <span class="c-num">1</span>});</div>
+<div class="codeline" id="code-l71"></div>
+<div class="codeline" id="code-l72">    <span class="c-kw">while</span> (!pq.empty()) {</div>
+<div class="codeline" id="code-l73">        <span class="c-kw">auto</span> [d, u] = pq.top(); pq.pop();</div>
+<div class="codeline" id="code-l74"></div>
+<div class="codeline" id="code-l75">        <span class="c-kw">if</span> (d &gt; dist[u]) <span class="c-kw">continue</span>;</div>
+<div class="codeline" id="code-l76">        <span class="c-kw">if</span> (u == n) { <span class="c-cm">// Tới đích</span></div>
+<div class="codeline" id="code-l77">            cout &lt;&lt; d &lt;&lt; <span class="c-str">"\n"</span>;</div>
+<div class="codeline" id="code-l78">            <span class="c-kw">return</span> <span class="c-num">0</span>;</div>
+<div class="codeline" id="code-l79">        }</div>
+<div class="codeline" id="code-l80"></div>
+<div class="codeline" id="code-l81">        <span class="c-kw">for</span> (<span class="c-kw">auto</span>&amp; edge : adj[u]) {</div>
+<div class="codeline" id="code-l82">            <span class="c-kw">if</span> (dist[edge.to] &gt; dist[u] + edge.weight) {</div>
+<div class="codeline" id="code-l83">                dist[edge.to] = dist[u] + edge.weight;</div>
+<div class="codeline" id="code-l84">                pq.push({dist[edge.to], edge.to});</div>
+<div class="codeline" id="code-l85">            }</div>
+<div class="codeline" id="code-l86">        }</div>
+<div class="codeline" id="code-l87">    }</div>
+<div class="codeline" id="code-l88"></div>
+<div class="codeline" id="code-l89">    cout &lt;&lt; (dist[n] == INF ? -<span class="c-num">1</span> : dist[n]) &lt;&lt; <span class="c-str">"\n"</span>;</div>
+<div class="codeline" id="code-l90">    <span class="c-kw">return</span> <span class="c-num">0</span>;</div>
+<div class="codeline" id="code-l91">}</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Đánh giá & Cạm bẫy</h2>
+        <p style="margin-bottom: 20px;">
+            <strong>Độ phức tạp:</strong><br>
+            - Khởi tạo ID mảng: Việc sắp xếp tập tuyến cho mỗi đỉnh mất O(M log(K)).<br>
+            - Số đỉnh đồ thị V ≤ N + 2M ≤ 800,000. Số cạnh E ≤ 6M ≤ 1,800,000.<br>
+            - Chạy Dijkstra tốn O(E log V). Tổng cộng thuật toán chạy cực nhanh, hoàn toàn vừa vặn với giới hạn thời gian 1-2 giây cho mảng ràng buộc 10<sup>5</sup>.
+        </p>
+        
+        <div class="pitfalls">
+            <div class="pit-col wrong-col">
+                <h4><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg> Cạm bẫy dễ sai</h4>
+                <p>Sử dụng <code>std::map&lt;pair&lt;int, int&gt;, int&gt;</code> để đánh số ID cho trạng thái. Dù tiện lợi nhưng map sử dụng cây đỏ đen, tốn rất nhiều bộ nhớ và hằng số thời gian cực lớn (gấp 5-10 lần mảng). Dễ bị Tràn Thời Gian hoặc Tràn Bộ Nhớ với M = 300,000.</p>
+            </div>
+            <div class="pit-col correct-col">
+                <h4><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg> Cách xử lý đúng</h4>
+                <p>Thu gom tất cả các tuyến kề với từng trạm u vào một <code>vector</code>, gọi <code>sort()</code> và <code>unique()</code> để loại trùng lặp. Gán ID theo đoạn liên tiếp bằng tổng tiền tố. Tìm kiếm ID ảo bằng thuật toán chặt nhị phân <code>lower_bound</code> rất nhẹ và không tốn thêm bộ nhớ dư.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    // 1. Copy & Snap Functions
+    function flash(btn, text) {
+        const o = btn.textContent;
+        btn.textContent = text;
+        setTimeout(() => btn.textContent = o, 1200);
+    }
+    
+    function copyCode(btn) {
+        const wrap = btn.closest('.codewrap');
+        const codeEl = wrap.querySelector('.code');
+        const text = codeEl.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            flash(btn, 'Đã chép!');
+        }).catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            flash(btn, 'Đã chép!');
+        });
+    }
+
+    async function snapBox(btn) {
+        const box = btn.closest('.snapbox');
+        box.classList.add('snapping');
+        await document.fonts.ready;
+        try {
+            const canvas = await html2canvas(box, { backgroundColor: '#0B1220', scale: 2, logging: false });
+            box.classList.remove('snapping');
+            canvas.toBlob(async (blob) => {
+                try {
+                    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                    flash(btn, 'Đã chụp!');
+                } catch(e) {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'snap.png';
+                    a.click();
+                    flash(btn, 'Đã tải ảnh');
+                }
+            });
+        } catch(e) {
+            box.classList.remove('snapping');
+            alert('Lỗi chụp ảnh: ' + e.message);
+        }
+    }
+
+    // 2. Quiz Logic
+    document.querySelectorAll('.quiz-box').forEach(box => {
+        const opts = box.querySelectorAll('.q-opt');
+        const expl = box.querySelector('.explain');
+        opts.forEach(opt => {
+            opt.addEventListener('click', function() {
+                if (this.classList.contains('locked')) return;
+                const isCorrect = this.getAttribute('data-correct') === 'true';
+                opts.forEach(o => o.classList.add('locked'));
+                this.classList.add(isCorrect ? 'correct' : 'wrong');
+                expl.style.display = 'block';
+            });
+        });
+    });
+
+    // 3. Module 1: Mini-Lab for State transition
+    (function() {
+        const canvas = document.getElementById('lab1-canvas');
+        const ctx = canvas.getContext('2d');
+        const msg = document.getElementById('lab1-msg');
+        
+        let state = 0; // 0: ground, 1: line 1, 2: line 2
+        let cost = 0;
+        
+        const btnB1 = document.getElementById('lab1-btn-board1');
+        const btnB2 = document.getElementById('lab1-btn-board2');
+        const btnA = document.getElementById('lab1-btn-alight');
+        const btnR = document.getElementById('lab1-btn-reset');
+        
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw Ground Node
+            ctx.beginPath(); ctx.arc(300, 200, 20, 0, Math.PI*2); 
+            ctx.fillStyle = state === 0 ? '#38D6C4' : '#111E36'; ctx.fill();
+            ctx.strokeStyle = '#38D6C4'; ctx.lineWidth = 2; ctx.stroke();
+            ctx.fillStyle = '#FFF'; ctx.textAlign = 'center'; ctx.fillText('Trạm 3 (Đất)', 300, 235);
+            
+            // Draw Line Nodes
+            ctx.beginPath(); ctx.arc(200, 80, 20, 0, Math.PI*2);
+            ctx.fillStyle = state === 1 ? '#FFB454' : '#111E36'; ctx.fill();
+            ctx.strokeStyle = '#FFB454'; ctx.stroke();
+            ctx.fillStyle = '#FFF'; ctx.fillText('(Trạm 3, Tuyến 1)', 200, 45);
+            
+            ctx.beginPath(); ctx.arc(400, 80, 20, 0, Math.PI*2);
+            ctx.fillStyle = state === 2 ? '#5B8CFF' : '#111E36'; ctx.fill();
+            ctx.strokeStyle = '#5B8CFF'; ctx.stroke();
+            ctx.fillStyle = '#FFF'; ctx.fillText('(Trạm 3, Tuyến 2)', 400, 45);
+            
+            // Draw Edges
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath(); ctx.moveTo(300, 180); ctx.lineTo(200, 100); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(300, 180); ctx.lineTo(400, 100); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        
+        function updateUI() {
+            draw();
+            btnB1.disabled = (state !== 0);
+            btnB2.disabled = (state !== 0);
+            btnA.disabled = (state === 0);
+        }
+        
+        btnB1.onclick = () => { state = 1; cost += 5; msg.innerHTML = `Đã lên Tuyến 1 (Phí: 5). Tổng phí: ${cost}. Xe chuẩn bị chạy sang trạm khác.`; updateUI(); };
+        btnB2.onclick = () => { state = 2; cost += 2; msg.innerHTML = `Đã lên Tuyến 2 (Phí: 2). Tổng phí: ${cost}. Xe chuẩn bị chạy.`; updateUI(); };
+        btnA.onclick = () => { state = 0; msg.innerHTML = `Đã xuống đất (Phí: 0). Tổng phí: ${cost}. Có thể chuyển tuyến.`; updateUI(); };
+        btnR.onclick = () => { state = 0; cost = 0; msg.innerHTML = `Đã Reset. Đang đứng dưới đất tại Trạm 3. Chi phí hiện tại: 0.`; updateUI(); };
+        
+        draw();
+    })();
+
+    // 4. Module 2: Layered Graph Construction Simulation
+    (function() {
+        const canvas = document.getElementById('lab2-canvas');
+        const ctx = canvas.getContext('2d');
+        const msg = document.getElementById('lab2-msg');
+        const counter = document.getElementById('lab2-counter');
+        
+        let sp = 0;
+        let steps = [];
+        let timer = null;
+        
+        // Setup initial static nodes
+        const nodes = [
+            {id: 1, x: 100, y: 250, label: '1'}, {id: 2, x: 250, y: 250, label: '2'}, {id: 3, x: 400, y: 250, label: '3'}
+        ];
+        // Line 1: y = 80
+        const v_nodes = [
+            {id: '1-1', x: 100, y: 80, label: '(1, T1)'}, {id: '2-1', x: 250, y: 80, label: '(2, T1)'}, {id: '3-1', x: 400, y: 80, label: '(3, T1)'}
+        ];
+        
+        function makeSteps() {
+            steps.push({
+                drawF: () => drawGraph([], [], false, false),
+                msg: "Bước 1: Giả sử ta có 3 trạm (1, 2, 3) tạo thành một đoạn tuyến tính."
+            });
+            steps.push({
+                drawF: () => drawGraph([], [], true, false),
+                msg: "Bước 2: Tuyến 1 đi qua 1-2 và 2-3. Ta sinh ra các đỉnh ảo tương ứng nằm ở 'tầng trên' đại diện cho Tuyến 1."
+            });
+            steps.push({
+                drawF: () => drawGraph(['board'], [], true, false),
+                msg: "Bước 3: Thêm các cạnh LÊN XE (màu vàng) từ trạm dưới đất lên đỉnh Tuyến 1. Trọng số của các cạnh này bằng Giá vé p_1."
+            });
+            steps.push({
+                drawF: () => drawGraph(['board', 'alight'], [], true, false),
+                msg: "Bước 4: Thêm các cạnh XUỐNG ĐẤT (màu đứt nét) từ đỉnh Tuyến 1 về trạm tương ứng. Trọng số = 0."
+            });
+            steps.push({
+                drawF: () => drawGraph(['board', 'alight'], ['travel'], true, false),
+                msg: "Bước 5: Thêm các cạnh DI CHUYỂN ngang trên tầng Tuyến 1. Trọng số = 0 vì đã trả tiền lúc lên xe. Xong đồ thị!"
+            });
+        }
+        
+        function drawGraph(vEdges, hEdges, showV, highlightPath) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.font = "12px Inter";
+            ctx.textAlign = "center";
+            
+            // Edges logic
+            if (showV) {
+                for (let i=0; i<3; i++) {
+                    let u = nodes[i], v = v_nodes[i];
+                    if (vEdges.includes('board')) {
+                        ctx.beginPath(); ctx.moveTo(u.x - 5, u.y); ctx.lineTo(v.x - 5, v.y);
+                        ctx.strokeStyle = '#FFB454'; ctx.lineWidth = 2; ctx.stroke();
+                        // arrow
+                        ctx.beginPath(); ctx.moveTo(v.x-5, v.y+15); ctx.lineTo(v.x-10, v.y+25); ctx.lineTo(v.x, v.y+25); ctx.fillStyle='#FFB454'; ctx.fill();
+                    }
+                    if (vEdges.includes('alight')) {
+                        ctx.beginPath(); ctx.moveTo(v.x + 5, v.y); ctx.lineTo(u.x + 5, u.y);
+                        ctx.strokeStyle = '#94A3B8'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
+                        ctx.beginPath(); ctx.moveTo(u.x+5, u.y-15); ctx.lineTo(u.x, u.y-25); ctx.lineTo(u.x+10, u.y-25); ctx.fillStyle='#94A3B8'; ctx.fill();
+                    }
+                }
+            }
+            if (hEdges.includes('travel')) {
+                for (let i=0; i<2; i++) {
+                    let a = v_nodes[i], b = v_nodes[i+1];
+                    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+                    ctx.strokeStyle = '#38D6C4'; ctx.lineWidth = 2; ctx.stroke();
+                }
+            }
+            
+            // Nodes
+            for (let n of nodes) {
+                ctx.beginPath(); ctx.arc(n.x, n.y, 16, 0, Math.PI*2);
+                ctx.fillStyle = '#111E36'; ctx.fill(); ctx.strokeStyle = '#FFF'; ctx.stroke();
+                ctx.fillStyle = '#FFF'; ctx.fillText(n.label, n.x, n.y+5);
+                ctx.fillText('Trạm ' + n.label, n.x, n.y+35);
+            }
+            if (showV) {
+                for (let n of v_nodes) {
+                    ctx.beginPath(); ctx.arc(n.x, n.y, 16, 0, Math.PI*2);
+                    ctx.fillStyle = '#111E36'; ctx.fill(); ctx.strokeStyle = '#FFB454'; ctx.stroke();
+                    ctx.fillStyle = '#FFF'; ctx.fillText(n.label, n.x, n.y+5);
+                }
+            }
+        }
+        
+        function paint(s) {
+            steps[s].drawF();
+            msg.innerText = steps[s].msg;
+            counter.innerText = `Bước: ${s + 1}/${steps.length}`;
+            document.getElementById('lab2-prev').disabled = (s === 0);
+            document.getElementById('lab2-next').disabled = (s === steps.length - 1);
+        }
+        
+        document.getElementById('lab2-prev').onclick = () => { if (sp > 0) paint(--sp); clearInterval(timer); };
+        document.getElementById('lab2-next').onclick = () => { if (sp < steps.length - 1) paint(++sp); clearInterval(timer); };
+        document.getElementById('lab2-auto').onclick = () => {
+            clearInterval(timer);
+            if (sp === steps.length - 1) sp = -1;
+            timer = setInterval(() => {
+                if (sp < steps.length - 1) paint(++sp);
+                else clearInterval(timer);
+            }, 1200);
+        };
+        
+        window.addEventListener('load', () => {
+            makeSteps();
+            paint(0);
+        });
+    })();
+</script>
+
+</body>
+</html>
