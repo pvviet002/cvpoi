@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lời giải: Bảng Quảng Cáo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
+            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
+            --text-main: #E2E8F0; --text-muted: #94A3B8;
+            --glow: 0 0 20px rgba(56,214,196,.4);
+            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
+            --border: 1px solid rgba(255,255,255,.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main);
+            line-height: 1.6; padding-bottom: 60px;
+        }
+        
+        /* Typography */
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.03em; }
+        h1 { font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(135deg, var(--accent2), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 1.5rem; margin: 30px 0 15px; color: var(--accent); border-bottom: var(--border); padding-bottom: 8px; }
+        p { margin-bottom: 16px; }
+        strong { color: white; }
+        
+        /* Nav */
+        .topnav {
+            position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center;
+            padding: 12px 20px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px); border-bottom: var(--border);
+        }
+        .nav-btn {
+            text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent));
+            padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease;
+        }
+        .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
+        .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
+
+        /* Layout */
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; display: flex; flex-direction: column; }
+        .card { background: linear-gradient(180deg, var(--panel), var(--bg2)); border: var(--border); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: var(--shadow); }
+        
+        /* Interactive Labs */
+        .lab-visual {
+            background: rgba(0,0,0,.3); border-radius: 12px; padding: 20px; margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,.05); overflow-x: auto;
+        }
+        .lab-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+        .lab-btn {
+            background: var(--panel); color: var(--text-main); border: var(--border); padding: 8px 16px;
+            border-radius: 8px; cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-weight: 600;
+            transition: all .2s;
+        }
+        .lab-btn:hover:not(:disabled) { background: rgba(255,255,255,.1); }
+        .lab-btn.play { background: rgba(56,214,196,.15); color: var(--accent); border-color: var(--accent); }
+        .lab-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .lab-msg { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--mark); min-height: 44px; display: flex; align-items: center; }
+        .step-counter { font-family: 'JetBrains Mono', monospace; color: var(--text-muted); font-size: 0.9rem; margin-left: auto; }
+
+        /* Words & Arrays */
+        .word-row { display: flex; gap: 8px; flex-wrap: nowrap; margin: 10px 0; min-height: 50px; }
+        .word-box {
+            flex: none; background: #1E293B; border: 1px solid #334155; padding: 8px 12px; border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--text-main);
+            display: flex; flex-direction: column; align-items: center; position: relative; transition: all 0.3s;
+        }
+        .word-box.active { background: rgba(56,214,196,.15); border-color: var(--accent); color: var(--accent); }
+        .word-box.error { background: rgba(255,107,107,.15); border-color: var(--red); color: var(--red); }
+        .word-box .len { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+        .pointer { position: absolute; bottom: -25px; font-size: 0.8rem; font-weight: bold; }
+        
+        /* Code */
+        .codewrap { position: relative; background: #0A1220; border: var(--border); border-radius: 12px; margin-bottom: 20px; overflow-x: auto; padding: 16px 0; }
+        .code { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; white-space: pre-wrap; line-height: 1.6; }
+        .codeline { padding: 0 16px; border-left: 3px solid transparent; }
+        .codeline.hot { background: rgba(255,180,84,.1); border-left: 3px solid var(--mark); }
+        
+        /* Syntax Highlighting */
+        .c-kw { color: #FF7B72; } .c-num { color: #79C0FF; } .c-cm { color: #8B949E; font-style: italic; }
+        .c-str { color: #A5D6FF; } .c-fn { color: #D2A8FF; } .c-op { color: #C9D1D9; } .c-ty { color: #FF7B72; }
+        
+        /* Algo Steps Card */
+        .algo-steps {
+            background: linear-gradient(180deg, rgba(56,214,196,.06), transparent);
+            border: 1px solid rgba(56,214,196,.35); border-left: 4px solid var(--accent);
+            border-radius: 14px; padding: 20px 24px; margin-bottom: 24px;
+        }
+        .algo-steps h3 { color: var(--accent); margin-bottom: 10px; }
+        .algo-steps ol { margin: 0; padding-left: 22px; }
+        .algo-steps ol > li { margin-bottom: 10px; line-height: 1.6; }
+        .algo-steps ul { margin: 6px 0; padding-left: 18px; list-style: none; }
+        .algo-steps ul > li { position: relative; padding-left: 14px; margin-bottom: 4px; color: var(--text-muted); }
+        .algo-steps ul > li::before { content: "–"; position: absolute; left: 0; color: var(--accent); }
+        .algo-steps code {
+            background: rgba(91,140,255,.14); color: #A9C4FF; padding: .1em .4em;
+            border-radius: 5px; font-family: "JetBrains Mono", monospace; font-size: .88em;
+        }
+
+        /* Quiz */
+        .quiz-block { background: var(--panel); border: var(--border); border-radius: 12px; padding: 20px; margin-top: 20px; }
+        .quiz-question { font-weight: 600; margin-bottom: 12px; font-size: 1.05rem; }
+        .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+        .quiz-opt {
+            background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); padding: 12px 16px;
+            border-radius: 8px; cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 10px;
+        }
+        .quiz-opt:hover:not(.locked) { background: rgba(255,255,255,.1); }
+        .quiz-opt.locked { cursor: default; }
+        .quiz-opt.correct { background: rgba(56,214,196,.15); border-color: var(--accent); color: var(--accent); }
+        .quiz-opt.wrong { background: rgba(255,107,107,.15); border-color: var(--red); color: var(--red); opacity: 0.7; }
+        .quiz-explain { margin-top: 16px; padding: 12px; background: rgba(0,0,0,.2); border-radius: 8px; display: none; font-size: 0.95rem; border-left: 3px solid var(--text-muted); }
+        .quiz-explain.show { display: block; }
+
+        /* Snap & Copy Buttons */
+        .snapbox, .codewrap { position: relative; }
+        .copy-btn, .snap-btn {
+            position: absolute; top: 10px; z-index: 5;
+            font-family: "JetBrains Mono", monospace; font-size: .72rem; font-weight: 600;
+            padding: 5px 10px; border-radius: 7px; cursor: pointer;
+            background: rgba(255,255,255,.06); color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,.12); transition: all .2s;
+        }
+        .snap-btn { right: 10px; }
+        .copy-btn { right: 64px; }
+        .snapbox:not(.codewrap) .snap-btn { right: 10px; }
+        .copy-btn:hover, .snap-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(56,214,196,.1); }
+        .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
+
+        /* Graph for Module 2 */
+        .node-row { display: flex; gap: 20px; padding: 40px 10px 10px; position: relative; }
+        .node { width: 40px; height: 40px; border-radius: 50%; background: #1E293B; border: 2px solid #334155; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: bold; z-index: 2; position: relative; }
+        .node.active { background: var(--accent); border-color: #fff; color: #000; }
+        .node.target { background: var(--mark); border-color: #fff; color: #000; }
+        .edge-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        path.edge { fill: none; stroke: #334155; stroke-width: 2; marker-end: url(#arrow); transition: all 0.3s; }
+        path.edge.active { stroke: var(--accent); stroke-width: 3; marker-end: url(#arrow-active); }
+
+        /* Traps */
+        .traps { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+        .trap-col { padding: 16px; border-radius: 12px; }
+        .trap-col.wrong { background: rgba(255,107,107,.05); border: 1px solid rgba(255,107,107,.2); }
+        .trap-col.right { background: rgba(56,214,196,.05); border: 1px solid rgba(56,214,196,.2); }
+        .trap-title { font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .trap-col.wrong .trap-title { color: var(--red); }
+        .trap-col.right .trap-title { color: var(--accent); }
+
+        @media (max-width: 768px) {
+            .traps { grid-template-columns: 1fr; }
+            h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
+    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+</nav>
+
+<div class="container">
+    <div style="margin-top: 40px; margin-bottom: 20px;">
+        <h1>Bảng Quảng Cáo</h1>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <span style="background: rgba(255,255,255,.1); padding: 4px 10px; border-radius: 6px; font-size: 0.85rem;">Hai con trỏ</span>
+            <span style="background: rgba(56,214,196,.15); color: var(--accent); padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold;">Nhảy nhị phân O(N log R)</span>
+        </div>
+        <p>Bản chất của bài toán là tìm vị trí bắt đầu sao cho khi lấp đầy <code>R</code> dòng một cách tham lam, ta chứa được nhiều từ nhất.</p>
+    </div>
+
+    <!-- TÓM TẮT ĐỀ BÀI -->
+    <div class="card snapbox">
+        <h2>Tóm tắt đề bài</h2>
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <ul>
+            <li>Cho một văn bản gồm <strong>N</strong> từ. Cần chọn một đoạn liên tiếp các từ để đưa lên bảng quảng cáo.</li>
+            <li>Bảng có tối đa <strong>R</strong> dòng, mỗi dòng tối đa <strong>C</strong> ký tự.</li>
+            <li>Các từ trên cùng dòng cách nhau đúng 1 dấu cách. Không được chia cắt 1 từ ra 2 dòng.</li>
+            <li><strong>Mục tiêu:</strong> Tìm đoạn liên tiếp dài nhất (nhiều từ nhất) có thể xếp vừa bảng.</li>
+            <li><strong>Ràng buộc:</strong> N, R, C ≤ 10<sup>6</sup>; R × C ≤ 10<sup>6</sup>; Tổng độ dài các từ ≤ 5 × 10<sup>6</sup>.</li>
+        </ul>
+        <div style="background: rgba(0,0,0,.3); padding: 12px; border-radius: 8px; margin-top: 12px; font-family: monospace;">
+            <span style="color: var(--text-muted);">Input:</span> 9 4 12<br>
+            this is a sample text for croc final round<br>
+            <span style="color: var(--text-muted); display:block; margin-top: 8px;">Output (4 dòng, mỗi dòng ≤ 12 ký tự):</span>
+            <span style="color: var(--accent);">this is a</span><br>
+            <span style="color: var(--accent);">sample text</span><br>
+            <span style="color: var(--accent);">for croc</span><br>
+            <span style="color: var(--accent);">final round</span>
+        </div>
+    </div>
+
+    <!-- PHÂN TÍCH BAN ĐẦU -->
+    <div class="card snapbox">
+        <h2>Phân tích ban đầu</h2>
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <p>Cách tiếp cận ngây thơ nhất là thử chọn từng từ <code>i</code> làm từ bắt đầu. Với mỗi <code>i</code>, ta cố gắng lấp đầy <code>R</code> dòng bằng cách ghép lần lượt các từ tiếp theo vào, kiểm tra giới hạn <code>C</code> ký tự mỗi dòng.</p>
+        <p><strong>Vì sao cách này thất bại?</strong> Nếu mỗi từ chỉ có độ dài 1, và giới hạn <code>C = 1</code>, thì mỗi dòng chỉ chứa được đúng 1 từ. Để điền <code>R</code> dòng, ta phải mất tới <code>O(R)</code> phép toán. Phải làm điều này cho <code>N</code> vị trí bắt đầu, độ phức tạp sẽ là <code>O(N · R)</code>. Với N, R ≤ 10<sup>6</sup>, số phép toán lên tới 10<sup>12</sup>, chắc chắn quá thời gian (TLE).</p>
+        <p>Để giải quyết, ta cần trả lời 2 câu hỏi lớn: <em>(1) Làm sao biết một dòng bắt đầu từ từ <code>i</code> sẽ kết thúc ở đâu một cách nhanh chóng?</em> và <em>(2) Làm sao nhảy vọt <code>R</code> dòng mà không cần mô phỏng từng dòng một?</em></p>
+    </div>
+
+    <!-- MÔ-ĐUN 1: HAI CON TRỎ -->
+    <h2>1. Tính trước một dòng (Kỹ thuật Hai con trỏ)</h2>
+    <p><strong>Mục tiêu:</strong> Với mỗi vị trí <code>i</code>, ta muốn tìm vị trí <code>nxt[i]</code> — chỉ số của từ <em>đầu tiên không thể nhét vừa</em> vào cùng một dòng bắt đầu bằng từ <code>i</code>.</p>
+    <p><strong>Quan sát:</strong> Chiều dài của một dòng khi thêm từ luôn tăng lên. Nếu đoạn từ <code>i</code> đến <code>j</code> không vừa, thì chắc chắn từ <code>i</code> đến <code>j+1</code> cũng không vừa. Hơn nữa, khi dịch điểm bắt đầu <code>i</code> sang phải thành <code>i+1</code> (tức là bỏ bớt từ đầu tiên ra khỏi dòng), không gian trên dòng sẽ rộng ra, nên điểm kết thúc <code>j</code> chỉ có thể đứng im hoặc tiến thêm sang phải, chứ không bao giờ lùi lại.</p>
+    <p><strong>Ý tưởng:</strong> Sử dụng <strong>Hai con trỏ</strong> (Sliding Window). Duy trì một cửa sổ <code>[L, R]</code>. Con trỏ <code>L</code> là từ bắt đầu. Con trỏ <code>R</code> liên tục mở rộng sang phải chừng nào tổng số ký tự (cộng thêm dấu cách) còn ≤ <code>C</code>. Khi không thể mở rộng nữa, ta ghi nhận <code>nxt[L] = R</code>. Sau đó thu hẹp cửa sổ bằng cách đẩy <code>L</code> lên 1 bước, trừ đi độ dài của từ vừa bỏ ra.</p>
+    <p><strong>Vì sao đúng và nhanh?</strong> Con trỏ <code>R</code> không bao giờ phải quay lại. Cả <code>L</code> và <code>R</code> đều đi từ 0 đến N đúng một lần. Do đó, ta tính được mảng <code>nxt</code> cho tất cả <code>N</code> phần tử chỉ trong <code>O(N)</code>.</p>
+
+    <!-- Lab 1: Hai con trỏ -->
+    <div class="snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <div class="lab-visual" id="lab1-visual">
+            <div style="margin-bottom: 15px;">Giới hạn dòng <strong>C = 12</strong>. Đang xét dòng bắt đầu từ <strong>L</strong>.</div>
+            <div class="word-row" id="lab1-arr"></div>
+            <div style="margin-top: 15px; font-family: monospace;">
+                Độ dài hiện tại: <span id="lab1-len" style="color: var(--accent); font-weight: bold; font-size: 1.2rem;">0</span> / 12
+                <span id="lab1-calc" style="color: var(--text-muted); margin-left: 10px;"></span>
+            </div>
+        </div>
+        <div class="lab-controls">
+            <button class="lab-btn" id="lab1-btn-reset">Reset</button>
+            <button class="lab-btn" id="lab1-btn-prev">Lùi</button>
+            <button class="lab-btn" id="lab1-btn-next">Tiến</button>
+            <button class="lab-btn play" id="lab1-btn-play">Tự chạy</button>
+            <div class="lab-msg" id="lab1-msg">Nhấn Tiến để bắt đầu mô phỏng Hai con trỏ.</div>
+            <div class="step-counter"><span id="lab1-lbl-step">0</span>/<span id="lab1-lbl-total">0</span></div>
+        </div>
+    </div>
+
+    <!-- Quiz 1 (Không snapbox) -->
+    <div class="quiz-block" id="quiz1">
+        <div class="quiz-question">Tại sao khi tính <code>nxt[L+1]</code>, con trỏ <code>R</code> không cần bắt đầu lại từ <code>L+1</code>?</div>
+        <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz(this, 'quiz1', false)">A. Vì các từ phía sau luôn có độ dài ngắn hơn từ phía trước.</div>
+            <div class="quiz-opt" onclick="checkQuiz(this, 'quiz1', true)">B. Vì bỏ bớt từ ở đầu (tăng L) chỉ làm giảm độ dài đang chiếm dụng, nên những từ đã vừa trước đó (đến R) chắc chắn vẫn vừa.</div>
+            <div class="quiz-opt" onclick="checkQuiz(this, 'quiz1', false)">C. Vì đề bài đảm bảo tổng độ dài không vượt quá 5 × 10<sup>6</sup>.</div>
+        </div>
+        <div class="quiz-explain" id="quiz1-exp"><strong>Chính xác!</strong> Tính chất đơn điệu của tổng chiều dài cho phép con trỏ <code>R</code> chỉ cần tiến tới, không bao giờ lùi. Điều này giúp giảm độ phức tạp từ <code>O(N²)</code> xuống <code>O(N)</code>.</div>
+    </div>
+
+    <!-- MÔ-ĐUN 2: NHẢY NHỊ PHÂN -->
+    <h2>2. Đi R bước nhanh chóng (Nhảy nhị phân)</h2>
+    <p><strong>Mục tiêu:</strong> Biết rằng xuất phát từ từ <code>i</code>, một dòng sẽ kết thúc ở <code>nxt[i]</code>. Làm sao biết sau <code>R</code> dòng ta sẽ đứng ở từ nào mà không phải dùng vòng lặp chạy <code>R</code> lần?</p>
+    <p><strong>Khó khăn:</strong> <code>R</code> có thể lên tới 10<sup>6</sup>. Nếu ta lặp <code>curr = nxt[curr]</code> đủ <code>R</code> lần cho mỗi vị trí bắt đầu, ta lại rơi vào bẫy <code>O(N · R)</code>.</p>
+    <p><strong>Ý tưởng:</strong> Coi mảng <code>nxt</code> như các cạnh có hướng trong một đồ thị: từ đỉnh <code>i</code> có đường nối đến <code>nxt[i]</code>. Ta cần tìm tổ tiên bậc <code>R</code> của đỉnh <code>i</code>. Kỹ thuật <strong>Nhảy nhị phân (Binary Lifting)</strong> chuẩn bị một bảng <code>up[i][k]</code> lưu đỉnh đến được sau 2<sup>k</sup> bước nhảy từ đỉnh <code>i</code>.
+    <br>Công thức: <code>up[i][k] = up[ up[i][k-1] ][ k-1 ]</code>. Tức là đi 2<sup>k</sup> bước tương đương với đi 2<sup>k-1</sup> bước, rồi từ đó đi tiếp 2<sup>k-1</sup> bước nữa.</p>
+    <p><strong>Vì sao hiệu quả?</strong> Bất kỳ số <code>R</code> nào cũng có thể tách thành tổng các lũy thừa của 2 (biểu diễn nhị phân). Thay vì đi từng bước, ta có thể nhảy vọt bằng các bước lớn (vd: để đi 13 bước = 8 + 4 + 1, ta chỉ cần 3 lần nhảy). Xây dựng bảng tốn <code>O(N log R)</code>, truy vấn mỗi vị trí tốn <code>O(log R)</code>.</p>
+
+    <!-- Lab 2: Binary Lifting -->
+    <div class="snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <div class="lab-visual" style="height: 200px; padding-top: 30px;" id="lab2-visual">
+            <svg class="edge-svg" id="lab2-svg">
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/></marker>
+                    <marker id="arrow-active" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)"/></marker>
+                </defs>
+            </svg>
+            <div class="node-row" id="lab2-nodes">
+                <!-- Nodes generated by JS -->
+            </div>
+        </div>
+        <div class="lab-controls">
+            <button class="lab-btn" id="lab2-btn-reset">Reset</button>
+            <button class="lab-btn" id="lab2-btn-prev">Lùi</button>
+            <button class="lab-btn" id="lab2-btn-next">Tiến</button>
+            <div class="lab-msg" id="lab2-msg">Mô phỏng truy vấn: Tìm vị trí đạt được sau R = 3 (nhị phân: 11) bước từ đỉnh 0.</div>
+            <div class="step-counter"><span id="lab2-lbl-step">0</span>/<span id="lab2-lbl-total">0</span></div>
+        </div>
+    </div>
+
+    <!-- Quiz 2 -->
+    <div class="quiz-block" id="quiz2">
+        <div class="quiz-question">Nếu R = 1.000.000, vòng lặp nhảy nhị phân (Binary Lifting) cần tối đa bao nhiêu bước nhảy để tìm đích đến?</div>
+        <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz(this, 'quiz2', false)">A. 1.000.000 bước.</div>
+            <div class="quiz-opt" onclick="checkQuiz(this, 'quiz2', true)">B. Tối đa 20 bước.</div>
+            <div class="quiz-opt" onclick="checkQuiz(this, 'quiz2', false)">C. Tối đa 100 bước.</div>
+        </div>
+        <div class="quiz-explain" id="quiz2-exp"><strong>Chính xác!</strong> Vì 2<sup>20</sup> = 1.048.576 > 1.000.000. Ta chỉ cần kiểm tra các bít từ 0 đến 19 của biểu diễn nhị phân số <code>R</code>, nên số lần dịch chuyển đỉnh nhiều nhất là 20.</div>
+    </div>
+
+    <!-- THUẬT TOÁN TỪNG BƯỚC (Card riêng) -->
+    <div class="algo-steps snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h3>Thuật toán từng bước</h3>
+        <ol>
+            <li><strong>Lưu trữ dữ liệu:</strong>
+                <ul>
+                    <li>Đọc <code>N</code>, <code>R</code>, <code>C</code>. Đọc dãy từ và lưu độ dài của từng từ vào mảng <code>len[i]</code>.</li>
+                </ul>
+            </li>
+            <li><strong>Tính mảng nxt bằng Hai con trỏ:</strong>
+                <ul>
+                    <li>Khởi tạo biến <code>right = 0</code> và <code>sum_len = 0</code>.</li>
+                    <li>Duyệt <code>left</code> từ 0 đến N-1:</li>
+                    <li>Nếu <code>len[left] > C</code>: Từ này quá dài, không thể ghép vào bất kỳ dòng nào. Gán <code>nxt[left] = left</code> (đánh dấu lỗi), reset <code>right = max(right, left + 1)</code>, <code>sum_len = 0</code> và bỏ qua.</li>
+                    <li>Đảm bảo <code>right ≥ left</code>. Chạy vòng lặp tăng <code>right</code> chừng nào: <code>right &lt; N</code> và thêm từ <code>right</code> vào không vượt quá <code>C</code>. (Chú ý cộng thêm 1 khoảng trắng nếu <code>right > left</code>).</li>
+                    <li>Gán <code>nxt[left] = right</code>.</li>
+                    <li>Chuẩn bị cho bước lặp <code>left</code> tiếp theo: Trừ đi <code>len[left]</code> khỏi <code>sum_len</code>, và nếu <code>right > left + 1</code> thì trừ thêm 1 (dấu cách phía sau từ <code>left</code>).</li>
+                </ul>
+            </li>
+            <li><strong>Xây dựng bảng Nhảy nhị phân (Binary Lifting):</strong>
+                <ul>
+                    <li>Tạo mảng 2 chiều <code>up[N + 1][20]</code> khởi tạo bằng N.</li>
+                    <li>Gán <code>up[i][0] = nxt[i]</code> với mọi <code>i</code>.</li>
+                    <li>Với <code>k</code> từ 1 đến 19: <code>up[i][k] = up[ up[i][k - 1] ][ k - 1 ]</code>.</li>
+                </ul>
+            </li>
+            <li><strong>Tìm kết quả tối ưu:</strong>
+                <ul>
+                    <li>Duyệt điểm xuất phát <code>i</code> từ 0 đến N-1. Nếu <code>len[i] > C</code> thì bỏ qua.</li>
+                    <li>Khởi tạo <code>curr = i</code>.</li>
+                    <li>Duyệt <code>k</code> từ 0 đến 19. Nếu bit thứ <code>k</code> của <code>R</code> bật (<code>(R >> k) & 1</code>), gán <code>curr = up[curr][k]</code>.</li>
+                    <li>Số từ chứa được là <code>curr - i</code>. Cập nhật đáp án lớn nhất <code>max_words</code> và điểm xuất phát tốt nhất <code>best_start</code>.</li>
+                </ul>
+            </li>
+            <li><strong>Truy vết và in kết quả:</strong>
+                <ul>
+                    <li>Bắt đầu từ <code>best_start</code>, mô phỏng lại <code>R</code> dòng (hoặc đến khi hết <code>max_words</code>) bằng cách cắt từ <code>curr</code> đến <code>nxt[curr] - 1</code> để in ra. Nhớ ngắt dòng và bỏ dấu cách thừa cuối dòng.</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <!-- CODE CÀI ĐẶT -->
+    <h2>Cài đặt (C++)</h2>
+    <div class="codewrap snapbox">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <div class="code" id="cpp-code">
+<div class="codeline"><span class="c-kw">#include</span> <span class="c-str">&lt;iostream&gt;</span></div>
+<div class="codeline"><span class="c-kw">#include</span> <span class="c-str">&lt;vector&gt;</span></div>
+<div class="codeline"><span class="c-kw">#include</span> <span class="c-str">&lt;string&gt;</span></div>
+<div class="codeline"><span class="c-kw">using namespace</span> std;</div>
+<div class="codeline"></div>
+<div class="codeline"><span class="c-kw">const int</span> LOG = <span class="c-num">20</span>;</div>
+<div class="codeline"></div>
+<div class="codeline"><span class="c-kw">int</span> <span class="c-fn">main</span>() {</div>
+<div class="codeline">    ios_base::sync_with_stdio(<span class="c-kw">false</span>);</div>
+<div class="codeline">    cin.tie(<span class="c-kw">NULL</span>);</div>
+<div class="codeline"></div>
+<div class="codeline">    <span class="c-kw">int</span> N, R, C;</div>
+<div class="codeline">    <span class="c-kw">if</span> (!(cin >> N >> R >> C)) <span class="c-kw">return</span> <span class="c-num">0</span>;</div>
+<div class="codeline"></div>
+<div class="codeline">    vector&lt;string&gt; words(N);</div>
+<div class="codeline">    vector&lt;<span class="c-kw">int</span>&gt; len(N);</div>
+<div class="codeline">    <span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">0</span>; i &lt; N; ++i) {</div>
+<div class="codeline">        cin >> words[i];</div>
+<div class="codeline">        len[i] = words[i].length();</div>
+<div class="codeline">    }</div>
+<div class="codeline"></div>
+<div class="codeline">    <span class="c-cm">// Bước 1: Tính mảng nxt bằng Hai con trỏ</span></div>
+<div class="codeline">    vector&lt;<span class="c-kw">int</span>&gt; nxt(N + <span class="c-num">1</span>, N);</div>
+<div class="codeline">    <span class="c-kw">long long</span> sum_len = <span class="c-num">0</span>;</div>
+<div class="codeline">    <span class="c-kw">int</span> right = <span class="c-num">0</span>;</div>
+<div class="codeline"></div>
+<div class="codeline">    <span class="c-kw">for</span> (<span class="c-kw">int</span> left = <span class="c-num">0</span>; left &lt; N; ++left) {</div>
+<div class="codeline">        <span class="c-kw">if</span> (len[left] > C) {</div>
+<div class="codeline">            nxt[left] = left; <span class="c-cm">// Từ này không thể đặt trên bảng</span></div>
+<div class="codeline">            right = max(right, left + <span class="c-num">1</span>);</div>
+<div class="codeline">            sum_len = <span class="c-num">0</span>;</div>
+<div class="codeline">            <span class="c-kw">continue</span>;</div>
+<div class="codeline">        }</div>
+<div class="codeline">        right = max(right, left);</div>
+<div class="codeline">        <span class="c-kw">while</span> (right &lt; N && len[right] &lt;= C) {</div>
+<div class="codeline">            <span class="c-kw">long long</span> space = (right > left) ? <span class="c-num">1</span> : <span class="c-num">0</span>;</div>
+<div class="codeline">            <span class="c-kw">if</span> (sum_len + space + len[right] &lt;= C) {</div>
+<div class="codeline">                sum_len += space + len[right];</div>
+<div class="codeline">                right++;</div>
+<div class="codeline">            } <span class="c-kw">else</span> {</div>
+<div class="codeline">                <span class="c-kw">break</span>;</div>
+<div class="codeline">            }</div>
+<div class="codeline">        }</div>
+<div class="codeline">        nxt[left] = right;</div>
+<div class="codeline">        sum_len -= len[left];</div>
+<div class="codeline">        <span class="c-kw">if</span> (right > left + <span class="c-num">1</span>) sum_len -= <span class="c-num">1</span>; <span class="c-cm">// Trừ đi khoảng trắng sau từ left</span></div>
+<div class="codeline">    }</div>
+<div class="codeline"></div>
+<div class="codeline">    <span class="c-cm">// Bước 2: Xây dựng bảng Nhảy nhị phân</span></div>
+<div class="codeline">    vector&lt;vector&lt;<span class="c-kw">int</span>&gt;&gt; up(N + <span class="c-num">1</span>, vector&lt;<span class="c-kw">int</span>&gt;(LOG, N));</div>
+<div class="codeline">    <span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">0</span>; i &lt;= N; ++i) {</div>
+<div class="codeline">        up[i][<span class="c-num">0</span>] = nxt[i];</div>
+<div class="codeline">    }</div>
+<div class="codeline">    <span class="c-kw">for</span> (<span class="c-kw">int</span> k = <span class="c-num">1</span>; k &lt; LOG; ++k) {</div>
+<div class="codeline">        <span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">0</span>; i &lt;= N; ++i) {</div>
+<div class="codeline">            up[i][k] = up[ up[i][k - <span class="c-num">1</span>] ][k - <span class="c-num">1</span>];</div>
+<div class="codeline">        }</div>
+<div class="codeline">    }</div>
+<div class="codeline"></div>
+<div class="codeline">    <span class="c-cm">// Bước 3: Thử mọi vị trí bắt đầu, nhảy R bước</span></div>
+<div class="codeline">    <span class="c-kw">int</span> max_words = <span class="c-num">0</span>;</div>
+<div class="codeline">    <span class="c-kw">int</span> best_start = -<span class="c-num">1</span>;</div>
+<div class="codeline"></div>
+<div class="codeline">    <span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">0</span>; i &lt; N; ++i) {</div>
+<div class="codeline">        <span class="c-kw">if</span> (len[i] > C) <span class="c-kw">continue</span>;</div>
+<div class="codeline">        <span class="c-kw">int</span> curr = i;</div>
+<div class="codeline">        <span class="c-kw">for</span> (<span class="c-kw">int</span> k = <span class="c-num">0</span>; k &lt; LOG; ++k) {</div>
+<div class="codeline">            <span class="c-kw">if</span> ((R >> k) & <span class="c-num">1</span>) {</div>
+<div class="codeline">                curr = up[curr][k];</div>
+<div class="codeline">            }</div>
+<div class="codeline">        }</div>
+<div class="codeline">        <span class="c-kw">int</span> word_count = curr - i;</div>
+<div class="codeline">        <span class="c-kw">if</span> (word_count > max_words) {</div>
+<div class="codeline">            max_words = word_count;</div>
+<div class="codeline">            best_start = i;</div>
+<div class="codeline">        }</div>
+<div class="codeline">    }</div>
+<div class="codeline"></div>
+<div class="codeline">    <span class="c-cm">// In kết quả</span></div>
+<div class="codeline">    <span class="c-kw">if</span> (max_words == <span class="c-num">0</span>) <span class="c-kw">return</span> <span class="c-num">0</span>;</div>
+<div class="codeline"></div>
+<div class="codeline">    <span class="c-kw">int</span> curr_idx = best_start;</div>
+<div class="codeline">    <span class="c-kw">for</span> (<span class="c-kw">int</span> line = <span class="c-num">0</span>; line &lt; R && curr_idx &lt; best_start + max_words; ++line) {</div>
+<div class="codeline">        <span class="c-kw">int</span> end_idx = min(nxt[curr_idx], best_start + max_words);</div>
+<div class="codeline">        <span class="c-kw">for</span> (<span class="c-kw">int</span> j = curr_idx; j &lt; end_idx; ++j) {</div>
+<div class="codeline">            cout &lt;&lt; words[j] &lt;&lt; (j == end_idx - <span class="c-num">1</span> ? <span class="c-str">""</span> : <span class="c-str">" "</span>);</div>
+<div class="codeline">        }</div>
+<div class="codeline">        cout &lt;&lt; <span class="c-str">"\n"</span>;</div>
+<div class="codeline">        curr_idx = end_idx;</div>
+<div class="codeline">    }</div>
+<div class="codeline"></div>
+<div class="codeline">    <span class="c-kw">return</span> <span class="c-num">0</span>;</div>
+<div class="codeline">}</div>
+        </div>
+    </div>
+
+    <!-- ĐỘ PHỨC TẠP -->
+    <div class="card snapbox">
+        <h2>Độ phức tạp</h2>
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <p><strong>Thời gian:</strong></p>
+        <ul>
+            <li>Thuật toán Hai con trỏ tính mảng <code>nxt</code> duyệt mảng đúng một chiều, mất <code>O(N)</code>.</li>
+            <li>Xây dựng bảng <code>up</code> gồm 20 cột cho N dòng tốn <code>O(N log R)</code>.</li>
+            <li>Vòng lặp tìm <code>max_words</code> duyệt N phần tử, mỗi phần tử nhảy log R lần tốn <code>O(N log R)</code>.</li>
+            <li>Tổng thời gian: <code>O(N log R)</code>. Với N, R ≤ 10<sup>6</sup>, số thao tác cỡ 2 × 10<sup>7</sup>, hoàn toàn thỏa mãn giới hạn 1-2 giây.</li>
+        </ul>
+        <p><strong>Không gian (Bộ nhớ):</strong> Lưu trữ bảng <code>up[10<sup>6</sup>][20]</code> tốn khoảng 80 MB, hoàn toàn nằm trong mức cho phép thông thường của các kỳ thi (thường là 256MB).</p>
+    </div>
+
+    <!-- CẠM BẪY -->
+    <div class="card snapbox">
+        <h2>Cạm bẫy khi cài đặt</h2>
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <div class="traps">
+            <div class="trap-col wrong">
+                <div class="trap-title">✕ Bỏ sót từ quá dài</div>
+                <p>Nếu có một từ dài hơn <code>C</code>, nó không bao giờ được xuất hiện. Nhưng nếu không xử lý kỹ, con trỏ có thể bị kẹt hoặc gán nhầm khoảng trống gây sai logic hai con trỏ.</p>
+            </div>
+            <div class="trap-col right">
+                <div class="trap-title">✓ Đặt rào chắn</div>
+                <p>Kiểm tra <code>if (len[left] &gt; C)</code>. Nếu đúng, gán <code>nxt[left] = left</code> (đỉnh hấp thụ) để đánh dấu lỗi, và reset lại tổng chiều dài để bắt đầu một chuỗi mới hoàn toàn từ bên phải nó.</p>
+            </div>
+            <div class="trap-col wrong">
+                <div class="trap-title">✕ Dấu cách thừa cuối dòng</div>
+                <p>In kèm khoảng trắng vô tội vạ vào cuối dòng, hoặc khoảng trắng ở đầu dòng, dẫn đến lỗi Presentation Error ở các hệ thống chấm khắt khe.</p>
+            </div>
+            <div class="trap-col right">
+                <div class="trap-title">✓ Biểu thức điều kiện 3 ngôi</div>
+                <p>Luôn in khoảng trắng SAU từ, ngoại trừ từ cuối cùng của dòng: <code>cout &lt;&lt; words[j] &lt;&lt; (j == end_idx - 1 ? "" : " ")</code>.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Utils
+    function flash(btn, text) {
+        const o = btn.textContent;
+        btn.textContent = text;
+        setTimeout(() => btn.textContent = o, 1200);
+    }
+    
+    function copyCode(btn) {
+        const codeEl = btn.closest('.codewrap').querySelector('.code');
+        const text = codeEl.innerText;
+        navigator.clipboard.writeText(text).then(() => flash(btn, 'Đã chép!')).catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = text; document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            flash(btn, 'Đã chép!');
+        });
+    }
+
+    async function snapBox(btn) {
+        const box = btn.closest('.snapbox');
+        box.classList.add('snapping');
+        await document.fonts.ready;
+        try {
+            const canvas = await html2canvas(box, { backgroundColor: '#0B1220', scale: 2, logging: false });
+            box.classList.remove('snapping');
+            canvas.toBlob(async (blob) => {
+                try {
+                    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                    flash(btn, 'Đã chụp!');
+                } catch (e) {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob); a.download = 'snap.png'; a.click();
+                    flash(btn, 'Đã tải ảnh');
+                }
+            });
+        } catch(e) { box.classList.remove('snapping'); }
+    }
+
+    function checkQuiz(optEl, quizId, isCorrect) {
+        const block = optEl.closest('.quiz-block');
+        const opts = block.querySelectorAll('.quiz-opt');
+        if (opts[0].classList.contains('locked')) return;
+        
+        opts.forEach(o => o.classList.add('locked'));
+        if (isCorrect) {
+            optEl.classList.add('correct');
+        } else {
+            optEl.classList.add('wrong');
+            // Find and highlight correct one
+            opts.forEach(o => {
+                if (o.getAttribute('onclick').includes('true')) o.classList.add('correct');
+            });
+        }
+        document.getElementById(quizId + '-exp').classList.add('show');
+    }
+
+    // --- Lab 1: Hai con trỏ ---
+    const Lab1 = (function() {
+        const words = [
+            {w: "this", l: 4}, {w: "is", l: 2}, {w: "a", l: 1}, 
+            {w: "sample", l: 6}, {w: "text", l: 4}
+        ];
+        const C = 12;
+        let steps = [];
+        let sp = 0;
+        let timer = null;
+
+        function makeSteps() {
+            steps = [];
+            let n = words.length;
+            let left = 0, right = 0;
+            let sum_len = 0;
+
+            steps.push({ left, right, sum_len, calc: "", msg: "Bắt đầu. L = 0, R = 0. Chiều dài = 0." });
+
+            for (left = 0; left < n; left++) {
+                if (words[left].l > C) continue;
+                right = Math.max(right, left);
+                
+                steps.push({ left, right, sum_len, calc: "", msg: `Xét cửa sổ bắt đầu từ L = ${left} (${words[left].w}).` });
+
+                while (right < n) {
+                    let space = (right > left) ? 1 : 0;
+                    let add = words[right].l;
+                    let would_be = sum_len + space + add;
+                    
+                    let calcStr = sum_len > 0 ? `${sum_len} + ${space}(space) + ${add}` : `${add}`;
+                    
+                    if (would_be <= C) {
+                        sum_len = would_be;
+                        let oldR = right;
+                        right++;
+                        steps.push({ left, right: oldR, rightActive: true, sum_len, calc: ` = ${would_be} ≤ 12`, msg: `Thêm R = ${oldR} (${words[oldR].w}). Tổng dài ${would_be} ≤ 12. Tiếp tục tăng R.` });
+                        steps.push({ left, right, sum_len, calc: "", msg: `Con trỏ R tiến lên ${right}.` });
+                    } else {
+                        steps.push({ left, right, sum_len, calc: ` = ${would_be} > 12`, msg: `Nếu thêm R = ${right} (${words[right].w}), tổng dài ${would_be} vượt quá C = 12. Dừng tại đây.` });
+                        break;
+                    }
+                }
+                
+                steps.push({ left, right, sum_len, calc: "", msg: `Dòng bắt đầu tại L=${left} kết thúc. Lấy nxt[${left}] = ${right}.` });
+                
+                sum_len -= words[left].l;
+                let msgRem = `Trừ độ dài từ L=${left} (${words[left].l}).`;
+                if (right > left + 1) {
+                    sum_len -= 1;
+                    msgRem += ` Trừ thêm 1 khoảng trắng.`;
+                }
+                steps.push({ left: left + 1, right, sum_len, calc: "", msg: `Chuẩn bị đẩy L lên ${left+1}. ` + msgRem });
+                
+                if (left === n - 2) break; // Keep lab short
+            }
+        }
+
+        function paint(idx) {
+            const s = steps[idx];
+            const arr = document.getElementById('lab1-arr');
+            arr.innerHTML = '';
+            
+            words.forEach((wd, i) => {
+                const b = document.createElement('div');
+                b.className = 'word-box';
+                if (i >= s.left && i < s.right) b.classList.add('active');
+                if (s.rightActive && i === s.right) b.classList.add('active'); // highlight pending
+                
+                let html = `<span>${wd.w}</span><span class="len">${wd.l}</span>`;
+                
+                let ptr = [];
+                if (i === s.left) ptr.push('L');
+                if (i === s.right) ptr.push('R');
+                if (ptr.length > 0) {
+                    html += `<div class="pointer">${ptr.join(',')}</div>`;
+                }
+                b.innerHTML = html;
+                arr.appendChild(b);
+            });
+            
+            // Append R if it's out of bounds
+            if (s.right === words.length) {
+                const b = document.createElement('div');
+                b.className = 'word-box';
+                b.style.visibility = 'hidden';
+                b.innerHTML = `<div class="pointer">R</div>`;
+                arr.appendChild(b);
+            }
+
+            document.getElementById('lab1-len').innerText = s.sum_len;
+            document.getElementById('lab1-calc').innerText = s.calc;
+            document.getElementById('lab1-msg').innerHTML = s.msg;
+            document.getElementById('lab1-lbl-step').innerText = idx;
+            
+            document.getElementById('lab1-btn-prev').disabled = (idx === 0);
+            document.getElementById('lab1-btn-next').disabled = (idx === steps.length - 1);
+        }
+
+        function play() {
+            if (timer) { clearInterval(timer); timer = null; }
+            timer = setInterval(() => {
+                if (sp < steps.length - 1) { sp++; paint(sp); }
+                else { clearInterval(timer); timer = null; }
+            }, 800);
+        }
+
+        return {
+            init: () => {
+                makeSteps();
+                document.getElementById('lab1-lbl-total').innerText = steps.length - 1;
+                document.getElementById('lab1-btn-prev').onclick = () => { if(sp>0) { sp--; paint(sp); } };
+                document.getElementById('lab1-btn-next').onclick = () => { if(sp<steps.length-1) { sp++; paint(sp); } };
+                document.getElementById('lab1-btn-reset').onclick = () => { if(timer) clearInterval(timer); sp=0; paint(0); };
+                document.getElementById('lab1-btn-play').onclick = play;
+                paint(0);
+            }
+        };
+    })();
+
+    // --- Lab 2: Nhảy nhị phân ---
+    const Lab2 = (function() {
+        // Simple graph for up table
+        // Nodes: 0, 1, 2, 3, 4, 5
+        // nxt (k=0): 0->2, 1->3, 2->4, 3->5, 4->5
+        const nodes = 6;
+        const up0 = [2, 3, 4, 5, 5, 5];
+        let steps = [];
+        let sp = 0;
+        let timer = null;
+
+        function makeSteps() {
+            steps = [];
+            steps.push({ msg: "Ta có 6 đỉnh. Bảng up[i][0] tương đương với mảng nxt, mũi tên dưới chỉ 1 bước.", showUp1: false, path: [], activeNode: 0 });
+            
+            steps.push({ msg: "Tính up[i][1] (nhảy 2 bước). Ví dụ: up[0][1] = up[ up[0][0] ][0] = up[2][0] = 4.", showUp1: true, path: [], activeNode: 0 });
+            
+            steps.push({ msg: "Yêu cầu: Xuất phát từ đỉnh 0, đi R = 3 bước (nhị phân: 011).", showUp1: true, path: [], activeNode: 0 });
+            
+            steps.push({ msg: "Bước 1: Xét bit k=0 (nhảy 2^0 = 1 bước). Đỉnh hiện tại: 0 -> up[0][0] = 2.", showUp1: true, path: [{f:0, t:2, lvl:0}], activeNode: 2 });
+            
+            steps.push({ msg: "Bước 2: Xét bit k=1 (nhảy 2^1 = 2 bước). Đỉnh hiện tại: 2 -> up[2][1] = 5.", showUp1: true, path: [{f:0, t:2, lvl:0}, {f:2, t:5, lvl:1}], activeNode: 5 });
+            
+            steps.push({ msg: "Hoàn tất! Đi R = 3 bước chỉ tốn 2 lần nhảy bảng. Kết thúc tại đỉnh 5.", showUp1: true, path: [{f:0, t:2, lvl:0}, {f:2, t:5, lvl:1}], activeNode: 5 });
+        }
+
+        function drawCurve(svg, fromNode, toNode, level, isActive, isPath) {
+            const fRect = fromNode.getBoundingClientRect();
+            const tRect = toNode.getBoundingClientRect();
+            const svgRect = svg.getBoundingClientRect();
+            
+            const x1 = fRect.left + fRect.width/2 - svgRect.left;
+            const y1 = fRect.top - svgRect.top;
+            const x2 = tRect.left + tRect.width/2 - svgRect.left;
+            const y2 = tRect.top - svgRect.top;
+            
+            const height = level === 0 ? 30 : 70;
+            const pathData = `M ${x1} ${y1} Q ${(x1+x2)/2} ${y1 - height} ${x2} ${y2}`;
+            
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', pathData);
+            path.setAttribute('class', 'edge' + (isActive ? ' active' : ''));
+            if (isPath) {
+                path.style.strokeDasharray = '5,5'; // Dotted for actual taken path
+            }
+            svg.appendChild(path);
+        }
+
+        function paint(idx) {
+            const s = steps[idx];
+            const cont = document.getElementById('lab2-nodes');
+            const svg = document.getElementById('lab2-svg');
+            
+            // Draw nodes
+            if(idx === 0 || !cont.children.length) {
+                cont.innerHTML = '';
+                for(let i=0; i<nodes; i++) {
+                    const d = document.createElement('div');
+                    d.className = 'node' + (i === s.activeNode ? ' active' : '');
+                    d.id = 'lab2-n' + i;
+                    d.innerText = i;
+                    cont.appendChild(d);
+                }
+            } else {
+                for(let i=0; i<nodes; i++) {
+                    document.getElementById('lab2-n'+i).className = 'node' + (i === s.activeNode ? ' active' : '');
+                }
+            }
+
+            // Draw edges
+            svg.innerHTML = `
+                <defs>
+                    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/></marker>
+                    <marker id="arrow-active" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)"/></marker>
+                </defs>
+            `;
+            
+            // Draw base up0
+            for(let i=0; i<nodes-1; i++) {
+                drawCurve(svg, document.getElementById('lab2-n'+i), document.getElementById('lab2-n'+up0[i]), 0, false, false);
+            }
+            
+            // Draw up1
+            if (s.showUp1) {
+                // up1 logic: up1[0]=4, up1[1]=5, up1[2]=5, up1[3]=5...
+                drawCurve(svg, document.getElementById('lab2-n0'), document.getElementById('lab2-n4'), 1, false, false);
+                drawCurve(svg, document.getElementById('lab2-n1'), document.getElementById('lab2-n5'), 1, false, false);
+                drawCurve(svg, document.getElementById('lab2-n2'), document.getElementById('lab2-n5'), 1, false, false);
+            }
+
+            // Draw active path
+            s.path.forEach(p => {
+                drawCurve(svg, document.getElementById('lab2-n'+p.f), document.getElementById('lab2-n'+p.t), p.lvl, true, true);
+            });
+
+            document.getElementById('lab2-msg').innerText = s.msg;
+            document.getElementById('lab2-lbl-step').innerText = idx;
+            document.getElementById('lab2-btn-prev').disabled = (idx === 0);
+            document.getElementById('lab2-btn-next').disabled = (idx === steps.length - 1);
+        }
+
+        return {
+            init: () => {
+                makeSteps();
+                document.getElementById('lab2-lbl-total').innerText = steps.length - 1;
+                document.getElementById('lab2-btn-prev').onclick = () => { if(sp>0) { sp--; paint(sp); } };
+                document.getElementById('lab2-btn-next').onclick = () => { if(sp<steps.length-1) { sp++; paint(sp); } };
+                document.getElementById('lab2-btn-reset').onclick = () => { sp=0; paint(0); };
+                // Need a slight delay for initial paint to calculate bounding boxes correctly
+                setTimeout(() => paint(0), 100);
+            }
+        };
+    })();
+
+    window.onload = () => {
+        Lab1.init();
+        Lab2.init();
+    };
+</script>
+</body>
+</html>
