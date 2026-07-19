@@ -3,466 +3,496 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tổng độ đơn điệu - Lời giải</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <title>Lời giải: Tổng độ đơn điệu</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- html2canvas cho tính năng Snap -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
         :root {
-            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
-            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
-            --text-main: #E2E8F0; --text-muted: #94A3B8;
-            --glow: 0 0 20px rgba(56,214,196,.4);
-            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
-            --border: 1px solid rgba(255,255,255,.1);
+            --bg: #0B1220; 
+            --bg2: #0F1A2E; 
+            --panel: #111E36;
+            --accent: #38D6C4; 
+            --accent2: #5B8CFF; 
+            --mark: #FFB454; 
+            --red: #FF6B6B;
+            --green: #4ade80;
+            --text-main: #E2E8F0; 
+            --text-muted: #94A3B8;
+            --glow: 0 0 20px rgba(56, 214, 196, .4);
+            --shadow: 0 20px 60px -30px rgba(0, 0, 0, .9);
+            --border: 1px solid rgba(255, 255, 255, .1);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: "Inter", sans-serif; background: var(--bg); color: var(--text-main); line-height: 1.6; }
-        h1, h2, h3 { font-family: "Space Grotesk", sans-serif; letter-spacing: -.03em; }
         
-        /* TopNav */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Nav Bar */
         .topnav {
-            position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center;
-            padding: 12px 20px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px); border-bottom: var(--border);
+            position: sticky; top: 0; z-index: 100;
+            display: flex; gap: 12px; align-items: center;
+            padding: 12px 20px;
+            background: rgba(11, 18, 32, .85);
+            backdrop-filter: blur(10px);
+            border-bottom: var(--border);
         }
         .nav-btn {
-            text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent));
-            padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease;
+            text-decoration: none; color: #000;
+            background: linear-gradient(135deg, var(--accent2), var(--accent));
+            padding: 8px 18px; border-radius: 8px;
+            font-weight: 600; font-size: 0.9rem;
+            box-shadow: var(--glow); transition: all .3s ease;
         }
         .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
-        .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
-        .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
+        .nav-btn.outline {
+            background: transparent; border: 1px solid var(--accent);
+            color: var(--accent); box-shadow: none;
+        }
+        .nav-btn.outline:hover {
+            background: rgba(56, 214, 196, .1); box-shadow: var(--glow);
+        }
+
+        /* Bố cục chính */
+        .container {
+            max-width: 1000px; margin: 0 auto;
+            padding: 40px 24px;
+            display: flex; flex-direction: column; gap: 32px;
+        }
+
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.03em; }
+        h1 { font-size: 2.2rem; color: #fff; margin-bottom: 8px; }
+        h2 { font-size: 1.5rem; color: var(--accent); margin-bottom: 16px; border-bottom: var(--border); padding-bottom: 8px; }
+        h3 { font-size: 1.2rem; color: var(--accent2); margin-bottom: 12px; }
         
-        /* Layout */
-        .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px; display: flex; flex-direction: column; gap: 32px; }
+        p { margin-bottom: 16px; }
+        strong { color: #fff; }
         
-        /* Typography & Elements */
-        .hero h1 { font-size: 2.2rem; color: var(--accent); margin-bottom: 8px; }
-        .badge { display: inline-block; background: rgba(91,140,255,.2); color: var(--accent2); padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; margin-bottom: 16px; }
-        .hero p { font-size: 1.1rem; color: var(--text-muted); }
-        
-        .card { background: linear-gradient(180deg, var(--panel), var(--bg2)); border: var(--border); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); position: relative; }
-        .card h2 { font-size: 1.4rem; margin-bottom: 16px; color: #fff; }
-        .card h3 { font-size: 1.1rem; margin: 20px 0 10px; color: var(--accent); }
-        
-        p { margin-bottom: 12px; }
-        ul { margin-left: 20px; margin-bottom: 12px; }
-        li { margin-bottom: 6px; }
-        
-        /* Code inline & block */
-        code { font-family: "JetBrains Mono", monospace; background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
-        .codewrap { position: relative; background: #0A1220; border: var(--border); border-radius: 12px; overflow-x: auto; padding: 16px 0; }
-        .code { font-family: "JetBrains Mono", monospace; font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; }
-        .codeline { padding: 0 20px; border-left: 3px solid transparent; }
-        .codeline.hot { background: rgba(255,180,84,.1); border-left-color: var(--mark); }
-        
-        /* Syntax highlighting */
-        .c-kw { color: #C678DD; }
-        .c-num { color: #D19A66; }
-        .c-cm { color: #5C6370; font-style: italic; }
-        .c-str { color: #98C379; }
-        .c-fn { color: #61AFEF; }
-        .c-op { color: #56B6C2; }
-        
-        /* Buttons Snap/Copy */
+        .badge {
+            display: inline-block; padding: 4px 10px; border-radius: 6px;
+            background: rgba(91, 140, 255, .15); color: var(--accent2);
+            font-size: 0.8rem; font-weight: 600; margin-bottom: 16px;
+        }
+
+        .card {
+            background: linear-gradient(180deg, var(--panel), var(--bg2));
+            border: var(--border); border-radius: 16px;
+            padding: 24px; box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        /* Nút Copy & Snap */
         .codewrap, .snapbox { position: relative; }
         .copy-btn, .snap-btn {
             position: absolute; top: 10px; z-index: 5;
             font-family: "JetBrains Mono", monospace; font-size: .72rem; font-weight: 600;
             padding: 5px 10px; border-radius: 7px; cursor: pointer;
-            background: rgba(255,255,255,.06); color: var(--text-muted);
-            border: 1px solid rgba(255,255,255,.12); transition: all .2s;
+            background: rgba(255, 255, 255, .06); color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, .12); transition: all .2s;
         }
         .snap-btn { right: 10px; }
         .copy-btn { right: 64px; }
         .snapbox:not(.codewrap) .snap-btn { right: 10px; }
-        .copy-btn:hover, .snap-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(56,214,196,.1); }
+        .copy-btn:hover, .snap-btn:hover {
+            color: var(--accent); border-color: var(--accent); background: rgba(56, 214, 196, .1);
+        }
         .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
+
+        .codewrap pre {
+            background: #0A1220; border: var(--border); border-radius: 12px;
+            padding: 16px 0; overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .codeline { padding: 0 16px; white-space: pre-wrap; }
+        .codeline.hot {
+            background: rgba(255, 180, 84, .1);
+            border-left: 3px solid var(--mark);
+            padding-left: 13px; /* Bù cho border */
+        }
         
-        /* Algo Steps Card */
-        .algo-steps { background: linear-gradient(180deg, rgba(56,214,196,.06), transparent); border: 1px solid rgba(56,214,196,.35); border-left: 4px solid var(--accent); border-radius: 14px; padding: 20px 24px; margin-bottom: 24px;}
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px; border-radius: 4px;
+            color: #A9C4FF; font-size: 0.9em;
+        }
+
+        /* Màu cú pháp */
+        .c-kw { color: #FF7B72; } /* Keyword */
+        .c-num { color: #79C0FF; } /* Number */
+        .c-cm { color: #8B949E; font-style: italic; } /* Comment */
+        .c-str { color: #A5D6FF; } /* String */
+        .c-fn { color: #D2A8FF; } /* Function */
+        .c-op { color: #C9D1D9; } /* Operator */
+        .c-ty { color: #FF7B72; } /* Type */
+
+        .algo-steps {
+            background: linear-gradient(180deg, rgba(56, 214, 196, .06), transparent);
+            border: 1px solid rgba(56, 214, 196, .35);
+            border-left: 4px solid var(--accent);
+            border-radius: 14px; padding: 20px 24px;
+            margin-bottom: 24px;
+        }
         .algo-steps h3 { color: var(--accent); margin-bottom: 10px; }
         .algo-steps ol { margin: 0; padding-left: 22px; }
         .algo-steps ol > li { margin-bottom: 10px; line-height: 1.6; }
         .algo-steps ul { margin: 6px 0; padding-left: 18px; list-style: none; }
         .algo-steps ul > li { position: relative; padding-left: 14px; margin-bottom: 4px; color: var(--text-muted); }
         .algo-steps ul > li::before { content: "–"; position: absolute; left: 0; color: var(--accent); }
-        .algo-steps code { background: rgba(91,140,255,.14); color: #A9C4FF; padding: .05em .4em; border-radius: 5px; font-family: "JetBrains Mono", monospace; font-size: .88em; }
-        
-        /* Labs */
-        .lab-panel { display: flex; flex-direction: column; gap: 16px; margin: 20px 0; }
-        .lab-visual { display: flex; gap: 12px; overflow-x: auto; padding: 10px 0; flex-wrap: nowrap; align-items: flex-end; }
-        .lab-cell {
-            flex: none; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;
-            background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 8px;
-            font-family: "JetBrains Mono", monospace; font-size: 1.1rem; font-weight: 600; position: relative; transition: all .3s;
+        .algo-steps code {
+            background: rgba(91, 140, 255, .14); color: #A9C4FF;
+            padding: .05em .4em; border-radius: 5px;
         }
-        .lab-cell.idx::after { content: attr(data-idx); position: absolute; bottom: -20px; font-size: 0.7rem; color: var(--text-muted); }
-        .lab-cell.active { background: rgba(56,214,196,.15); border-color: var(--accent); color: var(--accent); box-shadow: var(--glow); }
-        .lab-cell.dim { opacity: 0.3; }
-        .lab-cell.red { border-color: var(--red); color: var(--red); background: rgba(255,107,107,.1); text-decoration: line-through; }
-        .lab-cell.green { border-color: #98C379; color: #98C379; background: rgba(152,195,121,.1); }
+
+        .lab-visual {
+            background: #0A1220; border: var(--border); border-radius: 12px;
+            padding: 20px; margin-bottom: 16px; overflow-x: auto;
+            display: flex; flex-direction: column; align-items: center; gap: 20px;
+        }
+        .array-row { display: flex; gap: 8px; flex-wrap: nowrap; }
+        .array-cell {
+            width: 44px; height: 44px; flex: none;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 1.1rem;
+            position: relative; transition: all 0.3s;
+        }
+        .array-cell .idx {
+            position: absolute; top: -20px; font-size: 0.7rem; color: var(--text-muted);
+        }
+        .array-cell.selected {
+            background: rgba(56, 214, 196, 0.2); border-color: var(--accent); color: #fff;
+            box-shadow: 0 0 10px rgba(56, 214, 196, 0.3);
+        }
+        .array-cell.forbidden {
+            background: rgba(255, 107, 107, 0.1); border-color: var(--red); color: var(--red);
+            opacity: 0.6;
+        }
+        .array-cell.free {
+            background: rgba(91, 140, 255, 0.1); border-color: var(--accent2); color: var(--accent2);
+        }
+        .array-cell.active-dp {
+            background: rgba(255, 180, 84, 0.2); border-color: var(--mark); color: #fff;
+        }
         
-        .bit-cell { flex: none; width: 50px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; background: #1A2639; border-radius: 6px; font-family: "JetBrains Mono"; border: 1px dashed rgba(255,255,255,.2); position: relative;}
-        .bit-cell::after { content: attr(data-idx); position: absolute; top: -18px; font-size: 0.65rem; color: var(--text-muted); }
+        .lab-controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; }
+        .lab-btn {
+            background: rgba(255, 255, 255, 0.1); border: none; color: #fff;
+            padding: 8px 16px; border-radius: 6px; cursor: pointer;
+            font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .lab-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.2); }
+        .lab-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .lab-btn.play { background: rgba(56, 214, 196, 0.2); color: var(--accent); }
         
-        .lab-controls { display: flex; gap: 10px; align-items: center; background: rgba(0,0,0,.2); padding: 10px; border-radius: 8px; flex-wrap: wrap; }
-        .ctrl-btn { background: #1A2639; color: #fff; border: 1px solid rgba(255,255,255,.1); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 0.9rem; transition: .2s; }
-        .ctrl-btn:hover:not(:disabled) { background: rgba(255,255,255,.1); }
-        .ctrl-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .lab-msg { flex: 1; font-size: 0.95rem; color: var(--mark); min-width: 200px; }
-        .lab-counter { font-family: "JetBrains Mono", monospace; font-size: 0.85rem; color: var(--text-muted); }
-        
-        /* Quizzes */
-        .quiz-box { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 20px; margin-top: 16px; }
-        .quiz-q { font-weight: 600; margin-bottom: 16px; color: #fff; }
-        .quiz-opts { display: flex; flex-direction: column; gap: 10px; }
-        .quiz-opt { background: #1A2639; border: 1px solid rgba(255,255,255,.1); padding: 12px 16px; border-radius: 8px; cursor: pointer; transition: .2s; }
-        .quiz-opt:hover { background: rgba(255,255,255,.1); }
-        .quiz-opt.correct { background: rgba(56,214,196,.15); border-color: var(--accent); color: var(--accent); }
-        .quiz-opt.wrong { background: rgba(255,107,107,.15); border-color: var(--red); color: var(--red); }
-        .quiz-exp { margin-top: 16px; font-size: 0.95rem; padding-left: 12px; border-left: 3px solid var(--accent2); display: none; }
-        
-        /* Pitfalls */
-        .pitfalls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
-        @media(max-width: 600px){ .pitfalls { grid-template-columns: 1fr; } }
-        .pit-col { padding: 16px; border-radius: 12px; }
-        .pit-bad { background: rgba(255,107,107,.05); border: 1px solid rgba(255,107,107,.2); }
-        .pit-good { background: rgba(56,214,196,.05); border: 1px solid rgba(56,214,196,.2); }
-        .pit-col h4 { margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        .pit-bad h4 { color: var(--red); }
-        .pit-good h4 { color: var(--accent); }
+        .lab-msg {
+            background: rgba(91, 140, 255, 0.1); border-left: 3px solid var(--accent2);
+            padding: 12px 16px; border-radius: 0 8px 8px 0; margin-bottom: 16px;
+            font-size: 0.95rem; min-height: 48px;
+        }
+
+        .quiz-box {
+            background: rgba(0, 0, 0, 0.2); border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 12px; padding: 20px; margin-top: 20px;
+        }
+        .quiz-q { font-weight: 600; margin-bottom: 12px; color: #fff; }
+        .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+        .quiz-opt {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 16px; border-radius: 8px; cursor: pointer;
+            transition: all 0.2s; text-align: left; color: var(--text-main);
+            font-family: 'Inter', sans-serif; font-size: 0.95rem;
+        }
+        .quiz-opt:hover:not(.locked) { background: rgba(255, 255, 255, 0.1); }
+        .quiz-opt.correct { background: rgba(74, 222, 128, 0.15); border-color: var(--green); color: #fff; }
+        .quiz-opt.wrong { background: rgba(255, 107, 107, 0.15); border-color: var(--red); color: #fff; }
+        .quiz-opt.locked { cursor: default; }
+        .quiz-exp {
+            margin-top: 12px; padding: 12px; border-radius: 8px; font-size: 0.9rem;
+            display: none; background: rgba(255, 255, 255, 0.05);
+        }
+
+        .flex-cols { display: flex; gap: 20px; }
+        .col { flex: 1; background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; }
+        .col.wrong-col { border-top: 3px solid var(--red); }
+        .col.right-col { border-top: 3px solid var(--green); }
     </style>
 </head>
 <body>
 
-<nav class="topnav">
-    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
-    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
-</nav>
+    <!-- Nav Bar -->
+    <nav class="topnav">
+        <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
+        <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+    </nav>
 
-<div class="container">
-    <div class="hero">
-        <span class="badge">Dynamic Programming + BIT</span>
-        <h1>Tổng độ đơn điệu</h1>
-        <p>Thay vì đếm số đoạn con tăng trong từng dãy con, ta đi đếm xem mỗi đoạn con tăng đóng góp vào bao nhiêu dãy con.</p>
-    </div>
+    <div class="container">
+        
+        <header>
+            <h1>Tổng độ đơn điệu</h1>
+            <div class="badge">Dynamic Programming & BIT</div>
+            <p style="font-size: 1.1rem; color: var(--text-muted);">
+                Thay vì đếm số đoạn con tăng trong từng dãy con, hãy đếm xem <strong>một đoạn con tăng ngặt</strong> sẽ xuất hiện trong <strong>bao nhiêu dãy con</strong>.
+            </p>
+        </header>
 
-    <div class="card snapbox">
-        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Tóm tắt đề bài</h2>
-        <p>Cho dãy <code>A</code> gồm <code>N</code> phần tử. Một dãy con được tạo bằng cách xóa đi một số phần tử (giữ nguyên thứ tự). Độ đơn điệu của một dãy là số lượng đoạn con liên tiếp tăng ngặt (phần tử sau lớn hơn phần tử trước). Tính tổng độ đơn điệu của tất cả các dãy con khác rỗng, lấy dư cho <code>10<sup>9</sup> + 7</code>.</p>
-        <p><b>Ràng buộc:</b> <code>1 ≤ N ≤ 2 × 10<sup>5</sup></code>, <code>1 ≤ A<sub>i</sub> ≤ 2 × 10<sup>5</sup></code>.</p>
-        <p><b>Ví dụ:</b> <code>A = [1, 3, 2]</code> có 7 dãy con khác rỗng. Dãy <code>[1, 3, 2]</code> có 4 đoạn tăng ngặt (1, 3, 2, và 1-3). Dãy <code>[3, 2]</code> có 2 đoạn tăng ngặt (3, 2)... Tổng lại là 15.</p>
-    </div>
-
-    <div class="card snapbox">
-        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Phân tích ban đầu</h2>
-        <p><b>Ta muốn gì?</b> Tính tổng số đoạn tăng ngặt trên <i>tất cả</i> dãy con.</p>
-        <p><b>Khó khăn:</b> Có đến <code>2<sup>N</sup> - 1</code> dãy con, việc duyệt qua từng dãy con rồi đếm số đoạn tăng ngặt là bất khả thi với <code>N ≤ 2 × 10<sup>5</sup></code>.</p>
-        <p><b>Ý tưởng lật ngược vấn đề:</b> Đừng duyệt dãy con. Hãy chọn ra một dãy các phần tử tăng ngặt trong mảng ban đầu, rồi hỏi: <i>"Dãy các phần tử này sẽ trở thành một đoạn liên tiếp trong bao nhiêu dãy con?"</i>. Nếu trả lời được, ta chỉ việc cộng dồn kết quả cho mọi dãy tăng ngặt có thể tạo ra từ mảng ban đầu.</p>
-    </div>
-
-    <div class="card">
-        <div class="snapbox">
+        <div class="card snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Mô-đun 1: Đóng góp của một dãy tăng ngặt</h2>
-            <p><b>Ta muốn gì?</b> Giả sử ta chọn một tập hợp các chỉ số <code>i<sub>1</sub> &lt; i<sub>2</sub> &lt; ... &lt; i<sub>k</sub></code> sao cho <code>A[i<sub>1</sub>] &lt; A[i<sub>2</sub>] &lt; ... &lt; A[i<sub>k</sub>]</code>. Tập hợp này xuất hiện liền kề nhau trong bao nhiêu dãy con?</p>
-            <p><b>Quan sát then chốt:</b> Để các phần tử này nằm <i>kề nhau</i> trong một dãy con, ta BẮT BUỘC phải chọn toàn bộ <code>k</code> phần tử này. Đồng thời, ta BẮT BUỘC KHÔNG được chọn bất kỳ phần tử nào nằm giữa <code>i<sub>1</sub></code> và <code>i<sub>k</sub></code> (nếu chọn, chúng sẽ chèn vào giữa làm đứt đoạn liên tiếp).</p>
-            <p><b>Ý tưởng đếm:</b> Các phần tử nằm hoàn toàn bên trái <code>i<sub>1</sub></code> (có <code>i<sub>1</sub> - 1</code> phần tử) và hoàn toàn bên phải <code>i<sub>k</sub></code> (có <code>N - i<sub>k</sub></code> phần tử) là <i>tự do</i> (chọn hay không chọn đều không ảnh hưởng đến sự kề nhau của đoạn). Tổng số phần tử tự do là <code>(i<sub>1</sub> - 1) + (N - i<sub>k</sub>) = N - i<sub>k</sub> + i<sub>1</sub> - 1</code>.</p>
-            <p><b>Vì sao đúng?</b> Mỗi phần tử tự do có 2 trạng thái (chọn/bỏ). Do đó, đoạn tăng ngặt này sẽ đóng góp đúng <code>2<sup>N - i<sub>k</sub> + i<sub>1</sub> - 1</sup></code> vào tổng đáp án cuối cùng.</p>
+            <h2>Tóm tắt đề bài</h2>
+            <p>Cho dãy <code>A</code> gồm <code>N</code> phần tử. Tính tổng số đoạn con tăng ngặt của tất cả các dãy con khác rỗng của <code>A</code>, modulo 10<sup>9</sup> + 7.</p>
+            <ul>
+                <li><strong>Đoạn con tăng ngặt:</strong> Các phần tử liên tiếp thỏa mãn phần tử sau lớn hơn phần tử trước.</li>
+                <li><strong>Ràng buộc:</strong> N ≤ 2 × 10<sup>5</sup>, A<sub>i</sub> ≤ 2 × 10<sup>5</sup>.</li>
+                <li><strong>Ví dụ:</strong> <code>A = [1, 3, 2]</code> → Kết quả: 15.</li>
+            </ul>
+        </div>
+
+        <div class="card snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>Phân tích ban đầu</h2>
+            <p>
+                Cách tiếp cận ngây thơ nhất là duyệt qua toàn bộ 2<sup>N</sup> - 1 dãy con, sau đó đếm số đoạn con tăng ngặt trong mỗi dãy. Độ phức tạp sẽ lên tới O(N · 2<sup>N</sup>), chắc chắn sẽ quá thời gian với N = 200,000.
+            </p>
+            <p>
+                Để giải quyết, ta cần dùng <strong>Kỹ thuật đóng góp</strong>: Cố định một dãy chỉ số tăng ngặt trong mảng gốc, và đặt câu hỏi: "Dãy này sẽ nằm dưới dạng một <em>đoạn con liên tiếp</em> trong bao nhiêu dãy con?".
+            </p>
+        </div>
+
+        <div class="card" id="mod1">
+            <h2>1. Tư duy đảo ngược: Đếm số lượng dãy con chứa một đoạn</h2>
+            <div class="snapbox">
+                <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+                <p>
+                    Giả sử ta chọn một dãy chỉ số i<sub>1</sub> &lt; i<sub>2</sub> &lt; ... &lt; i<sub>m</sub> sao cho các giá trị tương ứng tăng ngặt (A<sub>i<sub>1</sub></sub> &lt; A<sub>i<sub>2</sub></sub> &lt; ... &lt; A<sub>i<sub>m</sub></sub>).
+                </p>
+                <p>Để dãy này trở thành một <strong>đoạn con liên tiếp</strong> trong dãy con được chọn ra, ta có các quy tắc sau:</p>
+                <ul>
+                    <li><strong>Bắt buộc chọn:</strong> Các phần tử tại i<sub>1</sub>, ..., i<sub>m</sub>.</li>
+                    <li><strong>Bắt buộc KHÔNG chọn:</strong> Mọi phần tử nằm <em>giữa</em> i<sub>1</sub> và i<sub>m</sub>. Nếu chọn chúng, dãy i<sub>1</sub>...i<sub>m</sub> sẽ bị ngắt quãng, không còn liên tiếp nữa.</li>
+                    <li><strong>Chọn tự do:</strong> Các phần tử nằm <em>trước</em> i<sub>1</sub> (có i<sub>1</sub> - 1 phần tử) và nằm <em>sau</em> i<sub>m</sub> (có N - i<sub>m</sub> phần tử). Mỗi phần tử có 2 cách (chọn hoặc không).</li>
+                </ul>
+                <p>Vậy, đoạn này sẽ đóng góp vào tổng số lượng dãy con là: <strong>2<sup>i<sub>1</sub> - 1</sup> × 2<sup>N - i<sub>m</sub></sup></strong>.</p>
+                
+                <div class="lab-visual" id="lab1-visual">
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Click vào các ô dưới đây để tạo một dãy con tăng ngặt và xem công thức:</p>
+                    <div class="array-row" id="lab1-arr">
+                        <!-- Render by JS -->
+                    </div>
+                    <div id="lab1-res" style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: var(--mark); margin-top: 10px;">
+                        Số cách chọn = ?
+                    </div>
+                </div>
+            </div>
             
-            <div class="lab-panel" id="lab1">
-                <p><i>Trực quan: Xét mảng A = [10, 30, 20, 40]. Giả sử ta muốn dãy <b>10, 40</b> nằm kề nhau. Bấm nút Tiến để xem điều kiện hình thành:</i></p>
-                <div class="lab-visual" id="lab1-grid"></div>
-                <div class="lab-controls">
-                    <button class="ctrl-btn" id="lab1-btn-prev" onclick="lab1.prev()">Lùi</button>
-                    <button class="ctrl-btn" id="lab1-btn-next" onclick="lab1.next()">Tiến</button>
-                    <button class="ctrl-btn" onclick="lab1.reset()">Reset</button>
-                    <div class="lab-msg" id="lab1-msg">Trạng thái ban đầu.</div>
-                    <div class="lab-counter"><span id="lab1-sp">0</span>/<span id="lab1-total">0</span></div>
+            <div class="quiz-box">
+                <div class="quiz-q">Tại sao các phần tử nằm giữa i<sub>1</sub> và i<sub>m</sub> (nhưng không thuộc dãy ta chọn) lại BẮT BUỘC KHÔNG được chọn?</div>
+                <div class="quiz-options" id="quiz1">
+                    <div class="quiz-opt" onclick="answerQuiz(this, 'quiz1', false)">Vì giá trị của chúng có thể làm mất tính tăng ngặt của dãy.</div>
+                    <div class="quiz-opt" onclick="answerQuiz(this, 'quiz1', true)">Vì nếu chọn thêm bất kỳ phần tử nào chen giữa, dãy ban đầu sẽ không còn đứng "liên tiếp" cạnh nhau trong dãy con mới tạo ra.</div>
+                    <div class="quiz-opt" onclick="answerQuiz(this, 'quiz1', false)">Vì công thức 2 mũ không áp dụng được cho phần ở giữa.</div>
+                </div>
+                <div class="quiz-exp" id="quiz1-exp">
+                    <strong>Giải thích:</strong> Chính xác! Đề bài yêu cầu đếm "đoạn con" (contiguous subarray). Nếu ta có 2 phần tử được chọn ở vị trí 2 và 5, muốn chúng đứng liền kề nhau thì các vị trí 3 và 4 tuyệt đối không được bốc vào dãy con.
                 </div>
             </div>
         </div>
 
-        <div class="quiz-box" id="quiz1">
-            <div class="quiz-q">Câu hỏi: Nếu một đoạn tăng ngặt chỉ gồm ĐÚNG MỘT phần tử tại vị trí <code>i</code> (tức là <code>i<sub>1</sub> = i<sub>k</sub> = i</code>), thì nó sẽ đóng góp bao nhiêu vào đáp án tổng?</div>
-            <div class="quiz-opts">
-                <div class="quiz-opt" onclick="checkQuiz(this, false, 'Sai. Cần thay i1 = i và ik = i vào công thức.')">A. 2<sup>N - i</sup></div>
-                <div class="quiz-opt" onclick="checkQuiz(this, true, 'Đúng! Thay i1 = i, ik = i vào công thức N - ik + i1 - 1, ta được N - i + i - 1 = N - 1. Mọi phần tử đều có thể đứng độc lập như một đoạn con tăng độ dài 1 trong 2^(N-1) dãy con chứa nó.')">B. 2<sup>N - 1</sup></div>
-                <div class="quiz-opt" onclick="checkQuiz(this, false, 'Sai. Có N-1 phần tử tự do ngoài nó.')">C. 1</div>
+        <div class="card" id="mod2">
+            <h2>2. Tối ưu bằng Quy hoạch động (DP)</h2>
+            <div class="snapbox">
+                <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+                <p>
+                    Thay vì liệt kê mọi dãy, ta dùng DP để gom nhóm. Gọi <code>DP[i]</code> là <strong>tổng của 2<sup>i<sub>1</sub> - 1</sup></strong> xét trên tất cả các dãy tăng ngặt kết thúc tại vị trí <code>i</code>.
+                </p>
+                <p>
+                    Tại vị trí <code>i</code>, ta có hai trường hợp để tạo dãy kết thúc tại <code>i</code>:
+                </p>
+                <ul>
+                    <li><strong>Dãy chỉ gồm 1 phần tử (chính A<sub>i</sub>):</strong> i<sub>1</sub> = i, nên đóng góp là 2<sup>i - 1</sup>.</li>
+                    <li><strong>Nối A<sub>i</sub> vào sau một dãy kết thúc tại j (với j &lt; i và A<sub>j</sub> &lt; A<sub>i</sub>):</strong> Toàn bộ tổng phần đầu 2<sup>i<sub>1</sub> - 1</sup> của dãy đó được giữ nguyên. Ta cộng tất cả <code>DP[j]</code> thỏa mãn.</li>
+                </ul>
+                <p>
+                    Công thức: <code>DP[i] = 2<sup>i - 1</sup> + Σ DP[j]</code> (với j &lt; i và A<sub>j</sub> &lt; A<sub>i</sub>).<br>
+                    Mỗi khi tính xong <code>DP[i]</code>, ta nhân với 2<sup>N - i</sup> (số cách chọn phần đuôi tự do) và cộng vào đáp án tổng!
+                </p>
             </div>
-            <div class="quiz-exp"></div>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="snapbox">
-            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Mô-đun 2: Tính toán nhanh bằng Quy Hoạch Động (DP)</h2>
-            <p><b>Ta muốn gì?</b> Tính tổng của <code>2<sup>N - i<sub>k</sub> + i<sub>1</sub> - 1</sup></code> cho TẤT CẢ các dãy tăng ngặt hợp lệ sinh ra từ mảng.</p>
-            <p><b>Khó khăn:</b> Ta không thể sinh hết các dãy tăng ngặt vì số lượng có thể lên tới hàm mũ.</p>
-            <p><b>Ý tưởng tách biến:</b> Công thức đóng góp có thể viết lại thành: <code>2<sup>N - 1</sup> × 2<sup>i<sub>1</sub></sup> × 2<sup>-i<sub>k</sub></sup></code>.<br>
-            Cố định điểm kết thúc <code>i<sub>k</sub> = i</code>. Ta cần tìm tổng các giá trị <code>2<sup>i<sub>1</sub></sup></code> của mọi dãy tăng ngặt kết thúc tại <code>i</code>. Gọi tổng này là <code>DP[i]</code>. Khi mở rộng một dãy tăng ngặt kết thúc tại <code>j</code> (với <code>j &lt; i</code> và <code>A[j] &lt; A[i]</code>) bằng cách nối thêm <code>i</code> vào đuôi, phần tử đầu tiên <code>i<sub>1</sub></code> CỦA DÃY ĐÓ không thay đổi! Trọng số <code>2<sup>i<sub>1</sub></sup></code> được bảo toàn. Do đó:</p>
-            <p><code>DP[i] = 2<sup>i</sup> + Σ DP[j]</code> (với mọi <code>j &lt; i</code> và <code>A[j] &lt; A[i]</code>).</p>
-            <p><b>Vì sao đúng?</b> <code>2<sup>i</sup></code> là đóng góp của dãy chỉ gồm ĐÚNG một phần tử <code>A[i]</code> (lúc này <code>i<sub>1</sub> = i</code>). Phần <code>Σ DP[j]</code> là việc kế thừa toàn bộ trọng số <code>2<sup>i<sub>1</sub></sup></code> từ các dãy hợp lệ kết thúc trước đó để kéo dài thêm. Kết quả cuối cùng là tổng của <code>DP[i] × 2<sup>N - 1 - i</sup></code> cho mọi <code>i</code>.</p>
-        </div>
-
-        <div class="quiz-box" id="quiz2">
-            <div class="quiz-q">Câu hỏi: Phép chia lấy dư (modulo) cho 10<sup>9</sup>+7 yêu cầu ta cẩn thận với biểu thức <code>2<sup>N - 1 - i</sup></code>. Nếu <code>N - 1 - i &lt; 0</code>, ta xử lý thế nào?</div>
-            <div class="quiz-opts">
-                <div class="quiz-opt" onclick="checkQuiz(this, false, 'Sai. Nếu ra số âm thì lũy thừa 2 sẽ thành số thập phân, không đúng trong modulo.')">A. Cứ tính bằng hàm pow() của C++ rồi ép kiểu.</div>
-                <div class="quiz-opt" onclick="checkQuiz(this, true, 'Đúng! Ta có thể viết lại là 2^(N-1) × (2^-1)^i. Giá trị 2^-1 trong modulo 10^9+7 chính là nghịch đảo modulo của 2, bằng (10^9+8)/2 = 500000004. Chỉ cần nhân liên tiếp số này là được.')">B. Dùng nghịch đảo modulo của 2 (nghĩa là 500000004).</div>
-                <div class="quiz-opt" onclick="checkQuiz(this, false, 'Sai. Giá trị có thể âm, ví dụ khi i = N thì mũ là -1.')">C. Giá trị N - 1 - i luôn luôn lớn hơn hoặc bằng 0, không cần lo.</div>
-            </div>
-            <div class="quiz-exp"></div>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="snapbox">
-            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Mô-đun 3: Tối ưu tính Σ DP[j] bằng Fenwick Tree (BIT)</h2>
-            <p><b>Ta muốn gì?</b> Ở mỗi bước <code>i</code>, ta cần tính nhanh <code>Σ DP[j]</code> với các điều kiện: <code>j &lt; i</code> và <code>A[j] &lt; A[i]</code>.</p>
-            <p><b>Ý tưởng:</b> Điều kiện <code>j &lt; i</code> tự động được thỏa mãn nếu ta duyệt mảng từ trái sang phải. Để xử lý <code>A[j] &lt; A[i]</code>, ta dùng một cây Fenwick (BIT) lưu trữ các giá trị <code>DP</code>. <b>Vị trí lưu trên BIT chính là giá trị A[j]</b>. Khi duyệt tới <code>i</code>, ta chỉ việc lấy tổng trên BIT từ vị trí 1 đến <code>A[i] - 1</code>. Tính xong <code>DP[i]</code>, ta cập nhật <code>DP[i]</code> vào vị trí <code>A[i]</code> trên BIT.</p>
             
-            <div class="lab-panel" id="lab2">
-                <p><i>Mô phỏng thuật toán trên mảng A = [1, 3, 2] (N=3). (Các phép tính bỏ qua modulo để dễ nhìn).</i></p>
-                
-                <div><b>Mảng A:</b></div>
-                <div class="lab-visual" id="lab2-arr"></div>
-                
-                <div style="margin-top: 10px;"><b>Cây BIT (lưu theo giá trị của A):</b></div>
-                <div class="lab-visual" id="lab2-bit"></div>
-                
-                <div class="lab-controls">
-                    <button class="ctrl-btn" id="lab2-btn-prev" onclick="lab2.prev()">Lùi</button>
-                    <button class="ctrl-btn" id="lab2-btn-next" onclick="lab2.next()">Tiến</button>
-                    <button class="ctrl-btn" id="lab2-btn-auto" onclick="lab2.autoRun()">Tự chạy</button>
-                    <button class="ctrl-btn" onclick="lab2.reset()">Reset</button>
-                    <div class="lab-msg" id="lab2-msg">Khởi tạo. Cây BIT rỗng (kích thước theo giá trị lớn nhất = 3).</div>
-                    <div class="lab-counter"><span id="lab2-sp">0</span>/<span id="lab2-total">0</span></div>
+            <div class="quiz-box">
+                <div class="quiz-q">Giả sử ta đang xét A<sub>i</sub> = 5. Ta có thể nối nó vào sau dãy kết thúc bằng A<sub>j</sub> = 5 được không?</div>
+                <div class="quiz-options" id="quiz2">
+                    <div class="quiz-opt" onclick="answerQuiz(this, 'quiz2', false)">Có, vì chúng bằng nhau nên tạo thành dãy không giảm.</div>
+                    <div class="quiz-opt" onclick="answerQuiz(this, 'quiz2', true)">Không, vì đề bài yêu cầu đoạn con phải "tăng ngặt" (strictly increasing), tức là phần tử sau phải lớn hẳn phần tử trước.</div>
+                </div>
+                <div class="quiz-exp" id="quiz2-exp">
+                    <strong>Giải thích:</strong> Đúng vậy! "Tăng ngặt" nghĩa là A<sub>j</sub> phải nhỏ hơn hẳn A<sub>i</sub> (A<sub>j</sub> &lt; A<sub>i</sub>). Không chấp nhận dấu bằng.
                 </div>
             </div>
         </div>
 
-        <div class="quiz-box" id="quiz3">
-            <div class="quiz-q">Câu hỏi: Vì sao ta lại gọi hàm <code>query(A[i] - 1)</code> trên BIT thay vì <code>query(i - 1)</code>?</div>
-            <div class="quiz-opts">
-                <div class="quiz-opt" onclick="checkQuiz(this, true, 'Đúng! BIT được dùng để lưu trữ dữ liệu phân phối theo GIÁ TRỊ của phần tử, không phải theo chỉ số mảng. Ta cần tổng DP của các phần tử có giá trị NHỎ HƠN A[i], nên ta truy vấn từ 1 đến A[i] - 1.')">A. Vì ta cần cộng các DP[j] có giá trị phần tử A[j] nhỏ hơn A[i] để tạo thành dãy tăng ngặt.</div>
-                <div class="quiz-opt" onclick="checkQuiz(this, false, 'Sai. Nếu truy vấn theo i-1, ta sẽ cộng cả những phần tử lớn hơn A[i], làm sai điều kiện dãy tăng ngặt.')">B. Vì ta cần cộng các DP[j] nằm bên trái của vị trí i.</div>
+        <div class="card" id="mod3">
+            <h2>3. Tăng tốc bằng Cây Fenwick (BIT)</h2>
+            <div class="snapbox">
+                <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+                <p>
+                    Vòng lặp tìm <code>Σ DP[j]</code> mất O(N), dẫn đến tổng thời gian O(N<sup>2</sup>). Rất may, ta chỉ cần tính tổng các <code>DP[j]</code> có <strong>giá trị A<sub>j</sub> nhỏ hơn A<sub>i</sub></strong>.
+                </p>
+                <p>
+                    Ta dùng một Cây Fenwick (Binary Indexed Tree) mà <strong>chỉ số của cây chính là giá trị của A<sub>i</sub></strong>. 
+                    Khi duyệt đến <code>i</code>: Ta truy vấn tổng trên BIT trong khoảng <code>[1, A<sub>i</sub> - 1]</code> để lấy tổng <code>DP[j]</code>. Tính xong <code>DP[i]</code>, ta cập nhật giá trị đó vào vị trí <code>A<sub>i</sub></code> trên BIT.
+                </p>
+
+                <!-- Lab mô phỏng toàn bộ thuật toán -->
+                <div class="lab-visual" id="lab2-visual">
+                    <div class="array-row" id="lab2-arr" style="margin-bottom:10px;"></div>
+                    
+                    <div style="display:flex; gap: 40px; width: 100%; justify-content: center; font-family:'JetBrains Mono', monospace; font-size: 0.9rem;">
+                        <div>
+                            <div style="color:var(--text-muted); margin-bottom:5px;">Mảng DP:</div>
+                            <div class="array-row" id="lab2-dp"></div>
+                        </div>
+                        <div>
+                            <div style="color:var(--text-muted); margin-bottom:5px;">BIT (theo Giá trị):</div>
+                            <div class="array-row" id="lab2-bit"></div>
+                        </div>
+                    </div>
+
+                    <div style="font-family:'Space Grotesk', sans-serif; font-size:1.2rem; margin-top:10px; color:var(--mark);">
+                        Tổng Đáp Án = <span id="lab2-ans">0</span>
+                    </div>
+                </div>
+                
+                <div class="lab-msg" id="lab2-msg">Nhấn Bắt đầu để mô phỏng thuật toán...</div>
+                
+                <div class="lab-controls">
+                    <button class="lab-btn" id="lab2-btn-reset" onclick="lab2Obj.reset()">Reset</button>
+                    <button class="lab-btn" id="lab2-btn-prev" onclick="lab2Obj.prev()">Lùi</button>
+                    <span style="display:inline-flex; align-items:center; font-family:'JetBrains Mono'; font-size:0.9rem; margin:0 10px;" id="lab2-counter">0/0</span>
+                    <button class="lab-btn" id="lab2-btn-next" onclick="lab2Obj.next()">Tiến</button>
+                    <button class="lab-btn play" id="lab2-btn-auto" onclick="lab2Obj.toggleAuto()">Tự chạy</button>
+                </div>
             </div>
-            <div class="quiz-exp"></div>
-        </div>
-    </div>
-
-    <div class="algo-steps snapbox">
-        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h3>Thuật toán từng bước</h3>
-        <ol>
-            <li><b>Khởi tạo hằng số và cấu trúc dữ liệu:</b>
-                <ul>
-                    <li>Lưu số dư <code>MOD = 1000000007</code>.</li>
-                    <li>Tìm giá trị lớn nhất <code>max_A</code> trong mảng <code>A</code>.</li>
-                    <li>Khởi tạo cây Fenwick <code>bit[]</code> kích thước <code>max_A</code>, tất cả bằng 0.</li>
-                    <li>Khởi tạo biến <code>ans = 0</code>.</li>
-                </ul>
-            </li>
-            <li><b>Tiền xử lý nghịch đảo modulo:</b>
-                <ul>
-                    <li>Tính <code>inv2</code> = nghịch đảo modulo của 2 (bằng 500000004).</li>
-                    <li>Tính sẵn <code>pow2_n_minus_1 = 2<sup>N-1</sup> % MOD</code>.</li>
-                </ul>
-            </li>
-            <li><b>Duyệt từng phần tử <code>i</code> từ 1 đến <code>N</code>:</b>
-                <ul>
-                    <li>Truy vấn <code>sum_prev = bit.query(A[i] - 1)</code>. Đây là tổng các <code>dp[j]</code> thỏa mãn <code>j &lt; i</code> và <code>A[j] &lt; A[i]</code>.</li>
-                    <li>Tính <code>dp[i] = (2<sup>i</sup> + sum_prev) % MOD</code>.</li>
-                    <li>Cập nhật <code>dp[i]</code> vào vị trí <code>A[i]</code> trên cây Fenwick: <code>bit.add(A[i], dp[i])</code>.</li>
-                    <li>Tính đóng góp tạm thời của <code>i</code>: nhân <code>dp[i]</code> với trọng số <code>(inv2)<sup>i</sup></code>, rồi cộng dồn vào <code>ans</code>.</li>
-                </ul>
-            </li>
-            <li><b>Tính kết quả cuối cùng:</b>
-                <ul>
-                    <li>Nhân <code>ans</code> với <code>pow2_n_minus_1</code> và lấy modulo. In ra kết quả.</li>
-                </ul>
-            </li>
-        </ol>
-    </div>
-
-    <div class="card snapbox">
-        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Cài đặt (C++)</h2>
-        <div class="codewrap">
-            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-            <div class="code" id="cpp-code"></div>
-        </div>
-    </div>
-
-    <div class="card snapbox">
-        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Độ phức tạp</h2>
-        <p><b>Thời gian:</b> Ở mỗi phần tử, ta gọi <code>query()</code> và <code>add()</code> trên Fenwick Tree. Độ phức tạp cho 1 thao tác BIT là <code>O(log(max_A))</code>. Với mảng có <code>N</code> phần tử, tổng thời gian là <b><code>O(N log(max_A))</code></b>. Hoàn toàn vượt qua giới hạn thời gian với <code>N, max_A ≤ 2 × 10<sup>5</sup></code>.</p>
-        <p><b>Không gian:</b> Cây Fenwick và mảng lưu cần <code>O(N + max_A)</code> bộ nhớ.</p>
-
-        <div class="pitfalls">
-            <div class="pit-col pit-bad">
-                <h4><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg> Cạm bẫy dễ sai</h4>
-                <p>Chia trong phép tính modulo: Khi lấy <code>2<sup>N - 1 - i</sup></code>, nếu số mũ âm sẽ gặp lỗi nếu tính bằng hàm pow thông thường hoặc chia cho lũy thừa 2 mà không dùng modulo.</p>
-            </div>
-            <div class="pit-col pit-good">
-                <h4><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg> Cách xử lý đúng</h4>
-                <p>Nhân với nghịch đảo modulo! Phép chia cho 2 trong modulo 10<sup>9</sup>+7 tương đương với việc nhân cho 500000004. Lũy thừa số này lên bao nhiêu lần cũng luôn chính xác.</p>
+            
+            <div class="quiz-box">
+                <div class="quiz-q">Độ phức tạp thời gian khi dùng Cây Fenwick cho bài toán này là bao nhiêu?</div>
+                <div class="quiz-options" id="quiz3">
+                    <div class="quiz-opt" onclick="answerQuiz(this, 'quiz3', false)">O(N) - Tuyệt đối tối ưu.</div>
+                    <div class="quiz-opt" onclick="answerQuiz(this, 'quiz3', true)">O(N log(maxA)) - Duyệt N phần tử, mỗi phần tử truy vấn và cập nhật trên BIT mất O(log(maxA)).</div>
+                    <div class="quiz-opt" onclick="answerQuiz(this, 'quiz3', false)">O(N<sup>2</sup>) - Do có 2 vòng lặp lồng nhau.</div>
+                </div>
+                <div class="quiz-exp" id="quiz3-exp">
+                    <strong>Giải thích:</strong> Chính xác! Với N = 200,000 và maxA = 200,000, số phép toán khoảng 200,000 × 18 ≈ 3.6 × 10<sup>6</sup>, chạy cực kỳ nhanh trong giới hạn 1 giây.
+                </div>
             </div>
         </div>
+
+        <div class="algo-steps snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h3>Thuật toán từng bước</h3>
+            <ol>
+                <li><strong>Chuẩn bị trước các lũy thừa của 2:</strong>
+                    <ul>
+                        <li>Tạo mảng <code>pow2[]</code> với <code>pow2[0] = 1</code>.</li>
+                        <li>Chạy vòng lặp tính <code>pow2[i] = (pow2[i-1] * 2) % MOD</code>.</li>
+                    </ul>
+                </li>
+                <li><strong>Khởi tạo:</strong>
+                    <ul>
+                        <li>Biến kết quả <code>ans = 0</code>.</li>
+                        <li>Cây Fenwick (BIT) lưu tổng cộng dồn, độ dài bằng giá trị lớn nhất của <code>A<sub>i</sub></code> (khoảng 200,005). Khởi tạo mảng BIT bằng 0.</li>
+                    </ul>
+                </li>
+                <li><strong>Duyệt từng phần tử <code>a[i]</code> từ 1 đến N:</strong>
+                    <ul>
+                        <li>Lấy tổng các <code>DP</code> của các phần tử nhỏ hơn <code>a[i]</code> bằng cách truy vấn BIT: <code>sum_prev = getSum(a[i] - 1)</code>.</li>
+                        <li>Tính trạng thái hiện tại: <code>dp_i = (pow2[i-1] + sum_prev) % MOD</code>.</li>
+                        <li>Tính phần đóng góp vào tổng đáp án: <code>contribution = (dp_i * pow2[n - i]) % MOD</code>.</li>
+                        <li>Cộng vào kết quả: <code>ans = (ans + contribution) % MOD</code>.</li>
+                        <li>Cập nhật <code>dp_i</code> vào cây BIT tại vị trí bằng giá trị của nó: <code>update(a[i], dp_i)</code>.</li>
+                    </ul>
+                </li>
+                <li><strong>In kết quả:</strong>
+                    <ul>
+                        <li>In biến <code>ans</code> ra màn hình.</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <div class="card snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>Cài đặt</h2>
+            <div class="codewrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre class="code" id="code-impl"></pre>
+            </div>
+        </div>
+
+        <div class="card snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>Độ phức tạp & Cạm bẫy</h2>
+            <p><strong>Thời gian:</strong> O(N log(maxA)). Vòng lặp N lần, mỗi lần gọi <code>getSum</code> và <code>update</code> trên Fenwick Tree mất O(log(maxA)).</p>
+            <p><strong>Không gian:</strong> O(N + maxA) để lưu mảng và cấu trúc BIT.</p>
+            
+            <div class="flex-cols" style="margin-top:20px;">
+                <div class="col wrong-col">
+                    <div style="color:var(--red); font-weight:600; margin-bottom:10px;">✕ Sai lầm thường gặp</div>
+                    <ul style="padding-left:16px;">
+                        <li style="margin-bottom:8px;">Quên lấy modulo 10<sup>9</sup>+7 liên tục trong mọi phép cộng và nhân, dẫn đến tràn số.</li>
+                        <li>Truy vấn BIT với chỉ số 0. Rất may bài này A<sub>i</sub> ≥ 1 nên <code>a[i]-1 ≥ 0</code>. Hàm <code>getSum</code> của BIT cần dừng khi <code>idx > 0</code>, nếu truyền 0 vào vòng lặp sẽ không chạy, trả về 0 (chuẩn xác).</li>
+                    </ul>
+                </div>
+                <div class="col right-col">
+                    <div style="color:var(--green); font-weight:600; margin-bottom:10px;">✓ Xử lý đúng</div>
+                    <ul style="padding-left:16px;">
+                        <li style="margin-bottom:8px;">Sử dụng kiểu <code>long long</code> cho mọi biến lưu kết quả và tính toán trung gian.</li>
+                        <li>Chỉ số của Fenwick Tree là <strong>giá trị của mảng</strong> (<code>a[i]</code>), không phải vị trí (<code>i</code>). Phải chú ý kích thước mảng BIT là max(A<sub>i</sub>).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
     </div>
-</div>
 
-<script>
-    // Utility functions for Copy and Snap
-    function flash(btn, text) { 
-        const o = btn.textContent; btn.textContent = text; 
-        setTimeout(() => btn.textContent = o, 1200); 
-    }
-    
-    async function copyCode(btn) {
-        const wrap = btn.closest('.codewrap');
-        const codeEl = wrap.querySelector('.code');
-        const text = codeEl.innerText;
-        try {
-            await navigator.clipboard.writeText(text);
-            flash(btn, 'Đã chép!');
-        } catch(e) {
-            const ta = document.createElement('textarea');
-            ta.value = text; document.body.appendChild(ta);
-            ta.select(); document.execCommand('copy');
-            document.body.removeChild(ta);
-            flash(btn, 'Đã chép!');
-        }
-    }
-
-    async function snapBox(btn) {
-        const box = btn.closest('.snapbox');
-        box.classList.add('snapping');
-        await document.fonts.ready;
-        try {
-            const canvas = await html2canvas(box, {backgroundColor: '#0B1220', scale: 2, logging: false});
-            box.classList.remove('snapping');
-            canvas.toBlob(async (blob) => {
-                try {
-                    await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
-                    flash(btn, 'Đã chụp!');
-                } catch(e) {
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob); a.download = 'snap.png'; a.click();
-                    flash(btn, 'Đã tải ảnh');
-                }
-            });
-        } catch(e) {
-            box.classList.remove('snapping');
-            alert('Lỗi chụp ảnh: ' + e.message);
-        }
-    }
-
-    // Quiz logic
-    function checkQuiz(el, isCorrect, exp) {
-        const p = el.parentElement;
-        if(p.dataset.locked) return;
-        p.dataset.locked = 'true';
-        el.classList.add(isCorrect ? 'correct' : 'wrong');
-        const e = p.nextElementSibling;
-        e.innerHTML = exp;
-        e.style.display = 'block';
-    }
-
-    // Lexer
-    function highlightCode(code) {
-        const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        const keywords = new Set(['int', 'long', 'void', 'if', 'else', 'for', 'while', 'return', 'const', 'auto', 'struct', 'class', 'public', '#include', 'using', 'namespace', 'std', 'vector', 'cin', 'cout', 'endl']);
-        
-        let lines = code.split('\n');
-        let html = '';
-        let lineIdx = 1;
-        
-        for (let l of lines) {
-            if(l.trim() === '') {
-                html += `<div class="codeline" id="l${lineIdx}"> </div>`;
-                lineIdx++;
-                continue;
-            }
-            let res = '';
-            let i = 0;
-            while (i < l.length) {
-                if (l.startsWith('//', i)) {
-                    res += '<span class="c-cm">' + esc(l.substring(i)) + '</span>';
-                    break;
-                }
-                if (l[i] === '"') {
-                    let end = l.indexOf('"', i + 1);
-                    if (end === -1) end = l.length; else end++;
-                    res += '<span class="c-str">' + esc(l.substring(i, end)) + '</span>';
-                    i = end;
-                    continue;
-                }
-                if (/\d/.test(l[i]) && (i === 0 || !/[a-zA-Z_]/.test(l[i-1]))) {
-                    let start = i;
-                    while (i < l.length && /[\d\.]/.test(l[i])) i++;
-                    res += '<span class="c-num">' + esc(l.substring(start, i)) + '</span>';
-                    continue;
-                }
-                if (/[a-zA-Z_#]/.test(l[i])) {
-                    let start = i;
-                    while (i < l.length && /[a-zA-Z0-9_]/.test(l[i])) i++;
-                    let word = l.substring(start, i);
-                    if (keywords.has(word)) res += '<span class="c-kw">' + esc(word) + '</span>';
-                    else if (i < l.length && l[i] === '(') res += '<span class="c-fn">' + esc(word) + '</span>';
-                    else res += esc(word);
-                    continue;
-                }
-                if (/[+\-*/%=&|<>!^~]/.test(l[i])) {
-                    res += '<span class="c-op">' + esc(l[i]) + '</span>';
-                    i++;
-                    continue;
-                }
-                res += esc(l[i]);
-                i++;
-            }
-            html += `<div class="codeline" id="l${lineIdx}">${res}</div>`;
-            lineIdx++;
-        }
-        return html;
-    }
-
-    const sourceCode = `#include <iostream>
-#include <vector>
+    <script>
+        // MÃ NGUỒN C++ (Tách token để tô màu mà không bị vỡ HTML)
+        const cppCode = `#include <bits/stdc++.h>
 using namespace std;
 
 const int MOD = 1e9 + 7;
+const int MAXA = 200005;
 
-long long power(long long base, long long exp) {
-    long long res = 1;
-    base %= MOD;
-    while (exp > 0) {
-        if (exp % 2 == 1) res = (res * base) % MOD;
-        base = (base * base) % MOD;
-        exp /= 2;
+long long bit_tree[MAXA];
+long long pow2[MAXA];
+
+// Hàm cập nhật trên cây Fenwick
+void update(int idx, long long val) {
+    for (; idx < MAXA; idx += idx & -idx) {
+        bit_tree[idx] = (bit_tree[idx] + val) % MOD;
     }
-    return res;
 }
 
-struct FenwickTree {
-    int n;
-    vector<long long> bit;
-    FenwickTree(int n) : n(n), bit(n + 1, 0) {}
-    void add(int idx, long long val) {
-        for (; idx <= n; idx += idx & -idx) bit[idx] = (bit[idx] + val) % MOD;
+// Hàm lấy tổng tiền tố trên cây Fenwick
+long long getSum(int idx) {
+    long long sum = 0;
+    for (; idx > 0; idx -= idx & -idx) {
+        sum = (sum + bit_tree[idx]) % MOD;
     }
-    long long query(int idx) {
-        long long sum = 0;
-        for (; idx > 0; idx -= idx & -idx) sum = (sum + bit[idx]) % MOD;
-        return sum;
-    }
-};
+    return sum;
+}
 
 int main() {
     ios_base::sync_with_stdio(false);
@@ -470,201 +500,350 @@ int main() {
 
     int n;
     if (!(cin >> n)) return 0;
-
+    
     vector<int> a(n + 1);
-    int max_a = 0;
     for (int i = 1; i <= n; i++) {
         cin >> a[i];
-        if (a[i] > max_a) max_a = a[i];
     }
 
-    FenwickTree bit(max_a);
-    vector<long long> dp(n + 1, 0);
+    // Tính sẵn lũy thừa của 2
+    pow2[0] = 1;
+    for (int i = 1; i <= n; i++) {
+        pow2[i] = (pow2[i - 1] * 2) % MOD;
+    }
+
     long long ans = 0;
-    long long inv2 = power(2, MOD - 2);
-    long long pow2_n_minus_1 = power(2, n - 1);
 
     for (int i = 1; i <= n; i++) {
-        long long sum_prev = bit.query(a[i] - 1);
-        long long pow2_i = power(2, i);
-        dp[i] = (pow2_i + sum_prev) % MOD;
-        bit.add(a[i], dp[i]);
-
-        long long weight = power(inv2, i);
-        long long term = (dp[i] * weight) % MOD;
-        ans = (ans + term) % MOD;
+        // Tổng DP[j] với j < i và a[j] < a[i]
+        long long sum_prev = getSum(a[i] - 1);
+        
+        // DP[i] = 2^(i-1) + sum_prev
+        long long dp_i = (pow2[i - 1] + sum_prev) % MOD;
+        
+        // Đóng góp của các dãy kết thúc tại i vào đáp án tổng
+        long long contribution = (dp_i * pow2[n - i]) % MOD;
+        ans = (ans + contribution) % MOD;
+        
+        // Cập nhật DP[i] vào cây BIT tại vị trí a[i]
+        update(a[i], dp_i);
     }
 
-    ans = (ans * pow2_n_minus_1) % MOD;
     cout << ans << "\\n";
-
     return 0;
 }`;
-    
-    document.getElementById('cpp-code').innerHTML = highlightCode(sourceCode);
 
-    // Lab 1 Logic (Module 1)
-    const lab1 = (function() {
-        let sp = 0;
-        let steps = [];
-        const arr = [10, 30, 20, 40];
-        
-        function makeSteps() {
-            // Step 0: init
-            steps.push({
-                states: [0, 0, 0, 0], // 0: norm, 1: active, 2: dim, 3: red
-                msg: "Mảng ban đầu A = [10, 30, 20, 40]. (Các chỉ số tương ứng 1, 2, 3, 4)."
-            });
-            // Step 1: select
-            steps.push({
-                states: [0, 1, 0, 1], // select 30 and 40
-                msg: "Giả sử ta xét dãy tăng ngặt gồm A[2]=30 và A[4]=40. (i1 = 2, ik = 4)."
-            });
-            // Step 2: must drop
-            steps.push({
-                states: [0, 1, 3, 1], // 20 is red
-                msg: "Để 30 và 40 nằm KỀ NHAU trong dãy con, ta BẮT BUỘC bỏ A[3]=20. (Phần tử nằm giữa i1 và ik)."
-            });
-            // Step 3: free
-            steps.push({
-                states: [2, 1, 3, 1], // 10 is dim (free)
-                msg: "Phần tử A[1]=10 nằm ngoài khoảng [i1, ik] nên tự do (chọn hay bỏ đều được). Tổng số phần tử tự do là N - ik + i1 - 1 = 4 - 4 + 2 - 1 = 1."
-            });
-            // Step 4: result
-            steps.push({
-                states: [2, 1, 3, 1],
-                msg: "Số dãy con chứa dãy 30, 40 kề nhau là 2^1 = 2 dãy con. (Đó là [30,40] và [10,30,40])."
-            });
-        }
-        
-        function paint(idx) {
-            sp = idx;
-            const step = steps[sp];
-            const grid = document.getElementById('lab1-grid');
-            grid.innerHTML = '';
-            arr.forEach((v, i) => {
-                let cls = 'lab-cell idx';
-                let st = step.states[i];
-                if(st === 1) cls += ' active';
-                if(st === 2) cls += ' dim';
-                if(st === 3) cls += ' red';
-                grid.innerHTML += `<div class="${cls}" data-idx="${i+1}">${v}</div>`;
-            });
+        // Hàm tô màu mã nguồn an toàn (không dùng regex bọc chèn lên nhau)
+        function highlightCode(code) {
+            let res = code.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+            const keywords = ['#include','using','namespace','int','long','void','if','for','return','const'];
+            const escapes = keywords.map(k => '\\b' + k + '\\b').join('|');
             
-            document.getElementById('lab1-msg').innerHTML = step.msg;
-            document.getElementById('lab1-sp').innerText = sp;
-            document.getElementById('lab1-btn-prev').disabled = (sp === 0);
-            document.getElementById('lab1-btn-next').disabled = (sp === steps.length - 1);
+            // Regex đơn giản tách: String | Comment | Keyword | Number | Function
+            const regex = new RegExp(`("(?:\\\\.|[^"\\\\])*")|(\\/\\/.*)|(${escapes})|(\\b\\d+\\b)|([a-zA-Z_]\\w*)(?=\\s*\\()`, 'g');
+            
+            res = res.replace(regex, (match, str, cm, kw, num, fn) => {
+                if(str) return `<span class="c-str">${str}</span>`;
+                if(cm) return `<span class="c-cm">${cm}</span>`;
+                if(kw) return `<span class="c-kw">${kw}</span>`;
+                if(num) return `<span class="c-num">${num}</span>`;
+                if(fn) return `<span class="c-fn">${fn}</span>`;
+                return match;
+            });
+            return res;
         }
-        
-        return {
-            init: () => { makeSteps(); paint(0); document.getElementById('lab1-total').innerText = steps.length - 1; },
-            next: () => { if(sp < steps.length - 1) paint(sp + 1); },
-            prev: () => { if(sp > 0) paint(sp - 1); },
-            reset: () => { paint(0); }
+
+        // Chèn mã nguồn C++
+        const codeLines = cppCode.split('\n');
+        const codeContainer = document.getElementById('code-impl');
+        let htmlStr = '';
+        codeLines.forEach((line, idx) => {
+            htmlStr += `<div class="codeline" id="impl-l${idx}">${highlightCode(line)}</div>`;
+        });
+        codeContainer.innerHTML = htmlStr;
+
+        // --- TIỆN ÍCH CHUNG ---
+        function flash(btn, text) {
+            const o = btn.textContent;
+            btn.textContent = text;
+            setTimeout(() => btn.textContent = o, 1200);
+        }
+
+        async function copyCode(btn) {
+            const wrap = btn.closest('.codewrap');
+            const codeEl = wrap.querySelector('.code');
+            const text = codeEl.innerText;
+            try {
+                await navigator.clipboard.writeText(text);
+                flash(btn, 'Đã chép!');
+            } catch(e) {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                flash(btn, 'Đã chép!');
+            }
+        }
+
+        async function snapBox(btn) {
+            const box = btn.closest('.snapbox');
+            box.classList.add('snapping');
+            await document.fonts.ready;
+            try {
+                const canvas = await html2canvas(box, { backgroundColor: '#0B1220', scale: 2, logging: false });
+                box.classList.remove('snapping');
+                canvas.toBlob(async (blob) => {
+                    try {
+                        await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+                        flash(btn, 'Đã chụp!');
+                    } catch(e) {
+                        const a = document.createElement('a');
+                        a.href = URL.createObjectURL(blob);
+                        a.download = 'snap.png';
+                        a.click();
+                        flash(btn, 'Đã tải ảnh');
+                    }
+                });
+            } catch(e) {
+                box.classList.remove('snapping');
+                alert("Lỗi khi chụp ảnh!");
+            }
+        }
+
+        function answerQuiz(opt, qId, isCorrect) {
+            if(opt.classList.contains('locked')) return;
+            const container = document.getElementById(qId);
+            const opts = container.querySelectorAll('.quiz-opt');
+            opts.forEach(o => o.classList.add('locked'));
+            
+            if(isCorrect) {
+                opt.classList.add('correct');
+            } else {
+                opt.classList.add('wrong');
+                // Tự động bôi xanh đáp án đúng
+                opts.forEach(o => {
+                    if(o.getAttribute('onclick').includes('true')) o.classList.add('correct');
+                });
+            }
+            document.getElementById(`${qId}-exp`).style.display = 'block';
+        }
+
+        // --- LAB 1: Tư duy Kỹ thuật Đóng góp ---
+        const lab1Obj = (function() {
+            const A = [2, 1, 4, 3, 5]; // Mảng ví dụ N=5
+            let selected = []; // Các index (0-based) được chọn
+            
+            function render() {
+                const container = document.getElementById('lab1-arr');
+                container.innerHTML = '';
+                
+                // Xác định min và max index được chọn
+                let minI = 999, maxI = -1;
+                if(selected.length > 0) {
+                    minI = Math.min(...selected);
+                    maxI = Math.max(...selected);
+                }
+
+                A.forEach((val, idx) => {
+                    const el = document.createElement('div');
+                    el.className = 'array-cell';
+                    el.innerHTML = `<span class="idx">i=${idx+1}</span>${val}`;
+                    
+                    if(selected.includes(idx)) {
+                        el.classList.add('selected');
+                    } else if(selected.length > 0 && idx > minI && idx < maxI) {
+                        el.classList.add('forbidden');
+                    } else if(selected.length > 0) {
+                        el.classList.add('free');
+                    }
+
+                    el.onclick = () => toggle(idx);
+                    container.appendChild(el);
+                });
+
+                const resBox = document.getElementById('lab1-res');
+                if(selected.length === 0) {
+                    resBox.textContent = "Số cách chọn = ?";
+                    resBox.style.color = "var(--text-muted)";
+                } else {
+                    let isValid = true;
+                    // Kiểm tra tính tăng ngặt
+                    let sortedSel = [...selected].sort((a,b)=>a-b);
+                    for(let i=1; i<sortedSel.length; i++) {
+                        if(A[sortedSel[i]] <= A[sortedSel[i-1]]) isValid = false;
+                    }
+
+                    if(!isValid) {
+                        resBox.textContent = "Dãy chọn KHÔNG tăng ngặt! (Vui lòng chọn lại)";
+                        resBox.style.color = "var(--red)";
+                    } else {
+                        let leftFree = minI; 
+                        let rightFree = (A.length - 1) - maxI;
+                        let ways = Math.pow(2, leftFree) * Math.pow(2, rightFree);
+                        resBox.innerHTML = `2<sup>${leftFree}</sup> (trước) × 2<sup>${rightFree}</sup> (sau) = ${ways} cách`;
+                        resBox.style.color = "var(--mark)";
+                    }
+                }
+            }
+
+            function toggle(idx) {
+                const pos = selected.indexOf(idx);
+                if(pos !== -1) selected.splice(pos, 1);
+                else selected.push(idx);
+                render();
+            }
+
+            return { init: render };
+        })();
+
+        // --- LAB 2: State Machine cho DP + BIT ---
+        const lab2Obj = (function() {
+            const arr = [1, 3, 2];
+            const n = arr.length;
+            let steps = [];
+            let sp = 0;
+            let timer = null;
+
+            function makeSteps() {
+                steps = [];
+                // Khởi tạo
+                let bit = [0, 0, 0, 0]; // 1-based, max val = 3
+                let dp = [0, 0, 0]; // 0-based
+                let ans = 0;
+                
+                steps.push({
+                    arr, dp: [...dp], bit: [...bit], ans,
+                    idx: -1, msg: "Khởi tạo: Mảng DP và Cây BIT ban đầu rỗng. ans = 0."
+                });
+
+                for(let i=0; i<n; i++) {
+                    const val = arr[i];
+                    
+                    // Bước 1: Truy vấn
+                    let sumPrev = 0;
+                    for(let j = val - 1; j > 0; j -= j & -j) {
+                        sumPrev += bit[j];
+                    }
+                    
+                    steps.push({
+                        arr, dp: [...dp], bit: [...bit], ans,
+                        idx: i,
+                        msg: `Đang xét A[${i+1}] = ${val}. Truy vấn BIT lấy tổng các DP có giá trị < ${val}. Tổng lấy được = ${sumPrev}.`
+                    });
+
+                    // Bước 2: Tính DP
+                    let currentDP = Math.pow(2, i) + sumPrev;
+                    dp[i] = currentDP;
+                    
+                    steps.push({
+                        arr, dp: [...dp], bit: [...bit], ans,
+                        idx: i,
+                        msg: `Tính DP[${i+1}] = 2^${i} + ${sumPrev} = ${currentDP}.`
+                    });
+
+                    // Bước 3: Tính đóng góp
+                    let contri = currentDP * Math.pow(2, n - 1 - i);
+                    ans += contri;
+
+                    steps.push({
+                        arr, dp: [...dp], bit: [...bit], ans,
+                        idx: i,
+                        msg: `Cộng đóng góp vào tổng: DP[${i+1}] × 2^${n - 1 - i} = ${currentDP} × ${Math.pow(2, n - 1 - i)} = ${contri}. ans = ${ans}.`
+                    });
+
+                    // Bước 4: Cập nhật BIT
+                    let newBit = [...bit];
+                    for(let j = val; j <= 3; j += j & -j) {
+                        newBit[j] += currentDP;
+                    }
+                    bit = newBit;
+
+                    steps.push({
+                        arr, dp: [...dp], bit: [...bit], ans,
+                        idx: i,
+                        msg: `Cập nhật DP[${i+1}] = ${currentDP} vào BIT tại vị trí bằng giá trị là ${val}.`
+                    });
+                }
+                
+                steps.push({
+                    arr, dp: [...dp], bit: [...bit], ans,
+                    idx: -1, msg: "Hoàn tất! Tổng số đoạn con tăng ngặt là 15."
+                });
+            }
+
+            function paint(s) {
+                const state = steps[s];
+                
+                // Vẽ mảng A
+                let arrHtml = '';
+                state.arr.forEach((v, idx) => {
+                    let cls = 'array-cell';
+                    if(idx === state.idx) cls += ' active-dp';
+                    arrHtml += `<div class="${cls}"><span class="idx">i=${idx+1}</span>${v}</div>`;
+                });
+                document.getElementById('lab2-arr').innerHTML = arrHtml;
+
+                // Vẽ DP
+                let dpHtml = '';
+                state.dp.forEach((v, idx) => {
+                    let cls = 'array-cell';
+                    if(idx === state.idx) cls += ' active-dp';
+                    dpHtml += `<div class="${cls}"><span class="idx">i=${idx+1}</span>${v}</div>`;
+                });
+                document.getElementById('lab2-dp').innerHTML = dpHtml;
+
+                // Vẽ BIT (chỉ hiện từ index 1 đến 3)
+                let bitHtml = '';
+                for(let j=1; j<=3; j++) {
+                    let cls = 'array-cell free';
+                    bitHtml += `<div class="${cls}"><span class="idx">val=${j}</span>${state.bit[j]}</div>`;
+                }
+                document.getElementById('lab2-bit').innerHTML = bitHtml;
+
+                // Cập nhật text
+                document.getElementById('lab2-ans').textContent = state.ans;
+                document.getElementById('lab2-msg').textContent = state.msg;
+                document.getElementById('lab2-counter').textContent = `${s}/${steps.length-1}`;
+
+                // Nút điều khiển
+                document.getElementById('lab2-btn-prev').disabled = (s === 0);
+                document.getElementById('lab2-btn-next').disabled = (s === steps.length - 1);
+            }
+
+            function next() { if(sp < steps.length - 1) { sp++; paint(sp); } else stopAuto(); }
+            function prev() { if(sp > 0) { sp--; paint(sp); } }
+            function reset() { stopAuto(); sp = 0; paint(sp); }
+            
+            function toggleAuto() {
+                const btn = document.getElementById('lab2-btn-auto');
+                if(timer) {
+                    stopAuto();
+                } else {
+                    if(sp === steps.length - 1) sp = 0;
+                    btn.textContent = "Dừng";
+                    timer = setInterval(next, 1500);
+                }
+            }
+            function stopAuto() {
+                if(timer) clearInterval(timer);
+                timer = null;
+                document.getElementById('lab2-btn-auto').textContent = "Tự chạy";
+            }
+
+            return {
+                init: () => { makeSteps(); paint(0); },
+                next, prev, reset, toggleAuto
+            };
+        })();
+
+        // Khởi chạy khi load xong
+        window.onload = function() {
+            lab1Obj.init();
+            lab2Obj.init();
         };
-    })();
 
-    // Lab 2 Logic (Module 3)
-    const lab2 = (function() {
-        let sp = 0;
-        let steps = [];
-        let timer = null;
-        const A = [0, 1, 3, 2]; // 1-based, N=3
-        const maxA = 3;
-        
-        function makeSteps() {
-            let bit = [0, 0, 0, 0];
-            let dp = [0, 0, 0, 0];
-            
-            steps.push({
-                activeA: 0, bit: [...bit], dp: [...dp], hotLine: 43,
-                msg: "Khởi tạo BIT với max_A = 3. Bắt đầu duyệt từng phần tử của mảng."
-            });
-            
-            // i = 1
-            steps.push({ activeA: 1, bit: [...bit], dp: [...dp], hotLine: 50, msg: "Xử lý i = 1, A[1] = 1. Tìm tổng trên BIT từ 1 đến A[1]-1 = 0. Tổng = 0." });
-            dp[1] = Math.pow(2, 1) + 0;
-            steps.push({ activeA: 1, bit: [...bit], dp: [...dp], hotLine: 52, msg: `Tính DP[1] = 2^1 + 0 = 2.` });
-            bit[1] += dp[1]; // simplified bit update for visualization
-            steps.push({ activeA: 1, bit: [...bit], dp: [...dp], hotLine: 53, msg: `Cập nhật DP[1] = 2 vào cây BIT tại vị trí giá trị A[1] = 1.` });
-
-            // i = 2
-            steps.push({ activeA: 2, bit: [...bit], dp: [...dp], hotLine: 50, msg: "Xử lý i = 2, A[2] = 3. Tìm tổng trên BIT từ 1 đến A[2]-1 = 2. BIT(1)+BIT(2) = 2 + 0 = 2." });
-            dp[2] = Math.pow(2, 2) + 2;
-            steps.push({ activeA: 2, bit: [...bit], dp: [...dp], hotLine: 52, msg: `Tính DP[2] = 2^2 + 2 = 6.` });
-            bit[3] += dp[2]; 
-            steps.push({ activeA: 2, bit: [...bit], dp: [...dp], hotLine: 53, msg: `Cập nhật DP[2] = 6 vào cây BIT tại vị trí giá trị A[2] = 3.` });
-            
-            // i = 3
-            steps.push({ activeA: 3, bit: [...bit], dp: [...dp], hotLine: 50, msg: "Xử lý i = 3, A[3] = 2. Tìm tổng trên BIT từ 1 đến A[3]-1 = 1. BIT(1) = 2." });
-            dp[3] = Math.pow(2, 3) + 2;
-            steps.push({ activeA: 3, bit: [...bit], dp: [...dp], hotLine: 52, msg: `Tính DP[3] = 2^3 + 2 = 10.` });
-            bit[2] += dp[3]; 
-            steps.push({ activeA: 3, bit: [...bit], dp: [...dp], hotLine: 53, msg: `Cập nhật DP[3] = 10 vào cây BIT tại vị trí giá trị A[3] = 2.` });
-            
-            // Final
-            steps.push({ activeA: 0, bit: [...bit], dp: [...dp], hotLine: 59, msg: "Cuối cùng, tính tổng Ans = Σ (DP[i] * 2^(N-1-i)). Ans = 2*(2^1) + 6*(2^0) + 10*(2^-1) = 15." });
-        }
-        
-        function paint(idx) {
-            sp = idx;
-            const step = steps[sp];
-            
-            // Paint A array
-            const arrDiv = document.getElementById('lab2-arr');
-            arrDiv.innerHTML = '';
-            for(let i=1; i<=3; i++) {
-                let cls = 'lab-cell idx';
-                if(step.activeA === i) cls += ' active';
-                arrDiv.innerHTML += `<div class="${cls}" data-idx="i=${i}">A: ${A[i]}<br><span style="font-size:0.7em; color:var(--mark)">DP: ${step.dp[i]}</span></div>`;
-            }
-            
-            // Paint BIT
-            const bitDiv = document.getElementById('lab2-bit');
-            bitDiv.innerHTML = '';
-            for(let i=1; i<=3; i++) {
-                let v = step.bit[i];
-                let cls = 'bit-cell';
-                if(v > 0) cls += ' active';
-                bitDiv.innerHTML += `<div class="${cls}" data-idx="val=${i}">${v}</div>`;
-            }
-            
-            // Highlight Code
-            document.querySelectorAll('.codeline.hot').forEach(el => el.classList.remove('hot'));
-            if(step.hotLine > 0) {
-                const ln = document.getElementById(`l${step.hotLine}`);
-                if(ln) ln.classList.add('hot');
-            }
-            
-            document.getElementById('lab2-msg').innerHTML = step.msg;
-            document.getElementById('lab2-sp').innerText = sp;
-            document.getElementById('lab2-btn-prev').disabled = (sp === 0);
-            const isLast = (sp === steps.length - 1);
-            document.getElementById('lab2-btn-next').disabled = isLast;
-            if(isLast && timer) { clearInterval(timer); timer = null; }
-        }
-        
-        return {
-            init: () => { makeSteps(); paint(0); document.getElementById('lab2-total').innerText = steps.length - 1; },
-            next: () => { if(sp < steps.length - 1) paint(sp + 1); },
-            prev: () => { if(sp > 0) paint(sp - 1); },
-            reset: () => { if(timer){clearInterval(timer); timer=null;} paint(0); },
-            autoRun: () => {
-                if(timer) return;
-                if(sp === steps.length - 1) paint(0);
-                timer = setInterval(() => {
-                    if(sp < steps.length - 1) paint(sp + 1);
-                    else { clearInterval(timer); timer = null; }
-                }, 800);
-            }
-        };
-    })();
-
-    window.onload = function() {
-        lab1.init();
-        lab2.init();
-    };
-</script>
+    </script>
 </body>
 </html>
