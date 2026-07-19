@@ -286,7 +286,7 @@
     <div class="container">
         <h1>Mảng Cộng Dồn 1D (Prefix Sum)</h1>
         <div class="power-text">
-            Biến bài toán tính tổng một đoạn bất kỳ từ việc phải lặp qua từng phần tử (chậm) thành <b>một phép trừ duy nhất</b> (nhanh).
+            Biến bài toán tính tổng một đoạn bất kỳ từ việc phải lặp qua từng phần tử (chậm chạp) thành <b>một phép trừ duy nhất</b>, nhanh như chớp mắt.
         </div>
 
         <div class="summary-grid snapbox">
@@ -329,7 +329,7 @@
                         <td>Mảng nhỏ, truy vấn cực ít.</td>
                     </tr>
                     <tr style="background: rgba(56,214,196,0.05);">
-                        <td style="font-weight: 600;">Mảng Tiền Tố</td>
+                        <td style="font-weight: 600;">Mảng Tiền Tố (Bài này)</td>
                         <td class="td-mid">O(N)</td>
                         <td class="td-good">O(1)</td>
                         <td class="td-bad">O(N)</td>
@@ -585,12 +585,179 @@ int main() {
             <div class="pitfall-fix">Luôn luôn dịch mảng đầu vào để bắt đầu từ chỉ số 1 (<code>a[1]</code> đến <code>a[N]</code>). Khởi tạo mảng P có cỡ N+1 và gán <code>P[0] = 0</code>.</div>
         </div>
 
-        <h2 id="mo-rong">Mở rộng & Ứng dụng</h2>
-        <ul>
-            <li><b>Mảng cộng dồn 2D:</b> Áp dụng cho ma trận. Mở rộng công thức tính tổng một hình chữ nhật trong lưới O(1).</li>
-            <li><b>Mảng hiệu (Difference Array):</b> Dùng kết hợp với tiền tố. Khi cần <i>cộng thêm một giá trị V vào một đoạn [L, R]</i> nhiều lần, và chỉ in mảng ở cuối cùng.</li>
-            <li><b>Đếm tần số:</b> Tiền tố không chỉ dùng cho tổng. Ta có thể lập mảng tiền tố <code>cnt[i]</code> lưu số lượng các phần tử thỏa mãn điều kiện nào đó (vd: số chẵn, số nguyên tố) từ 1 đến <code>i</code>. Suy ra được số lượng số chẵn trong đoạn [L, R].</li>
-        </ul>
+        <h2 id="mo-rong">10 Bài Toán Ứng Dụng (Phân loại & Trực quan)</h2>
+        <p>10 bài tập 1D có thể được gom thành 3 <b>"mẫu tư duy" (Patterns)</b> cốt lõi. Hiểu được 3 mẫu này, bạn có thể giải quyết hầu hết các bài toán tiền tố trên mảng một chiều.</p>
+        
+        <div class="algo-steps snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">📸 Snap</button>
+            <h3>Nhóm 1: Thao tác trực tiếp & Biến đổi không gian (Bài 1, 2, 3, 4)</h3>
+            <p style="margin-bottom: 10px; color: var(--ink-soft); font-size: 0.95em;">Nhóm này áp dụng trực tiếp công thức <code>P<sub>R</sub> - P<sub>L-1</sub></code> nhưng điều chỉnh cách duyệt <code>L, R</code> hoặc thay đổi mảng ban đầu.</p>
+            
+            <ul style="list-style-type: none; padding-left: 0;">
+                <li style="margin-bottom: 24px;">
+                    <b style="color: #fff; font-size: 1.05em;">Bài 2: Hình vuông/Đoạn con độ dài K tổng lớn nhất</b><br>
+                    <span style="color: var(--ink-soft);">Thay vì chạy 2 vòng lặp tìm điểm đầu/cuối, ta trượt một "cửa sổ" cố định kích thước K. Chỉ cần 1 vòng lặp <code>i</code> từ K đến N, tổng cửa sổ là <code>P<sub>i</sub> - P<sub>i - K</sub></code>.</span>
+                    
+                    <!-- Minh hoạ Cửa sổ trượt -->
+                    <div style="background: var(--bg2); padding: 16px; border-radius: 8px; margin-top: 10px; border: 1px solid var(--line); overflow-x: auto;">
+                        <div style="display: flex; gap: 4px; justify-content: center; min-width: max-content;">
+                            <div class="arr-box" style="opacity: 0.4">1</div>
+                            <div class="arr-box active" style="position: relative;">
+                                -2
+                                <div style="position: absolute; top: -25px; left: 0; font-size: 0.75rem; color: var(--mark); white-space: nowrap;">i - K + 1</div>
+                            </div>
+                            <div class="arr-box active">4</div>
+                            <div class="arr-box active" style="position: relative;">
+                                3
+                                <div style="position: absolute; top: -25px; left: 0; font-size: 0.75rem; color: var(--mark);">i</div>
+                            </div>
+                            <div class="arr-box" style="opacity: 0.4">-1</div>
+                            <div class="arr-box" style="opacity: 0.4">5</div>
+                        </div>
+                        <div style="text-align: center; margin-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--mark);">
+                            Tổng = P<sub>4</sub> - P<sub>1</sub> = 5
+                        </div>
+                    </div>
+                </li>
+
+                <li style="margin-bottom: 24px;">
+                    <b style="color: #fff; font-size: 1.05em;">Bài 3: Điểm cân bằng</b><br>
+                    <span style="color: var(--ink-soft);">Tìm vị trí <code>i</code> sao cho tổng trái bằng tổng phải. <br>Tổng trái = <code>P<sub>i-1</sub></code>. Tổng phải = <code>P<sub>N</sub> - P<sub>i</sub></code>.</span>
+                    
+                    <!-- Minh hoạ Cân bằng -->
+                    <div style="background: var(--bg2); padding: 16px; border-radius: 8px; margin-top: 10px; border: 1px solid var(--line); overflow-x: auto;">
+                        <div style="display: flex; gap: 4px; justify-content: center; min-width: max-content; align-items: center;">
+                            <div style="color: var(--accent2); font-weight: 600; margin-right: 10px;">Tổng: 11</div>
+                            <div class="arr-box done" style="border-radius: 20px 4px 4px 20px;">1</div>
+                            <div class="arr-box done">7</div>
+                            <div class="arr-box done">3</div>
+                            
+                            <div class="arr-box target" style="transform: scale(1.1); z-index: 2; margin: 0 4px; box-shadow: 0 0 10px rgba(255,107,157,0.5);">6</div>
+                            
+                            <div class="arr-box active">5</div>
+                            <div class="arr-box active" style="border-radius: 4px 20px 20px 4px;">6</div>
+                            <div style="color: var(--mark); font-weight: 600; margin-left: 10px;">Tổng: 11</div>
+                        </div>
+                        <div style="text-align: center; margin-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--pink);">
+                            Điểm cân bằng tại i = 4 (Giá trị 6)
+                        </div>
+                    </div>
+                </li>
+
+                <li>
+                    <b style="color: #fff; font-size: 1.05em;">Bài 4: Tổng trên mảng vòng tròn</b><br>
+                    <span style="color: var(--ink-soft);">Khi L &gt; R, đoạn cần tính bị vắt qua cuối mảng. Cách thanh lịch nhất: <b>Nhân đôi mảng</b> (chép a<sub>1</sub>..a<sub>N</sub> ra phía sau). Khi đó đoạn vòng <code>[L, R]</code> trở thành đoạn thẳng <code>[L, R + N]</code>.</span>
+                    
+                    <!-- Minh hoạ Vòng tròn -->
+                    <div style="background: var(--bg2); padding: 16px; border-radius: 8px; margin-top: 10px; border: 1px solid var(--line); overflow-x: auto;">
+                        <div style="display: flex; gap: 4px; justify-content: center; min-width: max-content;">
+                            <div class="arr-box" style="opacity: 0.3; border-style: dashed;">3</div>
+                            <div class="arr-box" style="opacity: 0.3; border-style: dashed;">1</div>
+                            <div class="arr-box target" style="border-color: var(--pink); border-width: 2px;">4</div>
+                            <div class="arr-box target" style="border-color: var(--pink); border-width: 2px;">1</div>
+                            <div class="arr-box target" style="border-color: var(--pink); border-width: 2px;">5</div>
+                            
+                            <!-- Bản sao -->
+                            <div style="width: 2px; background: var(--line); margin: 0 4px;"></div>
+                            
+                            <div class="arr-box target" style="border-color: var(--pink); border-width: 2px; background: rgba(255,107,157,0.1);">3</div>
+                            <div class="arr-box" style="opacity: 0.3; border-style: dashed;">1</div>
+                            <div class="arr-box" style="opacity: 0.3; border-style: dashed;">4</div>
+                            <div class="arr-box" style="opacity: 0.3; border-style: dashed;">1</div>
+                            <div class="arr-box" style="opacity: 0.3; border-style: dashed;">5</div>
+                        </div>
+                        <div style="text-align: center; margin-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">
+                            Truy vấn L=3, R=1 &nbsp;🡒&nbsp; L=3, R=1+5=6 &nbsp;🡒&nbsp; <code>P<sub>6</sub> - P<sub>2</sub></code>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="algo-steps snapbox" style="border-left-color: var(--accent2); background: linear-gradient(180deg, rgba(91,140,255,.06), transparent); border-color: rgba(91,140,255,.35);">
+            <button class="snap-btn" onclick="snapBox(this)">📸 Snap</button>
+            <h3 style="color: var(--accent2);">Nhóm 2: Tiền xử lý ánh xạ (Bài 6, 7, 9, 10)</h3>
+            <p style="margin-bottom: 10px; color: var(--ink-soft); font-size: 0.95em;">Không phải lúc nào ta cũng cộng dồn trực tiếp <code>a<sub>i</sub></code>. Bí quyết là tạo mảng <b>Trung gian (Mảng b)</b> lưu <i>đặc tính/kết quả biến đổi</i> của <code>a<sub>i</sub></code>, rồi mới tính tiền tố trên mảng b.</p>
+            
+            <ul style="list-style-type: none; padding-left: 0;">
+                <li style="margin-bottom: 16px;">
+                    <b style="color: #fff;">Bài 6, 9: Đếm số Nguyên tố / Chính phương:</b><br>
+                    Quy tắc ánh xạ: <code>b<sub>i</sub> = 1</code> nếu <code>a<sub>i</sub></code> thỏa mãn, ngược lại <code>b<sub>i</sub> = 0</code>. Tổng đoạn trên <code>b</code> chính là <b>số lượng</b> phần tử thỏa mãn.
+                </li>
+                <li style="margin-bottom: 16px;">
+                    <b style="color: #fff;">Bài 7, 10: Tổng chữ số / Diện tích hình chữ nhật:</b><br>
+                    Quy tắc ánh xạ: <code>b<sub>i</sub> = sum_digits(a<sub>i</sub>)</code> hoặc <code>b<sub>i</sub> = w<sub>i</sub> × h<sub>i</sub></code>. Tránh việc phải tính lại hàm chi phí cao nhiều lần.
+                </li>
+            </ul>
+
+            <!-- Minh hoạ Ánh xạ -->
+            <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 8px; border: 1px solid var(--line2); overflow-x: auto;">
+                <div class="arr-row" style="margin-bottom: 6px;">
+                    <div class="arr-label" style="width: 140px; color: var(--ink);">Mảng a (Gốc):</div>
+                    <div class="arr-box" style="border:none; background:transparent;">4</div><div class="arr-box" style="border:none; background:transparent;">7</div><div class="arr-box" style="border:none; background:transparent;">9</div><div class="arr-box" style="border:none; background:transparent;">2</div><div class="arr-box" style="border:none; background:transparent;">11</div>
+                </div>
+                <div class="arr-row" style="margin-bottom: 6px;">
+                    <div class="arr-label" style="width: 140px; color: var(--accent2);">b (Là Nguyên Tố?):</div>
+                    <div class="arr-box" style="color: var(--ink-dim); height: 32px;">0</div>
+                    <div class="arr-box" style="color: var(--accent2); border-color: var(--accent2); background: rgba(91,140,255,0.1); height: 32px;">1</div>
+                    <div class="arr-box" style="color: var(--ink-dim); height: 32px;">0</div>
+                    <div class="arr-box" style="color: var(--accent2); border-color: var(--accent2); background: rgba(91,140,255,0.1); height: 32px;">1</div>
+                    <div class="arr-box" style="color: var(--accent2); border-color: var(--accent2); background: rgba(91,140,255,0.1); height: 32px;">1</div>
+                </div>
+                <div class="arr-row" style="margin-bottom: 0;">
+                    <div class="arr-label" style="width: 140px; color: var(--accent);">P (Cộng dồn b):</div>
+                    <div class="arr-box done">0</div><div class="arr-box done">1</div><div class="arr-box done">1</div><div class="arr-box done">3</div><div class="arr-box done">4</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="algo-steps snapbox" style="border-left-color: var(--mark); background: linear-gradient(180deg, rgba(255,184,84,.06), transparent); border-color: rgba(255,184,84,.35);">
+            <button class="snap-btn" onclick="snapBox(this)">📸 Snap</button>
+            <h3 style="color: var(--mark);">Nhóm 3: Cấu trúc cạnh & Phép toán Nâng cao (Bài 5, 8)</h3>
+            
+            <ul style="list-style-type: none; padding-left: 0;">
+                <li style="margin-bottom: 24px;">
+                    <b style="color: #fff; font-size: 1.05em;">Bài 8: Độ dài đường đi (Mảng cạnh)</b><br>
+                    <span style="color: var(--ink-soft);"><b>Bẫy chết người:</b> Quãng đường đi qua 3 điểm P<sub>1</sub>, P<sub>2</sub>, P<sub>3</sub> chỉ gồm <b>2 đoạn thẳng</b>. Mảng tiền tố <code>D</code> phải lưu khoảng cách của <b>cạnh nối</b> (giữa <code>i</code> và <code>i+1</code>). Truy vấn L đến R thực chất là tổng từ cạnh L đến cạnh <code>R-1</code>.</span>
+                    
+                    <!-- Minh hoạ Đường đi -->
+                    <div style="background: var(--bg2); padding: 24px 16px; border-radius: 8px; margin-top: 10px; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; overflow-x: auto;">
+                        <div style="display: flex; align-items: center; min-width: max-content;">
+                            <!-- Node 1 -->
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--panel); border: 2px solid var(--ink); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; z-index: 2;">P<sub>1</sub></div>
+                            <!-- Edge 1 -->
+                            <div style="height: 6px; width: 60px; background: var(--mark); position: relative; margin: 0 -4px; z-index: 1;">
+                                <div style="position: absolute; top: -22px; width: 100%; text-align: center; color: var(--mark); font-weight: 600; font-size: 0.85rem;">D<sub>1</sub></div>
+                            </div>
+                            <!-- Node 2 -->
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--panel); border: 2px solid var(--ink); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; z-index: 2;">P<sub>2</sub></div>
+                            <!-- Edge 2 -->
+                            <div style="height: 6px; width: 60px; background: var(--mark); position: relative; margin: 0 -4px; z-index: 1;">
+                                <div style="position: absolute; top: -22px; width: 100%; text-align: center; color: var(--mark); font-weight: 600; font-size: 0.85rem;">D<sub>2</sub></div>
+                            </div>
+                            <!-- Node 3 -->
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--panel); border: 2px solid var(--ink); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; z-index: 2;">P<sub>3</sub></div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--mark); margin-top: 8px;">
+                        Đi từ P<sub>1</sub> đến P<sub>3</sub> = D<sub>1</sub> + D<sub>2</sub> = P_edge<sub>2</sub> - P_edge<sub>0</sub>
+                    </div>
+                </li>
+
+                <li>
+                    <b style="color: #fff; font-size: 1.05em;">Bài 5: Tổng có trọng số</b><br>
+                    <span style="color: var(--ink-soft);">Cần tính: <code>S = 1·a<sub>L</sub> + 2·a<sub>L+1</sub> + 3·a<sub>L+2</sub> + ...</code><br>
+                    Kỹ thuật: Xây 2 mảng tiền tố. <code>P</code> lưu tổng thường của <code>a<sub>i</sub></code>. <code>W</code> lưu tổng của <code>i × a<sub>i</sub></code>.<br>
+                    Bằng phân tích đại số, công thức O(1) là:</span>
+                    
+                    <!-- Minh hoạ Trọng số -->
+                    <div style="background: rgba(255,184,84,0.1); border: 1px dashed rgba(255,184,84,0.4); padding: 16px; border-radius: 8px; margin-top: 10px; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: var(--mark);">
+                        S = (W<sub>R</sub> - W<sub>L-1</sub>) - (L - 1) × (P<sub>R</sub> - P<sub>L-1</sub>)
+                    </div>
+                    <p style="font-size: 0.9em; margin-top: 8px; color: var(--ink-dim);">Giải thích: Khối W trừ đi W<sub>L-1</sub> sẽ cho ta <code>L·a<sub>L</sub> + (L+1)·a<sub>L+1</sub> + ...</code>. Ta bị thừa ra đúng một lượng <code>(L-1)</code> lần mỗi phần tử a<sub>i</sub>. Lấy cụm đó trừ đi <code>(L-1)</code> lần tổng đoạn P là ra đúng trọng số 1, 2, 3...</p>
+                </li>
+            </ul>
+        </div>
 
         <div class="quiz-container">
             <div class="quiz-status" id="quiz-score">Trắc nghiệm ôn tập (0/12)</div>
