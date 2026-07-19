@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lời giải: Phân rã cây</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg: #0B1220;
+            --bg2: #0F1A2E;
+            --panel: #111E36;
+            --accent: #38D6C4;
+            --accent2: #5B8CFF;
+            --mark: #FFB454;
+            --red: #FF6B6B;
+            --green: #4ADE80;
+            --text-main: #E2E8F0;
+            --text-muted: #94A3B8;
+            --glow: 0 0 20px rgba(56, 214, 196, .4);
+            --shadow: 0 20px 60px -30px rgba(0, 0, 0, .9);
+            --border: 1px solid rgba(255, 255, 255, .1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); line-height: 1.6; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.03em; }
+        
+        .topnav { position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center; padding: 12px 20px; background: rgba(11, 18, 32, .85); backdrop-filter: blur(10px); border-bottom: var(--border); }
+        .nav-btn { text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent)); padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease; font-size: 0.9rem; }
+        .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
+        .nav-btn.outline:hover { background: rgba(56, 214, 196, .1); box-shadow: var(--glow); }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px; display: flex; flex-direction: column; gap: 32px; }
+        
+        .card, .snapbox.card { background: linear-gradient(180deg, var(--panel), var(--bg2)); border: var(--border); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); position: relative; }
+        .card h2 { color: var(--accent); margin-bottom: 16px; font-size: 1.5rem; }
+        
+        .algo-steps { background: linear-gradient(180deg, rgba(56, 214, 196, .06), transparent); border: 1px solid rgba(56, 214, 196, .35); border-left: 4px solid var(--accent); border-radius: 14px; padding: 20px 24px; position: relative; }
+        .algo-steps h3 { color: var(--accent); margin-bottom: 16px; font-size: 1.3rem; }
+        .algo-steps ol { margin: 0; padding-left: 22px; }
+        .algo-steps ol > li { margin-bottom: 12px; line-height: 1.6; }
+        .algo-steps ul { margin: 8px 0; padding-left: 18px; list-style: none; }
+        .algo-steps ul > li { position: relative; padding-left: 14px; margin-bottom: 6px; color: var(--text-muted); }
+        .algo-steps ul > li::before { content: "–"; position: absolute; left: 0; color: var(--accent); }
+        .algo-steps code, p code, li code { background: rgba(91, 140, 255, .14); color: #A9C4FF; padding: .15em .4em; border-radius: 5px; font-family: "JetBrains Mono", monospace; font-size: .88em; }
+
+        .codewrap, .snapbox { position: relative; }
+        .code { background: #0A1220; border: var(--border); border-radius: 12px; overflow-x: auto; font-family: "JetBrains Mono", monospace; font-size: 0.9rem; padding: 16px 0; }
+        .codeline { padding: 0 16px; white-space: pre-wrap; display: flex; border-left: 3px solid transparent; }
+        .codeline.hot { background: rgba(255, 180, 84, .1); border-left: 3px solid var(--mark); }
+        
+        .copy-btn, .snap-btn { position: absolute; top: 10px; z-index: 5; font-family: "JetBrains Mono", monospace; font-size: .72rem; font-weight: 600; padding: 5px 10px; border-radius: 7px; cursor: pointer; background: rgba(255, 255, 255, .06); color: var(--text-muted); border: 1px solid rgba(255, 255, 255, .12); transition: all .2s; }
+        .snap-btn { right: 10px; }
+        .copy-btn { right: 64px; }
+        .snapbox:not(.codewrap) .snap-btn { right: 10px; }
+        .copy-btn:hover, .snap-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(56, 214, 196, .1); }
+        .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
+
+        .c-kw { color: #FF7B72; }
+        .c-num { color: #79C0FF; }
+        .c-str { color: #A5D6FF; }
+        .c-cm { color: #8B949E; }
+        .c-fn { color: #D2A8FF; }
+
+        /* Lab Elements */
+        .lab-container { margin-top: 20px; }
+        .lab-visual { position: relative; width: 100%; height: 280px; background: rgba(0, 0, 0, .2); border: var(--border); border-radius: 12px; overflow: hidden; }
+        .lab-controls { display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+        .btn { background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .2); color: var(--text-main); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 500; transition: all .2s; display: flex; align-items: center; gap: 6px; }
+        .btn:hover:not(:disabled) { background: rgba(255, 255, 255, .1); border-color: var(--accent); color: var(--accent); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: linear-gradient(135deg, rgba(91,140,255,.2), rgba(56,214,196,.2)); border-color: var(--accent); color: var(--accent); }
+        
+        .msg-box { background: rgba(91, 140, 255, .1); border-left: 3px solid var(--accent2); padding: 12px 16px; border-radius: 0 8px 8px 0; margin-top: 16px; font-size: 0.95rem; min-height: 48px; }
+
+        /* Quiz */
+        .quiz-box { margin-top: 20px; background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.05); border-radius: 12px; padding: 20px; }
+        .quiz-q { font-weight: 600; margin-bottom: 12px; font-size: 1.05rem; }
+        .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+        .quiz-opt { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.1); padding: 12px 16px; border-radius: 8px; cursor: pointer; transition: all .2s; text-align: left; color: inherit; }
+        .quiz-opt:hover:not(.locked) { background: rgba(255,255,255,.08); }
+        .quiz-opt.correct { background: rgba(74, 222, 128, .1); border-color: var(--green); color: var(--green); }
+        .quiz-opt.wrong { background: rgba(255, 107, 107, .1); border-color: var(--red); color: var(--red); }
+        .quiz-exp { margin-top: 12px; padding: 12px; border-radius: 8px; font-size: 0.9rem; display: none; background: rgba(255,255,255,.05); }
+
+        /* Graph Nodes/Edges */
+        .node { position: absolute; width: 36px; height: 36px; background: var(--panel); border: 2px solid var(--text-muted); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'JetBrains Mono', monospace; transform: translate(-50%, -50%); z-index: 2; transition: all 0.3s; }
+        .node.active { border-color: var(--accent); box-shadow: 0 0 10px var(--accent); background: rgba(56, 214, 196, .1); color: var(--accent); }
+        .node.bag { width: auto; min-width: 48px; height: 32px; border-radius: 16px; border-color: var(--mark); color: var(--mark); }
+        
+        .svg-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        .edge { stroke: rgba(255,255,255,.2); stroke-width: 3; transition: all 0.3s; }
+        .edge.active { stroke: var(--accent); stroke-width: 4; }
+        .edge.bag-edge { stroke: var(--mark); stroke-dasharray: 5,5; stroke-width: 2; }
+        
+        .flex-cols { display: flex; gap: 20px; }
+        .col { flex: 1; }
+        .trap-box { padding: 16px; border-radius: 12px; font-size: 0.9rem; }
+        .trap-wrong { background: rgba(255, 107, 107, .05); border: 1px solid rgba(255, 107, 107, .3); }
+        .trap-right { background: rgba(74, 222, 128, .05); border: 1px solid rgba(74, 222, 128, .3); }
+        .trap-wrong h4 { color: var(--red); margin-bottom: 8px; }
+        .trap-right h4 { color: var(--green); margin-bottom: 8px; }
+
+        @media (max-width: 768px) {
+            .flex-cols { flex-direction: column; }
+            .container { padding: 20px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
+    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+</nav>
+
+<div class="container">
+    <!-- HERO -->
+    <div class="snapbox card" style="text-align: center; padding: 40px 24px;">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <span style="background: rgba(56,214,196,.15); color: var(--accent); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">Đồ thị & Cây</span>
+        <h1 style="margin: 16px 0; font-size: 2.2rem;">Phân rã cây</h1>
+        <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto;">
+            Biến mỗi cạnh của đồ thị ban đầu thành một "túi", sau đó kết nối các túi theo quan hệ cha-con để hình thành nên cây phân rã tối ưu nhất.
+        </p>
+    </div>
+
+    <!-- TÓM TẮT ĐỀ BÀI -->
+    <div class="snapbox card">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Tóm tắt đề bài</h2>
+        <p>Cho một cây vô hướng gồm <strong>N</strong> đỉnh. Cần tìm một phân rã cây (Tree Decomposition) với <strong>trọng số nhỏ nhất</strong> và <strong>số lượng túi ít nhất</strong>.</p>
+        <ul style="margin: 12px 0 12px 24px; color: var(--text-muted);">
+            <li>Tập hợp các đỉnh của cây phân rã được gọi là các <em>túi</em> (bag).</li>
+            <li><strong>Trọng số</strong> của phân rã là số lượng phần tử lớn nhất trong một túi bất kỳ.</li>
+            <li>Mọi đỉnh của cây gốc phải nằm trong ít nhất 1 túi. Mọi cạnh của cây gốc phải có 2 đầu mút cùng nằm trong ít nhất 1 túi.</li>
+            <li>Với một đỉnh <code>u</code> bất kỳ của cây gốc, các túi chứa <code>u</code> phải tạo thành một tập liên thông trên cây phân rã.</li>
+        </ul>
+        <p><strong>Ràng buộc:</strong> 2 ≤ N ≤ 10<sup>5</sup>.</p>
+        <div style="background: rgba(0,0,0,.2); padding: 12px; border-radius: 8px; margin-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">
+            <strong>Input:</strong> 4 đỉnh. Cạnh: (1, 2), (2, 3), (3, 4)<br>
+            <strong>Output:</strong><br>
+            3 (Số túi M)<br>
+            2 1 2 (Túi 1 chứa đỉnh 1, 2)<br>
+            2 2 3 (Túi 2 chứa đỉnh 2, 3)<br>
+            2 3 4 (Túi 3 chứa đỉnh 3, 4)<br>
+            1 2   (Cạnh nối túi 1 và túi 2)<br>
+            2 3   (Cạnh nối túi 2 và túi 3)
+        </div>
+    </div>
+
+    <!-- PHÂN TÍCH BAN ĐẦU -->
+    <div class="snapbox card">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Phân tích ban đầu</h2>
+        <p>Mục tiêu của chúng ta là tối thiểu hóa <strong>trọng số</strong> (kích thước túi lớn nhất), sau đó tối thiểu hóa <strong>số lượng túi</strong>.</p>
+        <p style="margin-top: 10px;">
+            Vì mọi cạnh <code>(u, v)</code> của cây gốc buộc phải nằm trọn trong ít nhất một túi, nên kích thước tối thiểu của một túi chứa cạnh là <strong>2</strong>. Ta không thể đạt trọng số bằng 1 (trừ khi đồ thị không có cạnh nào, nhưng bài toán cho N ≥ 2).<br>
+            Vậy <strong>trọng số tối ưu luôn là 2</strong>. Để đạt được trọng số 2, mỗi túi chỉ được chứa tối đa 2 đỉnh. Cách duy nhất để bao phủ toàn bộ các cạnh là <em>gán mỗi cạnh của cây gốc vào đúng một túi</em>. 
+        </p>
+        <p style="margin-top: 10px;">
+            Do cây có N đỉnh sẽ có chính xác <strong>N - 1 cạnh</strong>, ta sẽ cần chính xác <strong>M = N - 1 túi</strong>. Cách làm ngây thơ là nhét tất cả đỉnh vào 1 túi sẽ có trọng số là N (quá lớn). Bài toán giờ đây chuyển thành: <em>Làm sao nối N - 1 túi (mỗi túi là 1 cạnh) lại thành một cây thỏa mãn điều kiện liên thông?</em>
+        </p>
+    </div>
+
+    <!-- MODULE 1 -->
+    <div class="card">
+        <h2>Bước 1: Chuyển cạnh thành túi</h2>
+        <div class="snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <p>Để đảm bảo số lượng túi nhỏ nhất M = N - 1 và trọng số là 2, ta tạo một sự tương ứng 1-1: Mỗi cạnh của cây gốc sẽ trở thành một đỉnh (một túi) trên cây phân rã.</p>
+            
+            <div class="lab-container" id="lab1">
+                <div class="lab-visual" id="lab1-vis">
+                    <svg class="svg-layer" id="lab1-svg"></svg>
+                    <div id="lab1-nodes"></div>
+                </div>
+                <div class="lab-controls">
+                    <button class="btn" onclick="lab1_ctrl.reset()">↺ Đặt lại</button>
+                    <button class="btn" onclick="lab1_ctrl.prev()">❮ Lùi</button>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;" id="lab1-counter">0/0</span>
+                    <button class="btn btn-primary" onclick="lab1_ctrl.next()">Tiến ❯</button>
+                </div>
+                <div class="msg-box" id="lab1-msg">Nhấn "Tiến" để xem cách tạo túi từ cạnh.</div>
+            </div>
+        </div>
+
+        <div class="quiz-box" id="quiz1">
+            <div class="quiz-q">Tại sao ta không thể gộp 2 cạnh liên tiếp (ví dụ cạnh 1-2 và 2-3) vào chung 1 túi để giảm số lượng túi M xuống bé hơn N - 1?</div>
+            <div class="quiz-opts">
+                <button class="quiz-opt" onclick="checkQuiz('quiz1', 0, false)">Vì như vậy sẽ vi phạm điều kiện liên thông của đỉnh 2 trên cây phân rã.</button>
+                <button class="quiz-opt" onclick="checkQuiz('quiz1', 1, true)">Vì túi đó sẽ chứa 3 đỉnh {1, 2, 3}, làm trọng số tăng lên 3, không còn là tối ưu nhất.</button>
+                <button class="quiz-opt" onclick="checkQuiz('quiz1', 2, false)">Vì cây phân rã bắt buộc phải có số đỉnh bằng số đỉnh của cây gốc trừ 1.</button>
+            </div>
+            <div class="quiz-exp"><strong>Giải thích:</strong> Đề bài yêu cầu ưu tiên phân rã tối ưu (trọng số nhỏ nhất). Trọng số nhỏ nhất đạt được là 2. Nếu nhét cạnh 1-2 và 2-3 vào chung, túi sẽ chứa {1, 2, 3}, trọng số thành 3, dẫn đến kết quả sai.</div>
+        </div>
+    </div>
+
+    <!-- MODULE 2 -->
+    <div class="card">
+        <h2>Bước 2: Kết nối các túi</h2>
+        <div class="snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <p>Điều kiện hóc búa nhất: <em>Với mọi đỉnh <code>u</code>, các túi chứa <code>u</code> phải liên thông.</em></p>
+            <p>Nếu ta chọn đỉnh 1 làm gốc (Root) của cây ban đầu, định hướng các cạnh từ trên xuống dưới. Mỗi đỉnh <code>v</code> (khác 1) sẽ có đúng 1 cạnh nối với cha của nó. Ta định danh cạnh này là <strong>túi v</strong>.</p>
+            <ul style="margin: 8px 0 12px 24px; color: var(--text-muted);">
+                <li>Với đỉnh <code>u</code> (u ≠ 1): Túi chứa <code>u</code> gồm cạnh nối lên cha và các cạnh nối xuống con. Ta nối tất cả túi của con vào túi của <code>u</code>. Chúng sẽ tạo thành một hình sao tâm <code>u</code> (liên thông).</li>
+                <li>Với đỉnh gốc 1: Nó không có cha. Túi chứa đỉnh 1 chỉ gồm các cạnh nối xuống con. Ta chọn 1 túi con bất kỳ làm trung tâm, rồi nối các túi con còn lại vào nó.</li>
+            </ul>
+
+            <div class="lab-container" id="lab2">
+                <div class="lab-visual" id="lab2-vis" style="height: 340px;">
+                    <svg class="svg-layer" id="lab2-svg"></svg>
+                    <div id="lab2-nodes"></div>
+                </div>
+                <div class="lab-controls">
+                    <button class="btn" onclick="lab2_ctrl.reset()">↺ Đặt lại</button>
+                    <button class="btn" onclick="lab2_ctrl.prev()">❮ Lùi</button>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;" id="lab2-counter">0/0</span>
+                    <button class="btn btn-primary" onclick="lab2_ctrl.next()">Tiến ❯</button>
+                    <button class="btn" id="lab2-auto" onclick="lab2_ctrl.toggleAuto()">▶ Tự chạy</button>
+                </div>
+                <div class="msg-box" id="lab2-msg">Mô phỏng thuật toán kết nối túi trên cây hình sao (Input ví dụ 3).</div>
+            </div>
+        </div>
+
+        <div class="quiz-box" id="quiz2">
+            <div class="quiz-q">Khi xử lý đỉnh <code>u</code>, tại sao việc nối tất cả túi con của <code>u</code> vào túi cha của <code>u</code> lại thỏa mãn điều kiện đề bài?</div>
+            <div class="quiz-opts">
+                <button class="quiz-opt" onclick="checkQuiz('quiz2', 0, false)">Vì túi cha của u luôn có ID nhỏ nhất, giúp cây phân rã có thứ tự từ điển nhỏ.</button>
+                <button class="quiz-opt" onclick="checkQuiz('quiz2', 1, false)">Vì số lượng cạnh thêm vào sẽ đúng bằng M - 1.</button>
+                <button class="quiz-opt" onclick="checkQuiz('quiz2', 2, true)">Vì tập hợp các túi chứa đỉnh u sẽ được nối trực tiếp với nhau (tạo thành đồ thị hình sao tâm là túi cha của u), đảm bảo tính liên thông.</button>
+            </div>
+            <div class="quiz-exp"><strong>Giải thích:</strong> Mọi túi chứa đỉnh <code>u</code> đều phải liên thông. Bằng cách nối trực tiếp tất cả túi con (chứa <code>u</code>) vào túi cha (cũng chứa <code>u</code>), ta tạo ra một đồ thị con hình sao, khoảng cách giữa 2 túi bất kỳ chứa <code>u</code> tối đa là 2. Tính liên thông được bảo toàn trọn vẹn.</div>
+        </div>
+    </div>
+
+    <!-- THUẬT TOÁN TỪNG BƯỚC -->
+    <div class="snapbox card algo-steps">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h3>Thuật toán từng bước</h3>
+        <ol>
+            <li><strong>Khởi tạo và Đọc dữ liệu:</strong>
+                <ul>
+                    <li>Đọc <code>N</code>. Đọc <code>N - 1</code> cạnh của cây.</li>
+                    <li>Lưu cây dưới dạng danh sách kề: <code>adj[u]</code> chứa các cặp <code>(v, id)</code>, trong đó <code>id</code> là chỉ số của cạnh (từ 1 đến N-1).</li>
+                </ul>
+            </li>
+            <li><strong>Duyệt đồ thị (DFS) từ gốc 1:</strong>
+                <ul>
+                    <li>Gọi hàm <code>dfs(u, p)</code> để định chiều cây gốc.</li>
+                    <li>Lưu lại <code>edge_to_parent[u]</code>: ID của cạnh nối đỉnh <code>u</code> với cha <code>p</code>.</li>
+                    <li>Lưu danh sách con của <code>u</code> vào mảng <code>children[u]</code> (mỗi phần tử là đỉnh con <code>v</code>).</li>
+                </ul>
+            </li>
+            <li><strong>Tạo tập hợp túi:</strong>
+                <ul>
+                    <li>Số túi <code>M = N - 1</code>.</li>
+                    <li>Với mỗi <code>i</code> từ 1 đến <code>N - 1</code>: Túi thứ <code>i</code> có kích thước là 2, chứa 2 đỉnh đầu mút của cạnh thứ <code>i</code>.</li>
+                </ul>
+            </li>
+            <li><strong>Xây dựng tập cạnh của cây phân rã <code>T</code>:</strong>
+                <ul>
+                    <li>Duyệt mọi đỉnh <code>u</code> từ 1 đến <code>N</code>.</li>
+                    <li>Nếu <code>u == 1</code> (Đỉnh gốc): 
+                        <ul>
+                            <li>Nếu <code>u</code> có nhiều hơn 0 con, chọn con đầu tiên <code>c_1</code>. Gọi <code>C = edge_to_parent[c_1]</code>.</li>
+                            <li>Duyệt các con còn lại <code>c_k</code> của 1: Thêm cạnh nối giữa túi <code>C</code> và túi <code>edge_to_parent[c_k]</code>.</li>
+                        </ul>
+                    </li>
+                    <li>Nếu <code>u ≠ 1</code>:
+                        <ul>
+                            <li>Gọi <code>P = edge_to_parent[u]</code>.</li>
+                            <li>Duyệt mọi con <code>c</code> của <code>u</code>: Thêm cạnh nối giữa túi <code>P</code> và túi <code>edge_to_parent[c]</code>.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li><strong>In kết quả:</strong>
+                <ul>
+                    <li>In <code>M</code>.</li>
+                    <li>In danh sách các đỉnh trong <code>M</code> túi.</li>
+                    <li>In danh sách các cạnh của cây phân rã đã thu thập được ở Bước 4.</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <!-- CÀI ĐẶT -->
+    <div class="card">
+        <h2>Cài đặt (C++)</h2>
+        <div class="snapbox codewrap">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <div class="code" id="cpp-code"></div>
+        </div>
+    </div>
+
+    <!-- ĐỘ PHỨC TẠP -->
+    <div class="snapbox card">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Độ phức tạp</h2>
+        <p>
+            <strong>Thời gian:</strong> O(N). Ta chỉ thực hiện một lần duyệt DFS qua N đỉnh và N-1 cạnh. Quá trình tạo túi và kết nối túi duyệt qua mỗi đỉnh và danh sách kề của nó đúng 1 lần. Chạy cực kỳ thoải mái với N ≤ 10<sup>5</sup>.<br>
+            <strong>Không gian:</strong> O(N) để lưu trữ danh sách kề, mảng <code>edge_to_parent</code> và danh sách kết quả.
+        </p>
+    </div>
+
+    <!-- CẠM BẪY -->
+    <div class="snapbox card">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Cạm bẫy khi cài đặt</h2>
+        <div class="flex-cols">
+            <div class="col trap-box trap-wrong">
+                <h4>✕ Sai lầm phổ biến</h4>
+                <p>Nối tùy tiện 2 túi có chứa điểm chung <code>u</code> với nhau nhưng không định hướng cha-con, dẫn đến cây phân rã sinh ra có chu trình (không còn là cây) hoặc bị ngắt mạch (không liên thông).</p>
+            </div>
+            <div class="col trap-box trap-right">
+                <h4>✓ Cách xử lý chuẩn</h4>
+                <p>Luôn root cây tại đỉnh 1. Ánh xạ túi theo "cạnh nối lên cha". Dùng quy tắc hình sao: <strong>mọi cạnh nối xuống con phải gắn vào cạnh nối lên cha</strong>. Tuyệt đối không sinh chu trình vì mỗi túi (cạnh) con chỉ nối duy nhất 1 lần lên túi cha.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Utils
+    function htmlEscape(str) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function flash(btn, text) {
+        const o = btn.textContent;
+        btn.textContent = text;
+        setTimeout(() => btn.textContent = o, 1200);
+    }
+    async function copyCode(btn) {
+        const wrap = btn.closest('.codewrap');
+        const codeEl = wrap.querySelector('.code');
+        const text = codeEl.innerText;
+        try {
+            await navigator.clipboard.writeText(text);
+            flash(btn, 'Đã chép!');
+        } catch (e) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            flash(btn, 'Đã chép!');
+        }
+    }
+    async function snapBox(btn) {
+        const box = btn.closest('.snapbox');
+        box.classList.add('snapping');
+        await document.fonts.ready;
+        const canvas = await html2canvas(box, { backgroundColor: '#0B1220', scale: 2, logging: false });
+        box.classList.remove('snapping');
+        canvas.toBlob(async (blob) => {
+            try {
+                await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                flash(btn, 'Đã chụp!');
+            } catch (e) {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'snap.png';
+                a.click();
+                flash(btn, 'Đã tải ảnh');
+            }
+        });
+    }
+
+    function checkQuiz(quizId, optIdx, isCorrect) {
+        const box = document.getElementById(quizId);
+        const opts = box.querySelectorAll('.quiz-opt');
+        opts.forEach((opt, idx) => {
+            opt.classList.add('locked');
+            if (idx === optIdx) {
+                opt.classList.add(isCorrect ? 'correct' : 'wrong');
+            } else if (isCorrect === false && opts[idx].onclick.toString().includes('true')) {
+                // If wrong, optionally highlight correct answer? 
+                // Rule says "tô xanh đáp đúng/đỏ đáp sai". Let's just color the clicked one.
+                // Wait, better show correct one too.
+                opt.classList.add('correct');
+            }
+            opt.onclick = null;
+        });
+        box.querySelector('.quiz-exp').style.display = 'block';
+    }
+
+    // Highlighting Logic
+    function renderCode() {
+        const rawCode = `#include <bits/stdc++.h>
+using namespace std;
+
+const int MAXN = 100005;
+vector<pair<int, int>> adj[MAXN]; // {đỉnh kề, id cạnh}
+int edge_to_parent[MAXN];
+vector<int> children[MAXN];
+
+struct EdgeInfo {
+    int u, v;
+};
+EdgeInfo edges[MAXN];
+
+void dfs(int u, int p) {
+    for (auto edge : adj[u]) {
+        int v = edge.first;
+        int id = edge.second;
+        if (v != p) {
+            edge_to_parent[v] = id;
+            children[u].push_back(v);
+            dfs(v, u);
+        }
+    }
+}
+
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(NULL);
+    int N;
+    if (!(cin >> N)) return 0;
+
+    for (int i = 1; i < N; i++) {
+        int u, v; cin >> u >> v;
+        adj[u].push_back({v, i});
+        adj[v].push_back({u, i});
+        edges[i] = {u, v};
+    }
+
+    dfs(1, 0);
+
+    vector<pair<int, int>> T_edges;
+
+    // Duyệt tìm kết nối túi
+    for (int u = 1; u <= N; u++) {
+        if (u == 1) {
+            // Xử lý gốc
+            if (!children[u].empty()) {
+                int first_child = children[u][0];
+                int center_bag = edge_to_parent[first_child];
+                for (int i = 1; i < children[u].size(); i++) {
+                    int sibling_bag = edge_to_parent[children[u][i]];
+                    T_edges.push_back({center_bag, sibling_bag});
+                }
+            }
+        } else {
+            // Xử lý đỉnh u khác gốc
+            int parent_bag = edge_to_parent[u];
+            for (int child : children[u]) {
+                int child_bag = edge_to_parent[child];
+                T_edges.push_back({parent_bag, child_bag});
+            }
+        }
+    }
+
+    // In kết quả
+    int M = N - 1;
+    cout << M << "\\n";
+    for (int i = 1; i <= M; i++) {
+        cout << 2 << " " << edges[i].u << " " << edges[i].v << "\\n";
+    }
+    for (auto e : T_edges) {
+        cout << e.first << " " << e.second << "\\n";
+    }
+
+    return 0;
+}`;
+        let escaped = htmlEscape(rawCode);
+        
+        // Simple regex tokenizer for pre-escaped code
+        const regex = /(?:\/\/.*)|(?:"(?:\\"|[^"])*")|(?:\b(?:int|void|if|for|while|return|const|vector|struct|auto|using|namespace)\b)|(?:\b\d+\b)/g;
+        let highlighted = escaped.replace(regex, match => {
+            if (match.startsWith('//')) return `<span class="c-cm">${match}</span>`;
+            if (match.startsWith('"')) return `<span class="c-str">${match}</span>`;
+            if (/^\d/.test(match)) return `<span class="c-num">${match}</span>`;
+            return `<span class="c-kw">${match}</span>`;
+        });
+        
+        // Extra functions highlight
+        highlighted = highlighted.replace(/(dfs|push_back|empty|size)\b/g, '<span class="c-fn">$1</span>');
+
+        const lines = highlighted.split('\n');
+        const codeHtml = lines.map((l, i) => `<div class="codeline" id="cpp-l${i+1}">${l || ' '}</div>`).join('');
+        document.getElementById('cpp-code').innerHTML = codeHtml;
+    }
+
+    // Lab System
+    class LabController {
+        constructor(id, stepsObj, drawFn) {
+            this.id = id;
+            this.steps = stepsObj;
+            this.drawFn = drawFn;
+            this.sp = 0;
+            this.autoInt = null;
+        }
+        paint() {
+            const state = this.steps[this.sp];
+            document.getElementById(`${this.id}-counter`).innerText = `${this.sp}/${this.steps.length - 1}`;
+            document.getElementById(`${this.id}-msg`).innerHTML = state.msg;
+            this.drawFn(state);
+            
+            const prevBtn = document.querySelector(`#${this.id} .lab-controls button:nth-child(2)`);
+            const nextBtn = document.querySelector(`#${this.id} .lab-controls button:nth-child(4)`);
+            prevBtn.disabled = (this.sp === 0);
+            nextBtn.disabled = (this.sp === this.steps.length - 1);
+        }
+        next() { if(this.sp < this.steps.length - 1) { this.sp++; this.paint(); } else this.stopAuto(); }
+        prev() { if(this.sp > 0) { this.sp--; this.paint(); } }
+        reset() { this.sp = 0; this.stopAuto(); this.paint(); }
+        toggleAuto() {
+            const btn = document.getElementById(`${this.id}-auto`);
+            if (this.autoInt) { this.stopAuto(); } 
+            else { 
+                btn.innerHTML = '⏸ Dừng'; 
+                btn.classList.add('btn-primary');
+                if (this.sp === this.steps.length - 1) this.sp = -1;
+                this.autoInt = setInterval(() => this.next(), 800); 
+            }
+        }
+        stopAuto() {
+            if(this.autoInt) { clearInterval(this.autoInt); this.autoInt = null; }
+            const btn = document.getElementById(`${this.id}-auto`);
+            if(btn) { btn.innerHTML = '▶ Tự chạy'; btn.classList.remove('btn-primary'); }
+        }
+    }
+
+    // LAB 1: Edge to Bag (Linear Tree 1-2-3-4)
+    const lab1_steps = [];
+    function buildLab1() {
+        // Base graph: 1-2, 2-3, 3-4
+        // Nodes pos: 1:(20,50%), 2:(40,50%), 3:(60,50%), 4:(80,50%)
+        const base = {
+            nodes: [
+                {id: 1, label: "1", px: 20, py: 50, bag: false},
+                {id: 2, label: "2", px: 40, py: 50, bag: false},
+                {id: 3, label: "3", px: 60, py: 50, bag: false},
+                {id: 4, label: "4", px: 80, py: 50, bag: false}
+            ],
+            edges: [
+                {u: 1, v: 2, id: 1, active: false},
+                {u: 2, v: 3, id: 2, active: false},
+                {u: 3, v: 4, id: 3, active: false}
+            ],
+            bags: []
+        };
+
+        lab1_steps.push({ ...JSON.parse(JSON.stringify(base)), msg: "Đây là cây gốc gồm 4 đỉnh và 3 cạnh. Yêu cầu: che phủ mọi cạnh bằng các túi." });
+        
+        let s1 = JSON.parse(JSON.stringify(base));
+        s1.edges[0].active = true;
+        s1.bags.push({id: "Túi 1", px: 30, py: 25, content: "{1, 2}"});
+        s1.msg = "Cạnh (1, 2) được chọn làm Túi số 1. Túi này chứa hai đỉnh {1, 2}, đảm bảo cạnh (1, 2) được phủ.";
+        lab1_steps.push(s1);
+
+        let s2 = JSON.parse(JSON.stringify(s1));
+        s2.edges[1].active = true;
+        s2.bags.push({id: "Túi 2", px: 50, py: 75, content: "{2, 3}"});
+        s2.msg = "Tương tự, cạnh (2, 3) trở thành Túi số 2, chứa {2, 3}.";
+        lab1_steps.push(s2);
+
+        let s3 = JSON.parse(JSON.stringify(s2));
+        s3.edges[2].active = true;
+        s3.bags.push({id: "Túi 3", px: 70, py: 25, content: "{3, 4}"});
+        s3.msg = "Cuối cùng, cạnh (3, 4) tạo thành Túi số 3. Ta đã che phủ toàn bộ đồ thị bằng đúng 3 túi (M = 4 - 1 = 3) với kích thước mỗi túi là 2 (tối ưu).";
+        lab1_steps.push(s3);
+    }
+
+    function drawLab1(state) {
+        const svg = document.getElementById('lab1-svg');
+        const nodesContainer = document.getElementById('lab1-nodes');
+        svg.innerHTML = ''; nodesContainer.innerHTML = '';
+
+        // Draw original edges
+        state.edges.forEach(e => {
+            const n1 = state.nodes.find(n => n.id === e.u);
+            const n2 = state.nodes.find(n => n.id === e.v);
+            svg.innerHTML += `<line x1="${n1.px}%" y1="${n1.py}%" x2="${n2.px}%" y2="${n2.py}%" class="edge ${e.active ? 'active' : ''}"></line>`;
+        });
+
+        // Draw original nodes
+        state.nodes.forEach(n => {
+            nodesContainer.innerHTML += `<div class="node" style="left: ${n.px}%; top: ${n.py}%;">${n.label}</div>`;
+        });
+
+        // Draw bags (and dashed line to edge center)
+        state.bags.forEach(b => {
+            // center of the edge it represents
+            // just hardcode drawing line from bag to edge center for visualization
+            let cx, cy;
+            if (b.id === "Túi 1") { cx = 30; cy = 50; }
+            if (b.id === "Túi 2") { cx = 50; cy = 50; }
+            if (b.id === "Túi 3") { cx = 70; cy = 50; }
+            
+            svg.innerHTML += `<line x1="${b.px}%" y1="${b.py}%" x2="${cx}%" y2="${cy}%" class="edge bag-edge"></line>`;
+            nodesContainer.innerHTML += `<div class="node bag active" style="left: ${b.px}%; top: ${b.py}%;">${b.id}: ${b.content}</div>`;
+        });
+    }
+
+    // LAB 2: Star tree connecting
+    const lab2_steps = [];
+    function buildLab2() {
+        // Base graph: 1 is root, children 2, 3, 4
+        // Nodes pos: 1:(50%,20%), 2:(20%,70%), 3:(50%,70%), 4:(80%,70%)
+        const base = {
+            nodes: [
+                {id: 1, label: "1", px: 50, py: 20},
+                {id: 2, label: "2", px: 20, py: 70},
+                {id: 3, label: "3", px: 50, py: 70},
+                {id: 4, label: "4", px: 80, py: 70}
+            ],
+            edges: [
+                {u: 1, v: 2, id: "e1", active: false},
+                {u: 1, v: 3, id: "e2", active: false},
+                {u: 1, v: 4, id: "e3", active: false}
+            ],
+            bags: [
+                {id: "Túi 1", p_node: 2, px: 35, py: 45, content: "{1,2}"},
+                {id: "Túi 2", p_node: 3, px: 50, py: 45, content: "{1,3}"},
+                {id: "Túi 3", p_node: 4, px: 65, py: 45, content: "{1,4}"}
+            ],
+            T_edges: [], // {b1, b2}
+            highlightNodes: []
+        };
+
+        lab2_steps.push({ ...JSON.parse(JSON.stringify(base)), msg: "Cây mẫu: Đỉnh gốc 1 nối với đỉnh 2, 3, 4. <strong>Túi 1, 2, 3</strong> tương ứng là các cạnh e1, e2, e3." });
+
+        let s1 = JSON.parse(JSON.stringify(base));
+        s1.highlightNodes = [1];
+        s1.msg = "Bắt đầu duyệt tại <strong>đỉnh gốc 1</strong>. Các túi chứa đỉnh 1 là Túi 1, Túi 2, Túi 3. Làm sao để chúng liên thông trên cây phân rã?";
+        lab2_steps.push(s1);
+
+        let s2 = JSON.parse(JSON.stringify(s1));
+        s2.edges[0].active = true; // highlight e1
+        s2.msg = "Vì 1 là gốc (không có cha), ta chọn ngẫu nhiên con đầu tiên (cạnh e1, tức <strong>Túi 1</strong>) làm túi trung tâm.";
+        lab2_steps.push(s2);
+
+        let s3 = JSON.parse(JSON.stringify(s2));
+        s3.T_edges.push({u: "Túi 2", v: "Túi 1"});
+        s3.msg = "Ta nối Túi 2 (cạnh e2) vào túi trung tâm Túi 1.";
+        lab2_steps.push(s3);
+
+        let s4 = JSON.parse(JSON.stringify(s3));
+        s4.T_edges.push({u: "Túi 3", v: "Túi 1"});
+        s4.msg = "Tiếp tục nối Túi 3 (cạnh e3) vào Túi 1. Giờ đây {Túi 1, Túi 2, Túi 3} tạo thành hình sao, đảm bảo liên thông cho đỉnh 1.";
+        lab2_steps.push(s4);
+
+        let s5 = JSON.parse(JSON.stringify(s4));
+        s5.highlightNodes = [2];
+        s5.edges[0].active = false;
+        s5.msg = "Xét tiếp đỉnh 2. Túi chứa đỉnh 2 là cạnh cha của nó (Túi 1). Vì đỉnh 2 không có đỉnh con nào, ta không cần thêm cạnh nào mới.";
+        lab2_steps.push(s5);
+
+        let s6 = JSON.parse(JSON.stringify(s5));
+        s6.highlightNodes = [];
+        s6.msg = "Hoàn tất! Cây phân rã <code>T</code> có 3 đỉnh (Túi) và 2 cạnh. Các điều kiện đều được thỏa mãn triệt để.";
+        lab2_steps.push(s6);
+    }
+
+    function drawLab2(state) {
+        const svg = document.getElementById('lab2-svg');
+        const nodesContainer = document.getElementById('lab2-nodes');
+        svg.innerHTML = ''; nodesContainer.innerHTML = '';
+
+        // Draw original edges
+        state.edges.forEach(e => {
+            const n1 = state.nodes.find(n => n.id === e.u);
+            const n2 = state.nodes.find(n => n.id === e.v);
+            svg.innerHTML += `<line x1="${n1.px}%" y1="${n1.py}%" x2="${n2.px}%" y2="${n2.py}%" class="edge ${e.active ? 'active' : ''}"></line>`;
+        });
+
+        // Draw original nodes
+        state.nodes.forEach(n => {
+            const isHi = state.highlightNodes.includes(n.id);
+            nodesContainer.innerHTML += `<div class="node ${isHi ? 'active' : ''}" style="left: ${n.px}%; top: ${n.py}%;">${n.label}</div>`;
+        });
+
+        // Draw bags
+        state.bags.forEach(b => {
+            nodesContainer.innerHTML += `<div class="node bag" style="left: ${b.px}%; top: ${b.py}%; border-radius: 8px; font-size: 0.8rem; height: 24px; min-width: 60px;">${b.id}</div>`;
+        });
+
+        // Draw T_edges (between bags)
+        state.T_edges.forEach(te => {
+            const b1 = state.bags.find(b => b.id === te.u);
+            const b2 = state.bags.find(b => b.id === te.v);
+            // Draw a distinct line for T edge
+            svg.innerHTML += `<line x1="${b1.px}%" y1="${b1.py}%" x2="${b2.px}%" y2="${b2.py}%" style="stroke: #FFB454; stroke-width: 3; stroke-dasharray: 6,4;"></line>`;
+        });
+    }
+
+    let lab1_ctrl, lab2_ctrl;
+
+    window.onload = () => {
+        renderCode();
+        
+        buildLab1();
+        lab1_ctrl = new LabController('lab1', lab1_steps, drawLab1);
+        lab1_ctrl.paint();
+
+        buildLab2();
+        lab2_ctrl = new LabController('lab2', lab2_steps, drawLab2);
+        lab2_ctrl.paint();
+    };
+</script>
+
+</body>
+</html>
