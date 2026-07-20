@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lời giải: Tổng có trọng số</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
+            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
+            --text-main: #E2E8F0; --text-muted: #94A3B8;
+            --glow: 0 0 20px rgba(56,214,196,.4);
+            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
+            --border: 1px solid rgba(255,255,255,.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main);
+            line-height: 1.6; padding-bottom: 60px;
+        }
+
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.03em; }
+        
+        /* Nav */
+        .topnav {
+            position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center;
+            padding: 12px 20px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px); border-bottom: var(--border);
+        }
+        .nav-btn {
+            text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent));
+            padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease;
+        }
+        .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
+        .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
+
+        /* Layout */
+        .container { max-width: 1000px; margin: 0 auto; padding: 24px 24px; display: flex; flex-direction: column; gap: 32px; }
+        
+        /* Cards */
+        .card {
+            background: linear-gradient(180deg, var(--panel), var(--bg2)); border: var(--border);
+            border-radius: 16px; padding: 24px; box-shadow: var(--shadow); position: relative;
+        }
+        .card-title { color: var(--accent); margin-bottom: 16px; font-size: 1.4rem; }
+        
+        /* Snap & Copy Buttons */
+        .snapbox, .codewrap { position: relative; }
+        .copy-btn, .snap-btn {
+            position: absolute; top: 10px; z-index: 5;
+            font-family: "JetBrains Mono", monospace; font-size: .72rem; font-weight: 600;
+            padding: 5px 10px; border-radius: 7px; cursor: pointer;
+            background: rgba(255,255,255,.06); color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,.12); transition: all .2s;
+        }
+        .snap-btn { right: 10px; }
+        .copy-btn { right: 64px; } 
+        .snapbox:not(.codewrap) .snap-btn { right: 10px; }
+        .copy-btn:hover, .snap-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(56,214,196,.1); }
+        .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
+
+        /* Code Blocks */
+        .codewrap {
+            background: #0A1220; border: var(--border); border-radius: 12px;
+            overflow-x: auto; margin: 16px 0; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
+        }
+        .code { padding: 16px 0; min-width: max-content; }
+        .codeline { padding: 0 16px; white-space: pre-wrap; line-height: 1.6; border-left: 3px solid transparent; }
+        .codeline.hot { background: rgba(255,180,84,.1); border-left: 3px solid var(--mark); }
+        
+        /* Syntax Highlighting */
+        .c-kw { color: #C678DD; } /* Keywords */
+        .c-num { color: #D19A66; } /* Numbers */
+        .c-cm { color: #5C6370; font-style: italic; } /* Comments */
+        .c-str { color: #98C379; } /* Strings */
+        .c-op { color: #56B6C2; } /* Operators */
+        .c-type { color: #E5C07B; } /* Types */
+        
+        /* Typography utils */
+        .highlight { color: var(--mark); font-weight: 600; }
+        p { margin-bottom: 12px; }
+        ul { margin-left: 20px; margin-bottom: 16px; color: var(--text-muted); }
+        li { margin-bottom: 6px; }
+        code {
+            font-family: 'JetBrains Mono', monospace; background: rgba(255,255,255,.1);
+            padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: #A9C4FF;
+        }
+
+        /* Hero */
+        .hero { text-align: center; padding: 20px 0; }
+        .badge { display: inline-block; padding: 4px 12px; background: rgba(91,140,255,.2); color: var(--accent2); border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 12px; }
+        .hero h1 { font-size: 2.2rem; margin-bottom: 12px; }
+        
+        /* Lab Elements */
+        .lab-container { margin-top: 20px; padding: 16px; background: rgba(0,0,0,.2); border-radius: 12px; border: var(--border); }
+        .lab-visual { overflow-x: auto; padding-bottom: 10px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 16px; }
+        .array-row { display: flex; align-items: center; gap: 8px; white-space: nowrap; flex: none; }
+        .array-label { width: 40px; font-weight: 600; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+        .cell {
+            width: 44px; height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: var(--panel); border: 1px solid rgba(255,255,255,.2); border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace; font-weight: 600; position: relative; flex: none;
+            transition: all 0.3s;
+        }
+        .cell.active { background: rgba(56,214,196,.2); border-color: var(--accent); box-shadow: 0 0 10px rgba(56,214,196,.4); }
+        .cell.mark { background: rgba(255,180,84,.2); border-color: var(--mark); }
+        .cell-idx { position: absolute; top: -20px; font-size: 0.7rem; color: var(--text-muted); }
+        .cell-val { font-size: 1rem; }
+        .cell-sub { font-size: 0.7rem; color: var(--text-muted); margin-top: -2px; }
+
+        .lab-controls { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+        .btn {
+            background: var(--panel); border: 1px solid var(--accent); color: var(--accent);
+            padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600;
+            transition: all 0.2s; font-family: 'Inter', sans-serif;
+        }
+        .btn:hover:not(:disabled) { background: rgba(56,214,196,.1); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; border-color: rgba(255,255,255,.2); color: var(--text-muted); }
+        .btn-primary { background: linear-gradient(135deg, var(--accent2), var(--accent)); color: #000; border: none; }
+        .btn-primary:hover:not(:disabled) { box-shadow: var(--glow); filter: brightness(1.1); }
+        
+        .msg-box { background: rgba(91,140,255,.1); border-left: 4px solid var(--accent2); padding: 12px 16px; border-radius: 0 8px 8px 0; font-size: 0.95rem; min-height: 48px; display: flex; align-items: center; }
+
+        /* Quiz */
+        .quiz-card { background: rgba(11,18,32,.6); border: 1px dashed rgba(255,255,255,.2); }
+        .quiz-opts { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+        .quiz-opt {
+            padding: 12px 16px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+            border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 0.95rem;
+        }
+        .quiz-opt:hover { background: rgba(255,255,255,.1); }
+        .quiz-opt.correct { background: rgba(56,214,196,.15); border-color: var(--accent); color: var(--accent); }
+        .quiz-opt.wrong { background: rgba(255,107,107,.15); border-color: var(--red); color: var(--red); }
+        .quiz-exp { margin-top: 12px; padding: 12px; border-radius: 8px; font-size: 0.9rem; display: none; }
+        .quiz-exp.show { display: block; }
+        .quiz-exp.success { background: rgba(56,214,196,.1); color: var(--accent); }
+        .quiz-exp.error { background: rgba(255,107,107,.1); color: var(--red); }
+
+        /* Algorithm Steps Card */
+        .algo-steps {
+            background: linear-gradient(180deg, rgba(56,214,196,.06), transparent);
+            border: 1px solid rgba(56,214,196,.35); border-left: 4px solid var(--accent);
+            border-radius: 14px; padding: 20px 24px;
+        }
+        .algo-steps h3 { color: var(--accent); margin-bottom: 10px; }
+        .algo-steps ol { margin: 0; padding-left: 22px; }
+        .algo-steps ol > li { margin-bottom: 10px; line-height: 1.6; }
+        .algo-steps ul { margin: 6px 0; padding-left: 18px; list-style: none; }
+        .algo-steps ul > li { position: relative; padding-left: 14px; margin-bottom: 4px; color: var(--text-muted); }
+        .algo-steps ul > li::before { content: "–"; position: absolute; left: 0; color: var(--accent); }
+        .algo-steps code { background: rgba(91,140,255,.14); color: #A9C4FF; padding: .05em .4em; border-radius: 5px; font-family: "JetBrains Mono", monospace; font-size: .88em; }
+
+        /* Pitfalls */
+        .pitfalls { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .pitfall-col { padding: 16px; border-radius: 12px; background: rgba(255,255,255,.03); border: var(--border); }
+        .pitfall-col.wrong h4 { color: var(--red); }
+        .pitfall-col.right h4 { color: var(--accent); }
+        .pitfall-col h4 { margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        @media (max-width: 768px) { .pitfalls { grid-template-columns: 1fr; } }
+
+        /* Formula display */
+        .formula-box { background: rgba(0,0,0,.3); padding: 16px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; text-align: center; font-size: 1.1rem; color: #E2E8F0; margin: 12px 0; overflow-x: auto;}
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
+    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+</nav>
+
+<div class="container">
+    <!-- Hero -->
+    <div class="hero">
+        <div class="badge">Kỹ thuật mảng cộng dồn</div>
+        <h1>Tổng có trọng số</h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem;">Bóc tách công thức toán học để tối ưu hóa truy vấn đoạn thành O(1).</p>
+    </div>
+
+    <!-- Tóm tắt đề bài -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2 class="card-title">Tóm tắt đề bài</h2>
+        <p>Cho dãy N số nguyên a<sub>1</sub>, a<sub>2</sub>, ..., a<sub>N</sub>. Có Q truy vấn, mỗi truy vấn cho 2 vị trí L và R.</p>
+        <p>Với mỗi truy vấn, cần tính tổng:</p>
+        <div class="formula-box">
+            S = 1 · a<sub>L</sub> + 2 · a<sub>L+1</sub> + 3 · a<sub>L+2</sub> + ... + (R - L + 1) · a<sub>R</sub>
+        </div>
+        <p><b>Ràng buộc:</b><br>
+        N, Q ≤ 2 × 10<sup>5</sup><br>
+        |a<sub>i</sub>| ≤ 10<sup>6</sup><br>
+        1 ≤ L ≤ R ≤ N</p>
+        <p><b>Ví dụ:</b><br>
+        Mảng: <code>2 3 1 4</code><br>
+        Truy vấn L=2, R=4 (đoạn <code>3 1 4</code>).<br>
+        Tổng S = 1 × 3 + 2 × 1 + 3 × 4 = 17.</p>
+    </div>
+
+    <!-- Phân tích ban đầu -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2 class="card-title">Phân tích ban đầu</h2>
+        <p>Cách đơn giản nhất (ngây thơ) là với mỗi truy vấn từ L đến R, ta dùng một vòng lặp <code>for</code> từ L đến R, nhân từng phần tử với hệ số tương ứng rồi cộng dồn lại.</p>
+        <p><b>Vì sao cách này không đủ tốt?</b></p>
+        <ul>
+            <li>Mỗi truy vấn có thể duyệt qua tối đa N phần tử, tốn thời gian O(N).</li>
+            <li>Có tổng cộng Q truy vấn. Tổng thời gian tốn O(N × Q).</li>
+            <li>Với N, Q lên tới 2 × 10<sup>5</sup>, số phép tính cỡ 4 × 10<sup>10</sup>, sẽ gây ra <b>Time Limit Exceeded</b> (quá thời gian cho phép).</li>
+        </ul>
+        <p>Ta cần một cách để trả lời mỗi truy vấn chỉ trong O(1). Điều này gợi ý đến cấu trúc dữ liệu <b>Mảng cộng dồn</b> (Prefix Sum). Nhưng hệ số nhân lại thay đổi theo L (phần tử tại vị trí L luôn nhân với 1), vậy phải làm sao?</p>
+    </div>
+
+    <!-- Module 1: Giải thích ý 1 -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2 class="card-title">Bước 1: Bóc tách hệ số biến đổi</h2>
+        <p>Trở ngại lớn nhất là phần tử a<sub>i</sub> (nằm trong đoạn L..R) đang bị nhân với hệ số phụ thuộc vào L: chính xác là <code>(i - L + 1)</code>.</p>
+        <p>Hãy phân phối phép nhân này ra: <br>
+           <code>(i - L + 1) · a<sub>i</sub> = i · a<sub>i</sub> - (L - 1) · a<sub>i</sub></code>
+        </p>
+        <p>Như vậy, tổng S có thể được tách làm hai nửa:</p>
+        <div class="formula-box" style="font-size: 0.95rem; text-align: left;">
+            S = Tổng các (i · a<sub>i</sub>) - Tổng các ((L - 1) · a<sub>i</sub>)<br>
+            S = Tổng các (i · a<sub>i</sub>) - (L - 1) × Tổng các (a<sub>i</sub>)
+        </div>
+        
+        <!-- Lab 1: Interactive Formula -->
+        <div class="lab-container" id="lab1-container">
+            <div class="lab-visual snapbox">
+                <p><b>Mô phỏng tách hệ số:</b> Chọn truy vấn L=2, R=4 cho dãy <code>[2, 3, 1, 4]</code></p>
+                <div class="array-row" id="lab1-arr">
+                    <!-- Gen by JS -->
+                </div>
+                <div style="margin-top: 16px; padding: 12px; background: rgba(0,0,0,.3); border-radius: 8px;" id="lab1-eq">
+                    S = 1×3 + 2×1 + 3×4 = 17
+                </div>
+            </div>
+            <div class="lab-controls">
+                <button class="btn" id="lab1-btn" onclick="lab1Toggle()">Xem bóc tách hệ số</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz 1 -->
+    <div class="card quiz-card">
+        <h3>Kiểm tra: Tại sao việc tách ra như trên lại giúp ích?</h3>
+        <div class="quiz-opts" id="q1-opts">
+            <div class="quiz-opt" onclick="checkQuiz(1, 0)">A. Vì nó giúp hệ số nhân với a<sub>i</sub> chỉ còn phụ thuộc vào vị trí gốc (i), không phụ thuộc vào bắt đầu truy vấn (L) nữa.</div>
+            <div class="quiz-opt" onclick="checkQuiz(1, 1)">B. Vì máy tính xử lý phép trừ nhanh hơn phép nhân rất nhiều.</div>
+            <div class="quiz-opt" onclick="checkQuiz(1, 2)">C. Vì nó làm giá trị tổng nhỏ đi, tránh bị tràn số nguyên.</div>
+        </div>
+        <div class="quiz-exp" id="q1-exp"></div>
+    </div>
+
+    <!-- Module 2: Giải thích ý 2 -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2 class="card-title">Bước 2: Dùng hai mảng cộng dồn</h2>
+        <p>Nhờ bước phân tách trên, ta thấy để tính S, ta chỉ cần 2 công cụ:</p>
+        <ol>
+            <li><b>Tổng các (a<sub>i</sub>) trên đoạn [L, R]:</b> Dùng mảng cộng dồn bình thường <code>P</code>, trong đó <code>P[i] = P[i-1] + a<sub>i</sub></code>.</li>
+            <li><b>Tổng các (i · a<sub>i</sub>) trên đoạn [L, R]:</b> Dùng một mảng cộng dồn thứ hai tên là <code>M</code>, trong đó <code>M[i] = M[i-1] + i · a<sub>i</sub></code>.</li>
+        </ol>
+        <p>Khi đã chuẩn bị xong 2 mảng này trong O(N), với mọi truy vấn (L, R), ta tính:</p>
+        <div class="formula-box">
+            S = (M[R] - M[L-1]) - (L - 1) × (P[R] - P[L-1])
+        </div>
+        <p>Mỗi truy vấn giờ chỉ gồm các phép cộng, trừ, nhân đơn giản tốn O(1).</p>
+        
+        <!-- Lab 2: Full State Machine -->
+        <div class="lab-container">
+            <div class="lab-visual snapbox">
+                <div class="array-row">
+                    <div class="array-label">idx:</div>
+                    <div class="cell"><span class="cell-val">1</span></div>
+                    <div class="cell"><span class="cell-val">2</span></div>
+                    <div class="cell"><span class="cell-val">3</span></div>
+                    <div class="cell"><span class="cell-val">4</span></div>
+                </div>
+                <div class="array-row">
+                    <div class="array-label">a:</div>
+                    <div class="cell" id="l2-a1"><span class="cell-val">2</span></div>
+                    <div class="cell" id="l2-a2"><span class="cell-val">3</span></div>
+                    <div class="cell" id="l2-a3"><span class="cell-val">1</span></div>
+                    <div class="cell" id="l2-a4"><span class="cell-val">4</span></div>
+                </div>
+                <div class="array-row">
+                    <div class="array-label">P:</div>
+                    <div class="cell" id="l2-p0"><span class="cell-idx">0</span><span class="cell-val">0</span></div>
+                    <div class="cell" id="l2-p1"><span class="cell-idx">1</span><span class="cell-val">0</span></div>
+                    <div class="cell" id="l2-p2"><span class="cell-idx">2</span><span class="cell-val">0</span></div>
+                    <div class="cell" id="l2-p3"><span class="cell-idx">3</span><span class="cell-val">0</span></div>
+                    <div class="cell" id="l2-p4"><span class="cell-idx">4</span><span class="cell-val">0</span></div>
+                </div>
+                <div class="array-row">
+                    <div class="array-label">M:</div>
+                    <div class="cell" id="l2-m0"><span class="cell-idx">0</span><span class="cell-val">0</span></div>
+                    <div class="cell" id="l2-m1"><span class="cell-idx">1</span><span class="cell-val">0</span></div>
+                    <div class="cell" id="l2-m2"><span class="cell-idx">2</span><span class="cell-val">0</span></div>
+                    <div class="cell" id="l2-m3"><span class="cell-idx">3</span><span class="cell-val">0</span></div>
+                    <div class="cell" id="l2-m4"><span class="cell-idx">4</span><span class="cell-val">0</span></div>
+                </div>
+            </div>
+            
+            <div class="msg-box" id="lab2-msg">Sẵn sàng khởi tạo mảng cộng dồn.</div>
+            
+            <div class="lab-controls" style="margin-top: 16px;">
+                <button class="btn" id="lab2-btn-reset" onclick="lab2Obj.reset()">Reset</button>
+                <button class="btn" id="lab2-btn-prev" onclick="lab2Obj.prev()">Lùi</button>
+                <button class="btn btn-primary" id="lab2-btn-next" onclick="lab2Obj.next()">Tiến</button>
+                <button class="btn outline" id="lab2-btn-auto" onclick="lab2Obj.auto()">Tự chạy</button>
+                <span style="color:var(--text-muted); font-size:0.9rem; font-family:'JetBrains Mono'">Bước <span id="lab2-lbl-step">0</span>/<span id="lab2-lbl-total">0</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz 2 -->
+    <div class="card quiz-card">
+        <h3>Kiểm tra: Nếu truy vấn có L = 1 (tính từ đầu mảng), công thức <code>(L - 1) × (P[R] - P[L-1])</code> sẽ mang giá trị bao nhiêu?</h3>
+        <div class="quiz-opts" id="q2-opts">
+            <div class="quiz-opt" onclick="checkQuiz(2, 0)">A. Bằng 1.</div>
+            <div class="quiz-opt" onclick="checkQuiz(2, 1)">B. Lỗi truy cập ngoài mảng (index out of bounds) nếu không cẩn thận.</div>
+            <div class="quiz-opt" onclick="checkQuiz(2, 2)">C. Bằng 0, công thức tự triệt tiêu đi phần trừ dư thừa một cách hoàn hảo.</div>
+        </div>
+        <div class="quiz-exp" id="q2-exp"></div>
+    </div>
+
+    <!-- Thuật toán từng bước -->
+    <div class="card snapbox algo-steps">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h3>Thuật toán từng bước</h3>
+        <ol>
+            <li><b>Khai báo mảng:</b>
+                <ul>
+                    <li>Tạo mảng <code>a[]</code> lưu dãy số nguyên (dùng chỉ số từ 1 đến N).</li>
+                    <li>Tạo mảng cộng dồn <code>p[]</code> cỡ N+1, khởi tạo <code>p[0] = 0</code>.</li>
+                    <li>Tạo mảng cộng dồn <code>m[]</code> cỡ N+1, khởi tạo <code>m[0] = 0</code>.</li>
+                    <li><i>Lưu ý: Mọi phần tử đều phải dùng kiểu số nguyên lớn (<code>long long</code> trong C++) để tránh tràn số.</i></li>
+                </ul>
+            </li>
+            <li><b>Tiền xử lý (Duyệt <code>i</code> từ 1 đến N):</b>
+                <ul>
+                    <li>Cập nhật tổng thường: <code>p[i] = p[i-1] + a[i]</code>.</li>
+                    <li>Cập nhật tổng có trọng số (nhân với vị trí): <code>m[i] = m[i-1] + i * a[i]</code>.</li>
+                </ul>
+            </li>
+            <li><b>Trả lời Q truy vấn:</b>
+                <ul>
+                    <li>Đọc vị trí <code>l</code> và <code>r</code>.</li>
+                    <li>Tính tổng mảng trọng số: <code>sum_m = m[r] - m[l-1]</code>.</li>
+                    <li>Tính tổng mảng thường: <code>sum_p = p[r] - p[l-1]</code>.</li>
+                    <li>Tính và in ra đáp án: <code>ans = sum_m - (l - 1) * sum_p</code>.</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <!-- Cài đặt & Độ phức tạp -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2 class="card-title">Cài đặt C++</h2>
+        <div class="codewrap">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <div class="code" id="code-block">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+using namespace std;
+
+int main() {
+    // Tối ưu tốc độ đọc ghi
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n, q;
+    if (!(cin &gt;&gt; n &gt;&gt; q)) return 0;
+
+    // Sử dụng long long vì tổng cộng dồn có thể rất lớn
+    vector&lt;long long&gt; a(n + 1);
+    vector&lt;long long&gt; p(n + 1, 0); // Lưu tổng thường
+    vector&lt;long long&gt; m(n + 1, 0); // Lưu tổng (i * a[i])
+
+    for (int i = 1; i &lt;= n; i++) {
+        cin &gt;&gt; a[i];
+        p[i] = p[i - 1] + a[i];
+        m[i] = m[i - 1] + i * a[i];
+    }
+
+    while (q--) {
+        long long l, r;
+        cin &gt;&gt; l &gt;&gt; r;
+
+        long long sum_m = m[r] - m[l - 1];
+        long long sum_p = p[r] - p[l - 1];
+        
+        // Áp dụng công thức đã chứng minh
+        long long ans = sum_m - (l - 1) * sum_p;
+        
+        cout &lt;&lt; ans &lt;&lt; "\n";
+    }
+
+    return 0;
+}</div>
+        </div>
+        
+        <h3 style="margin-top: 24px;">Độ phức tạp</h3>
+        <ul>
+            <li><b>Thời gian:</b> Tính mảng <code>p</code> và <code>m</code> mất O(N). Trả lời mỗi truy vấn mất O(1), nên Q truy vấn mất O(Q). Tổng cộng: <b>O(N + Q)</b>. Hoàn toàn phù hợp với giới hạn 2 × 10<sup>5</sup> của đề bài.</li>
+            <li><b>Không gian (Bộ nhớ):</b> Cần 3 mảng kích thước N+1 kiểu <code>long long</code>, tốn <b>O(N)</b>, thỏa mãn giới hạn bộ nhớ thông thường.</li>
+        </ul>
+    </div>
+
+    <!-- Cạm bẫy -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2 class="card-title">Cạm bẫy khi cài đặt</h2>
+        <div class="pitfalls">
+            <div class="pitfall-col wrong">
+                <h4>✕ Sai lầm dễ mắc</h4>
+                <p><b>Dùng int thay vì long long:</b> Tổng giá trị tối đa của <code>M[N]</code> có thể đạt tới (N × (N+1) / 2) × max(A) ≈ (2×10<sup>5</sup>)<sup>2</sup>/2 × 10<sup>6</sup> = 2 × 10<sup>16</sup>. Số này vượt xa giới hạn của số nguyên 32-bit thông thường (int chỉ lưu tới ~2 × 10<sup>9</sup>), dẫn đến kết quả âm hoặc sai bét.</p>
+            </div>
+            <div class="pitfall-col right">
+                <h4>✓ Cách xử lý đúng</h4>
+                <p><b>Khai báo long long:</b> Sử dụng <code>long long</code> (số nguyên 64-bit) cho các mảng <code>a</code>, <code>p</code>, <code>m</code> và các biến <code>sum_m</code>, <code>sum_p</code>, <code>ans</code>. Ngay cả biến đọc vị trí l và r cũng nên ép kiểu đúng khi thực hiện phép nhân <code>(l - 1) * sum_p</code>.</p>
+            </div>
+        </div>
+        <div class="pitfalls" style="margin-top:16px;">
+            <div class="pitfall-col wrong">
+                <h4>✕ Sai lầm dễ mắc</h4>
+                <p><b>Xử lý biên l = 1 bị lỗi (Index out of bounds):</b> Nếu mảng đánh số từ 0, công thức <code>P[L-1]</code> sẽ gọi <code>P[-1]</code>, gây crash chương trình (Segmentation Fault).</p>
+            </div>
+            <div class="pitfall-col right">
+                <h4>✓ Cách xử lý đúng</h4>
+                <p><b>Mảng đánh số từ 1 (1-based indexing):</b> Tạo vector với kích thước <code>n + 1</code>. Lúc này phần tử đầu tiên nằm ở <code>a[1]</code>. Khi <code>l = 1</code>, <code>l - 1 = 0</code>, chương trình sẽ gọi <code>P[0]</code> và <code>M[0]</code>. Do ta đã khởi tạo sẵn giá trị 0 tại vị trí 0, mọi thứ hoạt động trơn tru không cần if/else.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Utils: Copy & Snap
+    function flash(btn, text) {
+        const o = btn.textContent;
+        btn.textContent = text;
+        setTimeout(() => btn.textContent = o, 1200);
+    }
+    
+    async function copyCode(btn) {
+        const wrap = btn.closest('.codewrap');
+        const codeEl = wrap.querySelector('.code');
+        const text = codeEl.innerText;
+        try {
+            await navigator.clipboard.writeText(text);
+            flash(btn, 'Đã chép!');
+        } catch (e) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            flash(btn, 'Đã chép!');
+        }
+    }
+
+    async function snapBox(btn) {
+        const box = btn.closest('.snapbox');
+        box.classList.add('snapping');
+        await document.fonts.ready;
+        try {
+            const canvas = await html2canvas(box, {backgroundColor: '#0B1220', scale: 2, logging: false});
+            box.classList.remove('snapping');
+            canvas.toBlob(async (blob) => {
+                try {
+                    await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+                    flash(btn, 'Đã chụp!');
+                } catch(e) {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'snap.png';
+                    a.click();
+                    flash(btn, 'Đã tải ảnh');
+                }
+            });
+        } catch (e) {
+            box.classList.remove('snapping');
+            console.error("Snap error:", e);
+        }
+    }
+
+    // Basic Syntax Highlighter
+    function highlightCode() {
+        const block = document.getElementById('code-block');
+        let code = block.innerHTML;
+        // Escape check if not already (but innerHTML of text already escapes < >)
+        // Note: Our code block uses &lt; and &gt; directly in HTML source.
+        // We will unescape to text, then manually escape, then highlight to avoid multiple passes replacing span.
+        
+        let text = block.textContent; // gets pure text
+        // Re-escape for safe HTML
+        text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        
+        text = text.replace(/\b(int|long|void|if|else|while|for|return|vector|using|namespace|std|ios_base|sync_with_stdio|tie|NULL|true|false)\b/g, '<span class="c-kw">$1</span>');
+        text = text.replace(/\b(\d+)\b/g, '<span class="c-num">$1</span>');
+        text = text.replace(/(\/\/[^\n]*)/g, '<span class="c-cm">$1</span>');
+        text = text.replace(/("[^"]*")/g, '<span class="c-str">$1</span>');
+        // Simple operator mapping (careful with escaped &lt; and &gt;)
+        text = text.replace(/(\+|\-|\*|\/|%|=|!|&amp;|\|)/g, '<span class="c-op">$1</span>');
+        
+        // Wrap lines for codeline format
+        const lines = text.split('\n');
+        let html = '';
+        lines.forEach((line) => {
+            html += `<div class="codeline">${line || ' '}</div>`;
+        });
+        block.innerHTML = html;
+        block.style.padding = '16px 0';
+    }
+
+    // Quiz logic
+    const quizzes = {
+        1: { ans: 0, exps: [
+            "Chính xác! Khi thay `(i - L + 1)` bằng hệ số tĩnh `i`, giá trị `i * a[i]` hoàn toàn cố định bất kể vị trí truy vấn L bắt đầu từ đâu. Nhờ đó ta có thể tính trước (tiền xử lý) mảng cộng dồn.",
+            "Sai. Cả phép trừ và phép nhân nguyên cơ bản đều tốn 1 chu kỳ CPU, chênh lệch không đáng kể và không giải quyết được việc lặp lại N lần.",
+            "Sai. Việc nhân với i thậm chí còn làm giá trị tăng lên nhanh hơn, đó là lý do ta phải dùng số nguyên 64-bit (long long)."
+        ]},
+        2: { ans: 2, exps: [
+            "Sai. `(1 - 1) = 0`, nhân với cái gì cũng bằng 0.",
+            "Sai. Dù `L-1 = 0`, ta đã khởi tạo `P[0] = 0` nên sẽ truy cập bình thường, không gây lỗi ngoài biên.",
+            "Chính xác! Khi L=1, ta không cần phải trừ đi đoạn dư nào ở phần bù. Công thức có hệ số `(L-1) = 0` sẽ tự động xóa xổ vế sau (0 × Tổng = 0)."
+        ]}
+    };
+
+    function checkQuiz(qId, choice) {
+        const q = quizzes[qId];
+        const opts = document.getElementById(`q${qId}-opts`).children;
+        const expBox = document.getElementById(`q${qId}-exp`);
+        
+        for (let i = 0; i < opts.length; i++) {
+            opts[i].className = 'quiz-opt';
+        }
+        
+        if (choice === q.ans) {
+            opts[choice].classList.add('correct');
+            expBox.className = 'quiz-exp show success';
+        } else {
+            opts[choice].classList.add('wrong');
+            opts[q.ans].classList.add('correct');
+            expBox.className = 'quiz-exp show error';
+        }
+        expBox.innerHTML = q.exps[choice];
+    }
+
+    // Lab 1 (Module 1): Tách hệ số
+    let lab1State = 0;
+    function lab1Toggle() {
+        const eqBox = document.getElementById('lab1-eq');
+        const btn = document.getElementById('lab1-btn');
+        if (lab1State === 0) {
+            // Split
+            eqBox.innerHTML = 'S = <span style="color:var(--accent)">(2×3 + 3×1 + 4×4)</span> - <span style="color:var(--mark)">(2-1)×(3 + 1 + 4)</span><br>S = <span style="color:var(--accent)">25</span> - <span style="color:var(--mark)">1 × 8</span> = 17';
+            btn.innerText = 'Gộp lại như cũ';
+            lab1State = 1;
+        } else {
+            // Revert
+            eqBox.innerHTML = 'S = 1×3 + 2×1 + 3×4 = 17';
+            btn.innerText = 'Xem bóc tách hệ số';
+            lab1State = 0;
+        }
+    }
+
+    // Lab 2 (Module 2): Mảng cộng dồn
+    const lab2Obj = (() => {
+        let sp = 0;
+        let steps = [];
+        let timer = null;
+        
+        const A = [0, 2, 3, 1, 4];
+        const N = 4;
+
+        function makeSteps() {
+            let s = [];
+            // Init
+            s.push({ P: [0,0,0,0,0], M: [0,0,0,0,0], markA: -1, markP: -1, markM: -1, hlA: [], hlP: [], hlM: [],
+                msg: "Bắt đầu tính mảng P (tổng) và mảng M (tổng trọng số)." });
+
+            // Build arrays
+            let curP = [0,0,0,0,0];
+            let curM = [0,0,0,0,0];
+            for (let i = 1; i <= N; i++) {
+                curP[i] = curP[i-1] + A[i];
+                s.push({ P: [...curP], M: [...curM], markA: i, markP: i, markM: -1, hlA: [], hlP: [], hlM: [],
+                    msg: `Bước ${i}: Tính P[${i}] = P[${i-1}] + a[${i}] = ${curP[i-1]} + ${A[i]} = ${curP[i]}.` });
+                
+                curM[i] = curM[i-1] + i * A[i];
+                s.push({ P: [...curP], M: [...curM], markA: i, markP: i, markM: i, hlA: [], hlP: [], hlM: [],
+                    msg: `Bước ${i}: Tính M[${i}] = M[${i-1}] + ${i} × a[${i}] = ${curM[i-1]} + ${i} × ${A[i]} = ${curM[i]}.` });
+            }
+
+            // Query sample: 2 to 4
+            s.push({ P: [...curP], M: [...curM], markA: -1, markP: -1, markM: -1, hlA: [2,3,4], hlP: [], hlM: [],
+                msg: "Mảng đã tính xong. Thực hiện truy vấn: L = 2, R = 4. Cần tính tổng cho phần tử a[2], a[3], a[4]." });
+            
+            s.push({ P: [...curP], M: [...curM], markA: -1, markP: -1, markM: -1, hlA: [], hlP: [], hlM: [1, 4],
+                msg: `Lấy tổng phần trọng số: M[4] - M[1] = ${curM[4]} - ${curM[1]} = ${curM[4] - curM[1]}.` });
+            
+            s.push({ P: [...curP], M: [...curM], markA: -1, markP: -1, markM: -1, hlA: [], hlP: [1, 4], hlM: [],
+                msg: `Lấy tổng thường: P[4] - P[1] = ${curP[4]} - ${curP[1]} = ${curP[4] - curP[1]}.` });
+            
+            let sumM = curM[4] - curM[1];
+            let sumP = curP[4] - curP[1];
+            let ans = sumM - (2 - 1) * sumP;
+            s.push({ P: [...curP], M: [...curM], markA: -1, markP: -1, markM: -1, hlA: [2,3,4], hlP: [1,4], hlM: [1,4],
+                msg: `Đáp án S = ${sumM} - (2 - 1) × ${sumP} = ${sumM} - ${sumP} = ${ans}. Chính xác!` });
+
+            return s;
+        }
+
+        function paint(idx) {
+            const state = steps[idx];
+            
+            // Clear styles
+            for(let i=1; i<=N; i++) {
+                document.getElementById(`l2-a${i}`).className = 'cell';
+            }
+            for(let i=0; i<=N; i++) {
+                document.getElementById(`l2-p${i}`).className = 'cell';
+                document.getElementById(`l2-m${i}`).className = 'cell';
+                // Update Values
+                document.getElementById(`l2-p${i}`).querySelector('.cell-val').innerText = state.P[i];
+                document.getElementById(`l2-m${i}`).querySelector('.cell-val').innerText = state.M[i];
+            }
+
+            // Apply active/mark
+            if(state.markA !== -1) document.getElementById(`l2-a${state.markA}`).classList.add('active');
+            if(state.markP !== -1) document.getElementById(`l2-p${state.markP}`).classList.add('active');
+            if(state.markM !== -1) document.getElementById(`l2-m${state.markM}`).classList.add('active');
+            
+            state.hlA.forEach(i => document.getElementById(`l2-a${i}`).classList.add('mark'));
+            state.hlP.forEach(i => document.getElementById(`l2-p${i}`).classList.add('mark'));
+            state.hlM.forEach(i => document.getElementById(`l2-m${i}`).classList.add('mark'));
+
+            document.getElementById('lab2-msg').innerText = state.msg;
+            document.getElementById('lab2-lbl-step').innerText = idx;
+
+            // Buttons
+            document.getElementById('lab2-btn-prev').disabled = (idx === 0);
+            document.getElementById('lab2-btn-next').disabled = (idx === steps.length - 1);
+            if(idx === steps.length - 1) clearInterval(timer);
+        }
+
+        return {
+            init: function() {
+                steps = makeSteps();
+                document.getElementById('lab2-lbl-total').innerText = steps.length - 1;
+                paint(0);
+            },
+            prev: function() { if(sp > 0) { sp--; paint(sp); } },
+            next: function() { if(sp < steps.length - 1) { sp++; paint(sp); } },
+            reset: function() { sp = 0; clearInterval(timer); paint(sp); },
+            auto: function() {
+                clearInterval(timer);
+                if (sp === steps.length - 1) sp = 0;
+                timer = setInterval(() => {
+                    if(sp < steps.length - 1) { sp++; paint(sp); }
+                    else clearInterval(timer);
+                }, 1000);
+            }
+        };
+    })();
+
+    window.onload = () => {
+        highlightCode();
+        
+        // Init lab1 visuals manually
+        let arrHTML = `<div class="array-label">Mảng:</div>`;
+        const arr = [2, 3, 1, 4];
+        for(let i=0; i<4; i++) {
+            let cl = (i >= 1 && i <= 3) ? 'cell mark' : 'cell';
+            arrHTML += `<div class="${cl}"><span class="cell-val">${arr[i]}</span><span class="cell-sub">i=${i+1}</span></div>`;
+        }
+        document.getElementById('lab1-arr').innerHTML = arrHTML;
+
+        // Init lab2
+        lab2Obj.init();
+    };
+</script>
+</body>
+</html>
+```eof
