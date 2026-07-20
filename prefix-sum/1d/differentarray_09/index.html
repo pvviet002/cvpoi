@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cộng cấp số cộng vào đoạn - Lời giải</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
+            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
+            --text-main: #E2E8F0; --text-muted: #94A3B8;
+            --glow: 0 0 20px rgba(56, 214, 196, 0.4);
+            --shadow: 0 20px 60px -30px rgba(0, 0, 0, 0.9);
+            --border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; padding: 0; background: var(--bg); color: var(--text-main);
+            font-family: "Inter", sans-serif; line-height: 1.6;
+        }
+        
+        /* Nav */
+        .topnav {
+            position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center;
+            padding: 12px 20px; background: rgba(11, 18, 32, 0.85); backdrop-filter: blur(10px);
+            border-bottom: var(--border);
+        }
+        .nav-btn {
+            text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent));
+            padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all 0.3s ease;
+        }
+        .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
+        .nav-btn.outline:hover { background: rgba(56, 214, 196, 0.1); box-shadow: var(--glow); }
+        
+        /* Layout */
+        .container { max-width: 1000px; margin: 0 auto; padding: 30px 24px; display: flex; flex-direction: column; gap: 32px; }
+        h1, h2, h3, h4 { font-family: "Space Grotesk", sans-serif; letter-spacing: -0.03em; margin-top: 0; }
+        h1 { font-size: 2.2rem; color: #FFF; margin-bottom: 8px; }
+        h2 { font-size: 1.6rem; color: var(--accent); border-bottom: var(--border); padding-bottom: 12px; margin-bottom: 20px; }
+        h3 { font-size: 1.3rem; color: #FFF; margin-bottom: 16px; }
+        p { margin: 0 0 16px 0; }
+        
+        /* Badges */
+        .badge {
+            display: inline-block; padding: 4px 10px; background: rgba(91, 140, 255, 0.15);
+            color: var(--accent2); border-radius: 6px; font-size: 0.85rem; font-weight: 600; margin-bottom: 16px;
+        }
+        
+        /* Cards */
+        .card { background: linear-gradient(180deg, var(--panel), var(--bg2)); border: var(--border); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px; }
+        
+        /* Algo Steps (Card đặc biệt) */
+        .algo-steps {
+            background: linear-gradient(180deg, rgba(56, 214, 196, 0.06), transparent);
+            border: 1px solid rgba(56, 214, 196, 0.35); border-left: 4px solid var(--accent);
+            border-radius: 14px; padding: 24px; margin-bottom: 24px;
+        }
+        .algo-steps h3 { color: var(--accent); margin-bottom: 16px; }
+        .algo-steps ol { margin: 0; padding-left: 22px; }
+        .algo-steps ol > li { margin-bottom: 12px; line-height: 1.6; font-weight: 500; }
+        .algo-steps ul { margin: 8px 0; padding-left: 18px; list-style: none; font-weight: 400; }
+        .algo-steps ul > li { position: relative; padding-left: 14px; margin-bottom: 6px; color: var(--text-muted); }
+        .algo-steps ul > li::before { content: "–"; position: absolute; left: 0; color: var(--accent); }
+        .algo-steps code {
+            background: rgba(91, 140, 255, 0.14); color: #A9C4FF; padding: 0.15em 0.4em;
+            border-radius: 5px; font-family: "JetBrains Mono", monospace; font-size: 0.88em;
+        }
+        
+        /* Code block */
+        .codewrap { position: relative; margin-bottom: 20px; }
+        .code {
+            background: #0A1220; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;
+            padding: 16px 0; overflow-x: auto; font-family: "JetBrains Mono", monospace; font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap;
+        }
+        .codeline { margin: 0; padding: 0 16px; border-left: 3px solid transparent; }
+        .codeline.hot { background: rgba(255, 180, 84, 0.1); border-left: 3px solid var(--mark); }
+        
+        /* Tokens */
+        .c-kw { color: #FF7B72; } .c-num { color: #79C0FF; } .c-str { color: #A5D6FF; }
+        .c-cm { color: #8B949E; font-style: italic; } .c-fn { color: #D2A8FF; } .c-op { color: #C9D1D9; }
+        
+        /* Snap & Copy */
+        .snapbox { position: relative; }
+        .copy-btn, .snap-btn {
+            position: absolute; top: 10px; z-index: 5;
+            font-family: "JetBrains Mono", monospace; font-size: 0.72rem; font-weight: 600;
+            padding: 5px 10px; border-radius: 7px; cursor: pointer;
+            background: rgba(255, 255, 255, 0.06); color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.12); transition: all 0.2s;
+        }
+        .snap-btn { right: 10px; }
+        .copy-btn { right: 64px; }
+        .snapbox:not(.codewrap) .snap-btn { right: 10px; }
+        .copy-btn:hover, .snap-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(56, 214, 196, 0.1); }
+        .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
+        
+        /* Arrays / Visuals */
+        .visual-area { padding: 20px; background: rgba(0, 0, 0, 0.2); border-radius: 12px; overflow-x: auto; margin-bottom: 16px; }
+        .array-container { display: flex; align-items: center; margin-bottom: 12px; }
+        .array-label { width: 40px; font-weight: 600; color: var(--text-muted); font-size: 0.9rem; flex: none; }
+        .array-boxes { display: flex; flex-wrap: nowrap; gap: 6px; flex: none; }
+        .arr-box {
+            display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 46px; height: 50px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px; flex: none; transition: all 0.3s;
+        }
+        .arr-box.active { background: rgba(56, 214, 196, 0.2); border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--glow); }
+        .arr-box.neg { background: rgba(255, 107, 107, 0.15); border-color: var(--red); }
+        .arr-idx { font-size: 0.65rem; color: var(--text-muted); }
+        .arr-val { font-family: "JetBrains Mono", monospace; font-size: 0.95rem; font-weight: 700; color: var(--text-main); }
+        
+        /* Lab Controls */
+        .lab-controls { display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: 16px; padding-top: 16px; border-top: var(--border); }
+        .lab-btn {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-main);
+            padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-family: "Inter", sans-serif; transition: all 0.2s;
+        }
+        .lab-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.15); }
+        .lab-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .lab-btn.primary { background: linear-gradient(135deg, var(--accent2), var(--accent)); color: #000; border: none; }
+        .lab-btn.primary:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.1); box-shadow: var(--glow); }
+        .lab-msg { margin-top: 16px; min-height: 48px; color: var(--accent); text-align: center; font-weight: 500; font-size: 1.05rem; }
+        .step-counter { font-family: "JetBrains Mono", monospace; color: var(--text-muted); font-size: 0.9rem; min-width: 60px; text-align: center; }
+        .lab-vars { display: flex; gap: 16px; justify-content: center; margin-top: 12px; font-family: "JetBrains Mono", monospace; font-size: 0.9rem; color: #FFF; }
+        
+        /* Quiz */
+        .quiz-box { background: var(--panel); border: var(--border); border-radius: 12px; padding: 20px; margin-top: 24px; }
+        .quiz-box h4 { margin-top: 0; color: var(--mark); }
+        .quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+        .quiz-opt {
+            display: block; width: 100%; text-align: left; padding: 12px 16px; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; cursor: pointer;
+            color: var(--text-main); font-family: "Inter", sans-serif; font-size: 0.95rem; transition: all 0.2s; line-height: 1.5;
+        }
+        .quiz-opt:hover:not(:disabled) { background: rgba(255, 255, 255, 0.1); }
+        .quiz-opt.correct { background: rgba(56, 214, 196, 0.15); border-color: var(--accent); color: var(--accent); }
+        .quiz-opt.wrong { background: rgba(255, 107, 107, 0.15); border-color: var(--red); color: var(--red); }
+        .quiz-opt:disabled { cursor: not-allowed; }
+        .quiz-expl {
+            margin-top: 16px; padding: 16px; border-radius: 8px; background: rgba(0, 0, 0, 0.2);
+            border-left: 3px solid var(--accent); font-size: 0.95rem; color: var(--text-muted); display: none;
+        }
+        
+        /* Pitfalls */
+        .pitfall-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .pitfall-col { padding: 20px; border-radius: 12px; border: var(--border); }
+        .pitfall-col.wrong { background: rgba(255, 107, 107, 0.05); border-top: 4px solid var(--red); }
+        .pitfall-col.right { background: rgba(56, 214, 196, 0.05); border-top: 4px solid var(--accent); }
+        .pitfall-title { display: flex; align-items: center; gap: 8px; font-weight: 600; margin-bottom: 12px; }
+        .pitfall-col.wrong .pitfall-title { color: var(--red); }
+        .pitfall-col.right .pitfall-title { color: var(--accent); }
+        @media (max-width: 768px) { .pitfall-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
+    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+</nav>
+
+<div class="container">
+    <!-- HERO SECTION -->
+    <div>
+        <h1>Cộng cấp số cộng vào đoạn</h1>
+        <div class="badge">Độ khó: Vừa • Time Limit: 1.0s</div>
+        <p style="font-size: 1.1rem; color: var(--text-muted); max-width: 800px;">
+            Bản chất bài toán: Biến một thao tác cồng kềnh (cộng O(N) phần tử theo hình bậc thang) thành các thao tác cập nhật điểm O(1) rời rạc, thông qua kỹ thuật <b>Mảng hiệu bậc hai</b> (Second-order Difference Array).
+        </p>
+        
+        <div class="snapbox" style="text-align: center; padding: 24px; background: rgba(0,0,0,0.2); border-radius: 16px; margin-top: 24px; border: var(--border);">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <p style="margin-top: 0; color: var(--text-muted); font-size: 0.9rem;">Minh họa thao tác: Cộng cấp số cộng s = 3, d = 2 vào đoạn [2, 4]</p>
+            <div class="visual-area" style="background: transparent; border: none; padding: 0;">
+                <div class="array-container" style="justify-content: center; margin-bottom: 0;">
+                    <div class="array-boxes" id="hero-array"></div>
+                </div>
+            </div>
+            <button id="hero-btn" class="lab-btn primary" style="margin-top: 8px;">Thực hiện thao tác</button>
+        </div>
+    </div>
+
+    <!-- TÓM TẮT ĐỀ BÀI -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Tóm tắt đề bài</h2>
+        <p>Cho một mảng A gồm N phần tử ban đầu đều bằng 0. Bạn cần thực hiện Q thao tác. Mỗi thao tác cho bốn số l, r, s, d và yêu cầu cộng vào các phần tử từ chỉ số l đến r một cấp số cộng:</p>
+        <p style="margin-left: 20px; font-weight: 600; color: var(--text-main);">
+            A[l] nhận s <br>
+            A[l+1] nhận s + d <br>
+            A[l+2] nhận s + 2d <br>
+            ... <br>
+            A[r] nhận s + (r - l) · d
+        </p>
+        <p>Sau khi thực hiện xong tất cả Q thao tác, in ra mảng A.</p>
+        <p><b>Ràng buộc:</b> N, Q ≤ 2 × 10<sup>5</sup>; |s|, |d| ≤ 10<sup>6</sup>. <br>
+        <i>Ví dụ:</i> Mảng 5 phần tử, thao tác l=2, r=4, s=3, d=2. Mảng trở thành: 0, 3, 5, 7, 0.</p>
+    </div>
+
+    <!-- PHÂN TÍCH BAN ĐẦU -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Phân tích ban đầu</h2>
+        <p>Cách ngây thơ nhất là với mỗi truy vấn, ta dùng một vòng lặp chạy từ l đến r để cộng trực tiếp các giá trị vào mảng A. Tuy nhiên, chiều dài của một truy vấn có thể lên đến N. Với Q truy vấn, tổng số phép tính sẽ xấp xỉ O(N × Q).</p>
+        <p>Thay số vào: 2 × 10<sup>5</sup> × 2 × 10<sup>5</sup> = 4 × 10<sup>10</sup> phép tính. Con số này chắc chắn sẽ gây quá thời gian (Time Limit Exceeded) với giới hạn 1.0 giây (thường chịu được khoảng 10<sup>8</sup> phép tính). Ta cần một cách cập nhật chỉ mất O(1) cho mỗi truy vấn, và để làm được điều đó, ta phải tìm hiểu tính chất của "mảng hiệu".</p>
+    </div>
+
+    <!-- MÔ-ĐUN 1 -->
+    <div class="card">
+        <div class="snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>Mô-đun 1: Mảng hiệu cơ bản (Subtask d = 0)</h2>
+            <p>Trước khi giải quyết cấp số cộng, hãy xét trường hợp đơn giản: d = 0. Nghĩa là ta chỉ cộng một giá trị V = s vào toàn bộ đoạn [L, R]. Đây là bài toán cập nhật đoạn kinh điển.</p>
+            <p>
+                <b>Ý tưởng:</b> Thay vì thao tác trên mảng gốc A, ta thao tác trên mảng hiệu D, định nghĩa là: <b>D[i] = A[i] - A[i-1]</b>.<br>
+                Khi tất cả các phần tử trong đoạn [L, R] cùng tăng thêm V:
+                <br>– Ở bên trong đoạn (ví dụ A[L+1] và A[L]), khoảng cách giữa chúng không đổi, nên D[L+1] không đổi.
+                <br>– Tại biên trái L: A[L] tăng V, nhưng A[L-1] giữ nguyên $\to$ D[L] tăng V.
+                <br>– Tại biên phải R+1: A[R+1] giữ nguyên, nhưng A[R] tăng V $\to$ D[R+1] giảm V.
+            </p>
+            <p>Như vậy, một thao tác trên ĐOẠN dài đã biến thành 2 thao tác trên ĐIỂM. Sau cùng, ta khôi phục lại mảng A bằng cách cộng dồn: A[i] = A[i-1] + D[i].</p>
+            
+            <div class="visual-area">
+                <div class="array-container"><div class="array-label">D</div><div class="array-boxes" id="lab1-d"></div></div>
+                <div class="array-container"><div class="array-label">A</div><div class="array-boxes" id="lab1-a"></div></div>
+            </div>
+        </div>
+        
+        <div class="lab-controls">
+            <button class="lab-btn" id="lab1-btn-reset">Reset</button>
+            <button class="lab-btn" id="lab1-btn-prev">Lùi</button>
+            <span class="step-counter" id="lab1-counter">0 / 0</span>
+            <button class="lab-btn" id="lab1-btn-next">Tiến</button>
+            <button class="lab-btn primary" id="lab1-btn-run">Tự chạy</button>
+        </div>
+        <div class="lab-msg" id="lab1-msg">Minh họa thao tác cộng V=5 vào đoạn [2, 4] của mảng. Bấm Tiến để xem.</div>
+        
+        <div class="quiz-box">
+            <h4>Câu hỏi kiểm tra</h4>
+            <p>Nếu ta muốn cộng V=10 vào đoạn [L, R], nhưng ta quên thực hiện bước trừ tại D[R+1], thì mảng A khôi phục lại sẽ bị sai ở đâu?</p>
+            <div class="quiz-opts">
+                <button class="quiz-opt" onclick="checkQuiz1(this, false)">A. Sai ở phần tử A[R].</button>
+                <button class="quiz-opt" data-ans="1" onclick="checkQuiz1(this, true)">B. Sai ở tất cả các phần tử từ A[R+1] đến cuối mảng (đều bị cộng thừa 10).</button>
+                <button class="quiz-opt" onclick="checkQuiz1(this, false)">C. Chỉ sai ở duy nhất phần tử A[R+1].</button>
+            </div>
+            <div class="quiz-expl">
+                <b>Giải thích:</b> Khi quên trừ ở biên R+1, "đà tăng" V được tạo ra từ vị trí L sẽ không bị ngắt lại. Do đó, khi thực hiện vòng lặp cộng dồn, phần tử A[R+1] sẽ nhận thêm V, và nó tiếp tục truyền lượng dư thừa này cho mọi phần tử phía sau đến tận cuối mảng.
+            </div>
+        </div>
+    </div>
+
+    <!-- MÔ-ĐUN 2 -->
+    <div class="card">
+        <div class="snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>Mô-đun 2: Mảng hiệu bậc hai (Cấp số cộng)</h2>
+            <p>Bây giờ xét bài toán gốc: cộng s, s+d, s+2d... vào [L, R]. Hãy xem mảng hiệu D<sub>1</sub>[i] = A[i] - A[i-1] thay đổi ra sao:</p>
+            <ul style="margin-top: 0;">
+                <li>Tại L: A[L] tăng s, A[L-1] không đổi $\to$ D<sub>1</sub>[L] tăng thêm <b>s</b>.</li>
+                <li>Trong đoạn [L+1, R]: A[i] tăng s + k·d, còn A[i-1] tăng s + (k-1)·d. Hiệu của chúng chính là d $\to$ D<sub>1</sub>[i] tăng thêm một đoạn <b>d</b>.</li>
+                <li>Tại R+1: A[R+1] không đổi, A[R] tăng s + (R-L)·d $\to$ D<sub>1</sub>[R+1] bị trừ đi <b>s + (R-L)·d</b>.</li>
+            </ul>
+            <p>Ta thấy mảng D<sub>1</sub> không chỉ bị cập nhật điểm (tại L và R+1) mà còn bị <b>cộng một đoạn giá trị d</b> từ L+1 đến R. Làm sao để xử lý việc cộng đoạn vào D<sub>1</sub> trong O(1)? Rất đơn giản, ta lặp lại chiêu cũ: tạo mảng hiệu của mảng hiệu! Gọi D<sub>2</sub>[i] = D<sub>1</sub>[i] - D<sub>1</sub>[i-1].</p>
+            <p>Áp dụng quy tắc cộng đoạn ở Mô-đun 1 vào D<sub>2</sub>, ta sẽ thu được 4 điểm cần cập nhật độc lập:</p>
+            <ul>
+                <li>Cộng <b>s</b> tại L: D<sub>2</sub>[L] += s; D<sub>2</sub>[L+1] -= s.</li>
+                <li>Cộng đoạn <b>d</b> từ [L+1, R]: D<sub>2</sub>[L+1] += d; D<sub>2</sub>[R+1] -= d.</li>
+                <li>Trừ điểm tại R+1: D<sub>2</sub>[R+1] -= s + (R-L)·d; D<sub>2</sub>[R+2] += s + (R-L)·d.</li>
+            </ul>
+            <p>Gộp các vị trí trùng nhau lại, ta có 4 công thức cập nhật thần thánh (xem phần Thực hành bên dưới).</p>
+
+            <div class="visual-area">
+                <div class="array-container"><div class="array-label">D<sub>2</sub></div><div class="array-boxes" id="lab2-d2"></div></div>
+                <div class="array-container"><div class="array-label">D<sub>1</sub></div><div class="array-boxes" id="lab2-d1"></div></div>
+                <div class="array-container"><div class="array-label">A</div><div class="array-boxes" id="lab2-a"></div></div>
+            </div>
+        </div>
+        
+        <div class="lab-controls">
+            <button class="lab-btn" id="lab2-btn-reset">Reset</button>
+            <button class="lab-btn" id="lab2-btn-prev">Lùi</button>
+            <span class="step-counter" id="lab2-counter">0 / 0</span>
+            <button class="lab-btn" id="lab2-btn-next">Tiến</button>
+            <button class="lab-btn primary" id="lab2-btn-run">Tự chạy</button>
+        </div>
+        <div class="lab-msg" id="lab2-msg">Minh họa truy vấn: l=2, r=4, s=3, d=2 trên mảng 5 phần tử. Bấm Tiến để cập nhật D<sub>2</sub> và khôi phục dần.</div>
+
+        <div class="quiz-box">
+            <h4>Câu hỏi kiểm tra</h4>
+            <p>Tại sao ta cần cập nhật tận 4 vị trí trong mảng D<sub>2</sub> thay vì chỉ 2 vị trí như mảng hiệu thông thường?</p>
+            <div class="quiz-opts">
+                <button class="quiz-opt" onclick="checkQuiz2(this, false)">A. Vì cấp số cộng có hai tham số là s và d nên số lượng cập nhật tự động nhân đôi.</button>
+                <button class="quiz-opt" data-ans="1" onclick="checkQuiz2(this, true)">B. Vì D<sub>1</sub> bị thay đổi ở 3 dạng (điểm bắt đầu l, đoạn tăng d, và điểm bù trừ r+1). Khi chuyển sang D<sub>2</sub>, phần "đoạn tăng" tách thành 2 điểm, cộng thêm 2 điểm biên rải rác tạo thành 4 vị trí.</button>
+                <button class="quiz-opt" onclick="checkQuiz2(this, false)">C. Vì đề bài cung cấp 4 biến đầu vào (l, r, s, d) nên số điểm thao tác phải là 4 để không bỏ sót dữ liệu.</button>
+            </div>
+            <div class="quiz-expl">
+                <b>Giải thích:</b> Mảng hiệu bậc hai là đạo hàm bậc 2 rời rạc. Cấp số cộng tương đương với một hàm bậc nhất (đường thẳng dốc). Đạo hàm bậc 1 (mảng D<sub>1</sub>) sẽ ra đường nằm ngang (hằng số d). Đạo hàm bậc 2 (mảng D<sub>2</sub>) sẽ biến hằng số thành các xung bằng 0, chỉ còn lại các giá trị khác 0 tại các điểm xảy ra sự thay đổi (gãy khúc). Có 4 điểm gãy khúc cần được cân bằng để nắn đường thẳng về lại số 0.
+            </div>
+        </div>
+    </div>
+
+    <!-- THUẬT TOÁN TỪNG BƯỚC -->
+    <div class="algo-steps snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h3>Thuật toán từng bước</h3>
+        <ol>
+            <li><b>Khởi tạo mảng lưu trữ:</b>
+                <ul>
+                    <li>Tạo một mảng <code>D2</code> kích thước tối thiểu là <code>N + 3</code> (để an toàn khi thao tác truy cập đến <code>r + 2</code>), ban đầu điền toàn số 0.</li>
+                </ul>
+            </li>
+            <li><b>Xử lý các truy vấn O(1):</b>
+                <ul>
+                    <li>Đọc 4 số <code>l, r, s, d</code> của mỗi truy vấn.</li>
+                    <li>Cộng <code>s</code> vào <code>D2[l]</code></li>
+                    <li>Cộng <code>d - s</code> vào <code>D2[l + 1]</code></li>
+                    <li>Trừ <code>s + (r - l + 1) · d</code> khỏi <code>D2[r + 1]</code></li>
+                    <li>Cộng <code>s + (r - l) · d</code> vào <code>D2[r + 2]</code></li>
+                </ul>
+            </li>
+            <li><b>Khôi phục mảng kết quả O(N):</b>
+                <ul>
+                    <li>Khởi tạo hai biến tích lũy: <code>cur_D1 = 0</code> và <code>cur_A = 0</code>. (Lưu ý: phải dùng kiểu số nguyên 64-bit).</li>
+                    <li>Duyệt biến chỉ số <code>i</code> từ 1 đến <code>N</code>:
+                        <ul>
+                            <li>Cập nhật mảng hiệu bậc 1: <code>cur_D1 = cur_D1 + D2[i]</code></li>
+                            <li>Cập nhật phần tử mảng gốc: <code>cur_A = cur_A + cur_D1</code></li>
+                            <li>In ra <code>cur_A</code> cùng với một dấu cách.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <!-- CODE CÀI ĐẶT -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Cài đặt (C++)</h2>
+        <div class="codewrap snapbox">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <div class="code" id="main-code">
+<div class="codeline">#include &lt;iostream&gt;</div>
+<div class="codeline">#include &lt;vector&gt;</div>
+<div class="codeline"></div>
+<div class="codeline">using namespace std;</div>
+<div class="codeline"></div>
+<div class="codeline">int main() {</div>
+<div class="codeline">    ios_base::sync_with_stdio(false);</div>
+<div class="codeline">    cin.tie(NULL);</div>
+<div class="codeline">    </div>
+<div class="codeline">    int n, q;</div>
+<div class="codeline">    if (!(cin &gt;&gt; n &gt;&gt; q)) return 0;</div>
+<div class="codeline">    </div>
+<div class="codeline">    // Khởi tạo D2 kích thước N + 3 để chứa chỉ số r + 2 lớn nhất</div>
+<div class="codeline">    vector&lt;long long&gt; d2(n + 3, 0);</div>
+<div class="codeline">    </div>
+<div class="codeline">    for (int i = 0; i &lt; q; ++i) {</div>
+<div class="codeline">        long long l, r, s, d;</div>
+<div class="codeline">        cin &gt;&gt; l &gt;&gt; r &gt;&gt; s &gt;&gt; d;</div>
+<div class="codeline">        </div>
+<div class="codeline">        d2[l] += s;</div>
+<div class="codeline">        d2[l + 1] += d - s;</div>
+<div class="codeline">        d2[r + 1] -= s + (r - l + 1) * d;</div>
+<div class="codeline">        d2[r + 2] += s + (r - l) * d;</div>
+<div class="codeline">    }</div>
+<div class="codeline">    </div>
+<div class="codeline">    long long cur_d1 = 0;</div>
+<div class="codeline">    long long cur_a = 0;</div>
+<div class="codeline">    </div>
+<div class="codeline">    // Khôi phục mảng bằng 2 lần cộng dồn lồng nhau</div>
+<div class="codeline">    for (int i = 1; i &lt;= n; ++i) {</div>
+<div class="codeline">        cur_d1 += d2[i];</div>
+<div class="codeline">        cur_a += cur_d1;</div>
+<div class="codeline">        cout &lt;&lt; cur_a &lt;&lt; (i == n ? "" : " ");</div>
+<div class="codeline">    }</div>
+<div class="codeline">    cout &lt;&lt; "\n";</div>
+<div class="codeline">    </div>
+<div class="codeline">    return 0;</div>
+<div class="codeline">}</div></div>
+        </div>
+    </div>
+
+    <!-- ĐỘ PHỨC TẠP -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Độ phức tạp</h2>
+        <p><b>Thời gian:</b> O(N + Q)<br>
+        Với mỗi truy vấn, ta chỉ cập nhật đúng 4 điểm trên mảng D<sub>2</sub> nên mất O(1) thời gian, tốn tổng cộng O(Q) cho toàn bộ thao tác. Quá trình cộng dồn khôi phục mảng A cần duyệt mảng một lần, mất O(N) thời gian. Tổng thời gian là O(N + Q), hoàn toàn vượt qua giới hạn thời gian một cách dễ dàng với N, Q ≤ 2 × 10<sup>5</sup>.</p>
+        <p><b>Không gian:</b> O(N)<br>
+        Ta lưu duy nhất một mảng D<sub>2</sub> kích thước N + 3. Không cần cấp phát mảng A và D<sub>1</sub> vì ta tính chúng thông qua hai biến tích lũy động <code>cur_d1</code> và <code>cur_a</code> rồi in ra ngay.</p>
+    </div>
+
+    <!-- CẠM BẪY -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Cạm bẫy khi cài đặt</h2>
+        <div class="pitfall-grid">
+            <div class="pitfall-col wrong">
+                <div class="pitfall-title">✕ Lỗi dễ bỏ sót (Index Out of Bounds)</div>
+                <p>Khởi tạo mảng D<sub>2</sub> với kích thước chính xác bằng <code>N</code> hoặc <code>N + 1</code>. Khi truy vấn có <code>r = N</code>, lệnh cập nhật vào <code>D2[r + 2]</code> sẽ truy cập vượt giới hạn mảng, gây lỗi Runtime Error (Segfault).</p>
+            </div>
+            <div class="pitfall-col right">
+                <div class="pitfall-title">✓ Xử lý đúng</div>
+                <p>Khởi tạo mảng với kích thước <code>N + 3</code> (hoặc lớn hơn). Vì mảng là 1-based (bắt đầu từ 1) và vị trí cập nhật xa nhất có thể là <code>N + 2</code>, cấp phát tới chỉ số đó sẽ đảm bảo an toàn bộ nhớ tuyệt đối.</p>
+            </div>
+            <div class="pitfall-col wrong">
+                <div class="pitfall-title">✕ Lỗi tràn số (Integer Overflow)</div>
+                <p>Dùng kiểu số nguyên 32-bit (<code>int</code>) cho mảng D<sub>2</sub> và các biến cộng dồn. Các biểu thức tính phần bù ở cuối đoạn như <code>s + (r - l) · d</code> có thể đạt tới 2 × 10<sup>11</sup>, vượt qua ngưỡng 2 × 10<sup>9</sup> của kiểu <code>int</code>.</p>
+            </div>
+            <div class="pitfall-col right">
+                <div class="pitfall-title">✓ Xử lý đúng</div>
+                <p>Dùng <code>long long</code> (số nguyên 64-bit có dấu) cho mọi giá trị trên mảng D<sub>2</sub>, mảng tính toán trung gian, và các biến chứa s, d. Kết quả tổng cuối cùng có thể lớn hơn một chút nhưng vẫn hoàn toàn lọt trong giới hạn 64-bit.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- JS TO COLORIZE AND RUN LOGIC -->
+<script>
+    // --- Utilities ---
+    function flash(btn, text) {
+        const o = btn.textContent;
+        btn.textContent = text;
+        setTimeout(() => btn.textContent = o, 1200);
+    }
+    
+    function copyCode(btn) {
+        const wrap = btn.closest('.codewrap');
+        const codeEl = wrap.querySelector('.code');
+        const text = codeEl.innerText;
+        navigator.clipboard.writeText(text).then(() => flash(btn, 'Đã chép!'))
+        .catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+            flash(btn, 'Đã chép!');
+        });
+    }
+
+    async function snapBox(btn) {
+        const box = btn.closest('.snapbox');
+        box.classList.add('snapping');
+        await document.fonts.ready;
+        try {
+            const canvas = await html2canvas(box, {backgroundColor: '#0B1220', scale: 2, logging: false});
+            box.classList.remove('snapping');
+            canvas.toBlob(async (blob) => {
+                try {
+                    await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+                    flash(btn, 'Đã chụp!');
+                } catch(e) {
+                    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'snap.png'; a.click();
+                    flash(btn, 'Đã tải ảnh');
+                }
+            });
+        } catch(e) {
+            box.classList.remove('snapping'); console.error(e);
+        }
+    }
+
+    function escapeHTML(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function colorizeCode(str) {
+        let escaped = escapeHTML(str);
+        let tokens = []; let i = 0;
+        while(i < str.length) {
+            let m;
+            if (str.substr(i, 2) === '//') {
+                tokens.push('<span class="c-cm">' + escapeHTML(str.substring(i)) + '</span>'); break;
+            } else if (str[i] === '"') {
+                let end = str.indexOf('"', i + 1); if (end === -1) end = str.length; else end++;
+                tokens.push('<span class="c-str">' + escapeHTML(str.substring(i, end)) + '</span>'); i = end;
+            } else if ((m = str.substring(i).match(/^[a-zA-Z_]\w*/))) {
+                let w = m[0];
+                const kws = ['int','long','vector','for','if','return','using','namespace','std','cin','cout','endl','false'];
+                if(kws.includes(w)) tokens.push('<span class="c-kw">' + w + '</span>');
+                else tokens.push('<span class="c-fn">' + w + '</span>');
+                i += w.length;
+            } else if ((m = str.substring(i).match(/^\d+/))) {
+                tokens.push('<span class="c-num">' + m[0] + '</span>'); i += m[0].length;
+            } else {
+                tokens.push(escapeHTML(str[i])); i++;
+            }
+        }
+        return tokens.join('');
+    }
+
+    document.querySelectorAll('.codeline').forEach(line => {
+        line.innerHTML = colorizeCode(line.innerText);
+    });
+
+    function renderArray(containerId, arr, hlIndex) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        for(let j=1; j<arr.length; j++) {
+            let div = document.createElement('div');
+            let cls = 'arr-box';
+            if (j === hlIndex) cls += ' active';
+            if (arr[j] < 0) cls += ' neg';
+            div.className = cls;
+            div.innerHTML = `<span class="arr-idx">${j}</span><span class="arr-val">${arr[j]}</span>`;
+            container.appendChild(div);
+        }
+    }
+
+    // --- Quiz Logic ---
+    window.checkQuiz1 = function(btn, isCorrect) {
+        const opts = btn.parentElement.querySelectorAll('.quiz-opt');
+        opts.forEach(o => o.disabled = true);
+        btn.classList.add(isCorrect ? 'correct' : 'wrong');
+        if(!isCorrect) opts.forEach(o => { if(o.dataset.ans === '1') o.classList.add('correct'); });
+        btn.parentElement.nextElementSibling.style.display = 'block';
+    };
+    window.checkQuiz2 = function(btn, isCorrect) {
+        const opts = btn.parentElement.querySelectorAll('.quiz-opt');
+        opts.forEach(o => o.disabled = true);
+        btn.classList.add(isCorrect ? 'correct' : 'wrong');
+        if(!isCorrect) opts.forEach(o => { if(o.dataset.ans === '1') o.classList.add('correct'); });
+        btn.parentElement.nextElementSibling.style.display = 'block';
+    };
+
+    // --- Hero Lab ---
+    (function(){
+        let state = 0;
+        let arr = document.getElementById('hero-array');
+        let btn = document.getElementById('hero-btn');
+        function draw(isAdded) {
+            let vals = isAdded ? [0, 3, 5, 7, 0] : [0, 0, 0, 0, 0];
+            arr.innerHTML = '';
+            for(let i=0; i<5; i++) {
+                let div = document.createElement('div');
+                div.className = 'arr-box' + (isAdded && i>=1 && i<=3 ? ' active' : '');
+                div.innerHTML = `<span class="arr-idx">${i+1}</span><span class="arr-val">${vals[i]}</span>`;
+                arr.appendChild(div);
+            }
+        }
+        draw(false);
+        btn.onclick = function() {
+            state = 1 - state;
+            draw(state === 1);
+            btn.textContent = state === 1 ? "Hoàn tác" : "Thực hiện thao tác";
+        }
+    })();
+
+    // --- Module 1 Lab ---
+    (function() {
+        let steps = [];
+        let sp = 0;
+        let timer = null;
+        
+        function makeSteps() {
+            let res = [];
+            let a = [0,0,0,0,0,0,0]; // 1-based, 6 size
+            let d = [0,0,0,0,0,0,0];
+            
+            res.push({ vars: { a: [...a], d: [...d], hla: -1, hld: -1 }, msg: "Ban đầu mảng A gồm toàn số 0. Mảng hiệu D cũng toàn 0." });
+            
+            d[2] += 5;
+            res.push({ vars: { a: [...a], d: [...d], hla: -1, hld: 2 }, msg: "Bước 1: Cộng V = 5 vào D[2]. Điều này đánh dấu điểm bắt đầu đoạn cần tăng." });
+            
+            d[5] -= 5;
+            res.push({ vars: { a: [...a], d: [...d], hla: -1, hld: 5 }, msg: "Bước 2: Trừ V = 5 tại D[5] (ngay sau đoạn [2, 4]). Việc này ngắt đà tăng để các phần tử phía sau không bị cộng thừa." });
+            
+            for (let i = 1; i <= 6; i++) {
+                a[i] = a[i-1] + d[i];
+                res.push({
+                    vars: { a: [...a], d: [...d], hla: i, hld: i },
+                    msg: `Khôi phục tại i = ${i}: A[${i}] = A[${i-1}] + D[${i}] = ${a[i-1]} + ${d[i]} = ${a[i]}.` + 
+                         (i === 5 ? " Nhờ D[5] = -5, đà tăng bị triệt tiêu, A[5] trở về 0." : "")
+                });
+            }
+            return res;
+        }
+        
+        function paint(index) {
+            let s = steps[index];
+            renderArray('lab1-d', s.vars.d, s.vars.hld);
+            renderArray('lab1-a', s.vars.a, s.vars.hla);
+            document.getElementById('lab1-msg').innerHTML = s.msg;
+            document.getElementById('lab1-counter').textContent = `${index} / ${steps.length - 1}`;
+            
+            document.getElementById('lab1-btn-prev').disabled = (index === 0);
+            document.getElementById('lab1-btn-next').disabled = (index === steps.length - 1);
+            let runBtn = document.getElementById('lab1-btn-run');
+            if(index === steps.length - 1) { clearInterval(timer); timer = null; runBtn.textContent = 'Tự chạy'; runBtn.disabled = true; }
+            else { runBtn.disabled = false; }
+        }
+        
+        steps = makeSteps();
+        
+        document.getElementById('lab1-btn-reset').onclick = () => { clearInterval(timer); timer=null; document.getElementById('lab1-btn-run').textContent = 'Tự chạy'; sp = 0; paint(sp); };
+        document.getElementById('lab1-btn-prev').onclick = () => { if(sp>0) { sp--; paint(sp); } };
+        document.getElementById('lab1-btn-next').onclick = () => { if(sp<steps.length-1) { sp++; paint(sp); } };
+        document.getElementById('lab1-btn-run').onclick = function() {
+            if(timer) { clearInterval(timer); timer = null; this.textContent = 'Tự chạy'; }
+            else {
+                if(sp === steps.length - 1) sp = 0;
+                this.textContent = 'Dừng';
+                timer = setInterval(() => { if(sp < steps.length - 1) { sp++; paint(sp); } else { clearInterval(timer); timer = null; this.textContent = 'Tự chạy'; } }, 800);
+            }
+        };
+        
+        window.addEventListener('load', () => paint(0));
+    })();
+
+    // --- Module 2 Lab ---
+    (function() {
+        let steps = [];
+        let sp = 0;
+        let timer = null;
+        
+        function makeSteps() {
+            let res = [];
+            let d2 = [0,0,0,0,0,0,0,0]; // up to 7
+            let d1 = [0,0,0,0,0,0,0,0];
+            let a  = [0,0,0,0,0,0,0,0];
+            
+            res.push({ vars: { d2: [...d2], d1: [...d1], a: [...a], hld2: -1, hld1: -1, hla: -1 }, msg: "Khởi tạo mảng D<sub>2</sub>. Truy vấn l=2, r=4, s=3, d=2." });
+            
+            d2[2] += 3;
+            res.push({ vars: { d2: [...d2], d1: [...d1], a: [...a], hld2: 2, hld1: -1, hla: -1 }, msg: "1. Cộng s = 3 vào D<sub>2</sub>[2]. Bắt đầu nạp giá trị s đầu tiên." });
+            
+            d2[3] += (2 - 3);
+            res.push({ vars: { d2: [...d2], d1: [...d1], a: [...a], hld2: 3, hld1: -1, hla: -1 }, msg: "2. Cộng (d - s) = -1 vào D<sub>2</sub>[3]. Ngắt việc gia tăng s, nhường chỗ cho gia tăng d." });
+            
+            d2[5] -= (3 + (4-2+1)*2); // 9
+            res.push({ vars: { d2: [...d2], d1: [...d1], a: [...a], hld2: 5, hld1: -1, hla: -1 }, msg: "3. Trừ s + (r-l+1)·d = 9 khỏi D<sub>2</sub>[5]. Đạp phanh để triệt tiêu đà tăng ở biên r+1." });
+            
+            d2[6] += (3 + (4-2)*2); // 7
+            res.push({ vars: { d2: [...d2], d1: [...d1], a: [...a], hld2: 6, hld1: -1, hla: -1 }, msg: "4. Cộng s + (r-l)·d = 7 vào D<sub>2</sub>[6]. Điểm neo cuối cùng để nắn phần tử nằm ngoài đoạn về 0." });
+            
+            for (let i = 1; i <= 6; i++) {
+                d1[i] = d1[i-1] + d2[i];
+                res.push({ vars: { d2: [...d2], d1: [...d1], a: [...a], hld2: i, hld1: i, hla: -1 }, 
+                           msg: `Cộng dồn 1 tại i=${i}: D<sub>1</sub>[${i}] = ${d1[i-1]} + ${d2[i]} = ${d1[i]}.` +
+                                (i===2 ? " (Khớp lượng tăng s)" : (i===3 || i===4 ? " (Khớp công sai d)" : ""))
+                });
+            }
+            for (let i = 1; i <= 6; i++) {
+                a[i] = a[i-1] + d1[i];
+                res.push({ vars: { d2: [...d2], d1: [...d1], a: [...a], hld2: -1, hld1: i, hla: i }, 
+                           msg: `Cộng dồn 2 tại i=${i}: A[${i}] = ${a[i-1]} + ${d1[i]} = ${a[i]}.` +
+                                (i===4 ? " (Cuối cấp số cộng)" : (i===5 ? " (Trở về tĩnh lặng)" : ""))
+                });
+            }
+            return res;
+        }
+        
+        function paint(index) {
+            let s = steps[index];
+            renderArray('lab2-d2', s.vars.d2, s.vars.hld2);
+            renderArray('lab2-d1', s.vars.d1, s.vars.hld1);
+            renderArray('lab2-a', s.vars.a, s.vars.hla);
+            document.getElementById('lab2-msg').innerHTML = s.msg;
+            document.getElementById('lab2-counter').textContent = `${index} / ${steps.length - 1}`;
+            
+            document.getElementById('lab2-btn-prev').disabled = (index === 0);
+            document.getElementById('lab2-btn-next').disabled = (index === steps.length - 1);
+            let runBtn = document.getElementById('lab2-btn-run');
+            if(index === steps.length - 1) { clearInterval(timer); timer = null; runBtn.textContent = 'Tự chạy'; runBtn.disabled = true; }
+            else { runBtn.disabled = false; }
+        }
+        
+        steps = makeSteps();
+        
+        document.getElementById('lab2-btn-reset').onclick = () => { clearInterval(timer); timer=null; document.getElementById('lab2-btn-run').textContent = 'Tự chạy'; sp = 0; paint(sp); };
+        document.getElementById('lab2-btn-prev').onclick = () => { if(sp>0) { sp--; paint(sp); } };
+        document.getElementById('lab2-btn-next').onclick = () => { if(sp<steps.length-1) { sp++; paint(sp); } };
+        document.getElementById('lab2-btn-run').onclick = function() {
+            if(timer) { clearInterval(timer); timer = null; this.textContent = 'Tự chạy'; }
+            else {
+                if(sp === steps.length - 1) sp = 0;
+                this.textContent = 'Dừng';
+                timer = setInterval(() => { if(sp < steps.length - 1) { sp++; paint(sp); } else { clearInterval(timer); timer = null; this.textContent = 'Tự chạy'; } }, 750);
+            }
+        };
+        
+        window.addEventListener('load', () => paint(0));
+    })();
+</script>
+
+</body>
+</html>
+```eof
