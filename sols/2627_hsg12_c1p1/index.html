@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cước vận chuyển - Lời giải</title>
+    <!-- Nạp Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Nạp thư viện html2canvas cho tính năng Snap -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
+            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
+            --text-main: #E2E8F0; --text-muted: #94A3B8;
+            --glow: 0 0 20px rgba(56,214,196,.4);
+            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
+            --border: 1px solid rgba(255,255,255,.1);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg); color: var(--text-main);
+            line-height: 1.6;
+        }
+        h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.03em; }
+        h1 { font-size: 2.2rem; color: #fff; margin-bottom: 8px; }
+        h2 { font-size: 1.5rem; color: var(--accent); margin: 32px 0 16px 0; border-bottom: var(--border); padding-bottom: 8px;}
+        h3 { font-size: 1.2rem; color: var(--text-main); margin-bottom: 12px; }
+        p { margin-bottom: 16px; color: var(--text-muted); }
+        
+        /* Giao diện chung */
+        .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; display: flex; flex-direction: column; gap: 24px; }
+        .card {
+            background: linear-gradient(145deg, var(--panel), var(--bg2));
+            border: var(--border); border-radius: 16px; box-shadow: var(--shadow);
+            padding: 24px; margin-bottom: 16px;
+        }
+        
+        /* Navbar cố định */
+        .topnav {
+            position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center;
+            padding: 12px 20px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px); border-bottom: var(--border);
+        }
+        .nav-btn {
+            text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent));
+            padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease;
+            font-family: 'Inter', sans-serif; cursor: pointer; border: none; font-size: 0.95rem;
+        }
+        .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
+        .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
+
+        /* Nút Copy & Snap */
+        .codewrap, .snapbox { position: relative; }
+        .copy-btn, .snap-btn {
+            position: absolute; top: 10px; z-index: 5;
+            font-family: "JetBrains Mono", monospace; font-size: .72rem; font-weight: 600;
+            padding: 5px 10px; border-radius: 7px; cursor: pointer;
+            background: rgba(255,255,255,.06); color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,.12); transition: all .2s;
+        }
+        .snap-btn { right: 10px; }
+        .copy-btn { right: 64px; }
+        .snapbox:not(.codewrap) .snap-btn { right: 10px; }
+        .copy-btn:hover, .snap-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(56,214,196,.1); }
+        .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
+
+        /* Code Block */
+        .codewrap {
+            background: #0A1220; border: var(--border); border-radius: 12px;
+            overflow-x: auto; padding: 16px 0; margin-bottom: 16px;
+        }
+        .code { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6; }
+        .codeline { padding: 0 16px; border-left: 3px solid transparent; white-space: pre-wrap; word-break: break-all; }
+        .codeline.hot { background: rgba(255,180,84,.1); border-left: 3px solid var(--mark); }
+        
+        /* Tô màu cú pháp */
+        .c-kw { color: #C678DD; } /* Keyword */
+        .c-num { color: #D19A66; } /* Number */
+        .c-cm { color: #5C6370; font-style: italic; } /* Comment */
+        .c-str { color: #98C379; } /* String */
+        .c-fn { color: #61AFEF; } /* Function */
+        .c-op { color: #56B6C2; } /* Operator */
+        .c-txt { color: #E06C75; } /* Text/Variable */
+
+        /* Bảng dữ liệu / Ràng buộc */
+        .data-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 0.95rem; }
+        .data-table th, .data-table td { border: var(--border); padding: 10px 14px; text-align: left; }
+        .data-table th { background: rgba(255,255,255,.05); color: var(--accent2); }
+
+        /* Quiz */
+        .quiz-box { margin-top: 24px; padding: 20px; background: rgba(0,0,0,.2); border-radius: 12px; border: var(--border); }
+        .quiz-q { font-weight: 600; margin-bottom: 16px; color: #fff; }
+        .quiz-btn {
+            display: block; width: 100%; text-align: left; padding: 12px 16px; margin-bottom: 10px;
+            background: rgba(255,255,255,.03); border: 1px solid var(--border); color: var(--text-main);
+            border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif; font-size: 0.95rem; line-height: 1.5;
+        }
+        .quiz-btn:hover:not(:disabled) { background: rgba(255,255,255,0.08); border-color: var(--text-muted); }
+        .quiz-btn.correct { background: rgba(56,214,196,0.15); border-color: var(--accent); color: var(--accent); }
+        .quiz-btn.wrong { background: rgba(255,107,107,0.15); border-color: var(--red); color: var(--red); }
+        .quiz-exp { display: none; margin-top: 12px; padding: 12px 16px; background: rgba(255,255,255,0.03); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.9rem; color: var(--text-muted); }
+
+        /* Thuật toán từng bước */
+        .algo-steps {
+            background: linear-gradient(180deg, rgba(56,214,196,.06), transparent);
+            border: 1px solid rgba(56,214,196,.35); border-left: 4px solid var(--accent);
+            border-radius: 14px; padding: 20px 24px;
+        }
+        .algo-steps h3 { color: var(--accent); margin-bottom: 10px; }
+        .algo-steps ol { margin: 0; padding-left: 22px; }
+        .algo-steps ol > li { margin-bottom: 12px; line-height: 1.6; color: var(--text-main); }
+        .algo-steps ul { margin: 6px 0; padding-left: 18px; list-style: none; }
+        .algo-steps ul > li { position: relative; padding-left: 14px; margin-bottom: 6px; color: var(--text-muted); }
+        .algo-steps ul > li::before { content: "–"; position: absolute; left: 0; color: var(--accent); }
+        code {
+            background: rgba(91,140,255,.14); color: #A9C4FF; padding: .15em .4em;
+            border-radius: 5px; font-family: "JetBrains Mono", monospace; font-size: .88em;
+        }
+
+        /* Hai cột Cạm bẫy */
+        .pitfall-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .pitfall-col { padding: 16px; border-radius: 12px; border: var(--border); }
+        .pitfall-col.wrong { background: rgba(255,107,107,.05); border-color: rgba(255,107,107,.3); }
+        .pitfall-col.wrong h3 { color: var(--red); }
+        .pitfall-col.right { background: rgba(56,214,196,.05); border-color: rgba(56,214,196,.3); }
+        .pitfall-col.right h3 { color: var(--accent); }
+
+        /* Component hiển thị Lab */
+        .lab-layout { display: grid; grid-template-columns: 1fr 320px; gap: 20px; margin-top: 16px; }
+        @media (max-width: 800px) { .lab-layout { grid-template-columns: 1fr; } }
+        .lab-visual { background: rgba(0,0,0,.2); border: var(--border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+        .lab-controls { display: flex; gap: 10px; align-items: center; margin-top: 12px; padding: 12px; background: rgba(255,255,255,.03); border-radius: 8px;}
+        .lab-msg { font-size: 1rem; color: var(--text-main); min-height: 48px; border-left: 3px solid var(--accent); padding-left: 12px; display: flex; align-items: center;}
+        
+        .var-table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; }
+        .var-table th, .var-table td { border: 1px solid rgba(255,255,255,.1); padding: 6px 10px; text-align: center; }
+        .var-table th { color: var(--accent2); font-weight: normal; }
+        .var-table td { color: #fff; }
+
+        .bucket-wrap { display: flex; gap: 24px; overflow-x: auto; padding: 10px 4px; padding-bottom: 20px;}
+        .bucket-item { flex: none; display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100px; }
+        .bucket-tube {
+            width: 70px; height: 140px; border: 2px solid var(--text-muted); border-top: none;
+            border-radius: 0 0 10px 10px; position: relative; overflow: hidden; background: rgba(255,255,255,.02);
+        }
+        .bucket-fill {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: linear-gradient(0deg, var(--accent2), var(--accent));
+            transition: height 0.4s ease; height: 0%;
+        }
+        .bucket-label { font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; text-align: center; color: var(--text-muted); }
+        .bucket-text { position: absolute; width: 100%; text-align: center; bottom: 5px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: bold; color: #000; z-index: 2; transition: opacity 0.2s;}
+
+        .badge { display: inline-block; padding: 4px 10px; background: rgba(56,214,196,.15); color: var(--accent); border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a class="nav-btn outline" href="https://cvpoi.vercel.app/index.html">Trang chủ</a>
+    <a class="nav-btn" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+</nav>
+
+<div class="container">
+    
+    <!-- Hero Section -->
+    <header>
+        <span class="badge">HSG12 - Cơ bản</span>
+        <h1>Cước vận chuyển</h1>
+        <p style="font-size: 1.1rem; color: var(--text-main);">Bản chất: Phân bổ một lượng khối lượng ban đầu vào các "bậc" luỹ kế liên tiếp để tính tổng chi phí dựa trên đơn giá của từng bậc.</p>
+        
+        <div class="card snapbox" style="margin-top: 20px;">
+            <div class="snap-btn" onclick="snapBox(this)">Snap</div>
+            <h3>Mini-lab: Ước lượng cước nhanh</h3>
+            <p>Trượt thanh bên dưới để thử nghiệm khối lượng khác nhau và xem cước phí tổng cộng thay đổi.</p>
+            <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap; margin-top: 16px;">
+                <span style="font-family:'JetBrains Mono', monospace;">Khối lượng c:</span>
+                <input type="range" id="mini-c" min="1" max="150" value="30" oninput="updateMini()" style="flex:1; min-width: 200px; accent-color: var(--accent);">
+                <span id="mini-c-val" style="font-weight:bold; color:var(--accent); font-family:'JetBrains Mono', monospace; width: 60px;">30 kg</span>
+            </div>
+            <div style="margin-top:16px; padding-top: 16px; border-top: var(--border);">
+                Tổng tiền cước: <span id="mini-cost" style="font-weight:bold; color:var(--mark); font-size:1.4rem; font-family:'JetBrains Mono', monospace;">110000</span> đồng
+            </div>
+        </div>
+    </header>
+
+    <section>
+        <h2>1. Tóm tắt đề bài</h2>
+        <div class="card snapbox">
+            <div class="snap-btn" onclick="snapBox(this)">Snap</div>
+            <p>Một bảng giá cước được định nghĩa bởi K bậc. Bậc thứ j áp dụng cho phần khối lượng từ mốc m<sub>j-1</sub> đến mốc m<sub>j</sub> với đơn giá g<sub>j</sub> đồng/kg (quy ước m<sub>0</sub> = 0). Cho Q truy vấn, mỗi truy vấn cung cấp khối lượng kiện hàng c<sub>i</sub>, yêu cầu tính tổng cước phí của kiện hàng đó.</p>
+            
+            <h3>Dữ liệu vào (Input)</h3>
+            <ul>
+                <li>Dòng 1: K và Q.</li>
+                <li>K dòng tiếp theo: Mỗi dòng chứa m<sub>j</sub> và g<sub>j</sub>. Các mốc m<sub>j</sub> được đảm bảo tăng dần nghiêm ngặt.</li>
+                <li>Dòng cuối: Q số nguyên c<sub>1</sub>, c<sub>2</sub>, ..., c<sub>Q</sub>.</li>
+            </ul>
+
+            <h3 style="margin-top:16px;">Ràng buộc</h3>
+            <table class="data-table">
+                <tr><th>Subtask</th><th>Điểm</th><th>Ràng buộc bổ sung</th></tr>
+                <tr><td>1</td><td>30%</td><td>K = 1</td></tr>
+                <tr><td>2</td><td>30%</td><td>Q ≤ 100 và m<sub>K</sub> ≤ 1000</td></tr>
+                <tr><td>3</td><td>40%</td><td>K ≤ 10, Q ≤ 10<sup>5</sup>, m<sub>K</sub> ≤ 10<sup>9</sup>, g<sub>j</sub> ≤ 10<sup>4</sup></td></tr>
+            </table>
+
+            <h3>Ví dụ mô phỏng</h3>
+            <div style="background:rgba(0,0,0,.3); padding: 12px; border-radius:8px; font-family:'JetBrains Mono', monospace; font-size: 0.9rem; border: var(--border);">
+                <div style="color:var(--text-muted);">// Input</div>
+                <div>3 3</div>
+                <div>10 5000</div>
+                <div>50 3000</div>
+                <div>1000000 2000</div>
+                <div>30 10 120</div>
+                <div style="color:var(--text-muted); margin-top:8px;">// Output tương ứng cho 30, 10, 120</div>
+                <div>110000</div>
+                <div>50000</div>
+                <div>310000</div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>2. Phân tích ban đầu</h2>
+        <div class="card snapbox">
+            <div class="snap-btn" onclick="snapBox(this)">Snap</div>
+            <p>Với mỗi kiện hàng, ta không thể nhân toàn bộ khối lượng với một đơn giá duy nhất. Khối lượng bị "cắt xén" thành nhiều khúc nhỏ phụ thuộc vào mốc bảng cước. Bài toán yêu cầu xử lý độc lập từng kiện hàng.</p>
+            <p>Do giới hạn số bậc K rất nhỏ (K ≤ 10), đối với mỗi truy vấn kiện hàng, ta hoàn toàn có thể dùng một vòng lặp chạy dọc qua K bậc để tính toán phần khối lượng rơi vào từng bậc tương ứng. Độ phức tạp cho một kiện hàng sẽ là O(K). Suy ra cho Q kiện, thuật toán tốn O(Q × K) phép tính. Với cực đại là 10<sup>5</sup> × 10 = 10<sup>6</sup> phép tính, cách làm này chạy hoàn toàn vừa vặn trong giới hạn 1 giây của máy chấm.</p>
+        </div>
+    </section>
+
+    <section>
+        <h2>3. Xử lý khối lượng theo cấu trúc "Xô nước"</h2>
+        <div class="card snapbox">
+            <div class="snap-btn" onclick="snapBox(this)">Snap</div>
+            <h3>Ý tưởng then chốt</h3>
+            <p><strong>(a) Ta muốn gì:</strong> Tính chính xác lượng khối lượng chịu mức giá của bậc j, sau đó nhân với đơn giá g<sub>j</sub> rồi cộng vào tổng tiền cước.</p>
+            <p><strong>(b) Khó khăn:</strong> Khối lượng tổng c ban đầu không nằm gọn ở một bậc. Ta cần một cơ chế để "khấu trừ" dần khối lượng khi chuyển từ bậc thấp lên bậc cao.</p>
+            <p><strong>(c) Ý tưởng vượt qua:</strong> Hãy tưởng tượng kiện hàng là một lượng nước có thể tích c. Các bậc thang giá cước giống như các "xô" xếp nối tiếp nhau. Xô thứ j có <strong>sức chứa</strong> bằng khoảng cách giữa mốc của nó và mốc trước đó: <code>capacity = m<sub>j</sub> - m<sub>j-1</sub></code>. Ta rót nước vào xô thứ nhất, nếu đầy thì phần tràn sẽ được rót tiếp vào xô thứ hai, cứ như vậy cho đến khi cạn nước.</p>
+            <p><strong>(d) Vì sao đúng:</strong> Cách mô hình hóa này đảm bảo nước (khối lượng) ở xô nào sẽ chịu chính xác đơn giá của xô đó, phản ánh đúng nguyên lý lũy kế cước của thực tế.</p>
+            
+            <div class="lab-layout">
+                <div class="lab-visual">
+                    <div class="lab-msg" id="lab1-msg">Nhấn nút "Tiến" để bắt đầu mô phỏng xử lý kiện hàng c = 120.</div>
+                    
+                    <div class="bucket-wrap">
+                        <div class="bucket-item">
+                            <div class="bucket-label">Bậc 1<br>Giá: 5000<br>Sức chứa: 10</div>
+                            <div class="bucket-tube">
+                                <div class="bucket-fill" id="lab1-bfill-0"></div>
+                                <div class="bucket-text" id="lab1-btext-0" style="opacity:0;">0</div>
+                            </div>
+                        </div>
+                        <div class="bucket-item">
+                            <div class="bucket-label">Bậc 2<br>Giá: 3000<br>Sức chứa: 40</div>
+                            <div class="bucket-tube" style="height:140px;">
+                                <div class="bucket-fill" id="lab1-bfill-1"></div>
+                                <div class="bucket-text" id="lab1-btext-1" style="opacity:0;">0</div>
+                            </div>
+                        </div>
+                        <div class="bucket-item">
+                            <div class="bucket-label">Bậc 3<br>Giá: 2000<br>Sức chứa: ∞</div>
+                            <div class="bucket-tube" style="height:140px; border-top: 2px dashed var(--text-muted);">
+                                <div class="bucket-fill" id="lab1-bfill-2"></div>
+                                <div class="bucket-text" id="lab1-btext-2" style="opacity:0;">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table class="var-table">
+                        <tr>
+                            <th>rem</th><th>cost</th><th>j</th><th>capacity</th><th>take</th>
+                        </tr>
+                        <tr>
+                            <td id="lab1-v-rem">120</td>
+                            <td id="lab1-v-cost">0</td>
+                            <td id="lab1-v-j">-</td>
+                            <td id="lab1-v-cap">-</td>
+                            <td id="lab1-v-take">-</td>
+                        </tr>
+                    </table>
+
+                    <div class="lab-controls">
+                        <button class="nav-btn outline" id="lab1-btn-reset" onclick="lab1.reset()">Reset</button>
+                        <button class="nav-btn outline" id="lab1-btn-prev" onclick="lab1.prev()">Lùi</button>
+                        <button class="nav-btn outline" id="lab1-btn-next" onclick="lab1.next()">Tiến</button>
+                        <button class="nav-btn" id="lab1-btn-auto" onclick="lab1.toggleAuto()">Tự chạy</button>
+                        <span style="margin-left:auto; color:var(--text-muted); font-family:'JetBrains Mono', monospace;" id="lab1-counter">0 / 0</span>
+                    </div>
+                </div>
+
+                <div class="codewrap" style="margin-bottom:0;">
+                    <div class="code" id="lab1-code-content" style="display:none;">long long cost = 0;
+long long rem = c;
+for (int j = 1; j <= K; j++) {
+    long long capacity = m[j] - m[j - 1];
+    long long take = min(rem, capacity);
+    cost += take * g[j];
+    rem -= take;
+    if (rem == 0) {
+        break;
+    }
+}</div>
+                    <div id="lab1-code-display" class="code" style="padding: 0;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="quiz-box">
+            <div class="quiz-q">Kiểm tra hiểu biết: Tại sao ở dòng code `long long capacity = m[j] - m[j - 1];`, ta lại trừ đi m<sub>j-1</sub> mà không dùng trực tiếp m<sub>j</sub>?</div>
+            <div class="quiz-opts">
+                <button class="quiz-btn" onclick="checkQuiz(this, false, 'Sai. Nếu dùng m_j thì tức là bạn đang tính cả phần khối lượng thuộc các bậc trước đó vào bậc hiện tại, dẫn tới tính trùng lặp.')">A. Vì m<sub>j</sub> là mốc tổng, nên ta phải lùi đi 1 đơn vị để tránh tính dư.</button>
+                <button class="quiz-btn" onclick="checkQuiz(this, true, 'Đúng! Bậc thứ j chỉ áp dụng cho khoảng khối lượng từ mốc trước đến mốc hiện tại. Hiệu của chúng chính là khoảng khối lượng tối đa (sức chứa) chịu đơn giá này.')">B. Vì sức chứa thực sự của riêng bậc j là khoảng cách giữa mốc của nó và mốc liền trước.</button>
+                <button class="quiz-btn" onclick="checkQuiz(this, false, 'Sai. Phép trừ này không liên quan đến việc chống tràn số, mà để tính đúng logic định mức.')">C. Để đảm bảo biến capacity không bị tràn số khi c vượt quá giới hạn.</button>
+            </div>
+            <div class="quiz-exp"></div>
+        </div>
+    </section>
+
+    <section>
+        <h2>4. Thuật toán từng bước</h2>
+        <div class="algo-steps snapbox">
+            <div class="snap-btn" onclick="snapBox(this)">Snap</div>
+            <h3>Quy trình hoàn chỉnh</h3>
+            <ol>
+                <li><strong>Đọc dữ liệu và tiền xử lý</strong>
+                    <ul>
+                        <li>Đọc <code>K</code> và <code>Q</code>.</li>
+                        <li>Khởi tạo hai mảng <code>m</code> và <code>g</code> có kích thước <code>K + 1</code>. Đặt mốc số 0 là <code>m[0] = 0</code>.</li>
+                        <li>Đọc K dòng, lưu mốc luỹ kế vào <code>m[1...K]</code> và đơn giá vào <code>g[1...K]</code>.</li>
+                    </ul>
+                </li>
+                <li><strong>Xử lý từng kiện hàng</strong>
+                    <ul>
+                        <li>Với mỗi kiện hàng, đọc khối lượng <code>c</code>.</li>
+                        <li>Khởi tạo biến tổng tiền <code>cost = 0</code> và biến khối lượng dư <code>rem = c</code>. Cả hai biến này <strong>bắt buộc phải là số nguyên 64-bit</strong>.</li>
+                    </ul>
+                </li>
+                <li><strong>Vòng lặp tính cước qua các bậc (j chạy từ 1 đến K)</strong>
+                    <ul>
+                        <li>Tính sức chứa của bậc <code>j</code>: <code>capacity = m[j] - m[j-1]</code>.</li>
+                        <li>Xác định phần khối lượng được đưa vào bậc này: <code>take = min(rem, capacity)</code>.</li>
+                        <li>Cộng dồn vào chi phí: <code>cost = cost + take * g[j]</code>.</li>
+                        <li>Trừ phần khối lượng vừa tính ra khỏi khối lượng dư: <code>rem = rem - take</code>.</li>
+                        <li>Nếu <code>rem == 0</code>, nghĩa là đã tính hết cho kiện hàng, gọi lệnh <code>break</code> để kết thúc vòng lặp sớm.</li>
+                    </ul>
+                </li>
+                <li><strong>Xuất kết quả</strong>
+                    <ul>
+                        <li>In giá trị <code>cost</code> ra một dòng riêng biệt, sau đó quay lại bước 2 để xử lý kiện tiếp theo.</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </section>
+
+    <section>
+        <h2>5. Cài đặt C++</h2>
+        <div class="codewrap snapbox">
+            <div class="snap-btn" onclick="snapBox(this)">Snap</div>
+            <div class="copy-btn" onclick="copyCode(this)">Copy</div>
+            <div class="code" id="main-code-content" style="display:none;">#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int main() {
+    // Tối ưu hóa I/O để chạy nhanh khi có nhiều truy vấn
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int K, Q;
+    if (!(cin >> K >> Q)) return 0;
+
+    vector<long long> m(K + 1, 0);
+    vector<long long> g(K + 1, 0);
+
+    for (int j = 1; j <= K; j++) {
+        cin >> m[j] >> g[j];
+    }
+    // m[0] mặc định đã bằng 0 do vector khởi tạo
+
+    for (int i = 0; i < Q; i++) {
+        long long c;
+        cin >> c;
+
+        long long cost = 0;
+        long long rem = c;
+
+        // Duyệt qua từng bậc cước
+        for (int j = 1; j <= K; j++) {
+            long long capacity = m[j] - m[j - 1];
+            long long take = min(rem, capacity);
+            
+            cost += take * g[j];
+            rem -= take;
+
+            // Nếu đã tính hết c, dừng sớm để tối ưu
+            if (rem == 0) {
+                break;
+            }
+        }
+
+        cout << cost << "\n";
+    }
+
+    return 0;
+}</div>
+            <div id="main-code-display" class="code" style="padding: 0;"></div>
+        </div>
+    </section>
+
+    <section>
+        <h2>6. Độ phức tạp & Cạm bẫy</h2>
+        <div class="card snapbox" style="margin-bottom: 24px;">
+            <div class="snap-btn" onclick="snapBox(this)">Snap</div>
+            <h3 style="color:var(--accent);">Độ phức tạp</h3>
+            <p><strong>Thời gian:</strong> Vòng lặp chính xử lý kiện hàng duyệt tối đa K bước. Với Q kiện hàng, tổng số vòng lặp là O(Q × K). Vì Q ≤ 10<sup>5</sup> và K ≤ 10, số phép toán tối đa chỉ khoảng 10<sup>6</sup>, chạy rất nhanh và hoàn toàn lọt thỏm trong giới hạn 1 giây thời gian.</p>
+            <p><strong>Không gian bộ nhớ:</strong> Lưu trữ 2 mảng m và g kích thước K. Độ phức tạp không gian O(K), tiêu tốn không đáng kể bộ nhớ.</p>
+        </div>
+
+        <div class="pitfall-grid snapbox">
+            <div class="snap-btn" onclick="snapBox(this)">Snap</div>
+            <div class="pitfall-col wrong">
+                <h3>✕ Lỗi thường gặp</h3>
+                <p style="margin-bottom:0;">Sử dụng kiểu số nguyên 32-bit (<code>int</code>) cho biến lưu tổng tiền cước <code>cost</code>. Trong trường hợp xấu nhất, kiện hàng nặng 10<sup>9</sup> kg với mức giá 10<sup>4</sup> đồng/kg, tổng chi phí lên tới 10<sup>13</sup>. Con số này vượt xa giới hạn 2 × 10<sup>9</sup> của kiểu <code>int</code>, gây ra lỗi tràn số dẫn đến kết quả bị âm hoặc sai lệch hoàn toàn.</p>
+            </div>
+            <div class="pitfall-col right">
+                <h3>✓ Cách xử lý chuẩn</h3>
+                <p style="margin-bottom:0;">Bắt buộc khai báo biến <code>cost</code> dưới dạng số nguyên 64-bit (<code>long long</code> trong C++). Đồng thời, nên ép kiểu các biến liên quan như <code>c</code>, <code>rem</code>, <code>m</code>, <code>g</code> sang <code>long long</code> ngay từ đầu để tránh mọi rủi ro tràn số âm ỉ trong lúc thực hiện phép nhân <code>take * g[j]</code>.</p>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    // Danh sách các hàm khởi tạo sẽ chạy khi tải trang
+    const initQueue = [];
+
+    // Bộ phân tách mã nguồn thành thẻ HTML có màu
+    function highlight(codeStr) {
+        let tokens = [];
+        let i = 0;
+        const keywords = new Set(['include', 'using', 'namespace', 'int', 'long', 'void', 'if', 'else', 'for', 'while', 'return', 'break', 'continue', 'const', 'cin', 'cout', 'endl', 'min', 'max', 'vector', '#include']);
+        
+        while(i < codeStr.length) {
+            let char = codeStr[i];
+            if (char === '/' && codeStr[i+1] === '/') {
+                let end = codeStr.indexOf('\n', i);
+                if (end === -1) end = codeStr.length;
+                tokens.push({type: 'c-cm', val: codeStr.substring(i, end)});
+                i = end;
+            } else if (char === '"' || char === "'") {
+                let quote = char;
+                let end = i + 1;
+                while(end < codeStr.length && codeStr[end] !== quote) {
+                    if (codeStr[end] === '\\') end++;
+                    end++;
+                }
+                if (end < codeStr.length) end++;
+                tokens.push({type: 'c-str', val: codeStr.substring(i, end)});
+                i = end;
+            } else if (/[a-zA-Z_#]/.test(char)) {
+                let end = i + 1;
+                while(end < codeStr.length && /[a-zA-Z0-9_]/.test(codeStr[end])) end++;
+                let word = codeStr.substring(i, end);
+                if (keywords.has(word)) tokens.push({type: 'c-kw', val: word});
+                else if (end < codeStr.length && codeStr[end] === '(') tokens.push({type: 'c-fn', val: word});
+                else tokens.push({type: 'c-txt', val: word});
+                i = end;
+            } else if (/[0-9]/.test(char)) {
+                let end = i + 1;
+                while(end < codeStr.length && /[0-9\.]/.test(codeStr[end])) end++;
+                tokens.push({type: 'c-num', val: codeStr.substring(i, end)});
+                i = end;
+            } else if (/\s/.test(char)) {
+                let end = i + 1;
+                while(end < codeStr.length && /\s/.test(codeStr[end])) end++;
+                tokens.push({type: 'c-spc', val: codeStr.substring(i, end)});
+                i = end;
+            } else {
+                tokens.push({type: 'c-op', val: char});
+                i++;
+            }
+        }
+        
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+        
+        return tokens.map(t => {
+            let esc = escapeHtml(t.val);
+            if(t.type === 'c-spc' || t.type === 'c-txt') return esc;
+            return `<span class="${t.type}">${esc}</span>`;
+        }).join('');
+    }
+
+    // Thiết lập hiển thị code line-by-line
+    function setupCode(containerId, rawId, prefix) {
+        const rawEl = document.getElementById(rawId);
+        if(!rawEl) return;
+        const raw = rawEl.innerText;
+        const lines = raw.split('\n');
+        let html = '';
+        lines.forEach((line, idx) => {
+            let highlighted = highlight(line);
+            html += `<div class="codeline" id="${prefix}-l${idx+1}">${highlighted}</div>`;
+        });
+        document.getElementById(containerId).innerHTML = html;
+    }
+
+    // Các hàm Copy & Snap
+    function flash(btn, text){ 
+        const o = btn.textContent; btn.textContent = text;
+        setTimeout(() => btn.textContent = o, 1200); 
+    }
+    
+    function copyCode(btn) {
+        const wrap = btn.closest('.codewrap');
+        const codeEl = wrap.querySelector('.code:not([style*="display:none"]):not([style*="display: none"])');
+        // Lấy văn bản thô, bỏ qua thẻ span
+        const text = document.getElementById('main-code-content').innerText;
+        navigator.clipboard.writeText(text).then(() => flash(btn, 'Đã chép!')).catch(e => {
+            const ta = document.createElement('textarea');
+            ta.value = text; document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            flash(btn, 'Đã chép!');
+        });
+    }
+
+    async function snapBox(btn) {
+        const box = btn.closest('.snapbox');
+        box.classList.add('snapping');
+        await document.fonts.ready;
+        try {
+            const canvas = await html2canvas(box, {backgroundColor:'#0B1220', scale:2, logging:false});
+            box.classList.remove('snapping');
+            canvas.toBlob(async (blob) => {
+                try {
+                    await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+                    flash(btn, 'Đã chụp!');
+                } catch(e) {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'snap.png'; a.click();
+                    flash(btn, 'Đã tải ảnh');
+                }
+            });
+        } catch(e) {
+            box.classList.remove('snapping');
+        }
+    }
+
+    // Quiz logic
+    function checkQuiz(btn, isCorrect, exp) {
+        const box = btn.closest('.quiz-box');
+        const opts = box.querySelectorAll('button');
+        opts.forEach(b => b.disabled = true);
+        if (isCorrect) {
+            btn.classList.add('correct');
+        } else {
+            btn.classList.add('wrong');
+            opts.forEach(b => {
+                if(b.getAttribute('onclick').includes('true')) b.classList.add('correct');
+            });
+        }
+        const expDiv = box.querySelector('.quiz-exp');
+        expDiv.style.display = 'block';
+        expDiv.innerText = exp;
+    }
+
+    // Mini Lab Logic
+    const m_mini = [10, 50, 1000000];
+    const g_mini = [5000, 3000, 2000];
+    function updateMini() {
+        let val = parseInt(document.getElementById('mini-c').value);
+        document.getElementById('mini-c-val').innerText = val + " kg";
+        
+        let rem = val;
+        let cost = 0;
+        let prev = 0;
+        for(let j=0; j<3; j++) {
+            let cap = m_mini[j] - prev;
+            let take = Math.min(rem, cap);
+            cost += take * g_mini[j];
+            rem -= take;
+            if(rem === 0) break;
+            prev = m_mini[j];
+        }
+        document.getElementById('mini-cost').innerText = cost;
+    }
+
+</script>
+
+<script>
+    const lab1 = (function() {
+        let steps = [];
+        let sp = 0;
+        let timer = null;
+        
+        // Dữ liệu giả lập
+        const K = 3;
+        const m = [10, 50, 1000000];
+        const g = [5000, 3000, 2000];
+        const bucketMaxVis = [10, 40, 100]; // Để điều chỉnh visual max height cho tube 3
+        
+        function makeSteps() {
+            steps = [];
+            let c = 120;
+            steps.push({
+                line: 'lab1-l1',
+                vars: { rem: 120, cost: 0, j: '-', cap: '-', take: '-' },
+                fills: [0, 0, 0],
+                msg: 'Bắt đầu với kiện hàng nặng c = 120 kg. Tổng tiền cước cost = 0, khối lượng dư rem = 120.'
+            });
+
+            let rem = c;
+            let cost = 0;
+            let fills = [0, 0, 0];
+            let prev = 0;
+
+            for(let j=0; j<3; j++) {
+                let actualJ = j + 1;
+                steps.push({
+                    line: 'lab1-l3',
+                    vars: { rem, cost, j: actualJ, cap: '-', take: '-' },
+                    fills: [...fills],
+                    msg: `Bắt đầu vòng lặp xét bậc cước thứ ${actualJ}.`
+                });
+
+                let cap = m[j] - prev;
+                steps.push({
+                    line: 'lab1-l4',
+                    vars: { rem, cost, j: actualJ, cap: cap, take: '-' },
+                    fills: [...fills],
+                    msg: `Tính sức chứa của bậc ${actualJ}: m[${actualJ}] - m[${actualJ-1}] = ${m[j]} - ${prev} = ${cap} kg.`
+                });
+
+                let take = Math.min(rem, cap);
+                steps.push({
+                    line: 'lab1-l5',
+                    vars: { rem, cost, j: actualJ, cap: cap, take: take },
+                    fills: [...fills],
+                    msg: `Khối lượng còn lại là ${rem}, sức chứa của bậc là ${cap}. Ta phải lấy số nhỏ hơn giữa chúng, tức là rót vào ${take} kg.`
+                });
+
+                cost += take * g[j];
+                fills[j] = take;
+                steps.push({
+                    line: 'lab1-l6',
+                    vars: { rem, cost, j: actualJ, cap: cap, take: take },
+                    fills: [...fills],
+                    msg: `Tiền cước cho phần này: ${take} kg × ${g[j]} đồng = ${take * g[j]}. Cộng dồn vào cost, cost hiện tại là ${cost}.`
+                });
+
+                rem -= take;
+                steps.push({
+                    line: 'lab1-l7',
+                    vars: { rem, cost, j: actualJ, cap: cap, take: take },
+                    fills: [...fills],
+                    msg: `Trừ đi khối lượng đã xử lý: rem = rem - ${take} = ${rem}.`
+                });
+
+                steps.push({
+                    line: 'lab1-l8',
+                    vars: { rem, cost, j: actualJ, cap: cap, take: take },
+                    fills: [...fills],
+                    msg: rem === 0 ? `Kiểm tra biến rem. rem đã bằng 0, tức là ta đã tính xong cước cho toàn bộ kiện hàng.` : `Kiểm tra biến rem. Vẫn còn ${rem} kg chưa tính cước, ta sẽ chuyển sang bậc tiếp theo.`
+                });
+
+                if (rem === 0) {
+                    steps.push({
+                        line: 'lab1-l9',
+                        vars: { rem, cost, j: actualJ, cap: cap, take: take },
+                        fills: [...fills],
+                        msg: `Gọi lệnh break để thoát sớm vòng lặp, tối ưu thuật toán.`
+                    });
+                    break;
+                }
+                prev = m[j];
+            }
+        }
+
+        function paint(idx) {
+            const state = steps[idx];
+            
+            // Highlight code
+            document.querySelectorAll('#lab1-code-display .codeline.hot').forEach(el => el.classList.remove('hot'));
+            const lineEl = document.getElementById(state.line);
+            if(lineEl) lineEl.classList.add('hot');
+            
+            // Bảng biến số
+            document.getElementById('lab1-v-rem').innerText = state.vars.rem;
+            document.getElementById('lab1-v-cost').innerText = state.vars.cost;
+            document.getElementById('lab1-v-j').innerText = state.vars.j;
+            document.getElementById('lab1-v-cap').innerText = state.vars.cap;
+            document.getElementById('lab1-v-take').innerText = state.vars.take;
+            
+            // Thông điệp
+            document.getElementById('lab1-msg').innerText = state.msg;
+            
+            // Cập nhật Visual xô nước
+            for(let i=0; i<3; i++) {
+                let tubeHeight = (state.fills[i] / bucketMaxVis[i]) * 100;
+                if(tubeHeight > 100) tubeHeight = 100;
+                document.getElementById(`lab1-bfill-${i}`).style.height = `${tubeHeight}%`;
+                
+                const textEl = document.getElementById(`lab1-btext-${i}`);
+                textEl.innerText = state.fills[i] + (i===2 && state.fills[i]>0 ? " kg" : "");
+                textEl.style.opacity = state.fills[i] > 0 ? "1" : "0";
+                
+                // Đổi màu text dựa trên chiều cao fill (để dễ nhìn)
+                if(tubeHeight > 50) textEl.style.color = "#0B1220";
+                else textEl.style.color = "#E2E8F0";
+            }
+            
+            // Nút & Bộ đếm
+            document.getElementById('lab1-counter').innerText = `${idx} / ${steps.length - 1}`;
+            document.getElementById('lab1-btn-prev').disabled = (idx === 0);
+            document.getElementById('lab1-btn-next').disabled = (idx === steps.length - 1);
+            
+            if(idx === steps.length - 1 && timer) {
+                toggleAuto(); // tự dừng
+            }
+        }
+
+        function next() { if(sp < steps.length - 1) { sp++; paint(sp); } }
+        function prev() { if(sp > 0) { sp--; paint(sp); } }
+        function reset() { sp = 0; if(timer) toggleAuto(); paint(sp); }
+        function toggleAuto() {
+            const btn = document.getElementById('lab1-btn-auto');
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+                btn.innerText = 'Tự chạy';
+                btn.classList.remove('outline');
+            } else {
+                if(sp === steps.length - 1) sp = 0;
+                timer = setInterval(() => { next(); }, 700);
+                btn.innerText = 'Dừng';
+                btn.classList.add('outline');
+            }
+        }
+
+        initQueue.push(() => {
+            setupCode('lab1-code-display', 'lab1-code-content', 'lab1');
+            makeSteps();
+            paint(0);
+        });
+
+        return { next, prev, reset, toggleAuto };
+    })();
+
+    // Setup Code Cài đặt cuối
+    initQueue.push(() => {
+        setupCode('main-code-display', 'main-code-content', 'main');
+    });
+
+    // Bắt đầu khi nội dung DOM đã sẵn sàng
+    document.addEventListener('DOMContentLoaded', () => {
+        initQueue.forEach(fn => fn());
+    });
+</script>
+</body>
+</html>
