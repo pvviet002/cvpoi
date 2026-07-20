@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lời giải: Ghép thẻ số</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
+            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
+            --text-main: #E2E8F0; --text-muted: #94A3B8;
+            --glow: 0 0 20px rgba(56,214,196,.4);
+            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
+            --border: 1px solid rgba(255,255,255,.1);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); line-height: 1.6; }
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.03em; margin-bottom: 16px; }
+        p { margin-bottom: 16px; }
+        
+        .topnav { position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center; padding: 12px 20px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px); border-bottom: var(--border); }
+        .nav-btn { text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent)); padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease; }
+        .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
+        .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px; display: flex; flex-direction: column; gap: 32px; }
+        
+        .card { background: linear-gradient(180deg, var(--panel), var(--bg2)); border: var(--border); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); }
+        .hero { text-align: center; }
+        .hero h1 { font-size: 2.5rem; color: var(--accent); }
+        .badge { display: inline-block; padding: 4px 10px; background: rgba(91,140,255,.15); color: var(--accent2); border-radius: 6px; font-size: 0.85rem; font-weight: 600; margin-bottom: 16px; }
+        
+        .codewrap, .snapbox { position: relative; }
+        .copy-btn, .snap-btn { position: absolute; top: 10px; z-index: 5; font-family: "JetBrains Mono", monospace; font-size: .72rem; font-weight: 600; padding: 5px 10px; border-radius: 7px; cursor: pointer; background: rgba(255,255,255,.06); color: var(--text-muted); border: 1px solid rgba(255,255,255,.12); transition: all .2s; }
+        .snap-btn { right: 10px; }
+        .copy-btn { right: 64px; }
+        .snapbox:not(.codewrap) .snap-btn { right: 10px; }
+        .copy-btn:hover, .snap-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(56,214,196,.1); }
+        .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
+
+        .code-container { background: #0A1220; border: var(--border); border-radius: 12px; overflow-x: auto; font-family: "JetBrains Mono", monospace; font-size: 0.9rem; padding: 16px 0; }
+        .codeline { padding: 0 16px; white-space: pre-wrap; line-height: 1.6; border-left: 3px solid transparent; }
+        .codeline.hot { background: rgba(255,180,84,.1); border-left: 3px solid var(--mark); }
+        
+        .c-kw { color: #FF7B72; } .c-num { color: #79C0FF; } .c-cm { color: #8B949E; font-style: italic; } .c-str { color: #A5D6FF; } .c-fn { color: #D2A8FF; } .c-op { color: #C9D1D9; }
+
+        .array-view { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; margin-bottom: 16px; }
+        .array-cell { flex: none; width: 60px; height: 60px; background: rgba(255,255,255,.05); border: var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: "JetBrains Mono", monospace; font-size: 1.2rem; font-weight: 600; color: var(--text-main); transition: all 0.3s; }
+        .array-cell.active { background: rgba(56,214,196,.15); border-color: var(--accent); color: var(--accent); box-shadow: var(--glow); transform: translateY(-4px); }
+        
+        .lab-controls { display: flex; gap: 12px; align-items: center; margin-top: 16px; flex-wrap: wrap; }
+        .lab-btn { background: rgba(255,255,255,.1); border: none; color: var(--text-main); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .lab-btn:hover:not(:disabled) { background: rgba(255,255,255,.2); }
+        .lab-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .lab-msg { flex: 1; font-size: 0.95rem; color: var(--mark); min-width: 250px; font-weight: 500; }
+        .lab-status { font-family: "JetBrains Mono", monospace; font-size: 0.85rem; color: var(--text-muted); }
+
+        .quiz-box { background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.05); border-radius: 12px; padding: 20px; margin-top: 24px; }
+        .quiz-box h4 { margin-bottom: 12px; color: var(--text-main); }
+        .quiz-opts { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); padding: 12px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px; }
+        .quiz-opt:hover:not(.locked) { background: rgba(255,255,255,.1); }
+        .quiz-opt.locked { cursor: default; }
+        .quiz-opt.correct { background: rgba(56,214,196,.15); border-color: var(--accent); color: var(--accent); }
+        .quiz-opt.wrong { background: rgba(255,107,107,.15); border-color: var(--red); color: var(--red); }
+        .quiz-exp { margin-top: 16px; padding: 12px; border-radius: 8px; font-size: 0.95rem; display: none; }
+        .quiz-exp.show { display: block; }
+
+        .algo-steps { background: linear-gradient(180deg, rgba(56,214,196,.06), transparent); border: 1px solid rgba(56,214,196,.35); border-left: 4px solid var(--accent); border-radius: 14px; padding: 20px 24px; }
+        .algo-steps h3 { color: var(--accent); margin-bottom: 10px; }
+        .algo-steps ol { margin: 0; padding-left: 22px; }
+        .algo-steps ol > li { margin-bottom: 10px; line-height: 1.6; }
+        .algo-steps ul { margin: 6px 0; padding-left: 18px; list-style: none; }
+        .algo-steps ul > li { position: relative; padding-left: 14px; margin-bottom: 4px; color: var(--text-muted); }
+        .algo-steps ul > li::before { content: "–"; position: absolute; left: 0; color: var(--accent); }
+        .algo-steps code { background: rgba(91,140,255,.14); color: #A9C4FF; padding: .05em .4em; border-radius: 5px; font-family: "JetBrains Mono", monospace; font-size: .88em; }
+
+        .pitfalls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .pit-col { padding: 16px; border-radius: 12px; }
+        .pit-col.wrong { background: rgba(255,107,107,.05); border: 1px solid rgba(255,107,107,.2); }
+        .pit-col.right { background: rgba(56,214,196,.05); border: 1px solid rgba(56,214,196,.2); }
+        .pit-col h4 { display: flex; align-items: center; gap: 8px; }
+        .pit-col.wrong h4 { color: var(--red); }
+        .pit-col.right h4 { color: var(--accent); }
+
+        .mini-interactive { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 20px; background: rgba(0,0,0,.3); border-radius: 12px; margin-bottom: 16px; }
+        .card-drag { font-family: "JetBrains Mono", monospace; font-size: 1.5rem; font-weight: bold; background: var(--panel); border: 2px solid var(--accent2); padding: 12px 24px; border-radius: 8px; cursor: pointer; user-select: none; transition: transform 0.2s; }
+        .card-drag:active { transform: scale(0.95); }
+        .result-box { font-family: "JetBrains Mono", monospace; font-size: 1.8rem; color: var(--accent); font-weight: bold; padding: 10px 20px; border-bottom: 2px dashed var(--text-muted); }
+
+        .cmp-lab { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 20px; background: rgba(0,0,0,.2); border-radius: 12px; }
+        .cmp-row { display: flex; align-items: center; gap: 20px; font-family: "JetBrains Mono", monospace; font-size: 1.2rem; }
+        .cmp-val { padding: 8px 16px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.2); border-radius: 6px; }
+        .cmp-op { color: var(--mark); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
+    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+</nav>
+
+<div class="container">
+    <!-- 3.1. Hero -->
+    <div class="card snapbox hero">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <span class="badge">Sắp xếp / Tham lam</span>
+        <h1>Ghép thẻ số</h1>
+        <p>Bản chất: Tìm một quy tắc sắp xếp đặc biệt để khi nối các chuỗi lại với nhau, ta thu được chuỗi có thứ tự từ điển lớn nhất.</p>
+        
+        <div class="mini-interactive" id="mini-lab">
+            <div class="card-drag" onclick="swapMini()">3</div>
+            <div class="card-drag" onclick="swapMini()">30</div>
+            <span>👉</span>
+            <div class="result-box" id="mini-res">330</div>
+        </div>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Bấm vào các thẻ để đổi chỗ. Bạn thấy cách ghép nào tạo ra số lớn hơn?</p>
+    </div>
+
+    <!-- 3.2. Tóm tắt đề bài -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Tóm tắt đề bài</h2>
+        <p>Cho N tấm thẻ chứa các dãy chữ số. Cần xếp chúng thành hàng ngang để khi đọc ghép lại, ta được số nguyên lớn nhất.</p>
+        <ul>
+            <li><strong>Input:</strong> N tấm thẻ (1 ≤ N ≤ 10<sup>5</sup>). Tổng độ dài các dãy chữ số ≤ 10<sup>6</sup>. Các dãy không có số 0 đứng đầu (trừ khi dãy là "0").</li>
+            <li><strong>Output:</strong> Dãy chữ số ghép được lớn nhất, không có số 0 vô nghĩa đứng đầu.</li>
+        </ul>
+        <div style="background: rgba(0,0,0,.2); padding: 12px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; margin-top: 12px;">
+            Input: 3 30 34 5 9<br>
+            Output: 9534330
+        </div>
+    </div>
+
+    <!-- 3.3. Phân tích ban đầu -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Phân tích ban đầu</h2>
+        <p>Nếu N rất nhỏ (N ≤ 8), ta có thể sinh tất cả N! hoán vị và so sánh để chọn kết quả tốt nhất. Tuy nhiên, với N lên đến 10<sup>5</sup>, cách này bất khả thi.</p>
+        <p>Chúng ta muốn số được tạo ra có các chữ số đầu tiên càng lớn càng tốt. Điều này gợi ý ta nên <strong>sắp xếp</strong> các thẻ ưu tiên những chữ số lớn lên đầu (ví dụ: "9" phải đứng trước "5"). Nhưng liệu sắp xếp từ điển (lexicographical sort) thông thường có đủ tốt?</p>
+    </div>
+
+    <!-- 3.4. CÁC MÔ-ĐUN LỜI GIẢI -->
+    
+    <!-- Mô-đun 1 -->
+    <div class="card">
+        <div class="snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>1. Cạm bẫy của sắp xếp từ điển</h2>
+            <p><strong>Mục tiêu:</strong> Đưa các chuỗi "lớn" lên trước.</p>
+            <p><strong>Khó khăn:</strong> Sắp xếp từ điển mặc định so sánh từng ký tự từ trái qua phải. Nếu một chuỗi là tiền tố của chuỗi kia, chuỗi dài hơn sẽ được coi là lớn hơn. Ví dụ, hệ thống đánh giá "30" > "3".</p>
+            <p>Nếu ta xếp theo thứ tự giảm dần mặc định, "30" sẽ đứng trước "3", tạo ra số <strong>303</strong>. Tuy nhiên, nếu xếp "3" trước "30", ta được số <strong>330</strong>. Rõ ràng 330 > 303.</p>
+            
+            <div class="mini-interactive" style="flex-direction: column; gap: 10px;">
+                <p>Hãy xem khác biệt với thẻ <code>34</code> và <code>3</code>:</p>
+                <div class="cmp-row">
+                    <span class="cmp-val">34 + 3 = 343</span>
+                    <span class="cmp-op"> > </span>
+                    <span class="cmp-val">3 + 34 = 334</span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Ở đây "34" đứng trước lại cho kết quả đúng, khác với "30" và "3". Vậy ta không thể chỉ dựa vào độ dài hay từ điển thuần túy.</p>
+            </div>
+        </div>
+
+        <div class="quiz-box">
+            <h4>Câu hỏi kiểm tra</h4>
+            <p>Nếu bạn có hai thẻ "12" và "121", thứ tự nào sẽ tạo ra số ghép lớn hơn?</p>
+            <div class="quiz-opts" id="quiz1">
+                <div class="quiz-opt" onclick="checkQuiz1(this, false)">A. Xếp "121" trước, thành 12112</div>
+                <div class="quiz-opt" onclick="checkQuiz1(this, true)">B. Xếp "12" trước, thành 12121</div>
+            </div>
+            <div class="quiz-exp" id="exp1">
+                <strong>Giải thích:</strong> Mặc dù "121" > "12" theo từ điển, nhưng khi ghép lại: "12" + "121" = 12121, lớn hơn "121" + "12" = 12112. Do đó phải xếp "12" trước.
+            </div>
+        </div>
+    </div>
+
+    <!-- Mô-đun 2 -->
+    <div class="card">
+        <div class="snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>2. Quy tắc ghép đôi (Custom Comparator)</h2>
+            <p><strong>Ý tưởng:</strong> Thay vì cố gắng tìm các luật phức tạp về tiền tố hay độ dài, ta chỉ cần đặt câu hỏi trực tiếp: <em>Giữa thẻ A và thẻ B, ai đứng trước thì có lợi hơn?</em></p>
+            <p>Cách kiểm tra nhanh nhất là <strong>thử ghép cả hai trường hợp</strong>: ghép A rồi B (ký hiệu A + B), và ghép B rồi A (ký hiệu B + A). Nếu chuỗi (A + B) lớn hơn chuỗi (B + A), thì chắc chắn A phải đứng trước B trong mảng.</p>
+            <p><strong>Vì sao nó đúng?</strong> Quan hệ A + B > B + A có tính chất bắc cầu. Nghĩa là nếu A nên đứng trước B, và B nên đứng trước C, thì tự động A sẽ hợp lý khi đứng trước C. Ta có thể dùng quy tắc này làm hàm so sánh (comparator) cho các thuật toán sắp xếp chuẩn.</p>
+
+            <div class="cmp-lab">
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="strA" value="9" style="width: 80px; padding: 8px; text-align: center; border-radius: 6px; border: 1px solid var(--accent); background: #0A1220; color: white;" oninput="updateCmp()">
+                    <span style="font-size: 1.5rem;">vs</span>
+                    <input type="text" id="strB" value="34" style="width: 80px; padding: 8px; text-align: center; border-radius: 6px; border: 1px solid var(--accent); background: #0A1220; color: white;" oninput="updateCmp()">
+                </div>
+                <div class="cmp-row">
+                    <span class="cmp-val" id="ab-val">934</span>
+                    <span class="cmp-op" id="ab-op">></span>
+                    <span class="cmp-val" id="ba-val">349</span>
+                </div>
+                <div id="cmp-res" style="color: var(--accent); font-weight: bold;">Nên xếp 9 đứng trước 34</div>
+            </div>
+        </div>
+
+        <div class="quiz-box">
+            <h4>Câu hỏi kiểm tra</h4>
+            <p>Trong C++, hàm <code>std::sort</code> cần một hàm so sánh trả về <code>true</code> nếu phần tử <code>a</code> phải đứng trước phần tử <code>b</code>. Với logic trên, hàm so sánh sẽ viết như thế nào?</p>
+            <div class="quiz-opts" id="quiz2">
+                <div class="quiz-opt" onclick="checkQuiz2(this, false)">A. <code>return a > b;</code></div>
+                <div class="quiz-opt" onclick="checkQuiz2(this, true)">B. <code>return a + b > b + a;</code></div>
+                <div class="quiz-opt" onclick="checkQuiz2(this, false)">C. <code>return a.length() > b.length();</code></div>
+            </div>
+            <div class="quiz-exp" id="exp2">
+                <strong>Giải thích:</strong> Hàm <code>return a + b > b + a;</code> chính là cốt lõi của bài toán. Nó tạo chuỗi mới và so sánh trực tiếp hiệu quả của việc xếp <code>a</code> trước <code>b</code>.
+            </div>
+        </div>
+    </div>
+
+    <!-- Mô-đun 3 (Lab) -->
+    <div class="card">
+        <div class="snapbox">
+            <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+            <h2>3. Chạy thuật toán trên mảng</h2>
+            <p>Bây giờ ta áp dụng quy tắc <code>A + B > B + A</code> để sắp xếp toàn bộ mảng. Dưới đây là mô phỏng quá trình đưa các thẻ lớn nhất lên đầu (tương tự thuật toán sắp xếp nổi bọt để dễ quan sát từng cặp so sánh).</p>
+            
+            <div class="array-view" id="lab3-array">
+                <!-- Rendered by JS -->
+            </div>
+            
+            <div class="codewrap">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <div class="code-container">
+                    <div class="raw-code" data-prefix="lab3">
+bool compareCards(const string& a, const string& b) {
+    return a + b > b + a;
+}
+// Thuật toán duyệt các cặp và đổi chỗ nếu cần
+                    </div>
+                </div>
+            </div>
+
+            <div class="lab-controls">
+                <button class="lab-btn" id="lab3-btn-reset" onclick="lab3_reset()">Reset</button>
+                <button class="lab-btn" id="lab3-btn-prev" onclick="lab3_prev()">Lùi</button>
+                <button class="lab-btn" id="lab3-btn-next" onclick="lab3_next()">Tiến</button>
+                <button class="lab-btn" id="lab3-btn-play" onclick="lab3_play()">Tự chạy</button>
+                <div class="lab-msg" id="lab3-msg">Bấm Tiến để bắt đầu mô phỏng.</div>
+                <div class="lab-status"><span id="lab3-step">0</span>/<span id="lab3-total">0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3.4bis. Thuật toán từng bước -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <div class="algo-steps">
+            <h3>Thuật toán từng bước</h3>
+            <ol>
+                <li><strong>Đọc dữ liệu:</strong>
+                    <ul>
+                        <li>Khởi tạo một mảng chuỗi <code>a</code> để lưu <code>N</code> dãy chữ số.</li>
+                        <li>Đọc từng chuỗi từ input vào <code>a[i]</code>.</li>
+                    </ul>
+                </li>
+                <li><strong>Sắp xếp mảng:</strong>
+                    <ul>
+                        <li>Sử dụng hàm sắp xếp có sẵn (như <code>std::sort</code>).</li>
+                        <li>Truyền vào hàm so sánh tùy chỉnh: với hai chuỗi <code>x</code> và <code>y</code>, trả về <code>true</code> nếu <code>x + y > y + x</code>.</li>
+                    </ul>
+                </li>
+                <li><strong>Xử lý trường hợp đặc biệt (Zero case):</strong>
+                    <ul>
+                        <li>Nếu sau khi sắp xếp, phần tử đầu tiên của mảng <code>a[0] == "0"</code>, điều này có nghĩa là tất cả các thẻ đều là "0".</li>
+                        <li>Ta chỉ in ra một số <code>0</code> duy nhất và kết thúc chương trình, tránh việc in ra "000...0".</li>
+                    </ul>
+                </li>
+                <li><strong>In kết quả:</strong>
+                    <ul>
+                        <li>Nếu không rơi vào trường hợp trên, duyệt mảng <code>a</code> từ đầu đến cuối.</li>
+                        <li>In liên tiếp các chuỗi <code>a[i]</code> không có khoảng trắng.</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- 3.5. Cài đặt -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <h2>Cài đặt (C++)</h2>
+        <div class="code-container">
+            <div class="raw-code" data-prefix="main">
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+// Hàm so sánh tùy chỉnh cho std::sort
+bool compareCards(const string& a, const string& b) {
+    return a + b > b + a;
+}
+
+int main() {
+    // Tối ưu I/O cho C++
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n;
+    if (!(cin >> n)) return 0;
+
+    vector<string> a(n);
+    for (int i = 0; i < n; i++) {
+        cin >> a[i];
+    }
+
+    // Sắp xếp mảng bằng hàm compareCards
+    sort(a.begin(), a.end(), compareCards);
+
+    // Cạm bẫy: Toàn số 0
+    if (a[0] == "0") {
+        cout << "0\n";
+    } else {
+        // In kết quả
+        for (int i = 0; i < n; i++) {
+            cout << a[i];
+        }
+        cout << "\n";
+    }
+
+    return 0;
+}
+            </div>
+        </div>
+    </div>
+
+    <!-- 3.6. Độ phức tạp -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Độ phức tạp</h2>
+        <ul>
+            <li><strong>Thời gian:</strong> Thuật toán <code>std::sort</code> thực hiện khoảng O(N log N) phép so sánh. Mỗi phép so sánh thực hiện nối hai chuỗi có tổng độ dài trung bình là L, với thao tác so sánh chuỗi tốn O(L). Tổng thời gian xấp xỉ O(L · N log N). Tuy nhiên, tổng độ dài mọi chuỗi ≤ 10<sup>6</sup>, nên thực tế việc nối và so sánh diễn ra rất nhanh. Hoàn toàn vượt qua giới hạn 1 giây của ràng buộc.</li>
+            <li><strong>Không gian (Bộ nhớ):</strong> Ta lưu trữ mảng N phần tử và tổng các ký tự của chuỗi mất O(Tổng độ dài chuỗi) ≤ 10<sup>6</sup> bytes (khoảng vài MB). Phù hợp với mọi giới hạn bộ nhớ chuẩn.</li>
+        </ul>
+    </div>
+
+    <!-- 3.7. Cạm bẫy khi cài -->
+    <div class="card snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h2>Cạm bẫy khi cài đặt</h2>
+        <div class="pitfalls">
+            <div class="pit-col wrong">
+                <h4>✕ Bỏ qua mảng chỉ chứa số 0</h4>
+                <p>Nếu input là <code>3\n0 0 0</code>, in thẳng mảng sau sắp xếp sẽ ra <code>000</code>. Đề bài cấm số 0 vô nghĩa đứng đầu.</p>
+            </div>
+            <div class="pit-col right">
+                <h4>✓ Kiểm tra phần tử đầu tiên</h4>
+                <p>Mảng đã xếp giảm dần. Nếu thẻ lớn nhất nằm ở đầu tiên <code>a[0] == "0"</code>, nghĩa là mọi thẻ khác cũng chỉ là "0". Ta bắt nhánh này và chỉ in "0".</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Utilities ---
+    function flash(btn, text) { 
+        const o = btn.textContent; btn.textContent = text; 
+        setTimeout(() => btn.textContent = o, 1200); 
+    }
+    
+    async function copyCode(btn) {
+        const wrap = btn.closest('.codewrap');
+        const codeEl = wrap.querySelector('.code-container');
+        try {
+            await navigator.clipboard.writeText(codeEl.innerText);
+            flash(btn, 'Đã chép!');
+        } catch (e) {
+            const tx = document.createElement('textarea');
+            tx.value = codeEl.innerText;
+            document.body.appendChild(tx);
+            tx.select();
+            document.execCommand('copy');
+            document.body.removeChild(tx);
+            flash(btn, 'Đã chép!');
+        }
+    }
+
+    async function snapBox(btn) {
+        const box = btn.closest('.snapbox');
+        box.classList.add('snapping');
+        await document.fonts.ready;
+        try {
+            const canvas = await html2canvas(box, { backgroundColor: '#0B1220', scale: 2, logging: false });
+            box.classList.remove('snapping');
+            canvas.toBlob(async (blob) => {
+                try {
+                    await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+                    flash(btn, 'Đã chụp!');
+                } catch(e) {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob); 
+                    a.download = 'snap.png'; 
+                    a.click();
+                    flash(btn, 'Đã tải ảnh');
+                }
+            });
+        } catch (err) {
+            box.classList.remove('snapping');
+            alert('Lỗi chụp ảnh');
+        }
+    }
+
+    // Tách token và bọc span màu cho C++
+    function formatCodeBlocks() {
+        document.querySelectorAll('.raw-code').forEach(block => {
+            let lines = block.textContent.trim().split('\n');
+            let html = '';
+            lines.forEach((line, idx) => {
+                let escaped = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                
+                escaped = escaped.replace(/(".*?")/g, '<span class="c-str">$1</span>');
+                escaped = escaped.replace(/(\/\/.*)/g, '<span class="c-cm">$1</span>');
+                escaped = escaped.replace(/\b(int|bool|const|return|if|else|for|void|string|vector|using|namespace|true|false)\b/g, '<span class="c-kw">$1</span>');
+                escaped = escaped.replace(/(#include)/g, '<span class="c-kw">$1</span>');
+                escaped = escaped.replace(/\b(std|cin|cout|ios_base|tie|sync_with_stdio|begin|end|sort)\b/g, '<span class="c-fn">$1</span>');
+                escaped = escaped.replace(/\b(\d+)\b/g, '<span class="c-num">$1</span>');
+                
+                let prefix = block.dataset.prefix ? `id="${block.dataset.prefix}-l${idx+1}"` : '';
+                html += `<div class="codeline" ${prefix}>${escaped}</div>`;
+            });
+            block.innerHTML = html;
+            block.classList.remove('raw-code');
+        });
+    }
+
+    // --- Quizzes ---
+    function checkQuiz1(btn, isCorrect) {
+        if(btn.parentElement.querySelector('.locked')) return;
+        const opts = btn.parentElement.querySelectorAll('.quiz-opt');
+        opts.forEach(o => o.classList.add('locked'));
+        btn.classList.add(isCorrect ? 'correct' : 'wrong');
+        document.getElementById('exp1').classList.add('show');
+        document.getElementById('exp1').style.backgroundColor = isCorrect ? 'rgba(56,214,196,.1)' : 'rgba(255,107,107,.1)';
+    }
+
+    function checkQuiz2(btn, isCorrect) {
+        if(btn.parentElement.querySelector('.locked')) return;
+        const opts = btn.parentElement.querySelectorAll('.quiz-opt');
+        opts.forEach(o => o.classList.add('locked'));
+        btn.classList.add(isCorrect ? 'correct' : 'wrong');
+        document.getElementById('exp2').classList.add('show');
+        document.getElementById('exp2').style.backgroundColor = isCorrect ? 'rgba(56,214,196,.1)' : 'rgba(255,107,107,.1)';
+    }
+
+    // --- Mini Lab 0 ---
+    let miniState = true;
+    function swapMini() {
+        miniState = !miniState;
+        const drags = document.querySelectorAll('.card-drag');
+        const res = document.getElementById('mini-res');
+        if (miniState) {
+            drags[0].textContent = "3"; drags[1].textContent = "30";
+            res.textContent = "330"; res.style.color = "var(--accent)";
+        } else {
+            drags[0].textContent = "30"; drags[1].textContent = "3";
+            res.textContent = "303"; res.style.color = "var(--red)";
+        }
+    }
+
+    // --- Module 2 Lab ---
+    function updateCmp() {
+        const a = document.getElementById('strA').value || "0";
+        const b = document.getElementById('strB').value || "0";
+        const ab = a + b;
+        const ba = b + a;
+        document.getElementById('ab-val').textContent = ab;
+        document.getElementById('ba-val').textContent = ba;
+        const op = document.getElementById('ab-op');
+        const res = document.getElementById('cmp-res');
+        if (ab > ba) {
+            op.textContent = " > ";
+            res.textContent = `Nên xếp ${a} đứng trước ${b}`;
+            res.style.color = "var(--accent)";
+        } else if (ab < ba) {
+            op.textContent = " < ";
+            res.textContent = `Nên xếp ${b} đứng trước ${a}`;
+            res.style.color = "var(--accent)";
+        } else {
+            op.textContent = " = ";
+            res.textContent = `Thứ tự nào cũng được`;
+            res.style.color = "var(--text-muted)";
+        }
+    }
+
+    // --- Module 3 Lab (State-Machine) ---
+    const lab3 = (function() {
+        let steps = [];
+        let sp = 0;
+        let timer = null;
+        let originalArr = ["3", "30", "34", "9"];
+        
+        function makeSteps() {
+            steps = [];
+            let arr = [...originalArr];
+            steps.push({ arr: [...arr], i: -1, j: -1, line: 0, msg: "Mảng ban đầu chưa sắp xếp." });
+            
+            // Mô phỏng thuật toán Bubble Sort bằng bộ so sánh tùy chỉnh để trực quan việc đổi chỗ
+            let n = arr.length;
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = 0; j < n - i - 1; j++) {
+                    let A = arr[j], B = arr[j+1];
+                    let AB = A + B, BA = B + A;
+                    
+                    steps.push({
+                        arr: [...arr], i: j, j: j+1, line: 2,
+                        msg: `So sánh ${A} và ${B}: ${A}+${B}=${AB}, ${B}+${A}=${BA}.`
+                    });
+                    
+                    if (AB < BA) { // Cần swap vì theo quy tắc ta muốn số lớn lên đầu
+                        arr[j] = B;
+                        arr[j+1] = A;
+                        steps.push({
+                            arr: [...arr], i: j, j: j+1, line: 2,
+                            msg: `Vì ${AB} < ${BA} nên ta phải đổi chỗ để đưa số ưu tiên hơn lên trước.`
+                        });
+                    } else {
+                        steps.push({
+                            arr: [...arr], i: j, j: j+1, line: 2,
+                            msg: `Vì ${AB} ≥ ${BA} nên giữ nguyên vị trí, ${A} đứng trước là hợp lý.`
+                        });
+                    }
+                }
+            }
+            steps.push({ arr: [...arr], i: -1, j: -1, line: 0, msg: "Hoàn tất! Mảng đã được sắp xếp để tạo số ghép lớn nhất." });
+        }
+
+        function paint(idx) {
+            const st = steps[idx];
+            
+            // Vẽ mảng
+            const container = document.getElementById('lab3-array');
+            container.innerHTML = '';
+            st.arr.forEach((val, k) => {
+                let cell = document.createElement('div');
+                cell.className = 'array-cell';
+                if (k === st.i || k === st.j) cell.classList.add('active');
+                cell.textContent = val;
+                container.appendChild(cell);
+            });
+
+            // Highlight line
+            document.querySelectorAll('[id^="lab3-l"]').forEach(el => el.classList.remove('hot'));
+            if (st.line > 0) {
+                const l = document.getElementById(`lab3-l${st.line}`);
+                if (l) l.classList.add('hot');
+            }
+
+            // Update text & counters
+            document.getElementById('lab3-msg').textContent = st.msg;
+            document.getElementById('lab3-step').textContent = idx;
+            
+            // Buttons
+            document.getElementById('lab3-btn-prev').disabled = (idx === 0);
+            document.getElementById('lab3-btn-next').disabled = (idx === steps.length - 1);
+            if(idx === steps.length - 1 && timer) stopPlay();
+        }
+
+        function next() { if (sp < steps.length - 1) { sp++; paint(sp); } }
+        function prev() { if (sp > 0) { sp--; paint(sp); } }
+        function reset() { stopPlay(); sp = 0; paint(sp); }
+        function play() { if(timer) stopPlay(); else timer = setInterval(next, 900); }
+        function stopPlay() { clearInterval(timer); timer = null; }
+
+        return { init: function() { makeSteps(); document.getElementById('lab3-total').textContent = steps.length - 1; reset(); }, next, prev, reset, play };
+    })();
+
+    // Export cho button HTML
+    window.lab3_next = lab3.next;
+    window.lab3_prev = lab3.prev;
+    window.lab3_reset = lab3.reset;
+    window.lab3_play = lab3.play;
+
+    window.onload = () => {
+        formatCodeBlocks();
+        lab3.init();
+    };
+</script>
+
+</body>
+</html>
