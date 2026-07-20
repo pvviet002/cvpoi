@@ -220,8 +220,8 @@
                 <b>Ý tưởng:</b> Thay vì thao tác trên mảng gốc A, ta thao tác trên mảng hiệu D, định nghĩa là: <b>D[i] = A[i] - A[i-1]</b>.<br>
                 Khi tất cả các phần tử trong đoạn [L, R] cùng tăng thêm V:
                 <br>– Ở bên trong đoạn (ví dụ A[L+1] và A[L]), khoảng cách giữa chúng không đổi, nên D[L+1] không đổi.
-                <br>– Tại biên trái L: A[L] tăng V, nhưng A[L-1] giữ nguyên $\to$ D[L] tăng V.
-                <br>– Tại biên phải R+1: A[R+1] giữ nguyên, nhưng A[R] tăng V $\to$ D[R+1] giảm V.
+                <br>– Tại biên trái L: A[L] tăng V, nhưng A[L-1] giữ nguyên → D[L] tăng V.
+                <br>– Tại biên phải R+1: A[R+1] giữ nguyên, nhưng A[R] tăng V → D[R+1] giảm V.
             </p>
             <p>Như vậy, một thao tác trên ĐOẠN dài đã biến thành 2 thao tác trên ĐIỂM. Sau cùng, ta khôi phục lại mảng A bằng cách cộng dồn: A[i] = A[i-1] + D[i].</p>
             
@@ -261,9 +261,9 @@
             <h2>Mô-đun 2: Mảng hiệu bậc hai (Cấp số cộng)</h2>
             <p>Bây giờ xét bài toán gốc: cộng s, s+d, s+2d... vào [L, R]. Hãy xem mảng hiệu D<sub>1</sub>[i] = A[i] - A[i-1] thay đổi ra sao:</p>
             <ul style="margin-top: 0;">
-                <li>Tại L: A[L] tăng s, A[L-1] không đổi $\to$ D<sub>1</sub>[L] tăng thêm <b>s</b>.</li>
-                <li>Trong đoạn [L+1, R]: A[i] tăng s + k·d, còn A[i-1] tăng s + (k-1)·d. Hiệu của chúng chính là d $\to$ D<sub>1</sub>[i] tăng thêm một đoạn <b>d</b>.</li>
-                <li>Tại R+1: A[R+1] không đổi, A[R] tăng s + (R-L)·d $\to$ D<sub>1</sub>[R+1] bị trừ đi <b>s + (R-L)·d</b>.</li>
+                <li>Tại L: A[L] tăng s, A[L-1] không đổi → D<sub>1</sub>[L] tăng thêm <b>s</b>.</li>
+                <li>Trong đoạn [L+1, R]: A[i] tăng s + k·d, còn A[i-1] tăng s + (k-1)·d. Hiệu của chúng chính là d → D<sub>1</sub>[i] tăng thêm một đoạn <b>d</b>.</li>
+                <li>Tại R+1: A[R+1] không đổi, A[R] tăng s + (R-L)·d → D<sub>1</sub>[R+1] bị trừ đi <b>s + (R-L)·d</b>.</li>
             </ul>
             <p>Ta thấy mảng D<sub>1</sub> không chỉ bị cập nhật điểm (tại L và R+1) mà còn bị <b>cộng một đoạn giá trị d</b> từ L+1 đến R. Làm sao để xử lý việc cộng đoạn vào D<sub>1</sub> trong O(1)? Rất đơn giản, ta lặp lại chiêu cũ: tạo mảng hiệu của mảng hiệu! Gọi D<sub>2</sub>[i] = D<sub>1</sub>[i] - D<sub>1</sub>[i-1].</p>
             <p>Áp dụng quy tắc cộng đoạn ở Mô-đun 1 vào D<sub>2</sub>, ta sẽ thu được 4 điểm cần cập nhật độc lập:</p>
