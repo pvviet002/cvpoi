@@ -259,7 +259,7 @@
         <div class="snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
             <h2>Mô-đun 2: Mảng hiệu bậc hai (Cấp số cộng)</h2>
-            <p>Bây giờ xét bài toán gốc: cộng s, s+d, s+2d... vào [L, R]. Ta coi cấp số cộng này gồm 3 thành phần độc lập. Để xử lý cập nhật đoạn trên mảng hiệu D<sub>1</sub>, ta lại dùng mảng hiệu của D<sub>1</sub>, gọi là D<sub>2</sub> (D<sub>2</sub>[i] = D<sub>1</sub>[i] - D<sub>1</sub>[i-1]).</p>
+            <p>Bây giờ xét bài toán gốc: cộng s, s+d, s+2d... vào [L, R]. Ta coi cấp số cộng này gồm 3 quá trình thay đổi liên tiếp. Để xử lý cập nhật đoạn trên mảng hiệu D<sub>1</sub>, ta lại dùng mảng hiệu của D<sub>1</sub>, gọi là D<sub>2</sub> (D<sub>2</sub>[i] = D<sub>1</sub>[i] - D<sub>1</sub>[i-1]).</p>
             
             <ul style="margin-top: 16px; list-style: none; padding-left: 0;">
                 <li style="margin-bottom: 24px;">
@@ -267,14 +267,11 @@
                         <span style="background: var(--accent); color: #000; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; font-size: 0.9rem;">1</span>
                         <b>Thành phần 1: Điểm bắt đầu (L)</b>
                     </div>
-                    Giá trị đầu tiên <code>s</code> được cộng vào A[L]. Điều này làm D<sub>1</sub>[L] tăng <code>s</code>.<br>
+                    <p style="margin-bottom: 8px; color: var(--text-muted);">Giá trị đầu tiên của cấp số cộng là <code>s</code> rơi trúng vị trí L. Nó tạo ra một bước nhảy đột ngột từ vị trí L-1 (đang không có gì) lên vị trí L. Do mảng hiệu D<sub>1</sub> đo "bước nhảy", nên D<sub>1</sub>[L] nhận trọn vẹn giá trị <code>s</code> này. Để cộng một điểm vào D<sub>1</sub>, ta cần 2 thao tác trên mảng D<sub>2</sub>.</p>
                     → <i>Trên D<sub>2</sub>:</i> Cập nhật điểm làm <code>D<sub>2</sub>[L] += s</code> và <code>D<sub>2</sub>[L+1] -= s</code>.
-                    <div style="margin-top: 8px; padding: 12px 16px; background: rgba(56, 214, 196, 0.08); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.95rem;">
-                        <b>💡 Cách hiểu đơn giản:</b> Hãy tưởng tượng đây là "lực đẩy" ban đầu. Để phần tử đầu tiên A[L] đột ngột nhô lên một lượng s, đà tăng (mảng D<sub>1</sub>) tại vị trí L phải nhận một cú hích lớn +s. Việc nạp một điểm s vào D<sub>1</sub> sẽ tương đương với việc đánh dấu hai đầu mút trên mảng gia tốc D<sub>2</sub>.
-                    </div>
                     <div class="visual-area snapbox" style="padding: 12px; margin: 12px 0 0; background: rgba(0,0,0,0.15);">
                         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Ví dụ L=2, s=3</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Ví dụ L=2, s=3. Chú ý mảng D<sub>1</sub> chỉ có một điểm nhô lên, nên D<sub>2</sub> có 2 điểm bù trừ (+3 và -3).</div>
                         <div class="array-container" style="margin-bottom: 8px;">
                             <div class="array-label" style="width: 30px;">D<sub>1</sub></div>
                             <div class="array-boxes" id="mini1-d1"></div>
@@ -291,14 +288,14 @@
                         <span style="background: var(--accent); color: #000; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; font-size: 0.9rem;">2</span>
                         <b>Thành phần 2: Đoạn tăng d (từ L+1 đến R)</b>
                     </div>
-                    Mỗi phần tử A tiếp theo tăng thêm <code>d</code> so với phần tử trước. Điều này tương đương với việc cộng một đoạn <code>d</code> vào D<sub>1</sub> từ L+1 đến R.<br>
+                    <p style="margin-bottom: 8px; color: var(--text-muted);">Đây là điểm dễ nhầm lẫn nhất! Vì sao mảng A tăng vọt 1d, 2d, 3d... mà D<sub>1</sub> lại chỉ tăng có `d`? Hãy nhớ: D<sub>1</sub>[i] = A[i] - A[i-1], tức là nó đo <b>độ chênh lệch</b> (khoảng cách) giữa 2 phần tử cạnh nhau.<br>
+                    Ví dụ: A[L+1] được cộng <code>s+d</code>, còn A[L] được cộng <code>s</code>. Khoảng cách của chúng là <code>d</code>.<br>
+                    A[L+2] được cộng <code>s+2d</code>, còn A[L+1] được cộng <code>s+d</code>. Khoảng cách vẫn là <code>d</code>.<br>
+                    Dù mảng A cao dần lên như bậc thang, nhưng <b>chiều cao của mỗi bậc</b> luôn cố định là <code>d</code>. Do đó, trên mảng D<sub>1</sub>, ta chỉ thấy một <b>đoạn ngang bằng phẳng</b> mang giá trị <code>d</code> trải dài từ L+1 đến R. Để cộng một ĐOẠN vào D<sub>1</sub>, ta lại áp dụng quy tắc của Mô-đun 1 lên mảng D<sub>2</sub>.</p>
                     → <i>Trên D<sub>2</sub>:</i> Cập nhật đoạn làm <code>D<sub>2</sub>[L+1] += d</code> và <code>D<sub>2</sub>[R+1] -= d</code>.
-                    <div style="margin-top: 8px; padding: 12px 16px; background: rgba(56, 214, 196, 0.08); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.95rem;">
-                        <b>💡 Cách hiểu đơn giản:</b> Đây là lúc ta "đạp ga" đều đặn. Kể từ L+1, mỗi bậc thang cao hơn bậc trước đúng d đơn vị. Tốc độ leo thang (D<sub>1</sub>) được duy trì liên tục ở mức +d. Cộng một đoạn dài vào D<sub>1</sub> sẽ tạo ra hai điểm chốt chặn ở hai đầu trên D<sub>2</sub>.
-                    </div>
                     <div class="visual-area snapbox" style="padding: 12px; margin: 12px 0 0; background: rgba(0,0,0,0.15);">
                         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Ví dụ L+1=3, R=4, d=2</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Ví dụ đoạn tăng L+1=3, R=4, d=2. Mảng D<sub>1</sub> xuất hiện một dải liền mạch [2, 2].</div>
                         <div class="array-container" style="margin-bottom: 8px;">
                             <div class="array-label" style="width: 30px;">D<sub>1</sub></div>
                             <div class="array-boxes" id="mini2-d1"></div>
@@ -315,14 +312,12 @@
                         <span style="background: var(--accent); color: #000; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; font-size: 0.9rem;">3</span>
                         <b>Thành phần 3: Điểm bù trừ (R+1)</b>
                     </div>
-                    Tại R+1, cấp số cộng kết thúc. Ta phải trừ đi tổng lượng đã cộng vào A[R] là <code>s + (R-L)·d</code> khỏi D<sub>1</sub>[R+1] để ngắt đà tăng.<br>
+                    <p style="margin-bottom: 8px; color: var(--text-muted);">Cấp số cộng chỉ kéo dài đến vị trí R. Tại R+1, phần tử không được cộng gì thêm. Tuy nhiên, phần tử A[R] đứng ngay trước nó lại vừa được bơm một lượng khổng lồ là đỉnh của cấp số cộng: <code>s + (R-L)·d</code>.<br>
+                    Sự chênh lệch giữa R+1 (thấp) và R (rất cao) tạo ra một "vực sâu". Do đó, hiệu số D<sub>1</sub>[R+1] = A[R+1] - A[R] sẽ mang một giá trị âm cực lớn, bằng đúng <code>-(s + (R-L)·d)</code>. Đây là "cú đạp phanh" để ngắt hoàn toàn đà tăng của dãy. Đây chỉ là một cập nhật điểm trên D<sub>1</sub>.</p>
                     → <i>Trên D<sub>2</sub>:</i> Cập nhật điểm làm <code>D<sub>2</sub>[R+1] -= s + (R-L)·d</code> và <code>D<sub>2</sub>[R+2] += s + (R-L)·d</code>.
-                    <div style="margin-top: 8px; padding: 12px 16px; background: rgba(56, 214, 196, 0.08); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.95rem;">
-                        <b>💡 Cách hiểu đơn giản:</b> Tại R+1, đoạn đường leo dốc kết thúc, mảng A cần trở về trạng thái phẳng (không tăng nữa). Nhưng do A[R] trước đó đã leo lên rất cao (đạt mức s + (R-L)·d), ta bắt buộc phải "đạp phanh khẩn cấp" để ép đà tăng D<sub>1</sub> sụp xuống phần âm đúng bằng độ cao đó. Điểm rơi âm sâu này trên D<sub>1</sub> lại tiếp tục được cân bằng bởi hai điểm biên trên D<sub>2</sub>.
-                    </div>
                     <div class="visual-area snapbox" style="padding: 12px; margin: 12px 0 0; background: rgba(0,0,0,0.15);">
                         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Ví dụ R+1=5, lượng bù = 3 + (4-2)×2 = 7</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Ví dụ R+1=5, lượng vực sâu = 3 + (4-2)×2 = 7. D<sub>1</sub> cắm thẳng xuống -7.</div>
                         <div class="array-container" style="margin-bottom: 8px;">
                             <div class="array-label" style="width: 30px;">D<sub>1</sub></div>
                             <div class="array-boxes" id="mini3-d1"></div>
@@ -334,7 +329,7 @@
                     </div>
                 </li>
             </ul>
-            <p>Khi thực hiện đồng thời cả 3 thành phần trên, ta gộp các thao tác trên D<sub>2</sub> tại các vị trí trùng nhau (L+1 và R+1). Tổng cộng ta thu được 4 công thức cập nhật thần thánh (xem phần Thực hành bên dưới).</p>
+            <p>Khi thực hiện đồng thời cả 3 thành phần trên, ta gộp các phép toán trên mảng D<sub>2</sub> tại các vị trí trùng nhau (như L+1 và R+1 lại). Kết quả cuối cùng là 4 công thức ngắn gọn bao quát mọi biến đổi.</p>
 
             <div class="visual-area">
                 <div style="font-size: 0.9rem; margin-bottom: 12px; color: var(--accent);">Tổng hợp cả 3 thành phần trên mảng thực tế:</div>
