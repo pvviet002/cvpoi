@@ -259,22 +259,76 @@
         <div class="snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
             <h2>Mô-đun 2: Mảng hiệu bậc hai (Cấp số cộng)</h2>
-            <p>Bây giờ xét bài toán gốc: cộng s, s+d, s+2d... vào [L, R]. Hãy xem mảng hiệu D<sub>1</sub>[i] = A[i] - A[i-1] thay đổi ra sao:</p>
-            <ul style="margin-top: 0;">
-                <li>Tại L: A[L] tăng s, A[L-1] không đổi → D<sub>1</sub>[L] tăng thêm <b>s</b>.</li>
-                <li>Trong đoạn [L+1, R]: A[i] tăng s + k·d, còn A[i-1] tăng s + (k-1)·d. Hiệu của chúng chính là d → D<sub>1</sub>[i] tăng thêm một đoạn <b>d</b>.</li>
-                <li>Tại R+1: A[R+1] không đổi, A[R] tăng s + (R-L)·d → D<sub>1</sub>[R+1] bị trừ đi <b>s + (R-L)·d</b>.</li>
+            <p>Bây giờ xét bài toán gốc: cộng s, s+d, s+2d... vào [L, R]. Ta coi cấp số cộng này gồm 3 thành phần độc lập. Để xử lý cập nhật đoạn trên mảng hiệu D<sub>1</sub>, ta lại dùng mảng hiệu của D<sub>1</sub>, gọi là D<sub>2</sub> (D<sub>2</sub>[i] = D<sub>1</sub>[i] - D<sub>1</sub>[i-1]).</p>
+            
+            <ul style="margin-top: 16px; list-style: none; padding-left: 0;">
+                <li style="margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <span style="background: var(--accent); color: #000; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; font-size: 0.9rem;">1</span>
+                        <b>Thành phần 1: Điểm bắt đầu (L)</b>
+                    </div>
+                    Giá trị đầu tiên <code>s</code> được cộng vào A[L]. Điều này làm D<sub>1</sub>[L] tăng <code>s</code>.<br>
+                    → <i>Trên D<sub>2</sub>:</i> Cập nhật điểm làm <code>D<sub>2</sub>[L] += s</code> và <code>D<sub>2</sub>[L+1] -= s</code>.
+                    <div class="visual-area snapbox" style="padding: 12px; margin: 12px 0 0; background: rgba(0,0,0,0.15);">
+                        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Ví dụ L=2, s=3</div>
+                        <div class="array-container" style="margin-bottom: 8px;">
+                            <div class="array-label" style="width: 30px;">D<sub>1</sub></div>
+                            <div class="array-boxes" id="mini1-d1"></div>
+                        </div>
+                        <div class="array-container" style="margin-bottom: 0;">
+                            <div class="array-label" style="width: 30px;">D<sub>2</sub></div>
+                            <div class="array-boxes" id="mini1-d2"></div>
+                        </div>
+                    </div>
+                </li>
+
+                <li style="margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <span style="background: var(--accent); color: #000; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; font-size: 0.9rem;">2</span>
+                        <b>Thành phần 2: Đoạn tăng d (từ L+1 đến R)</b>
+                    </div>
+                    Mỗi phần tử A tiếp theo tăng thêm <code>d</code> so với phần tử trước. Điều này tương đương với việc cộng một đoạn <code>d</code> vào D<sub>1</sub> từ L+1 đến R.<br>
+                    → <i>Trên D<sub>2</sub>:</i> Cập nhật đoạn làm <code>D<sub>2</sub>[L+1] += d</code> và <code>D<sub>2</sub>[R+1] -= d</code>.
+                    <div class="visual-area snapbox" style="padding: 12px; margin: 12px 0 0; background: rgba(0,0,0,0.15);">
+                        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Ví dụ L+1=3, R=4, d=2</div>
+                        <div class="array-container" style="margin-bottom: 8px;">
+                            <div class="array-label" style="width: 30px;">D<sub>1</sub></div>
+                            <div class="array-boxes" id="mini2-d1"></div>
+                        </div>
+                        <div class="array-container" style="margin-bottom: 0;">
+                            <div class="array-label" style="width: 30px;">D<sub>2</sub></div>
+                            <div class="array-boxes" id="mini2-d2"></div>
+                        </div>
+                    </div>
+                </li>
+
+                <li style="margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <span style="background: var(--accent); color: #000; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; font-size: 0.9rem;">3</span>
+                        <b>Thành phần 3: Điểm bù trừ (R+1)</b>
+                    </div>
+                    Tại R+1, cấp số cộng kết thúc. Ta phải trừ đi tổng lượng đã cộng vào A[R] là <code>s + (R-L)·d</code> khỏi D<sub>1</sub>[R+1] để ngắt đà tăng.<br>
+                    → <i>Trên D<sub>2</sub>:</i> Cập nhật điểm làm <code>D<sub>2</sub>[R+1] -= s + (R-L)·d</code> và <code>D<sub>2</sub>[R+2] += s + (R-L)·d</code>.
+                    <div class="visual-area snapbox" style="padding: 12px; margin: 12px 0 0; background: rgba(0,0,0,0.15);">
+                        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Ví dụ R+1=5, lượng bù = 3 + (4-2)×2 = 7</div>
+                        <div class="array-container" style="margin-bottom: 8px;">
+                            <div class="array-label" style="width: 30px;">D<sub>1</sub></div>
+                            <div class="array-boxes" id="mini3-d1"></div>
+                        </div>
+                        <div class="array-container" style="margin-bottom: 0;">
+                            <div class="array-label" style="width: 30px;">D<sub>2</sub></div>
+                            <div class="array-boxes" id="mini3-d2"></div>
+                        </div>
+                    </div>
+                </li>
             </ul>
-            <p>Ta thấy mảng D<sub>1</sub> không chỉ bị cập nhật điểm (tại L và R+1) mà còn bị <b>cộng một đoạn giá trị d</b> từ L+1 đến R. Làm sao để xử lý việc cộng đoạn vào D<sub>1</sub> trong O(1)? Rất đơn giản, ta lặp lại chiêu cũ: tạo mảng hiệu của mảng hiệu! Gọi D<sub>2</sub>[i] = D<sub>1</sub>[i] - D<sub>1</sub>[i-1].</p>
-            <p>Áp dụng quy tắc cộng đoạn ở Mô-đun 1 vào D<sub>2</sub>, ta sẽ thu được 4 điểm cần cập nhật độc lập:</p>
-            <ul>
-                <li>Cộng <b>s</b> tại L: D<sub>2</sub>[L] += s; D<sub>2</sub>[L+1] -= s.</li>
-                <li>Cộng đoạn <b>d</b> từ [L+1, R]: D<sub>2</sub>[L+1] += d; D<sub>2</sub>[R+1] -= d.</li>
-                <li>Trừ điểm tại R+1: D<sub>2</sub>[R+1] -= s + (R-L)·d; D<sub>2</sub>[R+2] += s + (R-L)·d.</li>
-            </ul>
-            <p>Gộp các vị trí trùng nhau lại, ta có 4 công thức cập nhật thần thánh (xem phần Thực hành bên dưới).</p>
+            <p>Khi thực hiện đồng thời cả 3 thành phần trên, ta gộp các thao tác trên D<sub>2</sub> tại các vị trí trùng nhau (L+1 và R+1). Tổng cộng ta thu được 4 công thức cập nhật thần thánh (xem phần Thực hành bên dưới).</p>
 
             <div class="visual-area">
+                <div style="font-size: 0.9rem; margin-bottom: 12px; color: var(--accent);">Tổng hợp cả 3 thành phần trên mảng thực tế:</div>
                 <div class="array-container"><div class="array-label">D<sub>2</sub></div><div class="array-boxes" id="lab2-d2"></div></div>
                 <div class="array-container"><div class="array-label">D<sub>1</sub></div><div class="array-boxes" id="lab2-d1"></div></div>
                 <div class="array-container"><div class="array-label">A</div><div class="array-boxes" id="lab2-a"></div></div>
@@ -512,6 +566,23 @@
         }
     }
 
+    // --- Render Mini Arrays for Module 2 ---
+    function renderStaticArray(containerId, arr, activeIdxs = [], negIdxs = []) {
+        const container = document.getElementById(containerId);
+        if(!container) return;
+        container.innerHTML = '';
+        for(let j=1; j<arr.length; j++) {
+            let div = document.createElement('div');
+            let cls = 'arr-box';
+            if (activeIdxs.includes(j)) cls += ' active';
+            if (negIdxs.includes(j)) cls += ' neg';
+            if (arr[j] < 0 && !negIdxs.includes(j)) cls += ' neg';
+            div.className = cls;
+            div.innerHTML = `<span class="arr-idx">${j}</span><span class="arr-val">${arr[j]}</span>`;
+            container.appendChild(div);
+        }
+    }
+
     // --- Quiz Logic ---
     window.checkQuiz1 = function(btn, isCorrect) {
         const opts = btn.parentElement.querySelectorAll('.quiz-opt');
@@ -527,6 +598,22 @@
         if(!isCorrect) opts.forEach(o => { if(o.dataset.ans === '1') o.classList.add('correct'); });
         btn.parentElement.nextElementSibling.style.display = 'block';
     };
+
+    // --- Init Static Mini Visuals ---
+    window.addEventListener('load', () => {
+        // Ví dụ chung: L=2, R=4, s=3, d=2
+        // Thành phần 1: Điểm L
+        renderStaticArray('mini1-d1', [0, 0, 3, 0, 0, 0, 0], [2]);
+        renderStaticArray('mini1-d2', [0, 0, 3, -3, 0, 0, 0], [2], [3]);
+        
+        // Thành phần 2: Đoạn d
+        renderStaticArray('mini2-d1', [0, 0, 0, 2, 2, 0, 0], [3, 4]);
+        renderStaticArray('mini2-d2', [0, 0, 0, 2, 0, -2, 0], [3], [5]);
+        
+        // Thành phần 3: Điểm bù trừ
+        renderStaticArray('mini3-d1', [0, 0, 0, 0, 0, -7, 0], [], [5]);
+        renderStaticArray('mini3-d2', [0, 0, 0, 0, 0, -7, 7], [6], [5]);
+    });
 
     // --- Hero Lab ---
     (function(){
