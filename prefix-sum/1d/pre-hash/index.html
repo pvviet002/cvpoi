@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mảng cộng dồn & Hashing (Map) - Chuyên đề WEB</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:ital,wght@0,400;0,600;1,400&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36; --line: #22304C; --line2: #2E3F60;
+            --ink: #E6ECF7; --ink-soft: #8FA1C4; --ink-dim: #5A6B8F;
+            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --pink: #FF6B9D; --red: #FF6B6B;
+            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--ink);
+            line-height: 1.6; overflow-x: hidden;
+        }
+        body::before {
+            content: ''; position: fixed; top: -20vh; left: -10vw; width: 60vw; height: 60vh;
+            background: radial-gradient(circle, rgba(56,214,196,0.08) 0%, transparent 70%); z-index: -1;
+        }
+        body::after {
+            content: ''; position: fixed; top: -10vh; right: -10vw; width: 50vw; height: 50vh;
+            background: radial-gradient(circle, rgba(91,140,255,0.08) 0%, transparent 70%); z-index: -1;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; width: 100%; }
+        @media (max-width: 768px) { .container { padding: 0 16px; } }
+
+        /* Navigation */
+        nav {
+            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            background: rgba(11, 18, 32, 0.8); border-bottom: 1px solid var(--line); padding: 12px 0; margin-bottom: 30px;
+        }
+        .nav-inner { display: flex; align-items: center; gap: 16px; font-size: 0.9rem; }
+        .nav-btn {
+            color: var(--accent); border: 1px solid var(--accent); background: rgba(56,214,196,0.1);
+            padding: 6px 12px; border-radius: 6px; text-decoration: none; font-weight: 600; transition: 0.2s;
+        }
+        .nav-btn:hover { background: rgba(56,214,196,0.2); }
+        .breadcrumb { color: var(--ink-soft); font-weight: 500; display: flex; gap: 8px; align-items: center; }
+
+        /* Typography */
+        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; line-height: 1.3; }
+        h1 { font-size: 2.2rem; margin-bottom: 8px; color: #fff; }
+        h2 { font-size: 1.5rem; margin: 40px 0 20px; color: var(--accent2); border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+        h3 { font-size: 1.2rem; margin: 24px 0 12px; color: var(--ink); }
+        p { margin-bottom: 16px; }
+        strong { color: var(--accent); font-weight: 600; }
+        
+        /* Summary & Cards */
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin: 24px 0; }
+        .card { background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); }
+        .card h3 { margin-top: 0; color: var(--accent); font-size: 1.1rem; }
+        
+        /* Table */
+        .table-wrap { overflow-x: auto; margin: 24px 0; border-radius: 12px; border: 1px solid var(--line); }
+        table { width: 100%; min-width: 600px; border-collapse: collapse; text-align: left; }
+        th, td { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+        th { background: var(--panel); color: var(--accent2); font-family: 'Space Grotesk', sans-serif; white-space: nowrap; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: rgba(255,255,255,0.02); }
+
+        /* Algorithms Steps */
+        .algo-steps {
+            background: linear-gradient(180deg, rgba(56,214,196,.06), transparent);
+            border: 1px solid rgba(56,214,196,.35); border-left: 4px solid var(--accent);
+            border-radius: 14px; padding: 20px 24px; margin: 30px 0;
+        }
+        .algo-steps h3 { color: var(--accent); margin-top: 0; margin-bottom: 16px; }
+        .algo-steps ol { padding-left: 20px; }
+        .algo-steps ol > li { margin-bottom: 12px; line-height: 1.6; }
+        .algo-steps ul { padding-left: 20px; margin-top: 6px; list-style-type: disc; color: var(--ink-soft); }
+        .algo-steps code, p code, li code {
+            background: rgba(91,140,255,.14); color: #A9C4FF; padding: .15em .4em;
+            border-radius: 5px; font-family: "JetBrains Mono", monospace; font-size: .88em;
+        }
+
+        /* Code Block & Copy/Snap */
+        .codewrap, .snapbox { position: relative; margin: 20px 0; }
+        .code {
+            background: #0A1220; border: 1px solid var(--line); border-radius: 12px;
+            padding: 16px 0; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.6;
+        }
+        .code div { padding: 0 16px; white-space: pre-wrap; }
+        .code div.hot { background: rgba(255,180,84,.1); border-left: 3px solid var(--mark); padding-left: 13px; }
+        .c-kw { color: #FF7B72; } .c-num { color: #79C0FF; } .c-cm { color: #8B949E; font-style: italic; }
+        .c-str { color: #A5D6FF; } .c-fn { color: #D2A8FF; } .c-op { color: #C9D1D9; }
+
+        .copy-btn, .snap-btn {
+            position: absolute; top: 10px; z-index: 5; font-family: "JetBrains Mono", monospace;
+            font-size: .72rem; font-weight: 600; padding: 5px 10px; border-radius: 7px; cursor: pointer;
+            background: rgba(255,255,255,.06); color: var(--ink-soft); border: 1px solid var(--line2); transition: .2s;
+        }
+        .snap-btn { right: 10px; } .copy-btn { right: 64px; }
+        .snapbox:not(.codewrap) .snap-btn { right: 10px; }
+        .copy-btn:hover, .snap-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(56,214,196,.1); }
+        .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
+
+        /* Simulation Lab */
+        .lab-container { border: 1px solid var(--line2); border-radius: 14px; background: var(--bg2); overflow: hidden; margin: 30px 0; }
+        .lab-visual { padding: 24px; border-bottom: 1px solid var(--line); position: relative; }
+        .array-row { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 8px; }
+        .array-row::-webkit-scrollbar { height: 6px; }
+        .array-row::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 3px; }
+        .arr-cell {
+            flex: none; width: 50px; height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: var(--panel); border: 1px solid var(--line2); border-radius: 8px; font-family: 'JetBrains Mono'; position: relative;
+            transition: all 0.3s;
+        }
+        .arr-cell .idx { font-size: 0.65rem; color: var(--ink-dim); position: absolute; top: -20px; }
+        .arr-cell.active { border-color: var(--mark); background: rgba(255,180,84,0.1); color: var(--mark); font-weight: bold; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255,180,84,0.2); }
+        .arr-cell.found { border-color: var(--accent); background: rgba(56,214,196,0.1); color: var(--accent); }
+        .arr-cell.base { border-style: dashed; }
+        
+        .map-view { display: flex; gap: 12px; overflow-x: auto; padding: 12px 0; border-top: 1px dashed var(--line); margin-top: 10px; }
+        .map-item {
+            flex: none; background: rgba(91,140,255,0.1); border: 1px solid var(--accent2); padding: 4px 10px;
+            border-radius: 6px; font-family: 'JetBrains Mono'; font-size: 0.85rem; color: var(--ink);
+        }
+        .map-item.highlight { background: rgba(255,180,84,0.2); border-color: var(--mark); transform: scale(1.05); }
+        
+        .lab-msg { padding: 16px; background: rgba(56,214,196,0.05); border-left: 3px solid var(--accent); font-size: 0.95rem; min-height: 56px; display: flex; align-items: center; }
+        .lab-vars { display: flex; gap: 20px; padding: 12px 24px; background: var(--panel); border-bottom: 1px solid var(--line); font-family: 'JetBrains Mono'; font-size: 0.9rem; }
+        .var-badge { background: #000; padding: 4px 10px; border-radius: 4px; border: 1px solid var(--line2); }
+        .var-val { color: var(--accent); font-weight: bold; }
+        
+        .lab-controls { display: flex; gap: 10px; padding: 16px 24px; align-items: center; background: var(--panel); flex-wrap: wrap; }
+        .btn {
+            background: var(--line); color: var(--ink); border: none; padding: 8px 16px; border-radius: 6px;
+            cursor: pointer; font-weight: 500; transition: 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        .btn:hover:not(:disabled) { background: var(--line2); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn.primary { background: var(--accent2); color: #fff; }
+        .btn.primary:hover:not(:disabled) { background: #4A7BFF; }
+        .speed-ctrl { display: flex; align-items: center; gap: 8px; margin-left: auto; font-size: 0.85rem; color: var(--ink-soft); }
+        .speed-ctrl input { cursor: pointer; accent-color: var(--accent); }
+
+        .lab-body { display: flex; flex-direction: column; }
+        @media (min-width: 900px) { .lab-body { flex-direction: row; } .lab-visual { flex: 1; border-right: 1px solid var(--line); border-bottom: none; } .lab-code-pane { width: 400px; flex-shrink: 0; } }
+        .lab-code-pane .code { border: none; border-radius: 0; height: 100%; margin: 0; background: transparent; }
+
+        /* Quiz */
+        .quiz-container { margin: 40px 0; background: var(--bg2); border: 1px solid var(--line); border-radius: 14px; padding: 24px; }
+        .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+        .score-box { background: rgba(56,214,196,0.1); color: var(--accent); padding: 6px 16px; border-radius: 20px; font-weight: bold; font-family: 'JetBrains Mono'; }
+        .question-card { background: var(--panel); border: 1px solid var(--line2); border-radius: 10px; padding: 20px; margin-bottom: 16px; transition: 0.3s; }
+        .question-card.correct { border-color: var(--accent); box-shadow: 0 0 10px rgba(56,214,196,0.1); }
+        .question-card.wrong { border-color: var(--red); box-shadow: 0 0 10px rgba(255,107,107,0.1); }
+        .q-text { font-weight: 600; margin-bottom: 16px; font-size: 1.05rem; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .opt-btn {
+            text-align: left; background: var(--bg); border: 1px solid var(--line2); padding: 12px 16px;
+            border-radius: 8px; color: var(--ink); cursor: pointer; transition: 0.2s; font-family: 'Inter', sans-serif; font-size: 0.95rem;
+        }
+        .opt-btn:hover:not(:disabled) { background: rgba(255,255,255,0.05); border-color: var(--ink-soft); }
+        .opt-btn:disabled { cursor: default; }
+        .opt-btn.chosen-correct { background: rgba(56,214,196,0.15); border-color: var(--accent); color: var(--accent); }
+        .opt-btn.chosen-wrong { background: rgba(255,107,107,0.15); border-color: var(--red); color: var(--red); opacity: 0.8; }
+        .opt-btn.actual-correct { border-color: var(--accent); color: var(--accent); border-width: 2px; }
+        .q-explain { margin-top: 16px; padding: 12px; border-radius: 8px; font-size: 0.9rem; display: none; line-height: 1.5; }
+        .question-card.correct .q-explain { display: block; background: rgba(56,214,196,0.05); border-left: 3px solid var(--accent); }
+        .question-card.wrong .q-explain { display: block; background: rgba(255,107,107,0.05); border-left: 3px solid var(--red); }
+
+        footer { text-align: center; padding: 40px 0; color: var(--ink-dim); border-top: 1px solid var(--line); margin-top: 60px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="container nav-inner">
+        <a href="/index.html" class="nav-btn">Trang chủ</a>
+        <a href="https://cvpoi.id.vn" target="_blank" rel="noopener" class="nav-btn">cvpoi.id.vn</a>
+        <div class="breadcrumb">Nhóm Kỹ thuật / <span>Mảng cộng dồn & Hashing (Map)</span></div>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>Kỹ thuật Mảng cộng dồn kết hợp Map</h1>
+    <p>Thay vì sử dụng 2 vòng lặp lồng nhau mất O(N²), kỹ thuật biến đổi công thức và tra cứu trạng thái lịch sử qua Hash Map giúp giải quyết hàng loạt bài toán về đoạn con (Subarray) chỉ với O(N log N) hoặc O(N).</p>
+
+    <div class="summary-grid snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <div class="card">
+            <h3>Ý tưởng chủ đạo</h3>
+            <p>Phân tích tổng đoạn [L, R] thành hiệu hai tiền tố: S<sub>R</sub> - S<sub>L-1</sub> = K. Biến đổi thành <strong>S<sub>L-1</sub> = S<sub>R</sub> - K</strong>. Ta dùng <code>std::map</code> để lưu trữ lịch sử các S<sub>i</sub> đã gặp, từ đó biết được S<sub>L-1</sub> có tồn tại hay không chỉ trong O(log N).</p>
+        </div>
+        <div class="card">
+            <h3>Dùng khi nào?</h3>
+            <p>Khi bài toán yêu cầu Đếm số lượng, Tìm độ dài Max/Min của đoạn con liên tiếp có tổng bằng K, tổng chia hết cho K, hoặc các điều kiện cân bằng (số lượng 0 bằng số lượng 1).</p>
+        </div>
+        <div class="card">
+            <h3>Điểm mạnh & Yếu</h3>
+            <p><strong>Mạnh:</strong> Khử vòng lặp lồng nhau, xử lý tốt mảng có số âm và tổng cực lớn.<br><strong>Yếu:</strong> Khai báo <code>std::map</code> mang theo hằng số thời gian (overhead) khá lớn so với mảng tĩnh.</p>
+        </div>
+    </div>
+
+    <h2>So sánh với các kỹ thuật thay thế</h2>
+    <div class="table-wrap snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Kỹ thuật</th>
+                    <th>Tìm đoạn con [L, R]</th>
+                    <th>Cập nhật điểm</th>
+                    <th>Cập nhật đoạn</th>
+                    <th>Độ khó cài</th>
+                    <th>Khi nào dùng?</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Duyệt trâu 2 vòng lặp</td>
+                    <td>O(N²)</td>
+                    <td>O(1)</td>
+                    <td>O(N)</td>
+                    <td>Rất dễ</td>
+                    <td>Giới hạn N ≤ 5000.</td>
+                </tr>
+                <tr>
+                    <td><strong>Prefix Sum + Map</strong></td>
+                    <td><strong>O(N log N)</strong></td>
+                    <td>Không (*)</td>
+                    <td>Không (*)</td>
+                    <td>Dễ</td>
+                    <td>N ≤ 2×10⁵, mảng có số âm, tìm đếm theo đẳng thức S<sub>R</sub> - S<sub>L-1</sub> = K.</td>
+                </tr>
+                <tr>
+                    <td>Prefix Sum + Binary Search</td>
+                    <td>O(N log N)</td>
+                    <td>Không</td>
+                    <td>Không</td>
+                    <td>Trung bình</td>
+                    <td>Mảng gốc toàn số <strong>không âm</strong> (S<sub>i</sub> tăng dần). Dùng tìm bất phương trình (tổng trong đoạn [A, B]).</td>
+                </tr>
+                <tr>
+                    <td>Cây Segment Tree / Fenwick</td>
+                    <td>O(log N) / truy vấn</td>
+                    <td>O(log N)</td>
+                    <td>O(log N)</td>
+                    <td>Khó</td>
+                    <td>Bài toán có yêu cầu truy vấn xen kẽ với cập nhật dữ liệu.</td>
+                </tr>
+            </tbody>
+        </table>
+        <p style="font-size: 0.85rem; color: var(--ink-dim); padding: 0 16px;">(*) Prefix Sum sinh ra mảng tĩnh, nếu mảng gốc thay đổi (cập nhật), ta phải tính lại toàn bộ Prefix Sum mất O(N).</p>
+    </div>
+
+    <h2>Bài toán & Động lực</h2>
+    <p><strong>Yêu cầu:</strong> Cho mảng A có N phần tử (có thể chứa số âm). Đếm số lượng đoạn con liên tiếp có tổng đúng bằng K.</p>
+    <p>Cách tiếp cận <strong>ngây thơ (Naive)</strong> sẽ cố định điểm đầu L, duyệt điểm cuối R và cộng dồn dần để kiểm tra. Cách này đòi hỏi xét mọi cặp (L, R), dẫn đến O(N²).</p>
+    <p><strong>Quan sát then chốt:</strong><br>
+    Nếu ta có mảng cộng dồn S, tổng đoạn từ L đến R là <code>S[R] - S[L-1]</code>.<br>
+    Thay vì hỏi: <em>"Từ L này, có R nào tạo ra tổng K không?"</em> (Duyệt tiến tới)<br>
+    Ta đổi góc nhìn tại R: <em>"Tại R này, liệu trước đó đã có S[L-1] nào thỏa mãn <strong>S[L-1] = S[R] - K</strong> không?"</em> (Nhìn về quá khứ).
+    </p>
+    <p>Vì mảng cộng dồn S có thể chứa số âm, tổng lên tới 10<sup>14</sup>, ta không thể đếm phân phối bằng mảng tĩnh <code>count[10000]</code>. Cấu trúc <code>std::map&lt;long long, int&gt;</code> trong C++ sinh ra để giải quyết hoàn hảo vấn đề này: lưu trữ mọi giá trị (khóa) dù lớn hay âm, và đếm tần suất của chúng trong O(log N).</p>
+
+    <div class="algo-steps snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <h3>Thuật toán từng bước: Đếm đoạn con tổng K</h3>
+        <ol>
+            <li><strong>Khởi tạo dữ liệu cơ sở:</strong>
+                <ul>
+                    <li>Khai báo biến <code>ans = 0</code>, biến tính tổng tạm <code>sum = 0</code>.</li>
+                    <li>Khai báo Hash Map <code>mp</code> lưu tần suất.</li>
+                    <li><strong>Bắt buộc:</strong> Gán <code>mp[0] = 1</code>. Giả lập một trạng thái tiền tố bằng 0 ở vị trí trước phần tử đầu tiên. (Để nếu đoạn [1, R] có tổng K, ta có S[R] - 0 = K).</li>
+                </ul>
+            </li>
+            <li><strong>Duyệt mảng (i từ 1 đến N):</strong>
+                <ul>
+                    <li>Cộng dồn giá trị hiện tại: <code>sum += a[i]</code>. (Bản chất sum chính là S<sub>i</sub>).</li>
+                </ul>
+            </li>
+            <li><strong>Tính mục tiêu và tra cứu:</strong>
+                <ul>
+                    <li>Tính giá trị tiền tố cần tìm: <code>target = sum - K</code>.</li>
+                    <li>Nếu <code>target</code> đã tồn tại trong map <code>mp</code>, ta cộng dồn số lần xuất hiện của nó vào <code>ans</code>. Thực hiện: <code>ans += mp[target]</code>.</li>
+                </ul>
+            </li>
+            <li><strong>Ghi nhận lịch sử:</strong>
+                <ul>
+                    <li>Tăng tần suất của giá trị <code>sum</code> hiện tại vào map để các phần tử phía sau có thể tra cứu: <code>mp[sum]++</code>.</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <h2>Cài đặt C++: Đếm số đoạn con tổng K</h2>
+    <div class="codewrap">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <div class="code"><div id="code-th1"><span class="c-kw">long</span> <span class="c-kw">long</span> countSubarraysSumK(vector&lt;<span class="c-kw">int</span>&gt;&amp; a, <span class="c-kw">long</span> <span class="c-kw">long</span> k) {
+    <span class="c-kw">long</span> <span class="c-kw">long</span> ans = <span class="c-num">0</span>, sum = <span class="c-num">0</span>;
+    map&lt;<span class="c-kw">long</span> <span class="c-kw">long</span>, <span class="c-kw">int</span>&gt; mp;
+    
+    mp[<span class="c-num">0</span>] = <span class="c-num">1</span>; <span class="c-cm">// Khởi tạo mốc cơ sở: tiền tố rỗng có tổng = 0</span>
+
+    <span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">0</span>; i &lt; a.size(); i++) {
+        sum += a[i]; <span class="c-cm">// Tính S[R]</span>
+        <span class="c-kw">long</span> <span class="c-kw">long</span> target = sum - k; <span class="c-cm">// S[L-1] cần tìm</span>
+
+        <span class="c-kw">if</span> (mp.count(target)) {
+            ans += mp[target];
+        }
+
+        mp[sum]++; <span class="c-cm">// Cập nhật S[R] vào map</span>
+    }
+    <span class="c-kw">return</span> ans;
+}</div></div>
+    </div>
+
+    <!-- MÔ PHỎNG 1 -->
+    <h3 style="margin-top:40px">Mô phỏng 1: Đếm số đoạn con có tổng K = 4</h3>
+    <p>Cho mảng A = [2, -1, 3, -2, 4]. Ta duyệt từng phần tử, cập nhật Prefix Sum và tra cứu xem Prefix Sum - 4 đã xuất hiện chưa.</p>
+    <div class="lab-container snapbox" id="lab1">
+        <div class="lab-body">
+            <div class="lab-visual">
+                <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+                <div style="font-size:0.85rem; color:var(--ink-soft); margin-bottom: 24px;">Mảng gốc A & Mảng cộng dồn S</div>
+                <div class="array-row" id="lab1-arr">
+                    <!-- Sinh bằng JS -->
+                </div>
+                <div style="font-size:0.85rem; color:var(--ink-soft); margin-top: 10px;">Hash Map (Lịch sử các S đã gặp)</div>
+                <div class="map-view" id="lab1-map">
+                    <!-- Sinh bằng JS -->
+                </div>
+            </div>
+            <div class="lab-code-pane">
+                <div class="code">
+<div id="lab1-l1">mp[0] = 1;</div>
+<div id="lab1-l2">for (int i = 0; i &lt; n; i++) {</div>
+<div id="lab1-l3">    sum += a[i];</div>
+<div id="lab1-l4">    target = sum - K;</div>
+<div id="lab1-l5">    if (mp.count(target))</div>
+<div id="lab1-l6">        ans += mp[target];</div>
+<div id="lab1-l7">    mp[sum]++;</div>
+<div id="lab1-l8">}</div></div>
+            </div>
+        </div>
+        <div class="lab-vars">
+            <div>sum: <span class="var-badge var-val" id="lab1-v-sum">0</span></div>
+            <div>target: <span class="var-badge" id="lab1-v-target">?</span></div>
+            <div>ans: <span class="var-badge var-val" id="lab1-v-ans">0</span></div>
+        </div>
+        <div class="lab-msg" id="lab1-msg">Nhấn Chạy để bắt đầu mô phỏng.</div>
+        <div class="lab-controls">
+            <button class="btn" id="lab1-prev">◄ Lùi</button>
+            <button class="btn primary" id="lab1-next">Tiến ►</button>
+            <button class="btn" id="lab1-auto">Tự chạy</button>
+            <button class="btn" id="lab1-reset">Đặt lại</button>
+            <div class="speed-ctrl">
+                Tốc độ <input type="range" id="lab1-speed" min="300" max="1500" value="800" dir="rtl">
+            </div>
+        </div>
+    </div>
+
+
+    <h2>Kỹ thuật: Đoạn con dài nhất có tổng K</h2>
+    <p>Thay vì đếm số lượng, ta cần tối đa hóa độ dài đoạn <code>(R - L + 1)</code>. Vẫn chung ý tưởng tra cứu <code>target = S[R] - K</code>.</p>
+    <p><strong>Quan sát:</strong> Để đoạn <code>[L, R]</code> dài nhất, chỉ số <code>L-1</code> (tức điểm bắt đầu của tiền tố bị cắt đi) phải <strong>nhỏ nhất có thể</strong> (càng xa về bên trái càng tốt). Do đó, trong Hash Map, thay vì lưu tần suất, ta lưu <strong>vị trí xuất hiện đầu tiên</strong> của từng giá trị <code>S[i]</code>.</p>
+    
+    <div class="codewrap">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <div class="code"><div id="code-th2"><span class="c-kw">int</span> maxSubarrayLenSumK(vector&lt;<span class="c-kw">int</span>&gt;&amp; a, <span class="c-kw">long</span> <span class="c-kw">long</span> k) {
+    <span class="c-kw">long</span> <span class="c-kw">long</span> sum = <span class="c-num">0</span>;
+    <span class="c-kw">int</span> maxLen = <span class="c-num">0</span>;
+    map&lt;<span class="c-kw">long</span> <span class="c-kw">long</span>, <span class="c-kw">int</span>&gt; mp;
+    
+    mp[<span class="c-num">0</span>] = -<span class="c-num">1</span>; <span class="c-cm">// S[0]=0 đứng ở vị trí TRƯỚC mảng (index -1)</span>
+
+    <span class="c-kw">for</span> (<span class="c-kw">int</span> i = <span class="c-num">0</span>; i &lt; a.size(); i++) {
+        sum += a[i];
+        <span class="c-kw">long</span> <span class="c-kw">long</span> target = sum - k;
+
+        <span class="c-kw">if</span> (mp.count(target)) {
+            maxLen = max(maxLen, i - mp[target]); <span class="c-cm">// Độ dài = R - (L-1)</span>
+        }
+
+        <span class="c-cm">// CHỈ lưu vị trí nếu sum CHƯA từng xuất hiện</span>
+        <span class="c-cm">// Để giữ vị trí nhỏ nhất (xa nhất về trái)</span>
+        <span class="c-kw">if</span> (!mp.count(sum)) {
+            mp[sum] = i;
+        }
+    }
+    <span class="c-kw">return</span> maxLen;
+}</div></div>
+    </div>
+
+    <!-- MÔ PHỎNG 2 -->
+    <h3 style="margin-top:40px">Mô phỏng 2: Tìm đoạn con dài nhất tổng K = 2</h3>
+    <p>Vẫn dùng mảng A = [2, -1, 3, -2, 4]. Mục tiêu đổi thành tìm chiều dài Max. Map bây giờ lưu (Sum → Vị trí đầu tiên).</p>
+    <div class="lab-container snapbox" id="lab2">
+        <div class="lab-body">
+            <div class="lab-visual">
+                <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+                <div class="array-row" id="lab2-arr"></div>
+                <div style="font-size:0.85rem; color:var(--ink-soft); margin-top: 10px;">Map (Khóa: Sum → Giá trị: Vị trí Index nhỏ nhất)</div>
+                <div class="map-view" id="lab2-map"></div>
+            </div>
+            <div class="lab-code-pane">
+                <div class="code">
+<div id="lab2-l1">mp[0] = -1;</div>
+<div id="lab2-l2">for (int i = 0; i &lt; n; i++) {</div>
+<div id="lab2-l3">    sum += a[i]; target = sum - K;</div>
+<div id="lab2-l4">    if (mp.count(target))</div>
+<div id="lab2-l5">        maxL = max(maxL, i - mp[target]);</div>
+<div id="lab2-l6">    if (!mp.count(sum))</div>
+<div id="lab2-l7">        mp[sum] = i;</div>
+<div id="lab2-l8">}</div></div>
+            </div>
+        </div>
+        <div class="lab-vars">
+            <div>sum: <span class="var-badge var-val" id="lab2-v-sum">0</span></div>
+            <div>target: <span class="var-badge" id="lab2-v-target">?</span></div>
+            <div>maxLen: <span class="var-badge var-val" id="lab2-v-ans">0</span></div>
+        </div>
+        <div class="lab-msg" id="lab2-msg">Nhấn Chạy để bắt đầu mô phỏng.</div>
+        <div class="lab-controls">
+            <button class="btn" id="lab2-prev">◄ Lùi</button>
+            <button class="btn primary" id="lab2-next">Tiến ►</button>
+            <button class="btn" id="lab2-auto">Tự chạy</button>
+            <button class="btn" id="lab2-reset">Đặt lại</button>
+            <div class="speed-ctrl">
+                Tốc độ <input type="range" id="lab2-speed" min="300" max="1500" value="800" dir="rtl">
+            </div>
+        </div>
+    </div>
+
+    <h2>Các Lỗi Thường Gặp (Pitfalls)</h2>
+    <div class="summary-grid snapbox">
+        <button class="snap-btn" onclick="snapBox(this)">Snap</button>
+        <div class="card" style="border-color: var(--red);">
+            <h3 style="color: var(--red);">Quên khởi tạo <code>mp[0] = 1</code></h3>
+            <p><strong>Triệu chứng:</strong> Bỏ sót các đoạn con bắt đầu từ vị trí đầu tiên (L=1). Chạy thử tay mẫu nhỏ sẽ thấy đếm thiếu.</p>
+            <p><strong>Cách tránh:</strong> Luôn nạp base-case vào Map ngay khi khai báo. Hãy coi như có phần tử vô hình ở index -1 mang tổng 0.</p>
+        </div>
+        <div class="card" style="border-color: var(--red);">
+            <h3 style="color: var(--red);">Toán tử Module <code>%</code> âm trong C++</h3>
+            <p><strong>Triệu chứng:</strong> Khi giải bài "Đoạn con chia hết cho K", <code>-2 % 5</code> trong C++ ra <code>-2</code> thay vì <code>3</code>. Tra map sai hoàn toàn.</p>
+            <p><strong>Cách tránh:</strong> Ép số dư luôn dương bằng công thức: <code>rem = ((sum % K) + K) % K;</code>.</p>
+        </div>
+        <div class="card" style="border-color: var(--mark);">
+            <h3 style="color: var(--mark);">Bị TLE do Map Overhead</h3>
+            <p><strong>Triệu chứng:</strong> <code>std::map</code> mất O(log N) mỗi thao tác. Với N = 5×10⁵, đôi khi bị Time Limit Exceeded.</p>
+            <p><strong>Cách tránh:</strong> Dùng <code>std::unordered_map</code> (O(1) trung bình). Tuy nhiên trên Codeforces phải viết thêm Custom Hash, nếu không sẽ bị hack chèn test đụng độ hash làm giảm xuống O(N).</p>
+        </div>
+    </div>
+
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <h2>Kiểm tra kiến thức</h2>
+            <div class="score-box">Điểm: <span id="quiz-score">0</span> / 12</div>
+        </div>
+        <div id="quiz-list">
+            <!-- Rendered by JS -->
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <div class="container">
+        <p>Chuyên đề Lập trình thi đấu — Phát triển theo yêu cầu WEB.</p>
+        <p>Bản quyền thuộc về hệ thống bài giảng cvpoi.id.vn. Module Prefix Sum & Map.</p>
+    </div>
+</footer>
+
+<script>
+// --- UTILS ---
+function deepCopy(obj) { return JSON.parse(JSON.stringify(obj)); }
+function formatMap(m) { 
+    return Object.entries(m).map(([k,v])=>`<div class="map-item"><strong>${k}</strong> : ${v}</div>`).join(''); 
+}
+function highlightMapItem(key, val) {
+    return `<div class="map-item highlight"><strong>${key}</strong> : ${val}</div>`;
+}
+
+// --- SNAP & COPY ---
+function flash(b,t){const o=b.textContent;b.textContent=t;setTimeout(()=>b.textContent=o,1200);}
+function copyCode(b){
+    const t=b.closest('.codewrap').querySelector('.code').innerText;
+    (navigator.clipboard?.writeText(t)||Promise.reject()).then(()=>flash(b,'Đã chép!'))
+    .catch(()=>{
+        const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);
+        ta.select();document.execCommand('copy');ta.remove();flash(b,'Đã chép!');
+    });
+}
+async function snapBox(b){
+    const box=b.closest('.snapbox'); box.classList.add('snapping');
+    await document.fonts.ready;
+    const c=await html2canvas(box,{backgroundColor:'#0B1220',scale:2,logging:false});
+    box.classList.remove('snapping');
+    c.toBlob(async bl=>{
+        try{ await navigator.clipboard.write([new ClipboardItem({'image/png':bl})]); flash(b,'Đã chụp!'); }
+        catch(e){ const a=document.createElement('a'); a.href=URL.createObjectURL(bl); a.download='snap.png'; a.click(); flash(b,'Đã tải ảnh'); }
+    });
+}
+
+// --- LAB 1: Count subarrays with Sum = 4 ---
+(function(){
+    const arr = [2, -1, 3, -2, 4];
+    const K = 4;
+    let steps = [];
+    let sp = 0;
+    let interval = null;
+
+    function makeSteps() {
+        steps = [];
+        let map = {0: 1};
+        let sum = 0;
+        let ans = 0;
+        
+        steps.push({
+            arr: arr.map(x=>x), sum: 0, target: '?', ans: 0, map: {...map},
+            msg: "Bước 0: Khởi tạo mốc cơ sở. Tiền tố rỗng có tổng 0 xuất hiện 1 lần.",
+            line: 'lab1-l1', mapActive: -1, curIdx: -1
+        });
+
+        for(let i=0; i<arr.length; i++){
+            steps.push({
+                arr, sum, target: '?', ans, map: {...map},
+                msg: `Bắt đầu xét A[${i}] = ${arr[i]}.`,
+                line: 'lab1-l2', mapActive: -1, curIdx: i
+            });
+
+            sum += arr[i];
+            steps.push({
+                arr, sum, target: '?', ans, map: {...map},
+                msg: `Cộng dồn S[${i}] = ${sum}.`,
+                line: 'lab1-l3', mapActive: -1, curIdx: i
+            });
+
+            let target = sum - K;
+            steps.push({
+                arr, sum, target, ans, map: {...map},
+                msg: `Mục tiêu cần tìm: target = S[${i}] - ${K} = ${target}. Tra cứu xem ${target} đã gặp chưa.`,
+                line: 'lab1-l4', mapActive: target, curIdx: i
+            });
+
+            if(map[target]) {
+                steps.push({
+                    arr, sum, target, ans, map: {...map},
+                    msg: `Tìm thấy ${target} trong Map! Nó đã xuất hiện ${map[target]} lần trước đó.`,
+                    line: 'lab1-l5', mapActive: target, curIdx: i, found: true
+                });
+                ans += map[target];
+                steps.push({
+                    arr, sum, target, ans, map: {...map},
+                    msg: `Cộng ${map[target]} vào đáp án (Ans = ${ans}).`,
+                    line: 'lab1-l6', mapActive: target, curIdx: i, found: true
+                });
+            } else {
+                steps.push({
+                    arr, sum, target, ans, map: {...map},
+                    msg: `Giá trị ${target} chưa từng xuất hiện. Không có đoạn con nào kết thúc tại đây thỏa mãn.`,
+                    line: 'lab1-l5', mapActive: target, curIdx: i, found: false
+                });
+            }
+
+            map[sum] = (map[sum] || 0) + 1;
+            steps.push({
+                arr, sum, target, ans, map: {...map},
+                msg: `Lưu giá trị S[${i}] = ${sum} vào Map để làm mốc cho các bước sau.`,
+                line: 'lab1-l7', mapActive: sum, curIdx: i
+            });
+        }
+        steps.push({
+            arr, sum, target: '-', ans, map: {...map},
+            msg: `Kết thúc duyệt. Tổng cộng có ${ans} đoạn con có tổng bằng ${K}.`,
+            line: 'lab1-l8', mapActive: -1, curIdx: -1
+        });
+    }
+
+    function paint() {
+        const state = steps[sp];
+        // Arr
+        const arrHTML = `<div class="arr-cell base"><span class="idx">-1</span>S=0</div>` + 
+            state.arr.map((val, idx) => {
+                let cls = "arr-cell";
+                if(idx === state.curIdx) cls += (state.found ? " found" : " active");
+                return `<div class="${cls}"><span class="idx">${idx}</span>${val}</div>`;
+            }).join('');
+        document.getElementById('lab1-arr').innerHTML = arrHTML;
+        
+        // Map
+        const mapHTML = Object.entries(state.map).map(([k,v]) => {
+            if(parseInt(k) === state.mapActive) return highlightMapItem(k, v);
+            return `<div class="map-item"><strong>${k}</strong> : ${v}</div>`;
+        }).join('');
+        document.getElementById('lab1-map').innerHTML = mapHTML || '<i>Trống</i>';
+
+        // Vars
+        document.getElementById('lab1-v-sum').textContent = state.sum;
+        document.getElementById('lab1-v-target').textContent = state.target;
+        document.getElementById('lab1-v-ans').textContent = state.ans;
+        document.getElementById('lab1-msg').innerHTML = state.msg;
+
+        // Lines
+        document.querySelectorAll('#lab1 .code div').forEach(d => d.classList.remove('hot'));
+        if(state.line) document.getElementById(state.line).classList.add('hot');
+
+        // Buttons
+        document.getElementById('lab1-prev').disabled = sp === 0;
+        document.getElementById('lab1-next').disabled = sp === steps.length - 1;
+    }
+
+    document.getElementById('lab1-prev').onclick = () => { if(sp>0){sp--; paint();} };
+    document.getElementById('lab1-next').onclick = () => { if(sp<steps.length-1){sp++; paint();} };
+    document.getElementById('lab1-reset').onclick = () => { sp=0; clearInterval(interval); interval=null; document.getElementById('lab1-auto').textContent='Tự chạy'; paint(); };
+    document.getElementById('lab1-auto').onclick = function() {
+        if(interval) { clearInterval(interval); interval=null; this.textContent='Tự chạy'; }
+        else {
+            if(sp >= steps.length-1) sp = 0;
+            this.textContent='Dừng';
+            interval = setInterval(() => {
+                if(sp < steps.length-1) { sp++; paint(); }
+                else { clearInterval(interval); interval=null; this.textContent='Tự chạy'; }
+            }, document.getElementById('lab1-speed').value);
+        }
+    };
+
+    makeSteps();
+    paint();
+})();
+
+
+// --- LAB 2: Longest subarray with Sum = 2 ---
+(function(){
+    const arr = [2, -1, 3, -2, 4];
+    const K = 2;
+    let steps = [];
+    let sp = 0;
+    let interval = null;
+
+    function makeSteps() {
+        steps = [];
+        let map = {0: -1}; // Sum -> First Index
+        let sum = 0;
+        let maxL = 0;
+        
+        steps.push({
+            arr: [...arr], sum: 0, target: '?', maxL: 0, map: {...map},
+            msg: "Bước 0: Khởi tạo mốc cơ sở. Tổng S=0 nằm ở vị trí giả định (Index = -1).",
+            line: 'lab2-l1', mapActive: null, curIdx: -1
+        });
+
+        for(let i=0; i<arr.length; i++){
+            steps.push({
+                arr, sum, target: '?', maxL, map: {...map},
+                msg: `Bắt đầu vòng lặp i=${i}, A[i]=${arr[i]}.`,
+                line: 'lab2-l2', mapActive: null, curIdx: i
+            });
+
+            sum += arr[i];
+            let target = sum - K;
+            steps.push({
+                arr, sum, target, maxL, map: {...map},
+                msg: `Cộng dồn S[${i}] = ${sum}. Tính mục tiêu: ${sum} - ${K} = ${target}.`,
+                line: 'lab2-l3', mapActive: target, curIdx: i
+            });
+
+            if(map[target] !== undefined) {
+                let len = i - map[target];
+                steps.push({
+                    arr, sum, target, maxL, map: {...map},
+                    msg: `Đã từng gặp ${target} tại index ${map[target]}. Độ dài đoạn con là: ${i} - (${map[target]}) = ${len}.`,
+                    line: 'lab2-l4', mapActive: target, curIdx: i, found: true
+                });
+                maxL = Math.max(maxL, len);
+                steps.push({
+                    arr, sum, target, maxL, map: {...map},
+                    msg: `Cập nhật maxLen = max(maxLen, ${len}) -> ${maxL}.`,
+                    line: 'lab2-l5', mapActive: target, curIdx: i, found: true
+                });
+            } else {
+                steps.push({
+                    arr, sum, target, maxL, map: {...map},
+                    msg: `Chưa từng gặp ${target}. Bỏ qua.`,
+                    line: 'lab2-l4', mapActive: target, curIdx: i, found: false
+                });
+            }
+
+            steps.push({
+                arr, sum, target, maxL, map: {...map},
+                msg: `Kiểm tra xem S[${i}] = ${sum} đã có trong Map chưa để cập nhật vị trí ĐẦU TIÊN.`,
+                line: 'lab2-l6', mapActive: sum, curIdx: i
+            });
+
+            if(map[sum] === undefined) {
+                map[sum] = i;
+                steps.push({
+                    arr, sum, target, maxL, map: {...map},
+                    msg: `Do chưa có, lưu mốc S = ${sum} xuất hiện đầu tiên tại index ${i}.`,
+                    line: 'lab2-l7', mapActive: sum, curIdx: i
+                });
+            } else {
+                steps.push({
+                    arr, sum, target, maxL, map: {...map},
+                    msg: `S = ${sum} đã tồn tại ở index ${map[sum]}. KHÔNG ghi đè để giữ vị trí xa nhất về bên trái.`,
+                    line: 'lab2-l7', mapActive: sum, curIdx: i
+                });
+            }
+        }
+        steps.push({
+            arr, sum, target: '-', maxL, map: {...map},
+            msg: `Kết thúc duyệt. Đoạn con dài nhất có tổng ${K} là ${maxL} phần tử.`,
+            line: 'lab2-l8', mapActive: null, curIdx: -1
+        });
+    }
+
+    function paint() {
+        const state = steps[sp];
+        // Arr
+        const arrHTML = `<div class="arr-cell base"><span class="idx">-1</span>S=0</div>` + 
+            state.arr.map((val, idx) => {
+                let cls = "arr-cell";
+                if(idx === state.curIdx) cls += (state.found ? " found" : " active");
+                return `<div class="${cls}"><span class="idx">${idx}</span>${val}</div>`;
+            }).join('');
+        document.getElementById('lab2-arr').innerHTML = arrHTML;
+        
+        // Map
+        const mapHTML = Object.entries(state.map).map(([k,v]) => {
+            if(parseInt(k) === state.mapActive) return highlightMapItem(k, v);
+            return `<div class="map-item"><strong>${k}</strong> : Idx ${v}</div>`;
+        }).join('');
+        document.getElementById('lab2-map').innerHTML = mapHTML || '<i>Trống</i>';
+
+        // Vars
+        document.getElementById('lab2-v-sum').textContent = state.sum;
+        document.getElementById('lab2-v-target').textContent = state.target;
+        document.getElementById('lab2-v-ans').textContent = state.maxL;
+        document.getElementById('lab2-msg').innerHTML = state.msg;
+
+        // Lines
+        document.querySelectorAll('#lab2 .code div').forEach(d => d.classList.remove('hot'));
+        if(state.line) document.getElementById(state.line).classList.add('hot');
+
+        // Buttons
+        document.getElementById('lab2-prev').disabled = sp === 0;
+        document.getElementById('lab2-next').disabled = sp === steps.length - 1;
+    }
+
+    document.getElementById('lab2-prev').onclick = () => { if(sp>0){sp--; paint();} };
+    document.getElementById('lab2-next').onclick = () => { if(sp<steps.length-1){sp++; paint();} };
+    document.getElementById('lab2-reset').onclick = () => { sp=0; clearInterval(interval); interval=null; document.getElementById('lab2-auto').textContent='Tự chạy'; paint(); };
+    document.getElementById('lab2-auto').onclick = function() {
+        if(interval) { clearInterval(interval); interval=null; this.textContent='Tự chạy'; }
+        else {
+            if(sp >= steps.length-1) sp = 0;
+            this.textContent='Dừng';
+            interval = setInterval(() => {
+                if(sp < steps.length-1) { sp++; paint(); }
+                else { clearInterval(interval); interval=null; this.textContent='Tự chạy'; }
+            }, document.getElementById('lab2-speed').value);
+        }
+    };
+
+    makeSteps();
+    paint();
+})();
+
+// --- QUIZ ---
+const quizData = [
+    { q: "Khi giải bài toán đếm đoạn con có tổng K bằng Prefix Sum + Map, độ phức tạp thời gian là bao nhiêu?", opts: ["O(N)", "O(N log N)", "O(N²)", "O(1)"], ans: 1, expl: "Mảng có N phần tử. Tại mỗi phần tử, ta gọi mp.count() và mp[sum]++, mỗi thao tác trên std::map mất O(log N). Do đó tổng độ phức tạp là O(N log N)." },
+    { q: "Mục đích chính của việc gán mp[0] = 1 trước khi bắt đầu vòng lặp là gì?", opts: ["Để tối ưu hóa bộ nhớ.", "Để tránh lỗi biên dịch (Compile Error).", "Để đại diện cho tổng của đoạn tiền tố rỗng, giúp đếm đoạn con bắt đầu từ vị trí đầu tiên.", "Vì phần tử đầu tiên của mảng luôn bằng 0."], ans: 2, expl: "Nếu đoạn con thỏa mãn bắt đầu từ index 0, thì công thức là S[R] - S[-1] = K. Ta giả định S[-1] = 0. Việc gán mp[0] = 1 giúp phương trình tra cứu được đúng cơ sở này." },
+    { q: "Công thức cốt lõi để tìm đoạn con [L, R] có tổng bằng K từ mảng cộng dồn S là?", opts: ["S[R] + S[L-1] = K", "S[R] - S[L] = K", "S[R] - S[L-1] = K", "S[L-1] - S[R] = K"], ans: 2, expl: "Tổng mảng con từ L đến R là tổng từ 0 đến R trừ đi tổng từ 0 đến L-1. Nên S[R] - S[L-1] = K. Khi đó ta quy về tìm S[L-1] = S[R] - K." },
+    { q: "Để tìm đoạn con DÀI NHẤT có tổng bằng K, biến std::map dùng để lưu trữ gì?", opts: ["Số lần xuất hiện của các tổng tiền tố.", "Vị trí cuối cùng xuất hiện của các tổng tiền tố.", "Vị trí đầu tiên (nhỏ nhất) xuất hiện của các tổng tiền tố.", "Độ dài đoạn con hiện tại."], ans: 2, expl: "Độ dài đoạn con là R - L + 1, tương đương (i - (L-1)). Để hiệu này lớn nhất, chỉ số L-1 phải NHỎ NHẤT. Ta chỉ lưu vị trí lần đầu tiên S xuất hiện vào Map." },
+    { q: "Khi kiểm tra tính chia hết: 'Đoạn con có tổng chia hết cho K'. Công thức chuyển đổi số dư an toàn trong C++ với số âm là gì?", opts: ["sum % K", "(sum % K + sum) % K", "abs(sum) % K", "((sum % K) + K) % K"], ans: 3, expl: "Toán tử % trong C++ trả về số âm nếu bị chia âm. Ví dụ -2 % 5 = -2. Để đưa về dãy dư dương chuẩn 0->(K-1), dùng ((sum % K) + K) % K sẽ ra 3." },
+    { q: "Vì sao không nên dùng mảng tĩnh count[100000] thay cho std::map trong kỹ thuật này?", opts: ["Mảng tĩnh chạy chậm hơn map.", "Giá trị tổng tiền tố có thể rất lớn (vượt quá 10⁵) hoặc mang giá trị âm, gây tràn mảng (Out of bounds).", "C++ không cho khai báo mảng tĩnh quá lớn.", "Map tốn ít code hơn."], ans: 1, expl: "Chỉ số của mảng tĩnh không thể là số âm và bị giới hạn kích thước (vd 10^7). Prefix sum có thể chứa số âm hoặc vọt lên 10^14. Chỉ có map mới linh hoạt lưu khóa không giới hạn." },
+    { q: "Nhược điểm lớn nhất khi dùng std::map so với mảng tĩnh là gì?", opts: ["Sai kết quả nếu mảng có số 0.", "Hằng số thời gian (Overhead) lớn, có thể gây TLE nếu giới hạn thời gian gắt.", "Không hỗ trợ vòng lặp while.", "Gây lỗi biên dịch nếu giá trị vượt kiểu int."], ans: 1, expl: "std::map trong C++ cài đặt bằng Cây Đỏ Đen, tạo ra nhiều node động nên hằng số overhead lớn hơn gấp nhiều lần so với truy cập index mảng O(1)." },
+    { q: "Bài toán 'Tìm số đoạn con cân bằng (số lượng 0 và 1 bằng nhau)' có thể đưa về bài toán nào?", opts: ["Tìm đoạn con có tổng lớn nhất.", "Thay số 0 thành -1, sau đó tìm số lượng đoạn con có tổng bằng 0.", "Cộng dồn mảng và chặt nhị phân.", "Tìm đoạn con dài nhất toàn số 1."], ans: 1, expl: "Kỹ thuật kinh điển: Thay 0 bằng -1. Khi đó, đoạn con cân bằng 0 và 1 sẽ có tổng giá trị chính xác bằng 0. Ta dùng Map giải như bài tổng K=0." },
+    { q: "Nếu dùng std::unordered_map để tối ưu về O(1), ta cần lưu ý điều gì khi nộp bài trên Codeforces?", opts: ["Chỉ cần include thư viện là đủ.", "Phải dùng kèm hàm std::sort.", "Phải tự viết hàm băm (Custom Hash) để tránh bị hack test đụng độ hash làm tụt xuống O(N).", "Không dùng được với kiểu khóa long long."], ans: 2, expl: "Thuật toán băm mặc định của C++ dễ đoán. Người dùng khác có thể sinh test cố tình gây va chạm (hash collision) dồn mọi phần tử vào 1 bucket, làm unordered_map chạy mất O(N)." },
+    { q: "Trong code 'Tìm đoạn con dài nhất', tại sao ta khởi tạo mp[0] = -1 thay vì mp[0] = 0?", opts: ["Vì mảng trong C++ đánh index từ 0, tiền tố rỗng nằm trước index 0 nên coi là -1.", "Vì -1 đại diện cho giá trị null.", "Để phân biệt với kết quả trả về.", "Cả 3 phương án đều sai."], ans: 0, expl: "Phần tử đầu tiên nằm ở i=0. Nếu đoạn [0, R] có tổng K, điểm cắt L-1 phải đứng TRƯỚC 0. Ta quy ước vị trí tiền tố rỗng là -1. Khi đó độ dài là R - (-1) = R + 1, hoàn toàn đúng." },
+    { q: "Khi nào ta có thể KHÔNG dùng Map mà thay bằng Tìm kiếm nhị phân (Binary Search) trên mảng cộng dồn?", opts: ["Khi cần tìm chính xác tổng K.", "Khi mảng cộng dồn đã được sort lại.", "Khi mảng ban đầu chỉ gồm các số KHÔNG ÂM, suy ra mảng cộng dồn luôn tăng dần (hoặc không giảm).", "Khi bài toán yêu cầu tìm đoạn con ngắn nhất."], ans: 2, expl: "Tìm kiếm nhị phân (lower_bound, upper_bound) yêu cầu mảng phải có tính đơn điệu (đã sắp xếp). Mảng cộng dồn chỉ đơn điệu tăng khi mảng gốc không chứa số âm." },
+    { q: "Khi sử dụng lower_bound trên mảng tĩnh, để lấy chỉ số index ta làm thế nào?", opts: ["int id = lower_bound(...);", "int id = lower_bound(...).index;", "int id = lower_bound(...) - tên_mảng;", "Không thể lấy index, chỉ lấy được giá trị."], ans: 2, expl: "lower_bound trả về con trỏ (pointer) hoặc iterator. Để biến nó thành số nguyên (index), ta lấy con trỏ đó trừ đi con trỏ gốc (tên mảng). Vd: lower_bound(pre, pre+n, x) - pre;" }
+];
+
+const qList = document.getElementById('quiz-list');
+let score = 0;
+
+quizData.forEach((q, idx) => {
+    let card = document.createElement('div');
+    card.className = 'question-card';
+    card.innerHTML = `
+        <div class="q-text">Câu ${idx+1}: ${q.q}</div>
+        <div class="options">
+            ${q.opts.map((opt, i) => `<button class="opt-btn" data-idx="${i}">${opt}</button>`).join('')}
+        </div>
+        <div class="q-explain"><strong>Giải thích:</strong> ${q.expl}</div>
+    `;
+    qList.appendChild(card);
+
+    const btns = card.querySelectorAll('.opt-btn');
+    btns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            if(card.classList.contains('answered')) return;
+            card.classList.add('answered');
+            
+            let chosen = parseInt(this.getAttribute('data-idx'));
+            btns.forEach(b => b.disabled = true);
+            
+            if(chosen === q.ans) {
+                this.classList.add('chosen-correct');
+                card.classList.add('correct');
+                score++;
+                document.getElementById('quiz-score').innerText = score;
+            } else {
+                this.classList.add('chosen-wrong');
+                btns[q.ans].classList.add('actual-correct');
+                card.classList.add('wrong');
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>
