@@ -269,6 +269,9 @@
                     </div>
                     Giá trị đầu tiên <code>s</code> được cộng vào A[L]. Điều này làm D<sub>1</sub>[L] tăng <code>s</code>.<br>
                     → <i>Trên D<sub>2</sub>:</i> Cập nhật điểm làm <code>D<sub>2</sub>[L] += s</code> và <code>D<sub>2</sub>[L+1] -= s</code>.
+                    <div style="margin-top: 8px; padding: 12px 16px; background: rgba(56, 214, 196, 0.08); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.95rem;">
+                        <b>💡 Cách hiểu đơn giản:</b> Hãy tưởng tượng đây là "lực đẩy" ban đầu. Để phần tử đầu tiên A[L] đột ngột nhô lên một lượng s, đà tăng (mảng D<sub>1</sub>) tại vị trí L phải nhận một cú hích lớn +s. Việc nạp một điểm s vào D<sub>1</sub> sẽ tương đương với việc đánh dấu hai đầu mút trên mảng gia tốc D<sub>2</sub>.
+                    </div>
                     <div class="visual-area snapbox" style="padding: 12px; margin: 12px 0 0; background: rgba(0,0,0,0.15);">
                         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
                         <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Ví dụ L=2, s=3</div>
@@ -290,6 +293,9 @@
                     </div>
                     Mỗi phần tử A tiếp theo tăng thêm <code>d</code> so với phần tử trước. Điều này tương đương với việc cộng một đoạn <code>d</code> vào D<sub>1</sub> từ L+1 đến R.<br>
                     → <i>Trên D<sub>2</sub>:</i> Cập nhật đoạn làm <code>D<sub>2</sub>[L+1] += d</code> và <code>D<sub>2</sub>[R+1] -= d</code>.
+                    <div style="margin-top: 8px; padding: 12px 16px; background: rgba(56, 214, 196, 0.08); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.95rem;">
+                        <b>💡 Cách hiểu đơn giản:</b> Đây là lúc ta "đạp ga" đều đặn. Kể từ L+1, mỗi bậc thang cao hơn bậc trước đúng d đơn vị. Tốc độ leo thang (D<sub>1</sub>) được duy trì liên tục ở mức +d. Cộng một đoạn dài vào D<sub>1</sub> sẽ tạo ra hai điểm chốt chặn ở hai đầu trên D<sub>2</sub>.
+                    </div>
                     <div class="visual-area snapbox" style="padding: 12px; margin: 12px 0 0; background: rgba(0,0,0,0.15);">
                         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
                         <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Ví dụ L+1=3, R=4, d=2</div>
@@ -311,6 +317,9 @@
                     </div>
                     Tại R+1, cấp số cộng kết thúc. Ta phải trừ đi tổng lượng đã cộng vào A[R] là <code>s + (R-L)·d</code> khỏi D<sub>1</sub>[R+1] để ngắt đà tăng.<br>
                     → <i>Trên D<sub>2</sub>:</i> Cập nhật điểm làm <code>D<sub>2</sub>[R+1] -= s + (R-L)·d</code> và <code>D<sub>2</sub>[R+2] += s + (R-L)·d</code>.
+                    <div style="margin-top: 8px; padding: 12px 16px; background: rgba(56, 214, 196, 0.08); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 0.95rem;">
+                        <b>💡 Cách hiểu đơn giản:</b> Tại R+1, đoạn đường leo dốc kết thúc, mảng A cần trở về trạng thái phẳng (không tăng nữa). Nhưng do A[R] trước đó đã leo lên rất cao (đạt mức s + (R-L)·d), ta bắt buộc phải "đạp phanh khẩn cấp" để ép đà tăng D<sub>1</sub> sụp xuống phần âm đúng bằng độ cao đó. Điểm rơi âm sâu này trên D<sub>1</sub> lại tiếp tục được cân bằng bởi hai điểm biên trên D<sub>2</sub>.
+                    </div>
                     <div class="visual-area snapbox" style="padding: 12px; margin: 12px 0 0; background: rgba(0,0,0,0.15);">
                         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
                         <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Ví dụ R+1=5, lượng bù = 3 + (4-2)×2 = 7</div>
