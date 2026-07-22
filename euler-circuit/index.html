@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chuyên đề: Chu trình Euler</title>
+<style>
+:root{
+  --bg:#ffffff; --fg:#1f2328; --muted:#5b6570; --border:#e4e7eb; --card:#f7f8fa;
+  --blue:#1d4ed8;   --blue-bg:#eff6ff;
+  --purple:#6d28d9; --purple-bg:#f5f3ff;
+  --red:#b91c1c;    --red-bg:#fef2f2;
+  --green:#047857;  --green-bg:#ecfdf5;
+  --amber:#b45309;  --amber-bg:#fffbeb;
+  --code-bg:#f6f8fa; --code-fg:#24292f;
+  --c-kw:#0550ae; --c-str:#0a7d55; --c-cmt:#8b949e; --c-num:#953800; --c-fn:#6639ba; --c-pre:#a3364a;
+  --node:#dbeafe; --node-stroke:#2563eb; --edge:#64748b; --hl:#dc2626; --hl2:#059669;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0f1319; --fg:#e6e9ee; --muted:#9aa4b2; --border:#252c37; --card:#161b23;
+    --blue:#7aa2ff;   --blue-bg:#131c2e;
+    --purple:#c4a2ff; --purple-bg:#1d1730;
+    --red:#ff8f8f;    --red-bg:#2a1618;
+    --green:#5fd3a1;  --green-bg:#0f2320;
+    --amber:#f3bf62;  --amber-bg:#251c0f;
+    --code-bg:#12171f; --code-fg:#dce3ec;
+    --c-kw:#79b8ff; --c-str:#7ee2b8; --c-cmt:#7d8794; --c-num:#ffab70; --c-fn:#d2a8ff; --c-pre:#ff9db8;
+    --node:#1e3a68; --node-stroke:#7aa2ff; --edge:#94a3b8; --hl:#ff6b6b; --hl2:#4ade80;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#ffffff; --fg:#1f2328; --muted:#5b6570; --border:#e4e7eb; --card:#f7f8fa;
+  --blue:#1d4ed8; --blue-bg:#eff6ff; --purple:#6d28d9; --purple-bg:#f5f3ff;
+  --red:#b91c1c; --red-bg:#fef2f2; --green:#047857; --green-bg:#ecfdf5;
+  --amber:#b45309; --amber-bg:#fffbeb; --code-bg:#f6f8fa; --code-fg:#24292f;
+  --c-kw:#0550ae; --c-str:#0a7d55; --c-cmt:#8b949e; --c-num:#953800; --c-fn:#6639ba; --c-pre:#a3364a;
+  --node:#dbeafe; --node-stroke:#2563eb; --edge:#64748b; --hl:#dc2626; --hl2:#059669;
+}
+:root[data-theme="dark"]{
+  --bg:#0f1319; --fg:#e6e9ee; --muted:#9aa4b2; --border:#252c37; --card:#161b23;
+  --blue:#7aa2ff; --blue-bg:#131c2e; --purple:#c4a2ff; --purple-bg:#1d1730;
+  --red:#ff8f8f; --red-bg:#2a1618; --green:#5fd3a1; --green-bg:#0f2320;
+  --amber:#f3bf62; --amber-bg:#251c0f; --code-bg:#12171f; --code-fg:#dce3ec;
+  --c-kw:#79b8ff; --c-str:#7ee2b8; --c-cmt:#7d8794; --c-num:#ffab70; --c-fn:#d2a8ff; --c-pre:#ff9db8;
+  --node:#1e3a68; --node-stroke:#7aa2ff; --edge:#94a3b8; --hl:#ff6b6b; --hl2:#4ade80;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:"Noto Sans","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  font-size:16.5px; line-height:1.68;
+}
+.wrap{max-width:900px; margin:0 auto; padding:0 20px 90px}
+
+/* ---- đầu trang ---- */
+header{border-bottom:1px solid var(--border); margin-bottom:26px; padding:34px 0 22px}
+header .kicker{font-size:.8rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); font-weight:600}
+header h1{font-size:2.15rem; line-height:1.2; margin:.28em 0 .18em; letter-spacing:-.015em}
+header .by{color:var(--muted); font-size:.94rem}
+.themebtn{
+  position:fixed; top:14px; right:14px; z-index:20;
+  background:var(--card); color:var(--fg); border:1px solid var(--border);
+  border-radius:999px; padding:7px 14px; font-size:.82rem; cursor:pointer; font-family:inherit;
+}
+.themebtn:hover{border-color:var(--blue)}
+
+/* ---- mục lục ---- */
+nav.toc{background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px 20px; margin-bottom:34px}
+nav.toc b{display:block; margin-bottom:8px; font-size:.9rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+nav.toc ol{margin:0; padding-left:1.3em; columns:2; column-gap:32px}
+nav.toc li{margin:3px 0; break-inside:avoid}
+nav.toc a{color:var(--fg); text-decoration:none; border-bottom:1px solid transparent}
+nav.toc a:hover{color:var(--blue); border-bottom-color:var(--blue)}
+@media (max-width:640px){ nav.toc ol{columns:1} }
+
+/* ---- tiêu đề mục ---- */
+h2{
+  font-size:1.42rem; margin:2.4em 0 .55em; padding-bottom:.28em;
+  border-bottom:2px solid var(--border); letter-spacing:-.01em; scroll-margin-top:16px;
+}
+h2 .num{color:var(--blue); font-variant-numeric:tabular-nums; margin-right:.45em}
+h3{font-size:1.1rem; margin:1.7em 0 .4em; color:var(--fg)}
+p{margin:.75em 0}
+ul,ol{margin:.65em 0; padding-left:1.5em}
+li{margin:.28em 0}
+strong{font-weight:700}
+em{color:var(--fg)}
+code.inl{
+  background:var(--code-bg); border:1px solid var(--border); border-radius:5px;
+  padding:1px 5px; font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.88em;
+}
+.mathv{font-family:"Cambria Math","Latin Modern Math",Georgia,serif; font-style:italic; padding-right:.09em}
+sub,sup{font-size:.7em; font-style:normal}
+
+/* ---- khung nội dung ---- */
+.box{border-radius:10px; border:1px solid; border-left-width:5px; padding:2px 18px 14px; margin:20px 0}
+.box .t{font-weight:700; margin:14px 0 6px; font-size:1rem; letter-spacing:.01em}
+.box.tech{background:var(--blue-bg);   border-color:var(--blue)}   .box.tech   .t{color:var(--blue)}
+.box.def{background:var(--purple-bg);  border-color:var(--purple)} .box.def    .t{color:var(--purple)}
+.box.warn{background:var(--red-bg);    border-color:var(--red)}    .box.warn   .t{color:var(--red)}
+.box.ex{background:var(--green-bg);    border-color:var(--green)}  .box.ex     .t{color:var(--green)}
+.box.cmplx{background:var(--amber-bg); border-color:var(--amber)}  .box.cmplx  .t{color:var(--amber)}
+
+/* ---- bảng ---- */
+.tablewrap{overflow-x:auto; margin:18px 0; border:1px solid var(--border); border-radius:10px}
+table{border-collapse:collapse; width:100%; min-width:560px; font-size:.94rem}
+th,td{border-bottom:1px solid var(--border); padding:9px 13px; text-align:left; vertical-align:top}
+th{background:var(--card); font-weight:700; color:var(--blue); white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+td.c,th.c{text-align:center; white-space:nowrap}
+
+/* ---- hình vẽ ---- */
+figure{margin:22px 0; text-align:center}
+figure svg{max-width:100%; height:auto}
+figcaption{color:var(--muted); font-size:.88rem; margin-top:8px}
+.figrow{display:flex; flex-wrap:wrap; gap:18px; justify-content:center; align-items:flex-start}
+.figrow > div{flex:1 1 260px; max-width:340px}
+.figrow p{font-size:.88rem; color:var(--muted); margin:4px 0 0}
+svg .nd{fill:var(--node); stroke:var(--node-stroke); stroke-width:2}
+svg .lb{fill:var(--fg); font-size:15px; font-weight:700; text-anchor:middle; dominant-baseline:central;
+        font-family:"Noto Sans",system-ui,sans-serif}
+svg .el{fill:var(--muted); font-size:12px; text-anchor:middle; dominant-baseline:central;
+        font-family:"Noto Sans",system-ui,sans-serif}
+svg .eg{stroke:var(--edge); stroke-width:2; fill:none}
+svg .eg.on{stroke:var(--hl); stroke-width:3.4}
+svg .eg.on2{stroke:var(--hl2); stroke-width:3.4}
+svg .eg.dim{stroke:var(--border); stroke-width:2; stroke-dasharray:5 4}
+svg .cap{fill:var(--fg); font-size:13px; text-anchor:middle; font-weight:600;
+         font-family:"Noto Sans",system-ui,sans-serif}
+
+/* ---- code ---- */
+.codewrap{position:relative; margin:16px 0}
+.codewrap .name{
+  font-size:.82rem; color:var(--muted); padding:6px 12px; background:var(--card);
+  border:1px solid var(--border); border-bottom:none; border-radius:9px 9px 0 0;
+}
+pre{
+  margin:0; background:var(--code-bg); color:var(--code-fg);
+  border:1px solid var(--border); border-radius:0 0 9px 9px;
+  padding:13px 14px; overflow-x:auto; font-size:13.2px; line-height:1.5;
+  tab-size:2; -moz-tab-size:2;
+}
+.codewrap.noname pre{border-radius:9px}
+pre code{font-family:"Noto Sans Mono","Consolas",ui-monospace,"Courier New",monospace; white-space:pre}
+.cp{
+  position:absolute; top:5px; right:6px; z-index:2; cursor:pointer; font-family:inherit;
+  background:var(--bg); color:var(--muted); border:1px solid var(--border);
+  border-radius:6px; padding:3px 9px; font-size:.76rem; opacity:.75;
+}
+.cp:hover{opacity:1; color:var(--blue); border-color:var(--blue)}
+.k{color:var(--c-kw); font-weight:600}
+.s{color:var(--c-str)}
+.c{color:var(--c-cmt); font-style:italic}
+.n{color:var(--c-num)}
+.f{color:var(--c-fn)}
+.pp{color:var(--c-pre)}
+
+footer{margin-top:56px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted); font-size:.9rem}
+</style>
+</head>
+<body>
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Chu trình Euler</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Bài toán mở đầu: Bảy cây cầu Königsberg</a></li>
+    <li><a href="#s2">Các khái niệm cơ bản</a></li>
+    <li><a href="#s3">Điều kiện tồn tại</a></li>
+    <li><a href="#s4">Thuật toán Hierholzer</a></li>
+    <li><a href="#s5">Thuật toán Fleury</a></li>
+    <li><a href="#s6">Những lỗi thường gặp</a></li>
+    <li><a href="#s7">Ứng dụng và biến thể</a></li>
+    <li><a href="#s8">Bài tập mẫu có lời giải</a></li>
+    <li><a href="#s9">Bài tập tự luyện</a></li>
+    <li><a href="#s10">Tổng kết</a></li>
+  </ol>
+</nav>
+
+<!-- ============================ 1 ============================ -->
+<h2 id="s1"><span class="num">1</span>Bài toán mở đầu: Bảy cây cầu Königsberg</h2>
+
+<p>Thành phố Königsberg (nay là Kaliningrad) nằm hai bên bờ sông Pregel. Giữa dòng sông có hai hòn đảo. Bốn vùng đất — bờ bắc, bờ nam và hai hòn đảo — được nối với nhau bằng đúng bảy cây cầu.</p>
+
+<p>Người dân thành phố truyền nhau một câu đố: <em>có thể đi dạo một vòng, qua mỗi cây cầu đúng một lần, rồi trở về đúng chỗ xuất phát hay không?</em> Nhiều người đã thử và đều thất bại, nhưng không ai chứng minh được là không thể.</p>
+
+<p>Năm 1736, Leonhard Euler giải quyết dứt điểm bài toán này. Quan trọng hơn cả kết luận, ông đưa ra một <strong>cách nhìn mới</strong>: bỏ qua hình dạng của các vùng đất, độ dài và vị trí của các cây cầu; chỉ giữ lại hai thứ — <strong>vùng đất</strong> và <strong>quan hệ nối giữa chúng</strong>. Bốn vùng đất trở thành bốn <strong>đỉnh</strong>, bảy cây cầu trở thành bảy <strong>cạnh</strong>. Đó chính là mô hình <strong>đồ thị</strong> đầu tiên trong lịch sử toán học.</p>
+
+<figure>
+<svg viewBox="0 0 460 350" width="460" role="img" aria-label="Đồ thị bảy cây cầu Königsberg">
+  <path class="eg" d="M130 60  Q 55  115 130 170"/>
+  <path class="eg" d="M130 60  Q 205 115 130 170"/>
+  <path class="eg" d="M130 170 Q 55  230 130 290"/>
+  <path class="eg" d="M130 170 Q 205 230 130 290"/>
+  <path class="eg" d="M130 60  L 350 175"/>
+  <path class="eg" d="M130 170 L 350 175"/>
+  <path class="eg" d="M130 290 L 350 175"/>
+  <circle class="nd" cx="130" cy="60"  r="21"/>
+  <circle class="nd" cx="130" cy="170" r="21"/>
+  <circle class="nd" cx="130" cy="290" r="21"/>
+  <circle class="nd" cx="350" cy="175" r="21"/>
+  <text class="lb" x="130" y="60">A</text>
+  <text class="lb" x="130" y="170">B</text>
+  <text class="lb" x="130" y="290">C</text>
+  <text class="lb" x="350" y="175">D</text>
+  <text class="el" x="130" y="24">bờ bắc · bậc 3</text>
+  <text class="el" x="252" y="197">đảo lớn · bậc 5</text>
+  <text class="el" x="130" y="326">bờ nam · bậc 3</text>
+  <text class="el" x="392" y="212">đảo nhỏ · bậc 3</text>
+</svg>
+<figcaption>Bảy cây cầu Königsberg dưới dạng đồ thị. Số cầu tại mỗi vùng chính là <strong>bậc</strong> của đỉnh tương ứng.</figcaption>
+</figure>
+
+<p>Lập luận của Euler rất gọn. Xét một vùng đất bất kỳ <em>không phải</em> điểm xuất phát. Mỗi lần hành trình ghé qua vùng đó, nó dùng đúng hai cây cầu: một để <em>đi vào</em>, một để <em>đi ra</em>. Các cặp cầu này đôi một khác nhau, nên nếu muốn dùng hết mọi cây cầu của vùng đó thì số cầu tại vùng ấy <strong>bắt buộc phải chẵn</strong>. Với điểm xuất phát, vì hành trình phải quay về nên cây cầu đầu tiên và cây cầu cuối cùng cũng ghép thành một cặp — kết luận vẫn thế.</p>
+
+<div class="box warn">
+  <div class="t">Kết luận của Euler</div>
+  <p>Ở Königsberg, cả bốn vùng đều có số cầu <strong>lẻ</strong> (3, 5, 3, 3). Vậy không tồn tại hành trình nào đi qua mỗi cây cầu đúng một lần rồi quay về chỗ cũ. Thậm chí cũng không có hành trình nào không cần quay về, vì như ta sẽ thấy ở Mục 3, muốn có đường đi thì số vùng có số cầu lẻ phải là 0 hoặc 2, chứ không thể là 4.</p>
+</div>
+
+<p>Toàn bộ chuyên đề này là sự khai triển của một quan sát đơn giản như vậy: <strong>tính chẵn lẻ của bậc</strong> quyết định sự tồn tại của hành trình, và một thuật toán duyệt khéo léo cho phép <strong>dựng ra</strong> hành trình đó trong thời gian tuyến tính.</p>
+
+<!-- ============================ 2 ============================ -->
+<h2 id="s2"><span class="num">2</span>Các khái niệm cơ bản</h2>
+
+<div class="box def">
+  <div class="t">Định nghĩa</div>
+  <p>Cho đồ thị <span class="mathv">G</span> có <span class="mathv">V</span> đỉnh và <span class="mathv">E</span> cạnh (cho phép cạnh song song và khuyên).</p>
+  <ul>
+    <li><strong>Đường đi Euler</strong> (Eulerian path / trail): một đường đi qua <strong>mỗi cạnh của đồ thị đúng một lần</strong>. Đỉnh đầu và đỉnh cuối có thể khác nhau. Lưu ý: đỉnh được phép lặp lại tuỳ ý, chỉ có <em>cạnh</em> là không được lặp.</li>
+    <li><strong>Chu trình Euler</strong> (Eulerian circuit / tour): một đường đi Euler khép kín, tức là đỉnh cuối trùng đỉnh đầu.</li>
+    <li>Đồ thị có chu trình Euler gọi là <strong>đồ thị Euler</strong>. Đồ thị chỉ có đường đi Euler mà không có chu trình gọi là <strong>nửa Euler</strong>.</li>
+  </ul>
+</div>
+
+<figure>
+<div class="figrow">
+  <div>
+    <svg viewBox="0 0 300 250" width="300" role="img" aria-label="Đồ thị nửa Euler">
+      <path class="eg on"  d="M60 60 L 240 60"/>
+      <path class="eg on"  d="M240 60 L 240 200"/>
+      <path class="eg on"  d="M240 200 L 60 200"/>
+      <path class="eg on"  d="M60 200 L 60 60"/>
+      <path class="eg on"  d="M60 60 L 240 200"/>
+      <circle class="nd" cx="60"  cy="60"  r="20"/>
+      <circle class="nd" cx="240" cy="60"  r="20"/>
+      <circle class="nd" cx="240" cy="200" r="20"/>
+      <circle class="nd" cx="60"  cy="200" r="20"/>
+      <text class="lb" x="60"  y="60">1</text>
+      <text class="lb" x="240" y="60">2</text>
+      <text class="lb" x="240" y="200">3</text>
+      <text class="lb" x="60"  y="200">4</text>
+      <text class="el" x="150" y="44">1</text>
+      <text class="el" x="262" y="130">2</text>
+      <text class="el" x="150" y="218">3</text>
+      <text class="el" x="40"  y="130">4</text>
+      <text class="el" x="163" y="122">5</text>
+      <text class="el" x="60"  y="25">bậc 3</text>
+      <text class="el" x="240" y="232">bậc 3</text>
+    </svg>
+    <p><strong>Nửa Euler.</strong> Hai đỉnh bậc lẻ là 1 và 3. Có đường đi Euler 1 → 2 → 3 → 4 → 1 → 3, nhưng không có chu trình Euler.</p>
+  </div>
+  <div>
+    <svg viewBox="0 0 300 250" width="300" role="img" aria-label="Đồ thị Euler">
+      <path class="eg on2" d="M60 60 L 240 60"/>
+      <path class="eg on2" d="M240 60 L 240 200"/>
+      <path class="eg on2" d="M240 200 L 60 200"/>
+      <path class="eg on2" d="M60 200 L 60 60"/>
+      <circle class="nd" cx="60"  cy="60"  r="20"/>
+      <circle class="nd" cx="240" cy="60"  r="20"/>
+      <circle class="nd" cx="240" cy="200" r="20"/>
+      <circle class="nd" cx="60"  cy="200" r="20"/>
+      <text class="lb" x="60"  y="60">1</text>
+      <text class="lb" x="240" y="60">2</text>
+      <text class="lb" x="240" y="200">3</text>
+      <text class="lb" x="60"  y="200">4</text>
+      <text class="el" x="150" y="44">1</text>
+      <text class="el" x="262" y="130">2</text>
+      <text class="el" x="150" y="218">3</text>
+      <text class="el" x="40"  y="130">4</text>
+      <text class="el" x="150" y="130">mọi đỉnh bậc 2</text>
+    </svg>
+    <p><strong>Đồ thị Euler.</strong> Mọi đỉnh đều bậc chẵn, có chu trình Euler 1 → 2 → 3 → 4 → 1.</p>
+  </div>
+</div>
+<figcaption>Số ghi trên cạnh là thứ tự đi qua. Chỉ cần bỏ đi cạnh chéo 1–3 ở hình trái, đồ thị từ nửa Euler trở thành Euler.</figcaption>
+</figure>
+
+<div class="box warn">
+  <div class="t">Phân biệt với chu trình Hamilton</div>
+  <p>Rất nhiều học sinh nhầm lẫn hai khái niệm này:</p>
+  <ul>
+    <li><strong>Euler</strong>: đi qua mỗi <strong>cạnh</strong> đúng một lần ⇒ có tiêu chuẩn đơn giản theo bậc, giải được trong <span class="mathv">O(V + E)</span>.</li>
+    <li><strong>Hamilton</strong>: đi qua mỗi <strong>đỉnh</strong> đúng một lần ⇒ bài toán NP-đầy đủ, với <span class="mathv">N</span> ≤ 20 mới xử lý được bằng quy hoạch động trên tập con <span class="mathv">O(2<sup>N</sup> · N<sup>2</sup>)</span>.</li>
+  </ul>
+  <p>Chỉ khác một chữ, nhưng độ khó cách nhau một trời một vực. Khi đọc đề, hãy xác định ngay yêu cầu rơi vào <em>cạnh</em> hay <em>đỉnh</em>.</p>
+</div>
+
+<p>Một quy ước quan trọng cần thống nhất trước khi phát biểu định lý: các <strong>đỉnh cô lập</strong> (bậc 0) không ảnh hưởng đến sự tồn tại của hành trình, vì hành trình chỉ chạy trên các cạnh. Do đó mọi điều kiện liên thông dưới đây đều được hiểu là <strong>liên thông trên tập các đỉnh có bậc lớn hơn 0</strong>.</p>
+
+<!-- ============================ 3 ============================ -->
+<h2 id="s3"><span class="num">3</span>Điều kiện tồn tại</h2>
+
+<h3>3.1. Đồ thị vô hướng</h3>
+
+<div class="box tech">
+  <div class="t">Định lý Euler (đồ thị vô hướng)</div>
+  <p>Cho đồ thị vô hướng <span class="mathv">G</span> mà mọi đỉnh có bậc lớn hơn 0 đều nằm trong <strong>cùng một thành phần liên thông</strong>. Khi đó:</p>
+  <ul>
+    <li><span class="mathv">G</span> có <strong>chu trình Euler</strong> ⟺ <strong>mọi đỉnh đều có bậc chẵn</strong>.</li>
+    <li><span class="mathv">G</span> có <strong>đường đi Euler</strong> ⟺ số đỉnh bậc lẻ bằng 0 hoặc bằng 2.
+      <ul>
+        <li>Nếu có đúng 2 đỉnh bậc lẻ, đường đi <strong>bắt buộc</strong> xuất phát từ một đỉnh bậc lẻ và kết thúc ở đỉnh bậc lẻ còn lại.</li>
+        <li>Nếu có 0 đỉnh bậc lẻ thì đường đi Euler chính là chu trình Euler, xuất phát từ đỉnh bất kỳ có bậc lớn hơn 0.</li>
+      </ul>
+    </li>
+  </ul>
+  <p>Số đỉnh bậc lẻ của một đồ thị luôn là số chẵn (vì tổng các bậc bằng <span class="mathv">2E</span>), nên các trường hợp 1 hay 3 đỉnh bậc lẻ là không thể xảy ra.</p>
+</div>
+
+<h3>3.2. Chứng minh định lý</h3>
+
+<p>Phần chứng minh không chỉ để cho chặt chẽ: ý tưởng của nó <strong>chính là</strong> thuật toán Hierholzer ở mục sau, nên rất đáng đọc kỹ.</p>
+
+<p><strong>Chiều thuận (điều kiện cần).</strong> Giả sử <span class="mathv">G</span> có chu trình Euler <span class="mathv">C</span>. Xét một đỉnh <span class="mathv">v</span> bất kỳ. Mỗi lần <span class="mathv">C</span> đi qua <span class="mathv">v</span>, nó dùng đúng hai cạnh kề <span class="mathv">v</span>: một cạnh để vào, một cạnh để ra (kể cả lần đi qua đầu tiên và cuối cùng, vì chu trình khép kín). Các cặp cạnh này đôi một rời nhau và phủ hết mọi cạnh kề <span class="mathv">v</span>, nên bậc của <span class="mathv">v</span> chẵn.</p>
+
+<p><strong>Chiều đảo (điều kiện đủ).</strong> Quy nạp theo số cạnh <span class="mathv">E</span>.</p>
+<ul>
+  <li><strong>Bổ đề.</strong> Nếu mọi đỉnh của <span class="mathv">G</span> có bậc chẵn và <span class="mathv">G</span> có ít nhất một cạnh, thì <span class="mathv">G</span> chứa một chu trình. Thật vậy, xuất phát từ một đỉnh có bậc lớn hơn 0 và đi tuỳ ý, không lặp lại cạnh. Mỗi khi ta <em>vào</em> một đỉnh <span class="mathv">u</span> khác đỉnh xuất phát, số cạnh của <span class="mathv">u</span> đã dùng là lẻ, mà bậc của <span class="mathv">u</span> chẵn nên vẫn còn ít nhất một cạnh chưa dùng để <em>ra</em>. Vậy ta không bao giờ bị kẹt ở đâu ngoài đỉnh xuất phát; do số cạnh hữu hạn, hành trình phải dừng, và nó chỉ có thể dừng tại đỉnh xuất phát ⇒ ta thu được một chu trình <span class="mathv">C</span>.</li>
+  <li><strong>Bước quy nạp.</strong> Xoá mọi cạnh của <span class="mathv">C</span> khỏi <span class="mathv">G</span>, thu được <span class="mathv">G′</span>. Mỗi đỉnh mất đi một số chẵn cạnh, nên mọi đỉnh của <span class="mathv">G′</span> vẫn có bậc chẵn. Mỗi thành phần liên thông của <span class="mathv">G′</span> có số cạnh nhỏ hơn <span class="mathv">E</span>, nên theo giả thiết quy nạp nó có chu trình Euler riêng. Vì <span class="mathv">G</span> liên thông, mỗi thành phần đó phải <strong>giao với <span class="mathv">C</span> tại ít nhất một đỉnh</strong>. Ta ghép chu trình Euler của từng thành phần vào <span class="mathv">C</span> tại đỉnh chung ấy: đi theo <span class="mathv">C</span> đến đỉnh chung, rẽ vào đi hết chu trình con rồi quay lại đúng chỗ cũ, đi tiếp <span class="mathv">C</span>. Kết quả là một chu trình đi qua tất cả các cạnh đúng một lần. ∎</li>
+</ul>
+
+<p><strong>Trường hợp đường đi Euler</strong> được suy ra từ chu trình bằng một mẹo nhỏ: nếu <span class="mathv">G</span> có đúng hai đỉnh bậc lẻ <span class="mathv">u</span>, <span class="mathv">v</span>, ta thêm một cạnh ảo <span class="mathv">(u, v)</span>. Đồ thị mới có mọi đỉnh bậc chẵn nên có chu trình Euler; xoá cạnh ảo khỏi chu trình đó, ta được đường đi Euler từ <span class="mathv">u</span> tới <span class="mathv">v</span>. Mẹo "thêm cạnh ảo" này cũng dùng được khi cài đặt.</p>
+
+<h3>3.3. Đồ thị có hướng</h3>
+
+<p>Với đồ thị có hướng, "bậc chẵn" được thay bằng "vào bao nhiêu thì ra bấy nhiêu".</p>
+
+<div class="box tech">
+  <div class="t">Định lý Euler (đồ thị có hướng)</div>
+  <p>Cho đồ thị có hướng <span class="mathv">G</span> mà mọi đỉnh có bậc lớn hơn 0 nằm trong cùng một thành phần <strong>liên thông yếu</strong> (liên thông khi bỏ qua chiều của cung). Khi đó:</p>
+  <ul>
+    <li><span class="mathv">G</span> có <strong>chu trình Euler</strong> ⟺ <span class="mathv">deg<sub>out</sub>(v) = deg<sub>in</sub>(v)</span> với mọi đỉnh <span class="mathv">v</span>.</li>
+    <li><span class="mathv">G</span> có <strong>đường đi Euler</strong> ⟺ tồn tại đúng một đỉnh <span class="mathv">s</span> với <span class="mathv">deg<sub>out</sub>(s) − deg<sub>in</sub>(s) = 1</span>, đúng một đỉnh <span class="mathv">t</span> với <span class="mathv">deg<sub>in</sub>(t) − deg<sub>out</sub>(t) = 1</span>, và mọi đỉnh còn lại cân bằng. Khi đó đường đi bắt buộc xuất phát từ <span class="mathv">s</span> và kết thúc tại <span class="mathv">t</span>.</li>
+  </ul>
+</div>
+
+<div class="box tech">
+  <div class="t">Một nhận xét hữu ích</div>
+  <p>Nếu mọi đỉnh đều cân bằng thì <strong>liên thông yếu kéo theo liên thông mạnh</strong>. Lý do: trong đồ thị cân bằng bậc, nếu tồn tại một tập đỉnh <span class="mathv">S</span> mà không có cung nào đi từ <span class="mathv">S</span> ra ngoài, thì cũng không có cung nào đi từ ngoài vào <span class="mathv">S</span> (tổng bậc ra bằng tổng bậc vào trong <span class="mathv">S</span>), nghĩa là <span class="mathv">S</span> tách rời hẳn phần còn lại — mâu thuẫn với liên thông yếu.</p>
+  <p><strong>Hệ quả thực hành:</strong> không cần viết Tarjan hay Kosaraju để kiểm tra liên thông mạnh. Chỉ cần kiểm tra bậc, chạy thuật toán, rồi đếm xem có đi đủ <span class="mathv">E</span> cạnh không.</p>
+</div>
+
+<h3>3.4. Bảng tổng hợp</h3>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Loại đồ thị</th><th>Chu trình Euler</th><th>Đường đi Euler</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Vô hướng</strong></td>
+      <td>Liên thông (bỏ đỉnh bậc 0) và mọi đỉnh bậc chẵn. Xuất phát từ đỉnh bất kỳ có bậc lớn hơn 0.</td>
+      <td>Liên thông và có đúng 0 hoặc 2 đỉnh bậc lẻ. Xuất phát từ một đỉnh bậc lẻ (nếu có).</td>
+    </tr>
+    <tr>
+      <td><strong>Có hướng</strong></td>
+      <td>Liên thông yếu và deg<sub>in</sub>(v) = deg<sub>out</sub>(v) với mọi v. Xuất phát từ đỉnh bất kỳ có deg<sub>out</sub> &gt; 0.</td>
+      <td>Liên thông yếu, đúng một đỉnh deg<sub>out</sub> − deg<sub>in</sub> = 1, đúng một đỉnh deg<sub>in</sub> − deg<sub>out</sub> = 1, còn lại cân bằng. Xuất phát từ đỉnh deg<sub>out</sub> − deg<sub>in</sub> = 1.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ============================ 4 ============================ -->
+<h2 id="s4"><span class="num">4</span>Thuật toán Hierholzer</h2>
+
+<p>Kiểm tra sự tồn tại chỉ cần đếm bậc. Việc khó hơn là <strong>dựng ra</strong> hành trình. Thuật toán Hierholzer (1873) làm điều đó trong <span class="mathv">O(V + E)</span> — tối ưu, vì chỉ riêng việc in kết quả đã tốn <span class="mathv">O(E)</span>.</p>
+
+<h3>4.1. Ý tưởng</h3>
+
+<div class="box tech">
+  <div class="t">Từ chứng minh đến thuật toán</div>
+  <p>Chứng minh ở Mục 3.2 nói rằng: cứ đi bừa thì sẽ về được chỗ xuất phát, phần còn thừa lại tiếp tục tách thành các chu trình con, rồi <strong>ghép</strong> chúng vào. Hierholzer thực hiện đúng ý đó nhưng bằng một lần DFS duy nhất, và phép "ghép" xảy ra <em>tự động</em> nhờ cơ chế quay lui:</p>
+  <ol>
+    <li>Từ đỉnh hiện tại <span class="mathv">u</span>, chọn một cạnh chưa dùng bất kỳ, đánh dấu đã dùng, rồi đi sang đỉnh kề.</li>
+    <li>Khi <span class="mathv">u</span> <strong>hết cạnh chưa dùng</strong> (bị kẹt), ta <strong>ghi <span class="mathv">u</span> vào danh sách kết quả</strong> rồi quay lui.</li>
+    <li>Kết thúc, đảo ngược danh sách kết quả để thu được hành trình Euler.</li>
+  </ol>
+  <p>Điểm tinh tế nằm ở bước 2: đỉnh chỉ được ghi ra khi <em>không còn đường nào để đi tiếp</em>. Nhờ vậy, mọi chu trình con phát hiện muộn đều được chèn vào đúng vị trí của nó trong hành trình cuối cùng.</p>
+</div>
+
+<h3>4.2. Ví dụ chạy tay</h3>
+
+<p>Xét đồ thị 5 đỉnh, 6 cạnh dưới đây. Mọi đỉnh đều có bậc chẵn (đỉnh 3 bậc 4, các đỉnh còn lại bậc 2) và đồ thị liên thông, nên tồn tại chu trình Euler. Giả sử danh sách kề được duyệt theo thứ tự chỉ số cạnh tăng dần và DFS bắt đầu từ đỉnh 1.</p>
+
+<figure>
+<div class="figrow">
+  <div>
+    <svg viewBox="0 0 340 220" width="340" role="img" aria-label="Hierholzer giai đoạn 1">
+      <path class="eg on"  d="M40 170 L 110 50"/>
+      <path class="eg on"  d="M110 50 L 180 170"/>
+      <path class="eg on"  d="M180 170 L 40 170"/>
+      <path class="eg dim" d="M180 170 L 250 50"/>
+      <path class="eg dim" d="M250 50 L 320 170"/>
+      <path class="eg dim" d="M320 170 L 180 170"/>
+      <circle class="nd" cx="40"  cy="170" r="18"/>
+      <circle class="nd" cx="110" cy="50"  r="18"/>
+      <circle class="nd" cx="180" cy="170" r="18"/>
+      <circle class="nd" cx="250" cy="50"  r="18"/>
+      <circle class="nd" cx="320" cy="170" r="18"/>
+      <text class="lb" x="40"  y="170">1</text>
+      <text class="lb" x="110" y="50">2</text>
+      <text class="lb" x="180" y="170">3</text>
+      <text class="lb" x="250" y="50">4</text>
+      <text class="lb" x="320" y="170">5</text>
+      <text class="el" x="60"  y="100">e1</text>
+      <text class="el" x="160" y="100">e2</text>
+      <text class="el" x="110" y="192">e3</text>
+      <text class="el" x="200" y="100">e4</text>
+      <text class="el" x="300" y="100">e5</text>
+      <text class="el" x="250" y="192">e6</text>
+      <text class="cap" x="170" y="18">(a) Đi 1 → 2 → 3 → 1, kẹt tại đỉnh 1</text>
+    </svg>
+  </div>
+  <div>
+    <svg viewBox="0 0 340 220" width="340" role="img" aria-label="Hierholzer giai đoạn 2">
+      <path class="eg dim" d="M40 170 L 110 50"/>
+      <path class="eg dim" d="M110 50 L 180 170"/>
+      <path class="eg dim" d="M180 170 L 40 170"/>
+      <path class="eg on2" d="M180 170 L 250 50"/>
+      <path class="eg on2" d="M250 50 L 320 170"/>
+      <path class="eg on2" d="M320 170 L 180 170"/>
+      <circle class="nd" cx="40"  cy="170" r="18"/>
+      <circle class="nd" cx="110" cy="50"  r="18"/>
+      <circle class="nd" cx="180" cy="170" r="18"/>
+      <circle class="nd" cx="250" cy="50"  r="18"/>
+      <circle class="nd" cx="320" cy="170" r="18"/>
+      <text class="lb" x="40"  y="170">1</text>
+      <text class="lb" x="110" y="50">2</text>
+      <text class="lb" x="180" y="170">3</text>
+      <text class="lb" x="250" y="50">4</text>
+      <text class="lb" x="320" y="170">5</text>
+      <text class="el" x="200" y="100">e4</text>
+      <text class="el" x="300" y="100">e5</text>
+      <text class="el" x="250" y="192">e6</text>
+      <text class="cap" x="170" y="18">(b) Quay lui tới 3, còn cạnh ⇒ đi tiếp</text>
+    </svg>
+  </div>
+</div>
+<figcaption>Chu trình con 3 → 4 → 5 → 3 được phát hiện <em>sau</em>, nhưng sẽ được chèn vào <em>giữa</em> hành trình một cách tự động.</figcaption>
+</figure>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th class="c">Bước</th><th>Hành động</th><th>Danh sách kết quả (ghi lúc quay lui)</th></tr></thead>
+  <tbody>
+    <tr><td class="c">1</td><td>Đi 1 → 2 → 3 → 1 (dùng e1, e2, e3)</td><td>rỗng</td></tr>
+    <tr><td class="c">2</td><td>Ở đỉnh 1: hết cạnh ⇒ ghi 1, quay lui về 3</td><td>[1]</td></tr>
+    <tr><td class="c">3</td><td>Ở đỉnh 3: còn e4 ⇒ đi tiếp 3 → 4 → 5 → 3</td><td>[1]</td></tr>
+    <tr><td class="c">4</td><td>Ở đỉnh 3 (lần hai): hết cạnh ⇒ ghi 3, quay lui</td><td>[1, 3]</td></tr>
+    <tr><td class="c">5</td><td>Lần lượt quay lui qua 5, 4, 3, 2 và ghi lại</td><td>[1, 3, 5, 4, 3, 2]</td></tr>
+    <tr><td class="c">6</td><td>Quay lui về đỉnh xuất phát 1, ghi 1</td><td>[1, 3, 5, 4, 3, 2, 1]</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>Đảo ngược danh sách: <strong>1 → 2 → 3 → 4 → 5 → 3 → 1</strong>. Kiểm tra lại: hành trình dùng đúng 6 cạnh e1, e2, e4, e5, e6, e3 — mỗi cạnh một lần — và khép kín.</p>
+
+<h3>4.3. Cài đặt đệ quy — đồ thị vô hướng</h3>
+
+<p>Hai chi tiết kỹ thuật quyết định độ phức tạp:</p>
+<ul>
+  <li>Mảng <code class="inl">used</code> đánh dấu theo <strong>chỉ số cạnh</strong>, không phải theo đỉnh. Với đồ thị vô hướng, một cạnh xuất hiện hai lần trong danh sách kề nên phải dùng chung một chỉ số để đánh dấu.</li>
+  <li>Mảng <code class="inl">ptr</code> ghi nhớ vị trí đã duyệt tới trong danh sách kề của mỗi đỉnh. Nếu thiếu nó, mỗi lần quay lại một đỉnh ta lại quét từ đầu danh sách kề, độ phức tạp phình lên <span class="mathv">O(V + E<sup>2</sup>)</span>.</li>
+</ul>
+
+<div class="codewrap">
+<div class="name">Hierholzer đệ quy — đồ thị vô hướng</div>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 100005, MAXM = 200005;
+int n, m, u, v, i, odd, start, ptr[MAXN], deg[MAXN];
+bool used[MAXM];
+vector&lt;pair&lt;int, int&gt; &gt; adj[MAXN];  // (đỉnh kề, chỉ số cạnh)
+vector&lt;int&gt; path;
+
+void dfs(int x) {
+	// ptr[x] không lùi lại bao giờ nên tổng chi phí chỉ là O(E)
+	while (ptr[x] &lt; (int)adj[x].size()) {
+		int y = adj[x][ptr[x]].first, id = adj[x][ptr[x]].second;
+		ptr[x]++;
+		if (!used[id]) {
+			used[id] = true;
+			dfs(y);
+		}
+	}
+	// Chỉ ghi đỉnh khi đã hết đường đi tiếp
+	path.push_back(x);
+}
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+
+	cin &gt;&gt; n &gt;&gt; m;
+	for (i = 1; i &lt;= m; i++) {
+		cin &gt;&gt; u &gt;&gt; v;
+		adj[u].push_back(make_pair(v, i));
+		adj[v].push_back(make_pair(u, i));
+		deg[u]++;
+		deg[v]++;
+	}
+
+	// Đếm đỉnh bậc lẻ và chọn đỉnh xuất phát
+	start = -1;
+	for (i = 1; i &lt;= n; i++) {
+		if (deg[i] % 2 == 1) {
+			odd++;
+			start = i;                // ưu tiên xuất phát từ đỉnh bậc lẻ
+		}
+		if (start == -1 &amp;&amp; deg[i] &gt; 0)
+			start = i;                // không có đỉnh lẻ: lấy đỉnh bất kỳ có cạnh
+	}
+
+	if (m == 0) {                     // đồ thị rỗng: hành trình suy biến
+		cout &lt;&lt; "1\n";
+		return 0;
+	}
+	if (odd != 0 &amp;&amp; odd != 2) {
+		cout &lt;&lt; "IMPOSSIBLE\n";
+		return 0;
+	}
+
+	dfs(start);
+
+	// Đi đủ m cạnh thì đồ thị liên thông trên các đỉnh có bậc &gt; 0
+	if ((int)path.size() != m + 1) {
+		cout &lt;&lt; "IMPOSSIBLE\n";
+		return 0;
+	}
+
+	reverse(path.begin(), path.end());
+	for (i = 0; i &lt; (int)path.size(); i++)
+		cout &lt;&lt; path[i] &lt;&lt; " ";
+	cout &lt;&lt; "\n";
+	return 0;
+}</code></pre>
+</div>
+
+<div class="box warn">
+  <div class="t">Cẩn thận với đệ quy sâu</div>
+  <p>Độ sâu đệ quy của hàm <code class="inl">dfs</code> có thể lên tới <span class="mathv">E</span>. Với <span class="mathv">E = 2 · 10<sup>5</sup></span> thì thường vẫn chạy được, nhưng với <span class="mathv">E</span> cỡ <span class="mathv">10<sup>6</sup></span> chương trình dễ bị <strong>tràn ngăn xếp</strong> và nhận kết quả <em>Runtime Error</em> — một lỗi rất khó đoán vì thuật toán hoàn toàn đúng. Trong các kỳ thi có giới hạn lớn, hãy dùng bản khử đệ quy dưới đây.</p>
+</div>
+
+<h3>4.4. Cài đặt khử đệ quy bằng ngăn xếp</h3>
+
+<p>Bản khử đệ quy giữ nguyên ý tưởng: ngăn xếp <code class="inl">st</code> đóng vai trò ngăn xếp lời gọi hàm; đỉnh nào ở trên đỉnh ngăn xếp mà đã hết cạnh thì được lấy ra và ghi vào kết quả.</p>
+
+<div class="codewrap">
+<div class="name">Hierholzer khử đệ quy — đồ thị vô hướng</div>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 100005, MAXM = 200005;
+int n, m, u, v, i, x, y, id, start, ptr[MAXN], deg[MAXN];
+bool used[MAXM];
+vector&lt;pair&lt;int, int&gt; &gt; adj[MAXN];
+vector&lt;int&gt; path;
+stack&lt;int&gt; st;
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+
+	cin &gt;&gt; n &gt;&gt; m;
+	for (i = 1; i &lt;= m; i++) {
+		cin &gt;&gt; u &gt;&gt; v;
+		adj[u].push_back(make_pair(v, i));
+		adj[v].push_back(make_pair(u, i));
+		deg[u]++;
+		deg[v]++;
+	}
+
+	start = 1;
+	for (i = 1; i &lt;= n; i++)
+		if (deg[i] &gt; 0) {
+			start = i;
+			break;
+		}
+
+	st.push(start);
+	while (!st.empty()) {
+		x = st.top();
+		// Bỏ qua các cạnh đã bị nhánh khác dùng mất
+		while (ptr[x] &lt; (int)adj[x].size() &amp;&amp; used[adj[x][ptr[x]].second])
+			ptr[x]++;
+		if (ptr[x] == (int)adj[x].size()) {
+			// Kẹt: ghi đỉnh vào kết quả rồi quay lui
+			path.push_back(x);
+			st.pop();
+		}
+		else {
+			y = adj[x][ptr[x]].first;
+			id = adj[x][ptr[x]].second;
+			ptr[x]++;
+			used[id] = true;
+			st.push(y);
+		}
+	}
+
+	reverse(path.begin(), path.end());
+	for (i = 0; i &lt; (int)path.size(); i++)
+		cout &lt;&lt; path[i] &lt;&lt; " ";
+	cout &lt;&lt; "\n";
+	return 0;
+}</code></pre>
+</div>
+
+<h3>4.5. Đồ thị có hướng</h3>
+
+<p>Với đồ thị có hướng, mỗi cung chỉ nằm trong đúng một danh sách kề, nên <strong>không cần mảng <code class="inl">used</code></strong>: bản thân con trỏ <code class="inl">ptr</code> đã đảm bảo mỗi cung được dùng đúng một lần. Cài đặt vì thế ngắn hơn hẳn.</p>
+
+<div class="codewrap">
+<div class="name">Hierholzer khử đệ quy — đồ thị có hướng</div>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 100005;
+int n, m, u, v, i, x, start, ptr[MAXN], din[MAXN], dout[MAXN];
+vector&lt;int&gt; adj[MAXN], path;
+stack&lt;int&gt; st;
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+
+	cin &gt;&gt; n &gt;&gt; m;
+	for (i = 1; i &lt;= m; i++) {
+		cin &gt;&gt; u &gt;&gt; v;
+		adj[u].push_back(v);
+		dout[u]++;
+		din[v]++;
+	}
+
+	// Chọn đỉnh xuất phát: ưu tiên đỉnh có bậc ra vượt bậc vào đúng 1
+	start = -1;
+	for (i = 1; i &lt;= n; i++)
+		if (dout[i] - din[i] == 1) {
+			start = i;
+			break;
+		}
+	if (start == -1)
+		for (i = 1; i &lt;= n; i++)
+			if (dout[i] &gt; 0) {
+				start = i;
+				break;
+			}
+
+	st.push(start);
+	while (!st.empty()) {
+		x = st.top();
+		if (ptr[x] == (int)adj[x].size()) {
+			path.push_back(x);
+			st.pop();
+		}
+		else {
+			st.push(adj[x][ptr[x]]);
+			ptr[x]++;
+		}
+	}
+
+	reverse(path.begin(), path.end());
+	for (i = 0; i &lt; (int)path.size(); i++)
+		cout &lt;&lt; path[i] &lt;&lt; " ";
+	cout &lt;&lt; "\n";
+	return 0;
+}</code></pre>
+</div>
+
+<h3>4.6. In ra dãy cạnh thay vì dãy đỉnh</h3>
+
+<p>Nhiều đề yêu cầu in <strong>thứ tự các cạnh</strong> (thứ tự xếp quân domino, thứ tự các từ), chứ không phải dãy đỉnh. Khi ấy chỉ cần đẩy kèm chỉ số cạnh vào ngăn xếp: mỗi phần tử ngăn xếp là cặp <em>(đỉnh, cạnh đã dùng để đi tới đỉnh đó)</em>. Lúc lấy ra, ta ghi chỉ số cạnh và bỏ qua phần tử đầu tiên có chỉ số −1.</p>
+
+<div class="codewrap">
+<div class="name">Lấy dãy cạnh của chu trình Euler</div>
+<pre><code>	// st chứa cặp (đỉnh, chỉ số cung dùng để đi vào đỉnh này)
+	stack&lt;pair&lt;int, int&gt; &gt; st;
+	st.push(make_pair(start, -1));
+	while (!st.empty()) {
+		x = st.top().first;
+		if (ptr[x] == (int)adj[x].size()) {
+			if (st.top().second &gt;= 0)
+				edges.push_back(st.top().second);
+			st.pop();
+		}
+		else {
+			st.push(make_pair(adj[x][ptr[x]].first, adj[x][ptr[x]].second));
+			ptr[x]++;
+		}
+	}
+	reverse(edges.begin(), edges.end());</code></pre>
+</div>
+
+<h3>4.7. Độ phức tạp</h3>
+
+<div class="box cmplx">
+  <div class="t">Đánh giá</div>
+  <ul>
+    <li><strong>Thời gian:</strong> <span class="mathv">O(V + E)</span>. Con trỏ <code class="inl">ptr[x]</code> chỉ tăng, không bao giờ lùi, nên tổng số bước của tất cả các vòng <code class="inl">while</code> bị chặn bởi tổng kích thước danh sách kề, tức <span class="mathv">O(E)</span> với đồ thị có hướng và <span class="mathv">O(2E)</span> với đồ thị vô hướng.</li>
+    <li><strong>Bộ nhớ:</strong> <span class="mathv">O(V + E)</span> cho danh sách kề, ngăn xếp và mảng kết quả.</li>
+    <li><strong>Ước lượng thực tế:</strong> với <span class="mathv">V = 10<sup>5</sup></span>, <span class="mathv">E = 2 · 10<sup>5</sup></span>, chương trình chạy dưới 0,1 giây. Phần tốn thời gian nhất thường là <strong>đọc và in dữ liệu</strong>, nên đừng quên hai dòng tối ưu vào/ra, và cân nhắc dùng <code class="inl">'\n'</code> thay cho <code class="inl">endl</code>.</li>
+  </ul>
+</div>
+
+<!-- ============================ 5 ============================ -->
+<h2 id="s5"><span class="num">5</span>Thuật toán Fleury</h2>
+
+<p>Trong nhiều sách giáo khoa, thuật toán được giới thiệu trước tiên lại là Fleury (1883), vì nó rất trực quan và dễ chạy tay trên giấy. Ta nên biết nó để hiểu bản chất, nhưng cần biết rõ vì sao không dùng được trong thi đấu.</p>
+
+<h3>5.1. Khái niệm cầu</h3>
+
+<p>Một cạnh của đồ thị liên thông gọi là <strong>cầu</strong> (bridge) nếu xoá nó đi thì đồ thị bị tách thành hai phần rời nhau. Cầu chính là chỗ "thắt cổ chai": qua cầu rồi thì không còn đường nào quay lại nếu chưa dùng chính cây cầu ấy.</p>
+
+<h3>5.2. Quy tắc của Fleury</h3>
+
+<div class="box tech">
+  <div class="t">Thuật toán Fleury</div>
+  <ol>
+    <li>Chọn đỉnh xuất phát: một đỉnh bậc lẻ nếu có, ngược lại một đỉnh bất kỳ có bậc lớn hơn 0.</li>
+    <li>Tại đỉnh hiện tại, xét các cạnh chưa dùng. <strong>Ưu tiên đi cạnh không phải là cầu</strong> (xét trên đồ thị gồm các cạnh chưa dùng). Chỉ khi mọi cạnh còn lại đều là cầu — nghĩa là không còn lựa chọn nào khác — mới đi qua cầu.</li>
+    <li>Xoá cạnh vừa đi khỏi đồ thị, chuyển sang đỉnh mới, lặp lại cho đến khi hết cạnh.</li>
+  </ol>
+  <p>Trực giác đằng sau quy tắc: đừng vội cắt đứt đường về. Nếu đi qua cầu quá sớm, phần đồ thị bên kia cầu sẽ bị bỏ lại và không bao giờ tới được nữa.</p>
+</div>
+
+<h3>5.3. Ví dụ minh hoạ</h3>
+
+<p>Đồ thị dưới đây gồm hai tam giác nối nhau bằng một cạnh duy nhất — cạnh 3–4 chính là <strong>cầu</strong>. Hai đỉnh bậc lẻ là 3 và 4, nên tồn tại đường đi Euler từ 3 tới 4.</p>
+
+<figure>
+<svg viewBox="0 0 460 210" width="460" role="img" aria-label="Đồ thị hai tam giác nối bởi một cầu">
+  <path class="eg" d="M50 40 L 50 170"/>
+  <path class="eg" d="M50 40 L 165 105"/>
+  <path class="eg" d="M50 170 L 165 105"/>
+  <path class="eg on" d="M165 105 L 295 105"/>
+  <path class="eg" d="M295 105 L 410 40"/>
+  <path class="eg" d="M295 105 L 410 170"/>
+  <path class="eg" d="M410 40 L 410 170"/>
+  <circle class="nd" cx="50"  cy="40"  r="18"/>
+  <circle class="nd" cx="50"  cy="170" r="18"/>
+  <circle class="nd" cx="165" cy="105" r="18"/>
+  <circle class="nd" cx="295" cy="105" r="18"/>
+  <circle class="nd" cx="410" cy="40"  r="18"/>
+  <circle class="nd" cx="410" cy="170" r="18"/>
+  <text class="lb" x="50"  y="40">1</text>
+  <text class="lb" x="50"  y="170">2</text>
+  <text class="lb" x="165" y="105">3</text>
+  <text class="lb" x="295" y="105">4</text>
+  <text class="lb" x="410" y="40">5</text>
+  <text class="lb" x="410" y="170">6</text>
+  <text class="el" x="230" y="88">cầu</text>
+  <text class="el" x="165" y="140">bậc 3</text>
+  <text class="el" x="295" y="140">bậc 3</text>
+</svg>
+<figcaption>Nếu xuất phát từ đỉnh 3 mà đi ngay qua cầu 3–4, ta sẽ đi hết tam giác phải rồi kẹt tại 4, bỏ sót cả tam giác trái. Quy tắc Fleury cấm nước đi đó.</figcaption>
+</figure>
+
+<p>Theo Fleury, tại đỉnh 3 ta thấy ba cạnh chưa dùng: 3–1, 3–2 và 3–4. Trong đó 3–4 là cầu, còn 3–1 và 3–2 thì không. Vậy phải đi 3–1 (hoặc 3–2) trước. Một hành trình hợp lệ là 3 → 1 → 2 → 3 → 4 → 5 → 6 → 4.</p>
+
+<h3>5.4. So sánh với Hierholzer</h3>
+
+<div class="box cmplx">
+  <div class="t">Vì sao không nên dùng Fleury trong thi đấu</div>
+  <p>Mỗi bước đi phải kiểm tra xem cạnh sắp chọn có phải là cầu hay không, tốn <span class="mathv">O(V + E)</span> cho một lần kiểm tra (DFS hoặc thuật toán tìm cầu). Tổng cộng <span class="mathv">O(E · (V + E))</span>, tức khoảng <span class="mathv">E<sup>2</sup></span> — với <span class="mathv">E = 10<sup>5</sup></span> là <span class="mathv">10<sup>10</sup></span> phép tính, không thể chấp nhận.</p>
+  <p>Ngoài ra, Fleury còn <strong>khó cài đúng hơn</strong> Hierholzer: phải quản lý việc xoá cạnh động và tìm cầu trên đồ thị đang thay đổi. Hierholzer vừa nhanh hơn, vừa ngắn hơn, lại không cần khái niệm cầu.</p>
+</div>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Tiêu chí</th><th>Fleury</th><th>Hierholzer</th></tr></thead>
+  <tbody>
+    <tr><td>Ý tưởng</td><td>Tránh đi qua cầu chừng nào còn lựa chọn khác</td><td>Đi bừa cho tới khi kẹt, ghi đỉnh lúc quay lui</td></tr>
+    <tr><td>Độ phức tạp</td><td>O(E · (V + E))</td><td>O(V + E)</td></tr>
+    <tr><td>Cần tìm cầu</td><td>Có</td><td>Không</td></tr>
+    <tr><td>Độ dài cài đặt</td><td>Dài, dễ sai</td><td>Khoảng 30 dòng</td></tr>
+    <tr><td>Dùng khi nào</td><td>Chạy tay trên giấy, minh hoạ khái niệm</td><td>Mọi bài thi</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ============================ 6 ============================ -->
+<h2 id="s6"><span class="num">6</span>Những lỗi thường gặp</h2>
+
+<div class="box warn">
+  <div class="t">Danh sách kiểm tra trước khi nộp bài</div>
+  <ol>
+    <li><strong>Quên kiểm tra liên thông.</strong> Điều kiện bậc là <em>cần</em> chứ chưa <em>đủ</em>. Hai tam giác rời nhau có mọi đỉnh bậc chẵn nhưng không có chu trình Euler. Cách kiểm tra rẻ nhất: sau khi chạy xong, so sánh <code class="inl">path.size()</code> với <span class="mathv">m + 1</span>.</li>
+    <li><strong>Chọn sai đỉnh xuất phát.</strong> Nếu đồ thị có 2 đỉnh bậc lẻ mà lại xuất phát từ một đỉnh bậc chẵn, thuật toán sẽ dừng sớm và bỏ sót cạnh.</li>
+    <li><strong>Xuất phát từ đỉnh cô lập.</strong> Viết cứng <code class="inl">start = 1</code> là bẫy kinh điển khi đỉnh 1 không có cạnh nào. Hãy quét tìm đỉnh đầu tiên có bậc lớn hơn 0.</li>
+    <li><strong>Dùng <code class="inl">erase</code> để xoá cạnh.</strong> <code class="inl">adj[u].erase(...)</code> trên <code class="inl">vector</code> tốn <span class="mathv">O(bậc)</span> mỗi lần, đẩy tổng chi phí lên <span class="mathv">O(E<sup>2</sup>)</span>. Hãy dùng cặp <code class="inl">ptr</code> + <code class="inl">used</code>.</li>
+    <li><strong>Quên đánh dấu cạnh ngược (đồ thị vô hướng).</strong> Phải đánh dấu theo <strong>chỉ số cạnh</strong>, không phải theo cặp đỉnh — vì đồ thị có thể có cạnh song song.</li>
+    <li><strong>Quên đảo ngược kết quả.</strong> Với chu trình thì dãy đảo ngược vẫn hợp lệ nên có thể may mắn thoát; nhưng với <em>đường đi</em> Euler có hướng thì kết quả sẽ ngược chiều toàn bộ và sai hoàn toàn.</li>
+    <li><strong>Bỏ sót khuyên và cạnh song song.</strong> Khuyên đóng góp 2 vào bậc của đỉnh. Cài đặt theo chỉ số cạnh xử lý đúng cả hai trường hợp này một cách tự nhiên; cài đặt theo ma trận kề thì không.</li>
+    <li><strong>Trường hợp biên <span class="mathv">m = 0</span> hoặc đồ thị chỉ có một đỉnh.</strong> Cần đọc kỹ đề xem hành trình rỗng có được coi là hợp lệ không.</li>
+  </ol>
+</div>
+
+<!-- ============================ 7 ============================ -->
+<h2 id="s7"><span class="num">7</span>Ứng dụng và biến thể</h2>
+
+<h3>7.1. Số nét vẽ tối thiểu</h3>
+
+<p><strong>Bài toán.</strong> Cho một hình vẽ (đồ thị liên thông) có <span class="mathv">k</span> đỉnh bậc lẻ. Hỏi cần ít nhất bao nhiêu nét bút để vẽ hết hình, mỗi đoạn đúng một lần, không nhấc bút giữa chừng một nét?</p>
+
+<p><strong>Đáp án:</strong> <span class="mathv">max(1, k / 2)</span>.</p>
+
+<p><em>Giải thích.</em> Mỗi nét vẽ là một đường đi Euler trên phần đồ thị nó phủ, và nó "tiêu thụ" nhiều nhất 2 đỉnh bậc lẻ (hai đầu mút). Vậy cần ít nhất <span class="mathv">k / 2</span> nét. Ngược lại, ghép các đỉnh bậc lẻ thành <span class="mathv">k / 2</span> cặp rồi thêm <span class="mathv">k / 2</span> cạnh ảo nối từng cặp: đồ thị mới có mọi đỉnh bậc chẵn nên có chu trình Euler; xoá các cạnh ảo khỏi chu trình đó thì nó vỡ thành đúng <span class="mathv">k / 2</span> đoạn — chính là <span class="mathv">k / 2</span> nét vẽ. Nếu <span class="mathv">k = 0</span> thì cần đúng 1 nét.</p>
+
+<h3>7.2. Chuỗi De Bruijn</h3>
+
+<p><strong>Bài toán.</strong> Với bảng chữ cái <span class="mathv">k</span> ký tự, hãy dựng một xâu <em>vòng</em> độ dài <span class="mathv">k<sup>n</sup></span> sao cho mọi xâu độ dài <span class="mathv">n</span> đều xuất hiện đúng một lần như một xâu con liên tiếp.</p>
+
+<p><strong>Mô hình hoá.</strong> Cho mỗi <strong>đỉnh</strong> là một xâu độ dài <span class="mathv">n − 1</span> (có <span class="mathv">k<sup>n−1</sup></span> đỉnh); mỗi <strong>cung</strong> là một xâu độ dài <span class="mathv">n</span>: cung nhãn <span class="mathv">c</span> đi từ đỉnh <span class="mathv">s</span> tới đỉnh (<span class="mathv">s</span> bỏ ký tự đầu) + <span class="mathv">c</span>. Khi đó mỗi đỉnh có đúng <span class="mathv">k</span> cung ra và <span class="mathv">k</span> cung vào, đồ thị liên thông ⇒ <strong>luôn tồn tại chu trình Euler</strong>. Ghép nhãn các cung theo chu trình đó, ta được chuỗi De Bruijn.</p>
+
+<figure>
+<svg viewBox="0 0 440 400" width="440" role="img" aria-label="Đồ thị De Bruijn với k = 2, n = 3">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)"/>
+    </marker>
+  </defs>
+  <path class="eg" marker-end="url(#ah)" d="M126 80 L 314 80"/>
+  <path class="eg" marker-end="url(#ah)" d="M350 116 L 350 262"/>
+  <path class="eg" marker-end="url(#ah)" d="M90 262 L 90 116"/>
+  <path class="eg" marker-end="url(#ah)" d="M314 300 L 126 300"/>
+  <path class="eg" marker-end="url(#ah)" d="M324 102 Q 278 259 116 278"/>
+  <path class="eg" marker-end="url(#ah)" d="M116 278 Q 162 121 324 102"/>
+  <path class="eg" marker-end="url(#ah)" d="M74 51 C 56 12, 124 12, 106 51"/>
+  <path class="eg" marker-end="url(#ah)" d="M334 329 C 316 368, 384 368, 366 329"/>
+  <circle class="nd" cx="90"  cy="80"  r="32"/>
+  <circle class="nd" cx="350" cy="80"  r="32"/>
+  <circle class="nd" cx="350" cy="300" r="32"/>
+  <circle class="nd" cx="90"  cy="300" r="32"/>
+  <text class="lb" x="90"  y="80">00</text>
+  <text class="lb" x="350" y="80">01</text>
+  <text class="lb" x="350" y="300">11</text>
+  <text class="lb" x="90"  y="300">10</text>
+  <text class="el" x="220" y="62">1</text>
+  <text class="el" x="368" y="190">1</text>
+  <text class="el" x="72"  y="190">0</text>
+  <text class="el" x="220" y="320">0</text>
+  <text class="el" x="272" y="248">0</text>
+  <text class="el" x="168" y="130">1</text>
+  <text class="el" x="90"  y="8">0</text>
+  <text class="el" x="350" y="378">1</text>
+</svg>
+<figcaption>Đồ thị De Bruijn với <span class="mathv">k = 2</span>, <span class="mathv">n = 3</span>: bốn đỉnh là các xâu nhị phân độ dài 2, tám cung là tám xâu nhị phân độ dài 3. Mọi đỉnh đều có 2 cung vào và 2 cung ra.</figcaption>
+</figure>
+
+<h3>7.3. Xếp domino thành vòng</h3>
+
+<p><strong>Bài toán.</strong> Cho <span class="mathv">m</span> quân domino, quân thứ <span class="mathv">i</span> có hai đầu số <span class="mathv">(a<sub>i</sub>, b<sub>i</sub>)</span> với 0 ≤ <span class="mathv">a<sub>i</sub></span>, <span class="mathv">b<sub>i</sub></span> ≤ 6. Hãy xếp tất cả thành một vòng tròn sao cho hai đầu kề nhau của hai quân liền kề có cùng số.</p>
+
+<p><strong>Mô hình hoá.</strong> Đỉnh là các số 0..6, mỗi quân domino là một <strong>cạnh vô hướng</strong> nối <span class="mathv">a<sub>i</sub></span> và <span class="mathv">b<sub>i</sub></span> (quân đôi <span class="mathv">(a, a)</span> là một khuyên). Việc xếp thành vòng chính là tìm <strong>chu trình Euler</strong>. Đây là bài UVA 10054 "The Necklace" kinh điển. Chú ý: chỉ có 7 đỉnh nhưng số cạnh có thể rất lớn — một minh chứng nữa rằng phải cài theo chỉ số cạnh.</p>
+
+<h3>7.4. Nối từ thành dây chuyền</h3>
+
+<p><strong>Bài toán.</strong> Cho <span class="mathv">m</span> từ. Hãy sắp xếp tất cả thành một dãy sao cho ký tự cuối của từ trước trùng ký tự đầu của từ sau (bài UVA 10129 "Play on Words").</p>
+
+<p><strong>Mô hình hoá.</strong> Đỉnh là 26 chữ cái, mỗi từ là một <strong>cung có hướng</strong> từ ký tự đầu tới ký tự cuối. Yêu cầu trở thành: tìm <strong>đường đi Euler</strong> trên đồ thị có hướng. Đây là dạng "trá hình" phổ biến nhất của chuyên đề này — đề bài nói về xâu, nhưng lời giải là đồ thị.</p>
+
+<h3>7.5. Định hướng cạnh cho cân bằng</h3>
+
+<p><strong>Bài toán.</strong> Cho đồ thị vô hướng. Hãy định hướng mỗi cạnh sao cho tại mọi đỉnh, |deg<sub>out</sub>(v) − deg<sub>in</sub>(v)| ≤ 1.</p>
+
+<p><strong>Lời giải.</strong> Thêm một đỉnh ảo <span class="mathv">z</span> và nối <span class="mathv">z</span> với <em>mọi đỉnh bậc lẻ</em> (số đỉnh bậc lẻ là chẵn nên <span class="mathv">z</span> cũng có bậc chẵn). Bây giờ mọi đỉnh đều bậc chẵn, tìm chu trình Euler trên từng thành phần liên thông, rồi định hướng mỗi cạnh theo chiều đi của chu trình. Trong chu trình Euler, mỗi lần đi qua một đỉnh sẽ đóng góp đúng 1 vào bậc vào và 1 vào bậc ra, nên các đỉnh bậc chẵn ban đầu đạt cân bằng; các đỉnh bậc lẻ lệch nhau nhiều nhất 1 sau khi bỏ cạnh ảo. Kỹ thuật "thêm đỉnh ảo để mọi bậc thành chẵn" xuất hiện rất nhiều trong các bài khó.</p>
+
+<h3>7.6. Bài toán người đưa thư Trung Hoa</h3>
+
+<p>Nếu đồ thị <em>không</em> Euler mà ta vẫn buộc phải đi qua mọi cạnh ít nhất một lần rồi quay về, thì phải <strong>đi lặp</strong> một số cạnh. Bài toán tìm tổng độ dài đi lặp nhỏ nhất gọi là <em>Chinese Postman Problem</em>. Lời giải: tìm đường đi ngắn nhất giữa mọi cặp đỉnh bậc lẻ (Floyd), rồi ghép cặp các đỉnh bậc lẻ với tổng chi phí nhỏ nhất. Vì số đỉnh bậc lẻ thường nhỏ, ta ghép cặp bằng <strong>quy hoạch động trên tập con</strong> <span class="mathv">O(2<sup>k</sup> · k<sup>2</sup>)</span>. Sau khi nhân đôi các cạnh trên những đường đi được chọn, đồ thị trở thành Euler và chu trình Euler của nó chính là hành trình tối ưu.</p>
+
+<h3>7.7. Đếm số chu trình Euler</h3>
+
+<p>Với đồ thị có hướng Euler, <strong>định lý BEST</strong> cho công thức đếm số chu trình Euler:</p>
+
+<p style="text-align:center; margin:14px 0">
+<span class="mathv">ec(G) = t<sub>w</sub>(G) · ∏<sub>v ∈ V</sub> (deg<sub>out</sub>(v) − 1)!</span>
+</p>
+
+<p>trong đó <span class="mathv">t<sub>w</sub>(G)</span> là số cây khung có hướng hướng về đỉnh <span class="mathv">w</span> (tính được bằng định lý ma trận-cây Kirchhoff, và với đồ thị Euler thì giá trị này không phụ thuộc vào <span class="mathv">w</span>). Đây là kiến thức mở rộng, hiếm khi xuất hiện ở kỳ thi học sinh giỏi phổ thông, nhưng đáng biết để không phải mò mẫm khi gặp đề đếm.</p>
+
+<!-- ============================ 8 ============================ -->
+<h2 id="s8"><span class="num">8</span>Bài tập mẫu có lời giải</h2>
+
+<h3>8.1. Bài 1 — Chu trình Euler vô hướng (CSES: Mail Delivery)</h3>
+
+<p><strong>Đề.</strong> Cho đồ thị vô hướng <span class="mathv">n</span> đỉnh, <span class="mathv">m</span> cạnh (<span class="mathv">1 ≤ n ≤ 10<sup>5</sup></span>, <span class="mathv">1 ≤ m ≤ 2 · 10<sup>5</sup></span>). Hãy tìm một hành trình xuất phát từ đỉnh 1, đi qua mỗi cạnh đúng một lần và kết thúc tại đỉnh 1. Nếu không tồn tại, in <code class="inl">IMPOSSIBLE</code>.</p>
+
+<p><strong>Phân tích.</strong> Đây là chu trình Euler ở dạng thuần tuý nhất, chỉ thêm ràng buộc đỉnh xuất phát cố định là 1 — điều này không làm bài khó hơn, vì chu trình Euler có thể bắt đầu ở bất kỳ đỉnh nào thuộc nó. Ta kiểm tra: mọi đỉnh bậc chẵn, đỉnh 1 có bậc lớn hơn 0, và sau khi chạy phải đi đủ <span class="mathv">m</span> cạnh. Vì kết quả là một <em>chu trình</em>, dãy đọc xuôi hay đọc ngược đều hợp lệ, nên có thể bỏ bước <code class="inl">reverse</code>.</p>
+
+<div class="codewrap">
+<div class="name">Lời giải Bài 1</div>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 100005, MAXM = 200005;
+int n, m, u, v, i, x, y, id, ptr[MAXN], deg[MAXN];
+bool used[MAXM];
+vector&lt;pair&lt;int, int&gt; &gt; adj[MAXN];
+vector&lt;int&gt; path;
+stack&lt;int&gt; st;
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+
+	cin &gt;&gt; n &gt;&gt; m;
+	for (i = 1; i &lt;= m; i++) {
+		cin &gt;&gt; u &gt;&gt; v;
+		adj[u].push_back(make_pair(v, i));
+		adj[v].push_back(make_pair(u, i));
+		deg[u]++;
+		deg[v]++;
+	}
+
+	// Điều kiện cần: mọi đỉnh bậc chẵn và đỉnh 1 phải có cạnh
+	for (i = 1; i &lt;= n; i++)
+		if (deg[i] % 2 == 1) {
+			cout &lt;&lt; "IMPOSSIBLE\n";
+			return 0;
+		}
+	if (deg[1] == 0) {
+		cout &lt;&lt; "IMPOSSIBLE\n";
+		return 0;
+	}
+
+	st.push(1);
+	while (!st.empty()) {
+		x = st.top();
+		while (ptr[x] &lt; (int)adj[x].size() &amp;&amp; used[adj[x][ptr[x]].second])
+			ptr[x]++;
+		if (ptr[x] == (int)adj[x].size()) {
+			path.push_back(x);
+			st.pop();
+		}
+		else {
+			y = adj[x][ptr[x]].first;
+			id = adj[x][ptr[x]].second;
+			ptr[x]++;
+			used[id] = true;
+			st.push(y);
+		}
+	}
+
+	// Điều kiện đủ: hành trình phải phủ hết m cạnh
+	if ((int)path.size() != m + 1) {
+		cout &lt;&lt; "IMPOSSIBLE\n";
+		return 0;
+	}
+
+	for (i = 0; i &lt; (int)path.size(); i++)
+		cout &lt;&lt; path[i] &lt;&lt; " ";
+	cout &lt;&lt; "\n";
+	return 0;
+}</code></pre>
+</div>
+
+<h3>8.2. Bài 2 — Đường đi Euler có hướng (CSES: Teleporters Path)</h3>
+
+<p><strong>Đề.</strong> Cho đồ thị có hướng <span class="mathv">n</span> đỉnh, <span class="mathv">m</span> cung. Hãy tìm đường đi từ đỉnh 1 tới đỉnh <span class="mathv">n</span> sử dụng mỗi cung đúng một lần, hoặc in <code class="inl">IMPOSSIBLE</code>.</p>
+
+<p><strong>Phân tích.</strong> Đường đi Euler có hướng với hai đầu mút cố định. Điều kiện: <span class="mathv">deg<sub>out</sub>(1) − deg<sub>in</sub>(1) = 1</span> và <span class="mathv">deg<sub>in</sub>(n) − deg<sub>out</sub>(n) = 1</span>; mọi đỉnh khác cân bằng; chạy Hierholzer từ đỉnh 1 và phải đi đủ <span class="mathv">m</span> cung. Ở đây <strong>bắt buộc phải đảo ngược</strong> mảng kết quả, vì đường đi có chiều.</p>
+
+<div class="codewrap">
+<div class="name">Lời giải Bài 2</div>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 100005;
+int n, m, u, v, i, x, ptr[MAXN], din[MAXN], dout[MAXN];
+vector&lt;int&gt; adj[MAXN], path;
+stack&lt;int&gt; st;
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+
+	cin &gt;&gt; n &gt;&gt; m;
+	for (i = 1; i &lt;= m; i++) {
+		cin &gt;&gt; u &gt;&gt; v;
+		adj[u].push_back(v);
+		dout[u]++;
+		din[v]++;
+	}
+
+	// Kiểm tra cân bằng bậc: chỉ đỉnh 1 và đỉnh n được phép lệch
+	if (dout[1] - din[1] != 1 || din[n] - dout[n] != 1) {
+		cout &lt;&lt; "IMPOSSIBLE\n";
+		return 0;
+	}
+	for (i = 2; i &lt; n; i++)
+		if (din[i] != dout[i]) {
+			cout &lt;&lt; "IMPOSSIBLE\n";
+			return 0;
+		}
+
+	st.push(1);
+	while (!st.empty()) {
+		x = st.top();
+		if (ptr[x] == (int)adj[x].size()) {
+			path.push_back(x);
+			st.pop();
+		}
+		else {
+			st.push(adj[x][ptr[x]]);
+			ptr[x]++;
+		}
+	}
+
+	if ((int)path.size() != m + 1) {
+		cout &lt;&lt; "IMPOSSIBLE\n";
+		return 0;
+	}
+
+	// Đường đi có chiều nên phải đảo ngược
+	reverse(path.begin(), path.end());
+	for (i = 0; i &lt; (int)path.size(); i++)
+		cout &lt;&lt; path[i] &lt;&lt; " ";
+	cout &lt;&lt; "\n";
+	return 0;
+}</code></pre>
+</div>
+
+<h3>8.3. Bài 3 — Nối từ thành dây chuyền (UVA 10129: Play on Words)</h3>
+
+<p><strong>Đề.</strong> Cho <span class="mathv">m</span> từ (<span class="mathv">m ≤ 10<sup>5</sup></span>) gồm các chữ cái thường. Hỏi có thể sắp xếp tất cả các từ thành một dãy sao cho ký tự cuối của từ đứng trước trùng ký tự đầu của từ đứng sau hay không?</p>
+
+<p><strong>Phân tích.</strong> Dựng đồ thị có hướng trên 26 đỉnh; từ có ký tự đầu <span class="mathv">a</span>, ký tự cuối <span class="mathv">b</span> tạo cung <span class="mathv">a → b</span>. Yêu cầu tương đương với sự tồn tại đường đi Euler. Cần kiểm tra hai điều:</p>
+<ol>
+  <li><strong>Bậc:</strong> hoặc mọi đỉnh cân bằng vào/ra; hoặc có đúng một đỉnh thoả <span class="mathv">deg<sub>out</sub> − deg<sub>in</sub> = 1</span>, đúng một đỉnh thoả <span class="mathv">deg<sub>in</sub> − deg<sub>out</sub> = 1</span>, các đỉnh còn lại cân bằng.</li>
+  <li><strong>Liên thông yếu:</strong> mọi chữ cái từng xuất hiện phải nằm trong cùng một thành phần. Vì chỉ cần kiểm tra chứ không cần dựng hành trình, dùng <strong>Disjoint Set Union</strong> là gọn nhất.</li>
+</ol>
+<p>Bài này chỉ hỏi "có hay không" nên không cần chạy Hierholzer — một ví dụ tốt cho thấy phần lớn công sức nằm ở <em>mô hình hoá</em>, không phải ở thuật toán.</p>
+
+<div class="codewrap">
+<div class="name">Lời giải Bài 3</div>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int t, m, i, a, b, plus1, minus1, comp, par[26], din[26], dout[26];
+bool ok, appear[26];
+string s;
+
+int findp(int x) {
+	while (par[x] != x)
+		x = par[x] = par[par[x]];
+	return x;
+}
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+
+	cin &gt;&gt; t;
+	while (t--) {
+		cin &gt;&gt; m;
+		for (i = 0; i &lt; 26; i++) {
+			par[i] = i;
+			din[i] = dout[i] = 0;
+			appear[i] = false;
+		}
+		for (i = 1; i &lt;= m; i++) {
+			cin &gt;&gt; s;
+			a = s[0] - 'a';
+			b = s[s.size() - 1] - 'a';
+			dout[a]++;
+			din[b]++;
+			appear[a] = appear[b] = true;
+			par[findp(a)] = findp(b);
+		}
+
+		// Đếm số thành phần liên thông chứa ít nhất một chữ cái
+		comp = 0;
+		for (i = 0; i &lt; 26; i++)
+			if (appear[i] &amp;&amp; findp(i) == i)
+				comp++;
+
+		// Đếm các đỉnh lệch bậc
+		plus1 = minus1 = 0;
+		ok = (comp &lt;= 1);
+		for (i = 0; i &lt; 26; i++) {
+			if (dout[i] - din[i] == 1)
+				plus1++;
+			else if (din[i] - dout[i] == 1)
+				minus1++;
+			else if (din[i] != dout[i])
+				ok = false;
+		}
+		if (!((plus1 == 0 &amp;&amp; minus1 == 0) || (plus1 == 1 &amp;&amp; minus1 == 1)))
+			ok = false;
+
+		if (ok)
+			cout &lt;&lt; "Ordering is possible.\n";
+		else
+			cout &lt;&lt; "The door cannot be opened.\n";
+	}
+	return 0;
+}</code></pre>
+</div>
+
+<h3>8.4. Bài 4 — Chuỗi De Bruijn (CSES: De Bruijn Sequence)</h3>
+
+<p><strong>Đề.</strong> Cho <span class="mathv">n</span> (<span class="mathv">1 ≤ n ≤ 15</span>). Hãy in ra một xâu nhị phân độ dài <span class="mathv">2<sup>n</sup> + n − 1</span> chứa mọi xâu nhị phân độ dài <span class="mathv">n</span> như xâu con liên tiếp.</p>
+
+<p><strong>Phân tích.</strong> Theo Mục 7.2: đỉnh là các xâu nhị phân độ dài <span class="mathv">n − 1</span> (mã hoá bằng số nguyên từ 0 đến <span class="mathv">2<sup>n−1</sup> − 1</span>), từ đỉnh <span class="mathv">x</span> có hai cung nhãn <span class="mathv">b ∈ {0, 1}</span> đi tới đỉnh <code class="inl">((x &lt;&lt; 1) | b) &amp; mask</code>. Đồ thị có <span class="mathv">2<sup>n−1</sup></span> đỉnh và <span class="mathv">2<sup>n</sup></span> cung, mọi đỉnh cân bằng bậc ⇒ có chu trình Euler. Kết quả là <span class="mathv">n − 1</span> ký tự <code class="inl">0</code> (biểu diễn đỉnh xuất phát) nối với dãy nhãn của <span class="mathv">2<sup>n</sup></span> cung theo chu trình.</p>
+
+<div class="codewrap">
+<div class="name">Lời giải Bài 4</div>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int n, i, b, x, nodes, mask, ptr[16400];
+vector&lt;int&gt; res;
+stack&lt;pair&lt;int, int&gt; &gt; st;   // (đỉnh, nhãn cung đã đi vào đỉnh đó)
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+
+	cin &gt;&gt; n;
+	nodes = 1 &lt;&lt; (n - 1);
+	mask = nodes - 1;
+
+	// Hierholzer: mỗi đỉnh có đúng 2 cung ra, nhãn 0 và 1
+	st.push(make_pair(0, -1));
+	while (!st.empty()) {
+		x = st.top().first;
+		if (ptr[x] == 2) {
+			if (st.top().second &gt;= 0)
+				res.push_back(st.top().second);
+			st.pop();
+		}
+		else {
+			b = ptr[x];
+			ptr[x]++;
+			st.push(make_pair(((x &lt;&lt; 1) | b) &amp; mask, b));
+		}
+	}
+
+	reverse(res.begin(), res.end());
+
+	// Đỉnh xuất phát là xâu gồm n-1 số 0
+	for (i = 1; i &lt;= n - 1; i++)
+		cout &lt;&lt; 0;
+	for (i = 0; i &lt; (int)res.size(); i++)
+		cout &lt;&lt; res[i];
+	cout &lt;&lt; "\n";
+	return 0;
+}</code></pre>
+</div>
+
+<!-- ============================ 9 ============================ -->
+<h2 id="s9"><span class="num">9</span>Bài tập tự luyện</h2>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th class="c">STT</th><th>Bài</th><th>Gợi ý</th><th class="c">Mức</th></tr></thead>
+  <tbody>
+    <tr><td class="c">1</td><td>CSES — Mail Delivery</td><td>Chu trình Euler vô hướng, khuôn mẫu.</td><td class="c">Dễ</td></tr>
+    <tr><td class="c">2</td><td>CSES — Teleporters Path</td><td>Đường đi Euler có hướng, hai đầu cố định.</td><td class="c">Dễ</td></tr>
+    <tr><td class="c">3</td><td>UVA 10129 — Play on Words</td><td>Chữ cái là đỉnh, từ là cung; DSU kiểm tra liên thông.</td><td class="c">Dễ</td></tr>
+    <tr><td class="c">4</td><td>UVA 10054 — The Necklace</td><td>Domino thành vòng; nhớ in dãy <em>cạnh</em>.</td><td class="c">TB</td></tr>
+    <tr><td class="c">5</td><td>CSES — De Bruijn Sequence</td><td>Đồ thị De Bruijn, chu trình Euler trên 2<sup>n−1</sup> đỉnh.</td><td class="c">TB</td></tr>
+    <tr><td class="c">6</td><td>UVA 291 — The House of Santa Claus</td><td>Vẽ một nét; có thể quay lui vì đồ thị rất nhỏ.</td><td class="c">Dễ</td></tr>
+    <tr><td class="c">7</td><td>Codeforces 508D — Tanya and Password</td><td>Xâu 3 ký tự → cung giữa hai xâu 2 ký tự; m lớn nên phải khử đệ quy.</td><td class="c">TB</td></tr>
+    <tr><td class="c">8</td><td>Codeforces 723E — One-Way Reform</td><td>Thêm đỉnh ảo nối các đỉnh bậc lẻ, định hướng theo chu trình Euler.</td><td class="c">Khó</td></tr>
+    <tr><td class="c">9</td><td>Codeforces 21D — Traveling Graph</td><td>Người đưa thư Trung Hoa: Floyd + quy hoạch động ghép cặp trên tập con.</td><td class="c">Khó</td></tr>
+    <tr><td class="c">10</td><td>Codeforces 429E — Points and Segments</td><td>Đưa về định hướng cạnh cân bằng trên đồ thị dựng từ các đoạn thẳng.</td><td class="c">Khó</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ============================ 10 ============================ -->
+<h2 id="s10"><span class="num">10</span>Tổng kết</h2>
+
+<div class="box cmplx">
+  <div class="t">Ba câu hỏi cần trả lời khi gặp một bài Euler</div>
+  <ol>
+    <li><strong>Cái gì là đỉnh, cái gì là cạnh?</strong> Đây là phần khó nhất và cũng là phần được chấm điểm nhiều nhất. Dấu hiệu nhận biết: đề yêu cầu <em>dùng hết</em> một tập đối tượng, mỗi đối tượng có <em>hai đầu</em> và các đối tượng nối với nhau qua đầu chung (quân domino, từ ghép, đoạn gen, cây cầu).</li>
+    <li><strong>Đồ thị vô hướng hay có hướng?</strong> Quyết định điều kiện tồn tại (bậc chẵn hay cân bằng vào/ra) và quyết định có cần mảng <code class="inl">used</code> hay không.</li>
+    <li><strong>Chu trình hay đường đi?</strong> Quyết định đỉnh xuất phát và việc có cần <code class="inl">reverse</code> kết quả hay không.</li>
+  </ol>
+  <p>Sau ba câu hỏi đó, phần cài đặt chỉ còn là khuôn mẫu Hierholzer khoảng 30 dòng — hãy học thuộc để viết lại được trong vài phút.</p>
+</div>
+
+<footer>
+  Chuyên đề Lập trình thi đấu — Chu trình Euler · Phan Văn Việt, Trường THPT Chuyên Vĩnh Phúc.
+  Toàn bộ mã nguồn trong tài liệu đã được biên dịch bằng <code class="inl">g++ -std=c++14 -O2 -Wall</code> và chạy kiểm chứng.
+</footer>
+
+</div>
+
+<script>
+(function(){
+  /* ---- nút đổi nền sáng / tối ---- */
+  var root = document.documentElement, btn = document.getElementById('tg');
+  btn.addEventListener('click', function(){
+    var cur = root.getAttribute('data-theme');
+    if(!cur) cur = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    root.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
+  });
+
+  /* ---- tô màu cú pháp C++ (đơn giản, một lượt quét) ---- */
+  var KW = 'int|bool|void|char|long|double|float|unsigned|const|static|struct|class|return|for|while|do|if|else|break|continue|using|namespace|true|false|sizeof|new|delete|inline|auto';
+  var LIB = 'vector|pair|stack|queue|string|map|set|cin|cout|endl|make_pair|push_back|pop_back|reverse|sort|size|empty|top|push|pop|begin|end|first|second|main';
+  var RE = new RegExp(
+      '(\\/\\/[^\\n]*)'                       + '|' +   /* chú thích  */
+      '(&quot;(?:[^&]|&(?!quot;))*&quot;)'     + '|' +   /* xâu ""     */
+      '(&#39;(?:[^&]|&(?!#39;))*&#39;)'        + '|' +   /* ký tự ''   */
+      '("(?:[^"\\\\\\n]|\\\\.)*")'             + '|' +   /* xâu ""     */
+      "('(?:[^'\\\\\\n]|\\\\.)*')"             + '|' +   /* ký tự ''   */
+      '(#[a-z]+)'                              + '|' +   /* tiền xử lý */
+      '\\b(' + KW  + ')\\b'                    + '|' +
+      '\\b(' + LIB + ')\\b'                    + '|' +
+      '\\b(\\d+)\\b', 'g');
+  var CLS = ['c','s','s','s','s','pp','k','f','n'];
+
+  document.querySelectorAll('pre code').forEach(function(el){
+    el.innerHTML = el.innerHTML.replace(RE, function(){
+      for (var i = 1; i <= 9; i++)
+        if (arguments[i] !== undefined)
+          return '<span class="' + CLS[i-1] + '">' + arguments[i] + '</span>';
+      return arguments[0];
+    });
+  });
+
+  /* ---- nút sao chép mã nguồn ---- */
+  document.querySelectorAll('.codewrap').forEach(function(w){
+    var pre = w.querySelector('pre');
+    if(!pre) return;
+    var b = document.createElement('button');
+    b.className = 'cp';
+    b.textContent = 'Sao chép';
+    b.addEventListener('click', function(){
+      var txt = pre.innerText;
+      var done = function(){ b.textContent = 'Đã chép'; setTimeout(function(){ b.textContent = 'Sao chép'; }, 1400); };
+      if (navigator.clipboard && navigator.clipboard.writeText)
+        navigator.clipboard.writeText(txt).then(done, done);
+      else {
+        var ta = document.createElement('textarea');
+        ta.value = txt; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch(e){}
+        document.body.removeChild(ta); done();
+      }
+    });
+    w.appendChild(b);
+  });
+})();
+</script>
+</body>
+</html>
