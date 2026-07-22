@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chuyên đề: Cấu trúc dữ liệu các tập rời rạc (DSU)</title>
+<style>
+:root{
+  --is-dark:0;
+  --bg:#ffffff; --fg:#1f2328; --muted:#5b6570; --border:#e4e7eb; --card:#f7f8fa;
+  --blue:#1d4ed8;   --blue-bg:#eff6ff;
+  --purple:#6d28d9; --purple-bg:#f5f3ff;
+  --red:#b91c1c;    --red-bg:#fef2f2;
+  --green:#047857;  --green-bg:#ecfdf5;
+  --amber:#b45309;  --amber-bg:#fffbeb;
+  --code-bg:#f6f8fa; --code-fg:#24292f;
+  --c-kw:#0550ae; --c-str:#0a7d55; --c-cmt:#8b949e; --c-num:#953800; --c-fn:#6639ba; --c-pre:#a3364a;
+  --node:#dbeafe; --node-stroke:#2563eb; --edge:#64748b; --hl:#dc2626; --hl2:#059669;
+  --node2:#ede9fe; --node2-stroke:#7c3aed;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --is-dark:1;
+    --bg:#0f1319; --fg:#e6e9ee; --muted:#9aa4b2; --border:#252c37; --card:#161b23;
+    --blue:#7aa2ff;   --blue-bg:#131c2e;
+    --purple:#c4a2ff; --purple-bg:#1d1730;
+    --red:#ff8f8f;    --red-bg:#2a1618;
+    --green:#5fd3a1;  --green-bg:#0f2320;
+    --amber:#f3bf62;  --amber-bg:#251c0f;
+    --code-bg:#12171f; --code-fg:#dce3ec;
+    --c-kw:#79b8ff; --c-str:#7ee2b8; --c-cmt:#7d8794; --c-num:#ffab70; --c-fn:#d2a8ff; --c-pre:#ff9db8;
+    --node:#1e3a68; --node-stroke:#7aa2ff; --edge:#94a3b8; --hl:#ff6b6b; --hl2:#4ade80;
+    --node2:#2c2148; --node2-stroke:#c4a2ff;
+  }
+}
+:root[data-theme="light"]{
+  --is-dark:0;
+  --bg:#ffffff; --fg:#1f2328; --muted:#5b6570; --border:#e4e7eb; --card:#f7f8fa;
+  --blue:#1d4ed8; --blue-bg:#eff6ff; --purple:#6d28d9; --purple-bg:#f5f3ff;
+  --red:#b91c1c; --red-bg:#fef2f2; --green:#047857; --green-bg:#ecfdf5;
+  --amber:#b45309; --amber-bg:#fffbeb; --code-bg:#f6f8fa; --code-fg:#24292f;
+  --c-kw:#0550ae; --c-str:#0a7d55; --c-cmt:#8b949e; --c-num:#953800; --c-fn:#6639ba; --c-pre:#a3364a;
+  --node:#dbeafe; --node-stroke:#2563eb; --edge:#64748b; --hl:#dc2626; --hl2:#059669;
+  --node2:#ede9fe; --node2-stroke:#7c3aed;
+}
+:root[data-theme="dark"]{
+  --is-dark:1;
+  --bg:#0f1319; --fg:#e6e9ee; --muted:#9aa4b2; --border:#252c37; --card:#161b23;
+  --blue:#7aa2ff; --blue-bg:#131c2e; --purple:#c4a2ff; --purple-bg:#1d1730;
+  --red:#ff8f8f; --red-bg:#2a1618; --green:#5fd3a1; --green-bg:#0f2320;
+  --amber:#f3bf62; --amber-bg:#251c0f; --code-bg:#12171f; --code-fg:#dce3ec;
+  --c-kw:#79b8ff; --c-str:#7ee2b8; --c-cmt:#7d8794; --c-num:#ffab70; --c-fn:#d2a8ff; --c-pre:#ff9db8;
+  --node:#1e3a68; --node-stroke:#7aa2ff; --edge:#94a3b8; --hl:#ff6b6b; --hl2:#4ade80;
+  --node2:#2c2148; --node2-stroke:#c4a2ff;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:"Noto Sans","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  font-size:16.5px; line-height:1.68;
+}
+.wrap{max-width:860px; margin:0 auto; padding:0 20px 90px}
+@media (min-width:1280px){ .wrap{max-width:1000px} }
+@media (min-width:1560px){ .wrap{max-width:1130px} }
+
+/* ---- đầu trang ---- */
+header{border-bottom:1px solid var(--border); margin-bottom:26px; padding:34px 0 22px}
+header .kicker{font-size:.8rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); font-weight:600}
+header h1{font-size:2.15rem; line-height:1.2; margin:.28em 0 .18em; letter-spacing:-.015em}
+header .by{color:var(--muted); font-size:.94rem}
+.themebtn{
+  position:fixed; top:14px; right:14px; z-index:20;
+  background:var(--card); color:var(--fg); border:1px solid var(--border);
+  border-radius:999px; padding:7px 14px; font-size:.82rem; cursor:pointer; font-family:inherit;
+}
+.themebtn:hover{border-color:var(--blue)}
+
+/* ---- mục lục nội tuyến ---- */
+nav.toc{background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px 20px; margin-bottom:34px}
+nav.toc b{display:block; margin-bottom:8px; font-size:.9rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+nav.toc ol{margin:0; padding-left:1.3em; columns:2; column-gap:32px}
+nav.toc li{margin:3px 0; break-inside:avoid}
+nav.toc a{color:var(--fg); text-decoration:none; border-bottom:1px solid transparent}
+nav.toc a:hover{color:var(--blue); border-bottom-color:var(--blue)}
+@media (max-width:640px){ nav.toc ol{columns:1} }
+
+/* ---- thanh điều hướng bên trái (màn hình rộng) ---- */
+aside.side{display:none}
+@media (min-width:1080px){
+  .main{margin-left:254px}
+  nav.toc{display:none}
+  aside.side{
+    display:block; position:fixed; top:0; left:0; bottom:0; width:254px;
+    overflow-y:auto; background:var(--card); border-right:1px solid var(--border);
+    padding:20px 12px 30px; font-size:.88rem;
+  }
+  aside.side .hd{font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--muted); font-size:.75rem; margin:0 10px 12px}
+  aside.side a{display:block; color:var(--muted); text-decoration:none;
+    padding:5px 10px; border-left:3px solid transparent; border-radius:0 7px 7px 0;
+    margin:1px 0; line-height:1.45}
+  aside.side a:hover{color:var(--fg); background:var(--bg)}
+  aside.side a.on{color:var(--blue); background:var(--blue-bg); border-left-color:var(--blue); font-weight:600}
+}
+@media print{
+  aside.side{display:none}
+  .themebtn{display:none}
+  .main{margin-left:0}
+  nav.toc{display:block}
+}
+
+/* ---- tiêu đề mục ---- */
+h2{
+  font-size:1.42rem; margin:2.4em 0 .55em; padding-bottom:.28em;
+  border-bottom:2px solid var(--border); letter-spacing:-.01em; scroll-margin-top:16px;
+}
+h2 .num{color:var(--blue); font-variant-numeric:tabular-nums; margin-right:.45em}
+h3{font-size:1.1rem; margin:1.7em 0 .4em; color:var(--fg)}
+p{margin:.75em 0}
+ul,ol{margin:.65em 0; padding-left:1.5em}
+li{margin:.28em 0}
+strong{font-weight:700}
+em{color:var(--fg)}
+code.inl{
+  background:var(--code-bg); border:1px solid var(--border); border-radius:5px;
+  padding:1px 5px; font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.88em;
+}
+.mathv{font-family:"Cambria Math","Latin Modern Math",Georgia,serif; font-style:italic; padding-right:.09em}
+sub,sup{font-size:.7em; font-style:normal}
+
+/* ---- khung nội dung ---- */
+.box{border-radius:10px; border:1px solid; border-left-width:5px; padding:2px 18px 14px; margin:20px 0}
+.box .t{font-weight:700; margin:14px 0 6px; font-size:1rem; letter-spacing:.01em}
+.box.tech{background:var(--blue-bg);   border-color:var(--blue)}   .box.tech   .t{color:var(--blue)}
+.box.def{background:var(--purple-bg);  border-color:var(--purple)} .box.def    .t{color:var(--purple)}
+.box.warn{background:var(--red-bg);    border-color:var(--red)}    .box.warn   .t{color:var(--red)}
+.box.ex{background:var(--green-bg);    border-color:var(--green)}  .box.ex     .t{color:var(--green)}
+.box.cmplx{background:var(--amber-bg); border-color:var(--amber)}  .box.cmplx  .t{color:var(--amber)}
+
+/* ---- bảng ---- */
+.tablewrap{overflow-x:auto; margin:18px 0; border:1px solid var(--border); border-radius:10px}
+table{border-collapse:collapse; width:100%; min-width:560px; font-size:.94rem}
+th,td{border-bottom:1px solid var(--border); padding:9px 13px; text-align:left; vertical-align:top}
+th{background:var(--card); font-weight:700; color:var(--blue); white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+td.c,th.c{text-align:center; white-space:nowrap}
+
+/* ---- hình vẽ ---- */
+figure{margin:22px 0; text-align:center}
+figure svg{max-width:100%; height:auto}
+figcaption{color:var(--muted); font-size:.88rem; margin-top:8px}
+.figrow{display:flex; flex-wrap:wrap; gap:18px; justify-content:center; align-items:flex-start}
+.figrow > div{flex:1 1 260px; max-width:340px}
+.figrow p{font-size:.88rem; color:var(--muted); margin:4px 0 0}
+svg .nd{fill:var(--node); stroke:var(--node-stroke); stroke-width:2}
+svg .nd2{fill:var(--node2); stroke:var(--node2-stroke); stroke-width:2}
+svg .lb{fill:var(--fg); font-size:15px; font-weight:700; text-anchor:middle; dominant-baseline:central;
+        font-family:"Noto Sans",system-ui,sans-serif}
+svg .el{fill:var(--muted); font-size:12px; text-anchor:middle; dominant-baseline:central;
+        font-family:"Noto Sans",system-ui,sans-serif}
+svg .eg{stroke:var(--edge); stroke-width:2; fill:none}
+svg .eg.on{stroke:var(--hl); stroke-width:3}
+svg .grp{stroke:var(--hl2); stroke-width:2; fill:none; stroke-dasharray:7 5}
+svg .gl{fill:var(--hl2); font-size:12.5px; font-weight:600; text-anchor:middle;
+        font-family:"Noto Sans",system-ui,sans-serif}
+svg .cap{fill:var(--fg); font-size:13px; text-anchor:middle; font-weight:600;
+         font-family:"Noto Sans",system-ui,sans-serif}
+
+/* ---- code ---- */
+.codewrap{position:relative; margin:16px 0}
+.codewrap .name{
+  font-size:.82rem; color:var(--muted); padding:6px 12px; background:var(--card);
+  border:1px solid var(--border); border-bottom:none; border-radius:9px 9px 0 0;
+}
+pre{
+  margin:0; background:var(--code-bg); color:var(--code-fg);
+  border:1px solid var(--border); border-radius:0 0 9px 9px;
+  padding:13px 14px; overflow-x:auto; font-size:13.2px; line-height:1.5;
+  tab-size:2; -moz-tab-size:2;
+}
+.codewrap.noname pre{border-radius:9px}
+pre code{font-family:"Noto Sans Mono","Consolas",ui-monospace,"Courier New",monospace; white-space:pre}
+.cp{
+  position:absolute; top:5px; right:6px; z-index:2; cursor:pointer; font-family:inherit;
+  background:var(--bg); color:var(--muted); border:1px solid var(--border);
+  border-radius:6px; padding:3px 9px; font-size:.76rem; opacity:.75;
+}
+.cp:hover{opacity:1; color:var(--blue); border-color:var(--blue)}
+.k{color:var(--c-kw); font-weight:600}
+.s{color:var(--c-str)}
+.c{color:var(--c-cmt); font-style:italic}
+.n{color:var(--c-num)}
+.f{color:var(--c-fn)}
+.pp{color:var(--c-pre)}
+
+footer{margin-top:56px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted); font-size:.9rem}
+</style>
+</head>
+<body>
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Cấu trúc dữ liệu các tập rời rạc (DSU)</div>
+  <a href="#s1">1. Bài toán mở đầu</a>
+  <a href="#s2">2. Các khái niệm cơ bản</a>
+  <a href="#s3">3. Hai tối ưu, độ phức tạp</a>
+  <a href="#s4">4. Khuôn mẫu chuẩn</a>
+  <a href="#s5">5. Ba biến thể trong thi đấu</a>
+  <a href="#s6">6. Những lỗi thường gặp</a>
+  <a href="#s7">7. Ứng dụng và biến thể</a>
+  <a href="#s8">8. Bài tập mẫu có lời giải</a>
+  <a href="#s9">9. Bài tập tự luyện</a>
+  <a href="#s10">10. Tổng kết</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Cấu trúc dữ liệu các tập rời rạc (DSU)</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Bài toán mở đầu: quần đảo và những cây cầu</a></li>
+    <li><a href="#s2">Các khái niệm cơ bản</a></li>
+    <li><a href="#s3">Hai tối ưu và độ phức tạp</a></li>
+    <li><a href="#s4">Khuôn mẫu chuẩn</a></li>
+    <li><a href="#s5">Ba biến thể dùng trong phòng thi</a></li>
+    <li><a href="#s6">Những lỗi thường gặp</a></li>
+    <li><a href="#s7">Ứng dụng và biến thể</a></li>
+    <li><a href="#s8">Bài tập mẫu có lời giải</a></li>
+    <li><a href="#s9">Bài tập tự luyện</a></li>
+    <li><a href="#s10">Tổng kết</a></li>
+  </ol>
+</nav>
+
+<!-- ============================ 1 ============================ -->
+<h2 id="s1"><span class="num">1</span>Bài toán mở đầu: quần đảo và những cây cầu</h2>
+
+<p>Một quần đảo có <span class="mathv">n</span> hòn đảo, ban đầu chưa có cây cầu nào — muốn sang đảo khác chỉ còn cách đi thuyền. Mỗi ngày người ta khánh thành đúng một cây cầu nối hai đảo. Sau mỗi ngày, ban quản lý cần trả lời ngay: <strong>hai đảo <span class="mathv">x</span> và <span class="mathv">y</span> đã đi bộ sang nhau được chưa?</strong></p>
+
+<figure>
+<svg viewBox="0 0 720 215" width="720" role="img" aria-label="Sáu hòn đảo tách thành ba nhóm sau ba cây cầu">
+  <ellipse class="grp" cx="125" cy="95" rx="90" ry="84"/>
+  <ellipse class="grp" cx="350" cy="95" rx="44" ry="82"/>
+  <ellipse class="grp" cx="560" cy="95" rx="42" ry="42"/>
+  <path class="eg" d="M80 90 L 170 50"/>
+  <path class="eg" d="M170 50 L 170 140"/>
+  <path class="eg" d="M350 50 L 350 140"/>
+  <circle class="nd" cx="80"  cy="90"  r="21"/>
+  <circle class="nd" cx="170" cy="50"  r="21"/>
+  <circle class="nd" cx="170" cy="140" r="21"/>
+  <circle class="nd" cx="350" cy="50"  r="21"/>
+  <circle class="nd" cx="350" cy="140" r="21"/>
+  <circle class="nd" cx="560" cy="95"  r="21"/>
+  <text class="lb" x="80"  y="90">1</text>
+  <text class="lb" x="170" y="50">2</text>
+  <text class="lb" x="170" y="140">3</text>
+  <text class="lb" x="350" y="50">4</text>
+  <text class="lb" x="350" y="140">5</text>
+  <text class="lb" x="560" y="95">6</text>
+  <text class="gl" x="125" y="203">nhóm thứ nhất</text>
+  <text class="gl" x="350" y="203">nhóm thứ hai</text>
+  <text class="gl" x="560" y="203">nhóm thứ ba</text>
+</svg>
+</figure>
+
+<p>Sau ba cây cầu đầu tiên, sáu hòn đảo tách thành ba nhóm. Hỏi (3, 5) thì trả lời <em>chưa</em>; xây thêm cầu (3, 4) thì hai nhóm đầu nhập một, và câu trả lời đổi thành <em>rồi</em>.</p>
+
+<p>Với <span class="mathv">n, m ≤ 2 × 10<sup>5</sup></span>, chạy lại BFS sau mỗi cây cầu tốn <span class="mathv">O(m(n + m))</span> — cỡ 10<sup>10</sup> phép tính, chắc chắn quá thời gian. Nhưng hãy để ý: câu hỏi <strong>không</strong> đòi đường đi cụ thể, cũng không đòi độ dài. Nó chỉ đòi một chữ "có" hoặc "không". Vậy ta chỉ cần theo dõi các đảo đang được chia thành những <strong>nhóm</strong> nào, và mỗi cây cầu mới <strong>gộp</strong> hai nhóm lại.</p>
+
+<p>Cách ngây thơ: giữ mảng <code class="inl">nhan[x]</code> ghi số hiệu nhóm của đảo <span class="mathv">x</span>; gộp hai nhóm thì quét cả mảng đổi nhãn này thành nhãn kia. Mỗi phép gộp tốn <span class="mathv">O(n)</span>, tổng <span class="mathv">O(nm)</span> = 4 × 10<sup>10</sup> — vẫn quá chậm. Cải tiến quen thuộc là giữ thêm danh sách phần tử của từng nhóm rồi <em>luôn đổ nhóm nhỏ vào nhóm lớn</em>: mỗi phần tử đổi nhãn nhiều nhất log<sub>2</sub> <span class="mathv">n</span> lần nên tổng chỉ còn <span class="mathv">O(n log n)</span>. Đây đã là hướng đúng.</p>
+
+<p>Cấu trúc dữ liệu <strong>các tập rời rạc</strong> (Disjoint Set Union, viết tắt DSU) đi xa hơn một bước: nó <em>không đổi nhãn của cả nhóm nữa</em>. Mỗi nhóm cử ra một phần tử làm đại diện, và gộp hai nhóm chỉ còn là một phép gán duy nhất.</p>
+
+<!-- ============================ 2 ============================ -->
+<h2 id="s2"><span class="num">2</span>Các khái niệm cơ bản</h2>
+
+<div class="box def">
+  <div class="t">Định nghĩa</div>
+  <p>Ta quản lý một họ tập hợp <strong>rời nhau</strong> phủ kín {1, 2, …, <span class="mathv">n</span>}: mỗi phần tử thuộc đúng một tập.</p>
+  <p>Mỗi tập cử ra một phần tử làm <strong>đại diện</strong> (hay <strong>gốc</strong>). Quy tắc nền tảng: <em>hai phần tử cùng một tập khi và chỉ khi chúng có cùng đại diện</em>.</p>
+  <p>Cấu trúc hỗ trợ ba thao tác:</p>
+  <ul>
+    <li><strong>Khởi tạo</strong>: mỗi phần tử là một tập riêng gồm chính nó.</li>
+    <li><strong>Tìm</strong> <code class="inl">find(x)</code>: trả về đại diện của tập chứa <span class="mathv">x</span>.</li>
+    <li><strong>Gộp</strong> <code class="inl">unite(x, y)</code>: nhập tập chứa <span class="mathv">x</span> với tập chứa <span class="mathv">y</span> thành một.</li>
+  </ul>
+</div>
+
+<p>Cách biểu diễn: mỗi tập là một <strong>cây</strong>, gốc cây chính là đại diện. Toàn bộ cấu trúc chỉ cần một mảng <code class="inl">par</code>, trong đó <code class="inl">par[x]</code> là cha của <span class="mathv">x</span>, và quy ước <code class="inl">par[x] == x</code> nghĩa là <span class="mathv">x</span> chính là gốc. Thao tác <code class="inl">find(x)</code> là đi ngược lên theo dây chuyền cha cho tới khi gặp gốc; thao tác gộp là cho gốc này trỏ vào gốc kia.</p>
+
+<figure>
+<svg viewBox="0 0 720 310" width="720" role="img" aria-label="Hai rừng khác nhau cùng biểu diễn một tập">
+  <defs><marker id="arA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0 0 L10 5 L0 10 z" fill="var(--edge)"/></marker></defs>
+  <circle class="nd2" cx="150" cy="34"  r="18"/>
+  <circle class="nd2" cx="150" cy="90"  r="18"/>
+  <circle class="nd2" cx="150" cy="146" r="18"/>
+  <circle class="nd2" cx="150" cy="202" r="18"/>
+  <circle class="nd2" cx="150" cy="258" r="18"/>
+  <text class="lb" x="150" y="34">1</text>
+  <text class="lb" x="150" y="90">2</text>
+  <text class="lb" x="150" y="146">3</text>
+  <text class="lb" x="150" y="202">4</text>
+  <text class="lb" x="150" y="258">5</text>
+  <path class="eg" d="M150 72 L 150 52"   marker-end="url(#arA)"/>
+  <path class="eg" d="M150 128 L 150 108" marker-end="url(#arA)"/>
+  <path class="eg" d="M150 184 L 150 164" marker-end="url(#arA)"/>
+  <path class="eg" d="M150 240 L 150 220" marker-end="url(#arA)"/>
+  <text class="cap" x="150" y="296">rừng (a): chuỗi dài</text>
+  <circle class="nd2" cx="520" cy="60"  r="18"/>
+  <circle class="nd2" cx="400" cy="180" r="18"/>
+  <circle class="nd2" cx="480" cy="180" r="18"/>
+  <circle class="nd2" cx="560" cy="180" r="18"/>
+  <circle class="nd2" cx="640" cy="180" r="18"/>
+  <text class="lb" x="520" y="60">1</text>
+  <text class="lb" x="400" y="180">2</text>
+  <text class="lb" x="480" y="180">3</text>
+  <text class="lb" x="560" y="180">4</text>
+  <text class="lb" x="640" y="180">5</text>
+  <path class="eg" d="M412.7 167.3 L 507.3 72.7" marker-end="url(#arA)"/>
+  <path class="eg" d="M485.7 162.9 L 514.3 77.1" marker-end="url(#arA)"/>
+  <path class="eg" d="M554.3 162.9 L 525.7 77.1" marker-end="url(#arA)"/>
+  <path class="eg" d="M627.3 167.3 L 532.7 72.7" marker-end="url(#arA)"/>
+  <text class="cap" x="520" y="296">rừng (b): hình sao</text>
+</svg>
+</figure>
+
+<p>Hai rừng trên biểu diễn <em>cùng một</em> tập {1, 2, 3, 4, 5} với cùng đại diện là 1. Chúng khác nhau ở chiều cao, và chiều cao chính là giá phải trả cho mỗi lần <code class="inl">find</code> — rừng (b) tốt hơn hẳn. Toàn bộ Mục 3 nói về cách luôn giữ được hình dạng gần với (b).</p>
+
+<div class="box warn">
+  <div class="t">Cây của DSU không phải cây của đề bài</div>
+  <p>Cạnh cha–con trong rừng DSU <strong>không</strong> tương ứng với cạnh nào của đồ thị gốc, và hình dạng rừng phụ thuộc vào thứ tự gộp. Bốn hệ quả cần nhớ:</p>
+  <ul>
+    <li>DSU không cho biết đường đi, cũng không cho biết khoảng cách giữa hai đỉnh.</li>
+    <li>DSU không liệt kê được các phần tử của một nhóm; muốn liệt kê phải giữ thêm danh sách riêng.</li>
+    <li>DSU <strong>không tách nhóm ra được</strong>. Đây là hạn chế lớn nhất, và Mục 7.5 nói cách đi vòng.</li>
+    <li>Giá trị <code class="inl">par[x]</code> tự nó vô nghĩa; chỉ <code class="inl">find(x)</code> mới có nghĩa.</li>
+  </ul>
+</div>
+
+<!-- ============================ 3 ============================ -->
+<h2 id="s3"><span class="num">3</span>Hai tối ưu và độ phức tạp</h2>
+
+<p>Nếu gộp một cách tuỳ tiện, ta hoàn toàn có thể tạo ra rừng (a) ở trên: gộp (1, 2), rồi (2, 3), rồi (3, 4)…, mỗi lần treo cây cũ xuống dưới một nút mới. Chuỗi dài <span class="mathv">n</span> khiến <code class="inl">find</code> tốn <span class="mathv">O(n)</span>. Hai kỹ thuật sau chặn đứng điều đó.</p>
+
+<div class="box tech">
+  <div class="t">Tối ưu 1 — Hợp theo kích thước</div>
+  <p>Giữ thêm mảng <code class="inl">sz</code>, trong đó <code class="inl">sz[r]</code> là số phần tử của cây gốc <span class="mathv">r</span>. Khi gộp, <strong>luôn treo gốc của cây nhỏ vào gốc của cây lớn</strong>.</p>
+  <p><em>Vì sao chiều cao không vượt log<sub>2</sub> <span class="mathv">n</span>?</em> Một nút chỉ bị tụt sâu thêm 1 khi cây chứa nó bị treo vào một cây khác <em>không nhỏ hơn</em> — nghĩa là cây chứa nó <em>ít nhất gấp đôi</em> kích thước. Kích thước xuất phát từ 1 và không quá <span class="mathv">n</span>, nên chuyện gấp đôi xảy ra nhiều nhất log<sub>2</sub> <span class="mathv">n</span> lần. Vậy mỗi nút sâu tối đa log<sub>2</sub> <span class="mathv">n</span> ≈ 18 với <span class="mathv">n</span> = 2 × 10<sup>5</sup>.</p>
+</div>
+
+<div class="box tech">
+  <div class="t">Tối ưu 2 — Nén đường</div>
+  <p>Mỗi lần <code class="inl">find(x)</code> đã phải đi hết đường từ <span class="mathv">x</span> lên gốc rồi, vậy hãy tận dụng: kéo các nút trên đường đi lại gần gốc hơn. Bản gọn nhất là <em>kéo lên ông nội</em>: đi tới đâu gán <code class="inl">par[x] = par[par[x]]</code> tới đó, chỉ tốn thêm một phép gán mà rút ngắn đường đi còn một nửa.</p>
+</div>
+
+<figure>
+<svg viewBox="0 0 760 310" width="760" role="img" aria-label="Rừng trước và sau một lần nén đường">
+  <defs><marker id="arB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0 0 L10 5 L0 10 z" fill="var(--edge)"/></marker></defs>
+  <circle class="nd" cx="110" cy="34"  r="18"/>
+  <circle class="nd" cx="110" cy="90"  r="18"/>
+  <circle class="nd" cx="110" cy="146" r="18"/>
+  <circle class="nd" cx="110" cy="202" r="18"/>
+  <circle class="nd2" cx="110" cy="258" r="18"/>
+  <text class="lb" x="110" y="34">1</text>
+  <text class="lb" x="110" y="90">2</text>
+  <text class="lb" x="110" y="146">3</text>
+  <text class="lb" x="110" y="202">4</text>
+  <text class="lb" x="110" y="258">5</text>
+  <path class="eg" d="M110 72 L 110 52"   marker-end="url(#arB)"/>
+  <path class="eg" d="M110 128 L 110 108" marker-end="url(#arB)"/>
+  <path class="eg" d="M110 184 L 110 164" marker-end="url(#arB)"/>
+  <path class="eg" d="M110 240 L 110 220" marker-end="url(#arB)"/>
+  <text class="cap" x="140" y="296">trước khi gọi find(5)</text>
+  <text class="cap" x="360" y="155" style="font-size:26px">⟹</text>
+  <circle class="nd" cx="600" cy="34"  r="18"/>
+  <circle class="nd" cx="520" cy="110" r="18"/>
+  <circle class="nd" cx="660" cy="110" r="18"/>
+  <circle class="nd" cx="610" cy="190" r="18"/>
+  <circle class="nd2" cx="700" cy="190" r="18"/>
+  <text class="lb" x="600" y="34">1</text>
+  <text class="lb" x="520" y="110">2</text>
+  <text class="lb" x="660" y="110">3</text>
+  <text class="lb" x="610" y="190">4</text>
+  <text class="lb" x="700" y="190">5</text>
+  <path class="eg" d="M533.1 97.6 L 587.0 46.4"  marker-end="url(#arB)"/>
+  <path class="eg" d="M648.8 95.9 L 611.2 48.1"  marker-end="url(#arB)"/>
+  <path class="eg" d="M619.5 174.7 L 650.5 125.3" marker-end="url(#arB)"/>
+  <path class="eg" d="M692.0 173.9 L 668.0 126.1" marker-end="url(#arB)"/>
+  <text class="cap" x="610" y="296">sau khi gọi find(5)</text>
+</svg>
+</figure>
+
+<p>Một lời gọi chưa làm rừng phẳng hoàn toàn, nhưng chiều cao đã giảm một nửa; vài lời gọi nữa là rừng phẳng hẳn. Đó cũng là lý do chi phí của DSU phải tính <em>khấu trừ</em> trên cả loạt thao tác, chứ không tính riêng lẻ từng thao tác.</p>
+
+<div class="box cmplx">
+  <div class="t">Độ phức tạp của một thao tác</div>
+  <div class="tablewrap">
+  <table>
+  <thead><tr><th>Cách cài</th><th class="c">Chi phí một thao tác</th></tr></thead>
+  <tbody>
+  <tr><td>Không tối ưu gì</td><td class="c"><span class="mathv">O(n)</span> tệ nhất</td></tr>
+  <tr><td>Chỉ hợp theo kích thước</td><td class="c"><span class="mathv">O(log n)</span> tệ nhất</td></tr>
+  <tr><td>Chỉ nén đường</td><td class="c"><span class="mathv">O(log n)</span> khấu trừ</td></tr>
+  <tr><td><strong>Cả hai</strong></td><td class="c"><strong><span class="mathv">O(α(n))</span> khấu trừ</strong></td></tr>
+  </tbody>
+  </table>
+  </div>
+  <p>Hàm α tăng cực kỳ chậm: với mọi <span class="mathv">n</span> gặp trong thực tế, <span class="mathv">α(n) ≤ 4</span>. Nói cách khác, dùng đủ cả hai tối ưu thì <strong>coi mỗi thao tác là hằng số</strong>, và một bài <span class="mathv">n, m ≤ 2 × 10<sup>5</sup></span> chạy trong vài phần trăm giây.</p>
+</div>
+
+<!-- ============================ 4 ============================ -->
+<h2 id="s4"><span class="num">4</span>Khuôn mẫu chuẩn</h2>
+
+<h3>4.1. Cài đặt</h3>
+
+<p>Đây là khuôn mẫu duy nhất cần thuộc lòng. Hàm <code class="inl">findp</code> viết dạng lặp nên không lo tràn ngăn xếp; hàm <code class="inl">unite</code> trả về <code class="inl">bool</code> báo có gộp thật hay không — giá trị này dùng được ngay để đếm số nhóm và để phát hiện chu trình.</p>
+
+<div class="codewrap">
+<div class="name">Khuôn mẫu DSU chuẩn: nén đường + hợp theo kích thước</div>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 200005;
+int n, m, u, v, i, comp, par[MAXN], sz[MAXN];
+
+// Tìm gốc của x, đồng thời nén đường: mỗi nút đi qua được kéo lên ông nội
+int findp(int x) {
+	while (par[x] != x)
+		x = par[x] = par[par[x]];
+	return x;
+}
+
+// Gộp hai nhóm. Trả về false nếu x và y vốn đã cùng nhóm
+bool unite(int x, int y) {
+	x = findp(x);
+	y = findp(y);
+	if (x == y)
+		return false;
+	// Luôn treo cây nhỏ vào cây lớn để chiều cao không phình ra
+	if (sz[x] &lt; sz[y])
+		swap(x, y);
+	par[y] = x;
+	sz[x] += sz[y];
+	return true;
+}
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+
+	cin &gt;&gt; n &gt;&gt; m;
+	for (i = 1; i &lt;= n; i++) {
+		par[i] = i;
+		sz[i] = 1;
+	}
+	comp = n;
+
+	for (i = 1; i &lt;= m; i++) {
+		cin &gt;&gt; u &gt;&gt; v;
+		if (unite(u, v))
+			comp--;
+	}
+
+	cout &lt;&lt; comp &lt;&lt; "\n";
+	return 0;
+}</code></pre>
+</div>
+
+<h3>4.2. Ví dụ chạy tay</h3>
+
+<p>Với <span class="mathv">n</span> = 6 và các phép gộp theo thứ tự (1, 2), (3, 4), (2, 4), (5, 6), (1, 5), (2, 3):</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th class="c">Bước</th><th class="c">Gộp</th><th>Diễn biến</th><th class="c">par[1..6]</th><th class="c">Số nhóm</th></tr></thead>
+<tbody>
+<tr><td class="c">0</td><td class="c">—</td><td>Khởi tạo, mỗi phần tử một nhóm</td><td class="c">1 2 3 4 5 6</td><td class="c">6</td></tr>
+<tr><td class="c">1</td><td class="c">(1, 2)</td><td>Hai cây cùng cỡ 1, treo 2 vào 1</td><td class="c">1 1 3 4 5 6</td><td class="c">5</td></tr>
+<tr><td class="c">2</td><td class="c">(3, 4)</td><td>Hai cây cùng cỡ 1, treo 4 vào 3</td><td class="c">1 1 3 3 5 6</td><td class="c">4</td></tr>
+<tr><td class="c">3</td><td class="c">(2, 4)</td><td>Gốc là 1 và 3, cùng cỡ 2, treo 3 vào 1</td><td class="c">1 1 1 3 5 6</td><td class="c">3</td></tr>
+<tr><td class="c">4</td><td class="c">(5, 6)</td><td>Treo 6 vào 5</td><td class="c">1 1 1 3 5 5</td><td class="c">2</td></tr>
+<tr><td class="c">5</td><td class="c">(1, 5)</td><td>Cỡ 4 và 2, treo 5 vào cây lớn hơn</td><td class="c">1 1 1 3 1 5</td><td class="c">1</td></tr>
+<tr><td class="c">6</td><td class="c">(2, 3)</td><td>Đã chung gốc 1, bỏ qua</td><td class="c">1 1 1 3 1 5</td><td class="c">1</td></tr>
+</tbody>
+</table>
+</div>
+
+<figure>
+<svg viewBox="0 0 760 270" width="760" role="img" aria-label="Rừng DSU sau bước 4 và sau bước 5">
+  <defs><marker id="arC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0 0 L10 5 L0 10 z" fill="var(--edge)"/></marker></defs>
+  <circle class="nd" cx="110" cy="40"  r="18"/>
+  <circle class="nd" cx="60"  cy="120" r="18"/>
+  <circle class="nd" cx="160" cy="120" r="18"/>
+  <circle class="nd" cx="160" cy="200" r="18"/>
+  <circle class="nd" cx="270" cy="120" r="18"/>
+  <circle class="nd" cx="270" cy="200" r="18"/>
+  <text class="lb" x="110" y="40">1</text>
+  <text class="lb" x="60"  y="120">2</text>
+  <text class="lb" x="160" y="120">3</text>
+  <text class="lb" x="160" y="200">4</text>
+  <text class="lb" x="270" y="120">5</text>
+  <text class="lb" x="270" y="200">6</text>
+  <path class="eg" d="M69.5 104.7 L 100.5 55.3"  marker-end="url(#arC)"/>
+  <path class="eg" d="M150.5 104.7 L 119.5 55.3" marker-end="url(#arC)"/>
+  <path class="eg" d="M160 182 L 160 138" marker-end="url(#arC)"/>
+  <path class="eg" d="M270 182 L 270 138" marker-end="url(#arC)"/>
+  <text class="cap" x="165" y="250">sau bước 4: hai nhóm</text>
+  <text class="cap" x="380" y="130" style="font-size:26px">⟹</text>
+  <circle class="nd" cx="560" cy="40"  r="18"/>
+  <circle class="nd" cx="480" cy="120" r="18"/>
+  <circle class="nd" cx="560" cy="120" r="18"/>
+  <circle class="nd" cx="640" cy="120" r="18"/>
+  <circle class="nd" cx="560" cy="200" r="18"/>
+  <circle class="nd" cx="640" cy="200" r="18"/>
+  <text class="lb" x="560" y="40">1</text>
+  <text class="lb" x="480" y="120">2</text>
+  <text class="lb" x="560" y="120">3</text>
+  <text class="lb" x="640" y="120">5</text>
+  <text class="lb" x="560" y="200">4</text>
+  <text class="lb" x="640" y="200">6</text>
+  <path class="eg" d="M492.7 107.3 L 547.3 52.7" marker-end="url(#arC)"/>
+  <path class="eg" d="M560 102 L 560 58" marker-end="url(#arC)"/>
+  <path class="eg" d="M627.3 107.3 L 572.7 52.7" marker-end="url(#arC)"/>
+  <path class="eg" d="M560 182 L 560 138" marker-end="url(#arC)"/>
+  <path class="eg" d="M640 182 L 640 138" marker-end="url(#arC)"/>
+  <text class="cap" x="560" y="250">sau bước 5: một nhóm</text>
+</svg>
+</figure>
+
+<p>Số nhóm khởi đầu bằng <span class="mathv">n</span> và giảm đúng 1 mỗi lần <code class="inl">unite</code> trả về <code class="inl">true</code>. Bước 6 cho thấy vì sao phải trả về <code class="inl">bool</code>: cạnh (2, 3) nối hai đỉnh vốn đã cùng nhóm nên không đổi gì cả.</p>
+
+<div class="box cmplx">
+  <div class="t">Đánh giá</div>
+  <p><strong>Thời gian:</strong> <span class="mathv">O((n + m) α(n))</span>, thực tế coi như <span class="mathv">O(n + m)</span>. Với <span class="mathv">n, m</span> = 2 × 10<sup>5</sup> là chưa tới 0,01 giây.</p>
+  <p><strong>Bộ nhớ:</strong> hai mảng <code class="inl">int</code>, tức <span class="mathv">8n</span> byte — khoảng 1,6 MB với <span class="mathv">n</span> = 2 × 10<sup>5</sup>.</p>
+</div>
+
+<!-- ============================ 5 ============================ -->
+<h2 id="s5"><span class="num">5</span>Ba biến thể dùng trong phòng thi</h2>
+
+<h3>5.1. DSU trọng số: khi quan hệ có hai chiều đối lập</h3>
+
+<p>Nhiều đề không chỉ hỏi "cùng nhóm hay không" mà còn phân biệt <em>cùng phe</em> và <em>khác phe</em>: chia lớp thành hai đội, hai con bọ khác giống, hai mệnh đề trái nghĩa. Ý tưởng: giữ thêm mảng <code class="inl">rel</code> với <code class="inl">rel[x]</code> ∈ {0, 1} là quan hệ giữa <span class="mathv">x</span> và <em>cha</em> của nó. Quan hệ giữa <span class="mathv">x</span> và gốc là phép XOR dồn dọc đường đi lên.</p>
+
+<p>Điểm tinh tế nằm ở nén đường: khi <span class="mathv">x</span> được kéo lên trỏ thẳng vào gốc, <code class="inl">rel[x]</code> phải đổi theo cho khớp. Muốn cộng dồn đúng thì phải sửa <em>từ trên xuống</em>, nên hàm <code class="inl">findp</code> ở đây viết đệ quy — chiều cao chỉ cỡ <span class="mathv">log n</span> nên hoàn toàn an toàn.</p>
+
+<p>Chương trình dưới đây giải bài: có <span class="mathv">n</span> người, <span class="mathv">m</span> khẳng định dạng "<span class="mathv">u</span> và <span class="mathv">v</span> khác phe"; hãy chỉ ra khẳng định <em>đầu tiên</em> mâu thuẫn với những khẳng định trước nó (in 0 nếu không có). Đây chính là kiểm tra đồ thị hai phía, nhưng làm được <strong>trực tuyến</strong> — điều mà cách tô hai màu bằng BFS không làm nổi.</p>
+
+<div class="codewrap">
+<div class="name">DSU trọng số: phát hiện khẳng định mâu thuẫn đầu tiên</div>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 200005;
+int n, m, u, v, i, bad, rx, ry, par[MAXN], sz[MAXN], rel[MAXN];
+
+// rel[x] = quan hệ giữa x và cha nó: 0 là cùng phe, 1 là khác phe
+// findp trả về gốc và sửa rel[x] thành quan hệ giữa x với chính cái gốc đó
+int findp(int x) {
+	if (par[x] == x)
+		return x;
+	int r = findp(par[x]);
+	// Cộng dồn SAU lời gọi đệ quy, khi rel[par[x]] đã tính theo gốc
+	rel[x] ^= rel[par[x]];
+	par[x] = r;
+	return r;
+}
+
+// Ghi nhận "x và y có quan hệ d". Trả về false nếu mâu thuẫn với dữ liệu cũ
+bool unite(int x, int y, int d) {
+	rx = findp(x);
+	ry = findp(y);
+	if (rx == ry)
+		return (rel[x] ^ rel[y]) == d;
+	if (sz[rx] &lt; sz[ry]) {
+		swap(rx, ry);
+		swap(x, y);
+	}
+	par[ry] = rx;
+	// Quan hệ của gốc ry với gốc rx, đi vòng qua y rồi x
+	rel[ry] = rel[x] ^ rel[y] ^ d;
+	sz[rx] += sz[ry];
+	return true;
+}
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+
+	cin &gt;&gt; n &gt;&gt; m;
+	for (i = 1; i &lt;= n; i++) {
+		par[i] = i;
+		sz[i] = 1;
+	}
+
+	for (i = 1; i &lt;= m; i++) {
+		cin &gt;&gt; u &gt;&gt; v;
+		// Mỗi cặp bạn đọc vào là một khẳng định "hai người khác phe"
+		if (!unite(u, v, 1) &amp;&amp; bad == 0)
+			bad = i;
+	}
+
+	cout &lt;&lt; bad &lt;&lt; "\n";
+	return 0;
+}</code></pre>
+</div>
+
+<p>Công thức khó nhớ nhất là <code class="inl">rel[ry] = rel[x] ^ rel[y] ^ d</code>. Hãy đọc nó như một đường đi: từ gốc <span class="mathv">ry</span> xuống <span class="mathv">y</span> tốn <code class="inl">rel[y]</code>, từ <span class="mathv">y</span> sang <span class="mathv">x</span> tốn <span class="mathv">d</span>, từ <span class="mathv">x</span> lên gốc <span class="mathv">rx</span> tốn <code class="inl">rel[x]</code>. Cộng cả ba lại (bằng XOR) ra quan hệ giữa <span class="mathv">ry</span> và <span class="mathv">rx</span>.</p>
+
+<div class="box warn">
+  <div class="t">Thứ tự trong hàm find quyết định đúng sai</div>
+  <p>Dòng <code class="inl">rel[x] ^= rel[par[x]]</code> phải đặt <strong>sau</strong> lời gọi đệ quy. Lý do: chỉ sau lời gọi đó, <code class="inl">rel[par[x]]</code> mới mang nghĩa "quan hệ giữa cha của <span class="mathv">x</span> với gốc". Đặt trước lời gọi thì nó vẫn còn là quan hệ với ông nội — sai, và sai rất khó phát hiện vì các test nhỏ vẫn đúng.</p>
+  <p>Với quan hệ có <span class="mathv">k</span> trạng thái vòng tròn (ví dụ ba loài ăn lẫn nhau), thay XOR bằng phép cộng modulo <span class="mathv">k</span>; toàn bộ khung sườn giữ nguyên.</p>
+</div>
+
+<h3>5.2. DSU có hoàn tác</h3>
+
+<p>Nén đường xoá mất hình dạng cũ của cây, nên muốn lùi lại được thì phải <strong>bỏ nén đường</strong>, chỉ giữ hợp theo kích thước. Chi phí mỗi thao tác tăng lên <span class="mathv">O(log n)</span> — vẫn thừa nhanh. Bù lại, mỗi phép gộp chỉ thay đổi đúng hai ô nhớ, nên nhật ký chỉ cần ghi lại nút vừa bị treo là dựng lại được trạng thái cũ.</p>
+
+<div class="codewrap">
+<div class="name">DSU có hoàn tác: mỗi lệnh U là một phép gộp, mỗi lệnh R lùi lại một bước</div>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 200005;
+int n, q, u, v, i, comp, top, par[MAXN], sz[MAXN], stk[MAXN];
+char op;
+
+// KHÔNG nén đường: nén đường xoá mất hình dạng cũ của cây nên không lùi lại được
+int findp(int x) {
+	while (par[x] != x)
+		x = par[x];
+	return x;
+}
+
+// Gộp và ghi nhật ký. Chỉ cần nhớ đúng nút vừa bị treo là dựng lại được
+void unite(int x, int y) {
+	x = findp(x);
+	y = findp(y);
+	if (x == y) {
+		// Vẫn ghi một dấu rỗng để mỗi phép hoàn tác ứng với đúng một phép gộp
+		stk[top++] = 0;
+		return;
+	}
+	if (sz[x] &lt; sz[y])
+		swap(x, y);
+	par[y] = x;
+	sz[x] += sz[y];
+	stk[top++] = y;
+	comp--;
+}
+
+// Hoàn tác đúng phép gộp gần nhất
+void undo() {
+	if (top == 0)
+		return;
+	int y = stk[--top];
+	if (y == 0)
+		return;
+	sz[par[y]] -= sz[y];
+	par[y] = y;
+	comp++;
+}
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+
+	cin &gt;&gt; n &gt;&gt; q;
+	for (i = 1; i &lt;= n; i++) {
+		par[i] = i;
+		sz[i] = 1;
+	}
+	comp = n;
+
+	for (i = 1; i &lt;= q; i++) {
+		cin &gt;&gt; op;
+		if (op == 'U') {
+			cin &gt;&gt; u &gt;&gt; v;
+			unite(u, v);
+		}
+		else
+			undo();
+		cout &lt;&lt; comp &lt;&lt; "\n";
+	}
+	return 0;
+}</code></pre>
+</div>
+
+<div class="box tech">
+  <div class="t">Khi nào cần hoàn tác, khi nào không</div>
+  <p>Cần hoàn tác khi các phép gộp xếp theo một <em>cây duyệt</em>: quay lui thử từng phương án, hay chia để trị theo trục thời gian — vào nhánh thì thêm cạnh, ra nhánh thì phải trả lại đúng trạng thái cũ.</p>
+  <p>Ngược lại, nếu đề <strong>chỉ xoá</strong> cạnh chứ không xen kẽ thêm–xoá, thì có cách rẻ hơn nhiều: đọc ngược thời gian, phép xoá biến thành phép thêm và DSU thường là đủ (Bài 4, Mục 8). Đừng vội lấy ngăn xếp hoàn tác khi mẹo đảo thời gian đã giải quyết xong.</p>
+</div>
+
+<h3>5.3. DSU làm con trỏ nhảy</h3>
+
+<p>Biến thể này ít được dạy nhưng xuất hiện rất nhiều. Bài toán mẫu: có <span class="mathv">n</span> ô trống đánh số 1 … <span class="mathv">n</span>; mỗi yêu cầu cho một vị trí <span class="mathv">p</span> và cần cấp <em>ô trống nhỏ nhất có chỉ số ≥ <span class="mathv">p</span></em>, sau đó ô ấy bị chiếm.</p>
+
+<p>Đặt <code class="inl">nxt[x]</code> là ô trống nhỏ nhất có chỉ số ≥ <span class="mathv">x</span>; ban đầu <code class="inl">nxt[x] = x</code>. Khi ô <span class="mathv">p</span> bị chiếm, chỉ cần gán <code class="inl">nxt[p] = p + 1</code> — mọi truy vấn sau đó tới <span class="mathv">p</span> sẽ tự động trượt tiếp. Thêm một <em>lính canh</em> ở vị trí <span class="mathv">n</span> + 1 để báo hết chỗ.</p>
+
+<figure>
+<svg viewBox="0 0 560 165" width="560" role="img" aria-label="Dãy ô với con trỏ nhảy sang ô trống kế tiếp">
+  <defs><marker id="arD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0 0 L10 5 L0 10 z" fill="var(--hl)"/></marker></defs>
+  <rect x="60"  y="60" width="56" height="44" rx="5" style="fill:var(--red-bg);stroke:var(--hl);stroke-width:2"/>
+  <rect x="140" y="60" width="56" height="44" rx="5" style="fill:var(--red-bg);stroke:var(--hl);stroke-width:2"/>
+  <rect x="220" y="60" width="56" height="44" rx="5" class="nd"/>
+  <rect x="300" y="60" width="56" height="44" rx="5" style="fill:var(--red-bg);stroke:var(--hl);stroke-width:2"/>
+  <rect x="380" y="60" width="56" height="44" rx="5" class="nd"/>
+  <rect x="460" y="60" width="56" height="44" rx="5" style="fill:var(--green-bg);stroke:var(--hl2);stroke-width:2"/>
+  <text class="lb" x="88"  y="82">1</text>
+  <text class="lb" x="168" y="82">2</text>
+  <text class="lb" x="248" y="82">3</text>
+  <text class="lb" x="328" y="82">4</text>
+  <text class="lb" x="408" y="82">5</text>
+  <text class="lb" x="488" y="82">6</text>
+  <path class="eg" style="stroke:var(--hl)" d="M88 56 Q128 16 164 54"  marker-end="url(#arD)"/>
+  <path class="eg" style="stroke:var(--hl)" d="M168 56 Q208 16 244 54" marker-end="url(#arD)"/>
+  <path class="eg" style="stroke:var(--hl)" d="M328 56 Q368 16 404 54" marker-end="url(#arD)"/>
+  <text class="el" x="288" y="138">xanh nhạt: còn trống — đỏ: đã bị chiếm — xanh lá: lính canh</text>
+</svg>
+</figure>
+
+<p>Hỏi vị trí 1 thì đường nhảy 1 → 2 → 3 dừng ở ô 3; hỏi vị trí 4 thì nhảy sang ô 5. Mỗi ô chỉ chuyển từ trống sang chiếm đúng một lần, nên tổng chi phí vẫn là <span class="mathv">O((n + m) α(n))</span> dù ở đây hướng gộp bị ép cứng (luôn trỏ sang phải) và không dùng được hợp theo kích thước.</p>
+
+<div class="codewrap">
+<div class="name">DSU làm con trỏ nhảy: cấp ô trống nhỏ nhất từ vị trí p trở đi</div>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 200005;
+int n, m, i, p, nxt[MAXN];
+
+// nxt[x] = ô còn trống nhỏ nhất có chỉ số &gt;= x. Ô n+1 làm lính canh báo hết chỗ
+int findp(int x) {
+	while (nxt[x] != x)
+		x = nxt[x] = nxt[nxt[x]];
+	return x;
+}
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+
+	cin &gt;&gt; n &gt;&gt; m;
+	for (i = 1; i &lt;= n + 1; i++)
+		nxt[i] = i;
+
+	for (i = 1; i &lt;= m; i++) {
+		cin &gt;&gt; p;
+		p = findp(p);
+		if (p &gt; n) {
+			// Lính canh: từ vị trí yêu cầu trở đi không còn ô nào trống
+			cout &lt;&lt; "0\n";
+			continue;
+		}
+		cout &lt;&lt; p &lt;&lt; "\n";
+		// Ô p vừa bị chiếm: mọi truy vấn tới p về sau bị đẩy sang p+1
+		nxt[p] = p + 1;
+	}
+	return 0;
+}</code></pre>
+</div>
+
+<!-- ============================ 6 ============================ -->
+<h2 id="s6"><span class="num">6</span>Những lỗi thường gặp</h2>
+
+<div class="box warn">
+  <div class="t">Danh sách kiểm tra trước khi nộp bài</div>
+  <ul>
+    <li><strong>So sánh cha thay vì so sánh gốc.</strong> Viết <code class="inl">par[u] == par[v]</code> là sai; phải là <code class="inl">findp(u) == findp(v)</code>. Hai đỉnh cùng nhóm hoàn toàn có thể có cha khác nhau.</li>
+    <li><strong>Quên khởi tạo.</strong> Phải đặt <code class="inl">par[i] = i</code> và <code class="inl">sz[i] = 1</code>. Đề có nhiều bộ dữ liệu thì phải khởi tạo lại từ đầu mỗi bộ.</li>
+    <li><strong>Gộp mà chưa lấy gốc.</strong> Trong <code class="inl">unite</code>, phải gán <code class="inl">x = findp(x)</code>, <code class="inl">y = findp(y)</code> trước khi động vào <code class="inl">par</code> và <code class="inl">sz</code>.</li>
+    <li><strong>Cập nhật kích thước sai chỗ.</strong> Dòng <code class="inl">sz[x] += sz[y]</code> phải đứng <em>sau</em> <code class="inl">par[y] = x</code> nhưng vẫn dùng <code class="inl">sz[y]</code> cũ — viết ngược lại là hỏng.</li>
+    <li><strong>Đếm số nhóm sai.</strong> Chỉ giảm biến đếm khi gộp thật sự xảy ra, không giảm mỗi lần đọc một cạnh.</li>
+    <li><strong>Trộn nén đường với hoàn tác.</strong> Hai thứ này loại trừ nhau. Cần <code class="inl">undo</code> thì phải bỏ nén đường.</li>
+    <li><strong>Sai thứ tự trong DSU trọng số.</strong> Xem lại khung cảnh báo ở Mục 5.1.</li>
+    <li><strong>Tràn số khi đếm cặp.</strong> Số cặp trong một nhóm là <span class="mathv">sz × (sz − 1)/2</span>; với <span class="mathv">sz</span> = 2 × 10<sup>5</sup> đã vượt <code class="inl">int</code>. Phải dùng <code class="inl">long long</code>.</li>
+  </ul>
+</div>
+
+<!-- ============================ 7 ============================ -->
+<h2 id="s7"><span class="num">7</span>Ứng dụng và biến thể</h2>
+
+<h3>7.1. Phát hiện chu trình và cạnh thừa</h3>
+
+<p>Thêm lần lượt các cạnh vào DSU: nếu <code class="inl">unite</code> trả về <code class="inl">false</code> thì cạnh đang xét nối hai đỉnh vốn đã cùng nhóm, tức là nó <strong>tạo ra chu trình</strong> và có thể bỏ đi. Đồ thị <span class="mathv">n</span> đỉnh là cây khi và chỉ khi nó có đúng <span class="mathv">n</span> − 1 cạnh và không cạnh nào bị bỏ.</p>
+
+<p>Đây cũng chính là bộ khung của thuật toán Kruskal dựng cây khung nhỏ nhất: sắp cạnh tăng dần theo trọng số rồi lấy mọi cạnh mà <code class="inl">unite</code> trả về <code class="inl">true</code>. Phần chứng minh tính đúng đắn thuộc về chuyên đề cây khung, ở đây chỉ cần thấy rằng DSU đóng vai trò "cạnh này có thừa không".</p>
+
+<h3>7.2. Đếm số cặp đỉnh cùng nhóm</h3>
+
+<p>Với mỗi gốc <span class="mathv">r</span>, nhóm của nó đóng góp <span class="mathv">sz[r] × (sz[r] − 1)/2</span> cặp. Nếu đề hỏi sau mỗi phép gộp thì càng gọn: gộp hai nhóm cỡ <span class="mathv">a</span> và <span class="mathv">b</span> làm số cặp tăng thêm đúng <span class="mathv">a × b</span>. Nhớ dùng <code class="inl">long long</code>.</p>
+
+<h3>7.3. DSU trên lưới</h3>
+
+<p>Bài toán tô vùng trên bảng <span class="mathv">n × m</span> dùng DSU bằng cách đánh số ô (<span class="mathv">i</span>, <span class="mathv">j</span>) thành (<span class="mathv">i</span> − 1) × <span class="mathv">m</span> + <span class="mathv">j</span>, rồi gộp ô đang xét với ô kề phải và ô kề dưới. Cách này đặc biệt hợp khi các ô được "bật" dần theo thời gian — tình huống mà loang thông thường phải làm lại từ đầu.</p>
+
+<h3>7.4. Truy vấn theo ngưỡng, xử lý ngoại tuyến</h3>
+
+<p>Dạng đề: "<span class="mathv">u</span> và <span class="mathv">v</span> có nối được với nhau chỉ bằng các cạnh trọng số ≤ <span class="mathv">w</span> không?". Sắp các cạnh tăng dần theo trọng số, sắp các truy vấn tăng dần theo <span class="mathv">w</span>, rồi quét một lượt: trước khi trả lời một truy vấn, nạp hết các cạnh có trọng số ≤ <span class="mathv">w</span> vào DSU. Mỗi cạnh chỉ được nạp một lần cho toàn bộ truy vấn.</p>
+
+<h3>7.5. Khi đề có phép xoá</h3>
+
+<p>DSU không tách nhóm được. Hai lối đi vòng:</p>
+<ul>
+  <li>Đề <em>chỉ</em> xoá: đọc ngược thời gian, phép xoá thành phép thêm (Bài 4, Mục 8).</li>
+  <li>Đề xen kẽ thêm và xoá: dùng DSU có hoàn tác kết hợp chia để trị trên trục thời gian — kỹ thuật nặng, thường chỉ gặp ở mức đội tuyển quốc gia trở lên.</li>
+</ul>
+
+<h3>7.6. Nhân bản đỉnh thay cho DSU trọng số</h3>
+
+<p>Có một cách né hẳn mảng <code class="inl">rel</code>: tạo 2<span class="mathv">n</span> phần tử, đỉnh <span class="mathv">u</span> và "bản đối" <span class="mathv">u'</span>. Khẳng định "<span class="mathv">u</span> khác phe <span class="mathv">v</span>" được ghi bằng hai phép gộp <code class="inl">unite(u, v')</code> và <code class="inl">unite(u', v)</code>; mâu thuẫn xảy ra khi <span class="mathv">u</span> và <span class="mathv">u'</span> rơi vào cùng một nhóm.</p>
+
+<p>Cách này dễ nhớ hơn nhiều, đổi lại tốn gấp đôi bộ nhớ và <strong>chỉ trả lời được "có mâu thuẫn không"</strong>, chứ không trả lời được "quan hệ giữa <span class="mathv">u</span> và <span class="mathv">v</span> là gì". Đề nào có truy vấn hỏi quan hệ thì buộc phải dùng DSU trọng số.</p>
+
+<!-- ============================ 8 ============================ -->
+<h2 id="s8"><span class="num">8</span>Bài tập mẫu có lời giải</h2>
+
+<h3>8.1. Bài 1 — Nhóm bạn</h3>
+
+<p><strong>Đề.</strong> Một lớp có <span class="mathv">n</span> học sinh, ban đầu chưa ai quen ai. Có <span class="mathv">m</span> lần giới thiệu, lần thứ <span class="mathv">i</span> cho hai học sinh <span class="mathv">u<sub>i</sub></span> và <span class="mathv">v<sub>i</sub></span> làm quen. Quan hệ quen biết lan truyền: quen của bạn cũng coi như cùng một nhóm. Sau mỗi lần giới thiệu, hãy in ra số nhóm hiện có và số học sinh của nhóm đông nhất. Giới hạn <span class="mathv">n, m ≤ 2 × 10<sup>5</sup></span>.</p>
+
+<p><strong>Phân tích.</strong> Đúng khuôn mẫu chuẩn. Số nhóm giảm 1 mỗi lần gộp thật. Với nhóm đông nhất, chỉ cần một nhận xét: kích thước lớn nhất <em>chỉ có thể tăng</em>, và chỉ có thể tăng tại đúng cái cây vừa được gộp — nên so sánh với <code class="inl">sz</code> của gốc mới là đủ, không cần quét lại toàn bộ.</p>
+
+<p>Ví dụ với <span class="mathv">n</span> = 5 và bốn lần giới thiệu (1, 2), (3, 4), (2, 3), (5, 1), kết quả lần lượt là <code class="inl">4 2</code>, <code class="inl">3 2</code>, <code class="inl">2 4</code>, <code class="inl">1 5</code>.</p>
+
+<div class="codewrap">
+<div class="name">Bài 1 — Nhóm bạn</div>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 200005;
+int n, m, u, v, i, comp, best, par[MAXN], sz[MAXN];
+
+int findp(int x) {
+	while (par[x] != x)
+		x = par[x] = par[par[x]];
+	return x;
+}
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+
+	cin &gt;&gt; n &gt;&gt; m;
+	for (i = 1; i &lt;= n; i++) {
+		par[i] = i;
+		sz[i] = 1;
+	}
+	comp = n;
+	best = 1;
+
+	for (i = 1; i &lt;= m; i++) {
+		cin &gt;&gt; u &gt;&gt; v;
+		u = findp(u);
+		v = findp(v);
+		if (u != v) {
+			if (sz[u] &lt; sz[v])
+				swap(u, v);
+			par[v] = u;
+			sz[u] += sz[v];
+			comp--;
+			// Nhóm đông nhất chỉ có thể đổi tại đúng cây vừa được gộp
+			best = max(best, sz[u]);
+		}
+		cout &lt;&lt; comp &lt;&lt; " " &lt;&lt; best &lt;&lt; "\n";
+	}
+	return 0;
+}</code></pre>
+</div>
+
+<h3>8.2. Bài 2 — Chia hai phe</h3>
+
+<p><strong>Đề.</strong> Có <span class="mathv">n</span> người cần chia thành hai phe. Xử lý <span class="mathv">m</span> thao tác theo thứ tự:</p>
+<ul>
+  <li><code class="inl">1 u v d</code>: khẳng định <span class="mathv">u</span> và <span class="mathv">v</span> cùng phe (nếu <span class="mathv">d</span> = 0) hoặc khác phe (nếu <span class="mathv">d</span> = 1). Nếu khẳng định này trái với các khẳng định đã nhận trước đó thì in <code class="inl">MAU THUAN</code> và <em>bỏ qua</em> nó; ngược lại nhận nó và in <code class="inl">OK</code>.</li>
+  <li><code class="inl">2 u v</code>: hỏi quan hệ giữa <span class="mathv">u</span> và <span class="mathv">v</span>. In 0 nếu chắc chắn cùng phe, 1 nếu chắc chắn khác phe, −1 nếu chưa đủ dữ liệu để kết luận.</li>
+</ul>
+
+<p><strong>Phân tích.</strong> DSU trọng số ở Mục 5.1, chỉ khác là quan hệ <span class="mathv">d</span> nay có cả hai giá trị chứ không cố định bằng 1. Với truy vấn loại 2: nếu <span class="mathv">u</span> và <span class="mathv">v</span> khác gốc thì chưa có ràng buộc nào nối chúng, in −1; ngược lại đáp án là <code class="inl">rel[u] ^ rel[v]</code> — lưu ý phải gọi <code class="inl">findp</code> cho cả hai <em>trước</em> khi đọc hai giá trị này.</p>
+
+<p>Ví dụ với <span class="mathv">n</span> = 4 và dãy thao tác <code class="inl">1 1 2 1</code>, <code class="inl">1 2 3 1</code>, <code class="inl">2 1 3</code>, <code class="inl">1 1 3 1</code>, <code class="inl">2 1 4</code>, kết quả là <code class="inl">OK</code>, <code class="inl">OK</code>, 0, <code class="inl">MAU THUAN</code>, −1: người 1 và người 3 cùng phe vì cả hai đều khác phe với người 2.</p>
+
+<div class="codewrap">
+<div class="name">Bài 2 — Chia hai phe</div>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 200005;
+int n, m, t, u, v, d, i, rx, ry, par[MAXN], sz[MAXN], rel[MAXN];
+
+// rel[x] = quan hệ giữa x và gốc của nó: 0 là cùng phe, 1 là khác phe
+int findp(int x) {
+	if (par[x] == x)
+		return x;
+	int r = findp(par[x]);
+	rel[x] ^= rel[par[x]];
+	par[x] = r;
+	return r;
+}
+
+// Ghi nhận "u và v có quan hệ d". Trả về false nếu trái với các khẳng định cũ
+bool unite(int x, int y, int w) {
+	rx = findp(x);
+	ry = findp(y);
+	if (rx == ry)
+		return (rel[x] ^ rel[y]) == w;
+	if (sz[rx] &lt; sz[ry]) {
+		swap(rx, ry);
+		swap(x, y);
+	}
+	par[ry] = rx;
+	rel[ry] = rel[x] ^ rel[y] ^ w;
+	sz[rx] += sz[ry];
+	return true;
+}
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+
+	cin &gt;&gt; n &gt;&gt; m;
+	for (i = 1; i &lt;= n; i++) {
+		par[i] = i;
+		sz[i] = 1;
+	}
+
+	for (i = 1; i &lt;= m; i++) {
+		cin &gt;&gt; t &gt;&gt; u &gt;&gt; v;
+		if (t == 1) {
+			cin &gt;&gt; d;
+			cout &lt;&lt; (unite(u, v, d) ? "OK" : "MAU THUAN") &lt;&lt; "\n";
+		}
+		else if (findp(u) != findp(v))
+			// Hai người chưa nằm chung một nhóm ràng buộc nào
+			cout &lt;&lt; "-1\n";
+		else
+			cout &lt;&lt; (rel[u] ^ rel[v]) &lt;&lt; "\n";
+	}
+	return 0;
+}</code></pre>
+</div>
+
+<h3>8.3. Bài 3 — Tô màu đoạn</h3>
+
+<p><strong>Đề.</strong> Một hàng rào gồm <span class="mathv">n</span> tấm ván chưa sơn, đánh số 1 … <span class="mathv">n</span>. Có <span class="mathv">m</span> lượt sơn, lượt thứ <span class="mathv">i</span> sơn toàn bộ đoạn [<span class="mathv">l<sub>i</sub></span>, <span class="mathv">r<sub>i</sub></span>] bằng màu <span class="mathv">c<sub>i</sub></span>, đè lên màu cũ nếu có. Hãy in màu cuối cùng của từng tấm ván (0 nếu chưa được sơn lần nào). Giới hạn <span class="mathv">n, m ≤ 2 × 10<sup>5</sup></span>.</p>
+
+<p><strong>Phân tích.</strong> Làm xuôi thì mỗi tấm ván có thể bị sơn lại <span class="mathv">m</span> lần, tổng <span class="mathv">O(nm)</span>. Nhận xét lật ngược tình thế: <em>nước sơn muộn nhất là nước sơn thắng</em>. Vậy hãy duyệt các lượt sơn từ lượt <span class="mathv">m</span> về lượt 1; lượt nào gặp trước thì màu của nó là màu cuối cùng, và ta chỉ sơn những tấm ván <strong>chưa có màu</strong>.</p>
+
+<p>Việc "bỏ qua các tấm đã có màu" chính là con trỏ nhảy ở Mục 5.3: <code class="inl">nxt[x]</code> trỏ tới tấm chưa sơn nhỏ nhất có chỉ số ≥ <span class="mathv">x</span>. Mỗi tấm ván được ghi màu đúng một lần trong cả chương trình, nên tổng chi phí là <span class="mathv">O((n + m) α(n))</span>.</p>
+
+<p>Ví dụ với <span class="mathv">n</span> = 8 và ba lượt sơn (2, 5, 1), (4, 7, 2), (1, 3, 3), đáp án là <code class="inl">3 3 3 2 2 2 2 0</code>.</p>
+
+<div class="codewrap">
+<div class="name">Bài 3 — Tô màu đoạn</div>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 200005;
+int n, m, i, j, l[MAXN], r[MAXN], c[MAXN], col[MAXN], nxt[MAXN];
+
+// nxt[x] = ô chưa tô nhỏ nhất có chỉ số &gt;= x
+int findp(int x) {
+	while (nxt[x] != x)
+		x = nxt[x] = nxt[nxt[x]];
+	return x;
+}
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+
+	cin &gt;&gt; n &gt;&gt; m;
+	for (i = 1; i &lt;= m; i++)
+		cin &gt;&gt; l[i] &gt;&gt; r[i] &gt;&gt; c[i];
+	for (i = 1; i &lt;= n + 1; i++)
+		nxt[i] = i;
+
+	// Duyệt ngược thời gian: nước sơn muộn nhất phủ lên trên, nên gặp trước thì thắng
+	for (i = m; i &gt;= 1; i--)
+		for (j = findp(l[i]); j &lt;= r[i]; j = findp(j)) {
+			col[j] = c[i];
+			// Ô j đã có màu cuối cùng, vĩnh viễn nhảy qua nó
+			nxt[j] = j + 1;
+		}
+
+	for (i = 1; i &lt;= n; i++)
+		cout &lt;&lt; col[i] &lt;&lt; " ";
+	cout &lt;&lt; "\n";
+	return 0;
+}</code></pre>
+</div>
+
+<h3>8.4. Bài 4 — Những con đường bị phá</h3>
+
+<p><strong>Đề.</strong> Một vùng có <span class="mathv">n</span> thành phố và <span class="mathv">m</span> con đường hai chiều. Sau đó xảy ra <span class="mathv">q</span> ngày bão, ngày thứ <span class="mathv">i</span> phá huỷ con đường số <span class="mathv">k<sub>i</sub></span> (các <span class="mathv">k<sub>i</sub></span> đôi một khác nhau). Sau mỗi ngày, hãy cho biết vùng bị chia thành bao nhiêu khu vực rời nhau. Giới hạn <span class="mathv">n, m, q ≤ 2 × 10<sup>5</sup></span>.</p>
+
+<p><strong>Phân tích.</strong> DSU không xoá cạnh được, mà dựng lại đồ thị mỗi ngày thì tốn <span class="mathv">O(q(n + m))</span>. Mẹo <strong>đảo thời gian</strong> gỡ nút thắt: hãy bắt đầu từ trạng thái <em>cuối cùng</em> — đồ thị chỉ gồm những con đường không bao giờ bị phá — rồi lùi dần. Xây lại con đường của ngày <span class="mathv">i</span> đúng bằng việc quay về trạng thái của ngày <span class="mathv">i</span> − 1. Phép "xoá" đã biến thành phép "thêm", và DSU chuẩn dùng được ngay.</p>
+
+<p>Các đáp án sinh ra theo thứ tự ngược nên phải cất vào mảng rồi in xuôi lại. Đây là khuôn mẫu ngoại tuyến tiêu biểu: được đọc hết dữ liệu trước khi trả lời thì hãy nghĩ tới việc đổi thứ tự xử lý.</p>
+
+<p>Ví dụ với <span class="mathv">n</span> = 5, bốn con đường (1, 2), (2, 3), (4, 5), (3, 4), rồi phá con đường số 4 và số 1: đáp án là 2 rồi 3.</p>
+
+<div class="codewrap">
+<div class="name">Bài 4 — Những con đường bị phá</div>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 200005;
+int n, m, q, i, comp, eu[MAXN], ev[MAXN], qid[MAXN], ans[MAXN], par[MAXN], sz[MAXN];
+bool die[MAXN];
+
+int findp(int x) {
+	while (par[x] != x)
+		x = par[x] = par[par[x]];
+	return x;
+}
+
+void unite(int x, int y) {
+	x = findp(x);
+	y = findp(y);
+	if (x == y)
+		return;
+	if (sz[x] &lt; sz[y])
+		swap(x, y);
+	par[y] = x;
+	sz[x] += sz[y];
+	comp--;
+}
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+
+	cin &gt;&gt; n &gt;&gt; m;
+	for (i = 1; i &lt;= m; i++)
+		cin &gt;&gt; eu[i] &gt;&gt; ev[i];
+	cin &gt;&gt; q;
+	for (i = 1; i &lt;= q; i++) {
+		cin &gt;&gt; qid[i];
+		die[qid[i]] = true;
+	}
+
+	for (i = 1; i &lt;= n; i++) {
+		par[i] = i;
+		sz[i] = 1;
+	}
+	comp = n;
+
+	// Trạng thái cuối cùng: chỉ còn những con đường không bao giờ bị phá
+	for (i = 1; i &lt;= m; i++)
+		if (!die[i])
+			unite(eu[i], ev[i]);
+	ans[q] = comp;
+
+	// Lùi thời gian: xây lại con đường của ngày i thì ra trạng thái của ngày i-1
+	for (i = q; i &gt;= 2; i--) {
+		unite(eu[qid[i]], ev[qid[i]]);
+		ans[i - 1] = comp;
+	}
+
+	for (i = 1; i &lt;= q; i++)
+		cout &lt;&lt; ans[i] &lt;&lt; "\n";
+	return 0;
+}</code></pre>
+</div>
+
+<!-- ============================ 9 ============================ -->
+<h2 id="s9"><span class="num">9</span>Bài tập tự luyện</h2>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th class="c">#</th><th>Bài (nguồn)</th><th>Gợi ý</th><th class="c">Mức</th></tr></thead>
+<tbody>
+<tr><td class="c">1</td><td>CSES — Building Roads</td><td>Đếm số nhóm, đáp án là số nhóm trừ 1 con đường</td><td class="c">Dễ</td></tr>
+<tr><td class="c">2</td><td>CSES — Road Construction</td><td>Đúng Bài 1 Mục 8</td><td class="c">Dễ</td></tr>
+<tr><td class="c">3</td><td>CF 217A — Ice Skating</td><td>Gộp hai điểm cùng hoành độ hoặc cùng tung độ</td><td class="c">Dễ</td></tr>
+<tr><td class="c">4</td><td>CF 445B — DZY Loves Chemistry</td><td>Đáp án 2<sup>n − số nhóm</sup></td><td class="c">Dễ</td></tr>
+<tr><td class="c">5</td><td>UVA 10685 — Nature</td><td>Tên loài là xâu, cần bảng băm để đánh số</td><td class="c">Dễ</td></tr>
+<tr><td class="c">6</td><td>CF 25D — Roads not only in Berland</td><td>Cạnh nào tạo chu trình thì đem đi nối hai nhóm khác</td><td class="c">TB</td></tr>
+<tr><td class="c">7</td><td>CSES — Road Reparation</td><td>Kruskal: sắp cạnh tăng dần rồi lấy cạnh không thừa</td><td class="c">TB</td></tr>
+<tr><td class="c">8</td><td>POJ 2492 — A Bug's Life</td><td>DSU trọng số, đúng Mục 5.1</td><td class="c">TB</td></tr>
+<tr><td class="c">9</td><td>CF 766D — Mahmoud and a Dictionary</td><td>DSU trọng số có cả hai loại quan hệ và có truy vấn</td><td class="c">TB</td></tr>
+<tr><td class="c">10</td><td>CF 1609D — Social Network</td><td>DSU kết hợp lập luận về số cạnh thừa</td><td class="c">Khó</td></tr>
+<tr><td class="c">11</td><td>CF 892E — Envy</td><td>DSU có hoàn tác trên cây khung nhỏ nhất</td><td class="c">Khó</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ============================ 10 ============================ -->
+<h2 id="s10"><span class="num">10</span>Tổng kết</h2>
+
+<p>Gặp một bài nghi là DSU, hãy trả lời bốn câu hỏi sau theo đúng thứ tự:</p>
+
+<ol>
+  <li><strong>Dữ liệu đến dần hay cho sẵn một lần?</strong> Cạnh (hay quan hệ) đến dần và phải trả lời ngay sau mỗi lần ⇒ DSU. Đồ thị cho sẵn trọn vẹn rồi mới hỏi ⇒ BFS hay DFS thường đơn giản hơn.</li>
+  <li><strong>Câu hỏi có dừng ở mức "cùng nhóm hay không" không?</strong> Nếu đề đòi đường đi, khoảng cách, hay danh sách phần tử trong nhóm thì DSU không đủ.</li>
+  <li><strong>Quan hệ có hai chiều đối lập không?</strong> Có "cùng" và "khác" ⇒ DSU trọng số; chỉ cần phát hiện mâu thuẫn thì nhân bản đỉnh cũng xong (Mục 7.6).</li>
+  <li><strong>Đề có phép xoá không?</strong> Chỉ xoá ⇒ đảo thời gian. Xen kẽ thêm và xoá ⇒ DSU có hoàn tác.</li>
+</ol>
+
+<p>Trả lời xong bốn câu, phần cài đặt chỉ còn là một trong bốn khuôn mẫu đã trình bày: <strong>DSU chuẩn</strong>, <strong>DSU trọng số</strong>, <strong>DSU có hoàn tác</strong>, <strong>DSU làm con trỏ nhảy</strong>. Cả bốn đều ngắn dưới 60 dòng — hãy tập viết lại từ đầu cho tới khi chỉ mất vài phút.</p>
+
+<p>Một lời khuyên cuối: DSU chuẩn ngắn tới mức nhiều bạn chép thuộc lòng mà không hiểu, rồi lúng túng ngay khi đề đổi một chi tiết nhỏ. Hãy chắc rằng bạn giải thích được vì sao phải treo cây nhỏ vào cây lớn, và vì sao <code class="inl">par[x]</code> tự nó không có nghĩa gì.</p>
+
+<footer>
+  Chuyên đề Lập trình thi đấu — Cấu trúc dữ liệu các tập rời rạc (DSU) · Phan Văn Việt, Trường THPT Chuyên Vĩnh Phúc.
+  Toàn bộ mã nguồn trong tài liệu đã được biên dịch bằng <code class="inl">g++ -std=c++14 -O2 -Wall</code> và chạy kiểm chứng.
+</footer>
+
+</div>
+</div>
+
+<script>
+(function(){
+  /* ---- nút đổi nền sáng / tối ---- */
+  /* Đọc --is-dark qua getComputedStyle, KHÔNG hỏi matchMedia: matchMedia có thể
+     lệch với CSS đang áp dụng ở lần tải đầu. */
+  var root = document.documentElement, btn = document.getElementById('tg');
+  function isDark(){
+    return getComputedStyle(root).getPropertyValue('--is-dark').trim() === '1';
+  }
+  btn.addEventListener('click', function(){
+    root.setAttribute('data-theme', isDark() ? 'light' : 'dark');
+  });
+
+  /* ---- tô màu cú pháp C++ (đơn giản, một lượt quét) ---- */
+  var KW = 'int|bool|void|char|long|double|float|unsigned|const|static|struct|class|return|for|while|do|if|else|break|continue|using|namespace|true|false|sizeof|new|delete|inline|auto';
+  var LIB = 'vector|pair|stack|queue|string|map|set|cin|cout|endl|make_pair|push_back|pop_back|reverse|sort|size|empty|top|front|push|pop|begin|end|first|second|swap|max|min|clear|main';
+  var RE = new RegExp(
+      '(\\/\\/[^\\n]*)'                       + '|' +   /* chú thích  */
+      '(&quot;(?:[^&]|&(?!quot;))*&quot;)'     + '|' +   /* xâu ""     */
+      '(&#39;(?:[^&]|&(?!#39;))*&#39;)'        + '|' +   /* ký tự ''   */
+      '("(?:[^"\\\\\\n]|\\\\.)*")'             + '|' +   /* xâu ""     */
+      "('(?:[^'\\\\\\n]|\\\\.)*')"             + '|' +   /* ký tự ''   */
+      '(#[a-z]+)'                              + '|' +   /* tiền xử lý */
+      '\\b(' + KW  + ')\\b'                    + '|' +
+      '\\b(' + LIB + ')\\b'                    + '|' +
+      '\\b(\\d+)\\b', 'g');
+  var CLS = ['c','s','s','s','s','pp','k','f','n'];
+
+  document.querySelectorAll('pre code').forEach(function(el){
+    el.innerHTML = el.innerHTML.replace(RE, function(){
+      for (var i = 1; i <= 9; i++)
+        if (arguments[i] !== undefined)
+          return '<span class="' + CLS[i-1] + '">' + arguments[i] + '</span>';
+      return arguments[0];
+    });
+  });
+
+  /* ---- nút sao chép mã nguồn ---- */
+  document.querySelectorAll('.codewrap').forEach(function(w){
+    var pre = w.querySelector('pre');
+    if(!pre) return;
+    var b = document.createElement('button');
+    b.className = 'cp';
+    b.textContent = 'Sao chép';
+    b.addEventListener('click', function(){
+      var txt = pre.innerText;
+      var done = function(){ b.textContent = 'Đã chép'; setTimeout(function(){ b.textContent = 'Sao chép'; }, 1400); };
+      if (navigator.clipboard && navigator.clipboard.writeText)
+        navigator.clipboard.writeText(txt).then(done, done);
+      else {
+        var ta = document.createElement('textarea');
+        ta.value = txt; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch(e){}
+        document.body.removeChild(ta); done();
+      }
+    });
+    w.appendChild(b);
+  });
+
+  /* ---- thanh bên: làm nổi mục đang đọc ---- */
+  /* Mốc: mục cuối cùng có mép trên đã trôi qua vạch 130px; chạm đáy trang thì
+     luôn sáng mục cuối. Cập nhật bọc trong requestAnimationFrame. */
+  var secs = Array.prototype.slice.call(document.querySelectorAll('h2[id]'));
+  var links = {};
+  Array.prototype.forEach.call(document.querySelectorAll('aside.side a'), function(a){
+    links[a.getAttribute('href').slice(1)] = a;
+  });
+  var curSec = null;
+  function highlight(){
+    if (!secs.length) return;
+    var id = secs[0].id;
+    for (var k = 0; k < secs.length; k++)
+      if (secs[k].getBoundingClientRect().top <= 130)
+        id = secs[k].id;
+    if (window.innerHeight + window.pageYOffset >= document.documentElement.scrollHeight - 2)
+      id = secs[secs.length - 1].id;
+    if (id === curSec) return;
+    if (curSec && links[curSec]) links[curSec].className = '';
+    if (links[id]) links[id].className = 'on';
+    curSec = id;
+  }
+  var pending = false;
+  function onScroll(){
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function(){ highlight(); pending = false; });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll, {passive:true});
+  highlight();
+})();
+</script>
+</body>
+</html>
