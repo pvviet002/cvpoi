@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chuyên đề Tổng tiền tố (Prefix Sum)</title>
+<style>
+:root {
+	--bg: #ffffff;
+	--fg: #1c1c1e;
+	--muted: #6b6b70;
+	--rule: #d8d8dc;
+	--card: #fafafa;
+	--code-bg: #fbfbf8;
+	--code-fg: #24292e;
+	--code-border: #e2e2e0;
+	--kw: #0b57b8;
+	--cmt: #1a7f37;
+	--str: #8250b4;
+	--num: #b3541e;
+	--pre: #7a4dbd;
+	--gray: #5b5b60;
+	--purple: #8a3d8f;
+	--blue: #1f5fbf;
+	--green: #2c7a3f;
+	--orange: #9a5a0e;
+	--tint: 0.07;
+	--shadow: 0 1px 2px rgba(0,0,0,.06);
+	--is-dark: 0;
+}
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #16171a;
+		--fg: #e6e6e9;
+		--muted: #9a9aa2;
+		--rule: #35363b;
+		--card: #1d1e22;
+		--code-bg: #1b1c20;
+		--code-fg: #dcdce2;
+		--code-border: #34353a;
+		--kw: #77aaff;
+		--cmt: #7bc98a;
+		--str: #c69cf0;
+		--num: #f0a56a;
+		--pre: #b593e8;
+		--gray: #9b9ba3;
+		--purple: #d78bdc;
+		--blue: #6fa4f5;
+		--green: #6cc47f;
+		--orange: #e8ac5a;
+		--tint: 0.13;
+		--shadow: none;
+		--is-dark: 1;
+	}
+}
+:root[data-theme="light"] {
+	--bg: #ffffff; --fg: #1c1c1e; --muted: #6b6b70; --rule: #d8d8dc; --card: #fafafa;
+	--code-bg: #fbfbf8; --code-fg: #24292e; --code-border: #e2e2e0;
+	--kw: #0b57b8; --cmt: #1a7f37; --str: #8250b4; --num: #b3541e; --pre: #7a4dbd;
+	--gray: #5b5b60; --purple: #8a3d8f; --blue: #1f5fbf; --green: #2c7a3f; --orange: #9a5a0e;
+	--tint: 0.07; --shadow: 0 1px 2px rgba(0,0,0,.06); --is-dark: 0;
+}
+:root[data-theme="dark"] {
+	--bg: #16171a; --fg: #e6e6e9; --muted: #9a9aa2; --rule: #35363b; --card: #1d1e22;
+	--code-bg: #1b1c20; --code-fg: #dcdce2; --code-border: #34353a;
+	--kw: #77aaff; --cmt: #7bc98a; --str: #c69cf0; --num: #f0a56a; --pre: #b593e8;
+	--gray: #9b9ba3; --purple: #d78bdc; --blue: #6fa4f5; --green: #6cc47f; --orange: #e8ac5a;
+	--tint: 0.13; --shadow: none; --is-dark: 1;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+	margin: 0;
+	padding: 0 16px 64px;
+	background: var(--bg);
+	color: var(--fg);
+	font-family: "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+	font-size: 16px;
+	line-height: 1.62;
+	-webkit-text-size-adjust: 100%;
+}
+.wrap { max-width: 860px; margin: 0 auto; }
+@media (min-width: 1280px) { .wrap { max-width: 1000px; } }
+@media (min-width: 1560px) { .wrap { max-width: 1130px; } }
+
+/* ---------- bìa ---------- */
+.cover { text-align: center; padding: 40px 0 8px; }
+.cover .kicker { font-size: 13.5px; font-style: italic; color: var(--fg); opacity: .78; letter-spacing: .06em; text-transform: uppercase; }
+.cover hr { border: 0; border-top: 2px solid var(--fg); margin: 14px 0; }
+.cover h1 { font-size: 2.05rem; margin: 6px 0 2px; line-height: 1.2; letter-spacing: -.01em; }
+.cover .en { font-size: 1.1rem; font-weight: 700; letter-spacing: .06em; margin-bottom: 6px; }
+.cover .sub { font-size: 1.02rem; margin-top: 10px; }
+.cover .lvl { font-size: .92rem; color: var(--muted); margin-top: 2px; }
+
+/* ---------- nút đổi nền ---------- */
+#theme {
+	position: fixed; top: 12px; right: 12px; z-index: 50;
+	background: var(--card); color: var(--fg);
+	border: 1px solid var(--rule); border-radius: 999px;
+	padding: 7px 14px; font-size: 13px; cursor: pointer;
+	font-family: inherit; box-shadow: var(--shadow);
+}
+#theme:hover { border-color: var(--muted); }
+
+/* ---------- hộp màu ---------- */
+.box {
+	border: 1px solid var(--bc);
+	border-radius: 8px;
+	margin: 22px 0;
+	overflow: hidden;
+	background: color-mix(in srgb, var(--bc) calc(var(--tint) * 100%), var(--bg));
+	scroll-margin-top: 16px;
+}
+/* Thanh tiêu đề đổi cách phối theo nền, dùng --is-dark làm công tắc:
+   nền sáng -> nền màu nhấn, chữ trắng;
+   nền tối  -> nền sẫm pha màu nhấn, chữ chính là màu nhấn (tương phản > 5). */
+.box > h2 {
+	margin: 0;
+	background: color-mix(in srgb, #14151a calc(var(--is-dark) * 82%), var(--bc));
+	color: color-mix(in srgb, var(--bc) calc(var(--is-dark) * 100%), #fff);
+	border-bottom: 1px solid color-mix(in srgb, var(--bc) calc(var(--is-dark) * 55% + 10%), transparent);
+	font-size: 1.12rem;
+	font-weight: 700;
+	letter-spacing: .005em;
+	padding: 10px 15px;
+	line-height: 1.35;
+}
+.box > h2 .note { font-weight: 400; font-size: .86rem; opacity: .9; }
+.box .body { padding: 4px 16px 14px; }
+.box .body > p:first-child { margin-top: 10px; }
+.summary { --bc: var(--gray); }
+.practice { --bc: var(--purple); }
+.tech { --bc: var(--blue); }
+.example { --bc: var(--green); }
+.complexity { --bc: var(--orange); }
+
+/* ---------- mục lục ---------- */
+nav.toc {
+	border: 1px solid var(--rule); border-radius: 8px;
+	background: var(--card); padding: 12px 18px 16px; margin: 26px 0;
+}
+nav.toc h2 { font-size: 1.05rem; margin: 4px 0 10px; }
+nav.toc ol { margin: 0; padding-left: 22px; }
+nav.toc li { margin: 3px 0; }
+nav.toc a { color: var(--fg); text-decoration: none; border-bottom: 1px solid transparent; }
+nav.toc a:hover { border-bottom-color: var(--muted); }
+
+/* ---------- chữ ---------- */
+p { margin: 10px 0; }
+ul, ol { margin: 8px 0; padding-left: 24px; }
+li { margin: 4px 0; }
+b, strong { font-weight: 700; }
+code.inline {
+	font-family: "Cascadia Mono", "Consolas", "Noto Sans Mono", monospace;
+	font-size: .88em; background: color-mix(in srgb, var(--fg) 8%, transparent);
+	padding: 1px 5px; border-radius: 4px;
+}
+.formula {
+	text-align: center; margin: 14px 0; font-size: 1.05rem;
+	padding: 8px 4px; overflow-x: auto;
+}
+var { font-style: italic; }
+
+/* ---------- bảng ---------- */
+.table-wrap { overflow-x: auto; margin: 14px 0; -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; width: 100%; font-size: .93rem; min-width: 480px; }
+th, td { border: 1px solid var(--rule); padding: 7px 10px; text-align: left; vertical-align: top; }
+th { background: color-mix(in srgb, var(--bc, var(--gray)) 16%, var(--bg)); font-weight: 700; }
+td.c, th.c { text-align: center; }
+
+/* ---------- code ---------- */
+.code-block { position: relative; margin: 14px 0; }
+.code-block pre {
+	margin: 0; padding: 12px 14px;
+	background: var(--code-bg); color: var(--code-fg);
+	border: 1px solid var(--code-border); border-radius: 7px;
+	overflow-x: auto; tab-size: 2; -moz-tab-size: 2;
+	font-family: "Cascadia Mono", "Consolas", "Noto Sans Mono", monospace;
+	font-size: 13.5px; line-height: 1.55;
+}
+.copy {
+	position: absolute; top: 7px; right: 8px;
+	background: var(--bg); color: var(--muted);
+	border: 1px solid var(--rule); border-radius: 5px;
+	font-size: 11.5px; padding: 3px 9px; cursor: pointer;
+	font-family: inherit; opacity: 0; transition: opacity .15s;
+}
+.code-block:hover .copy, .copy:focus { opacity: 1; }
+.copy.done { color: var(--green); border-color: var(--green); }
+.k { color: var(--kw); font-weight: 600; }
+.c { color: var(--cmt); font-style: italic; }
+.s { color: var(--str); }
+.n { color: var(--num); }
+.pp { color: var(--pre); font-weight: 600; }
+
+/* ---------- hình ---------- */
+figure { margin: 18px 0; text-align: center; }
+figure svg { max-width: 100%; height: auto; }
+figcaption { font-size: .87rem; color: var(--muted); margin-top: 6px; }
+.svg-cell { fill: color-mix(in srgb, var(--blue) 8%, var(--bg)); stroke: var(--rule); stroke-width: 1.2; }
+.svg-hi { fill: color-mix(in srgb, var(--green) 22%, var(--bg)); stroke: var(--green); stroke-width: 2; }
+.svg-add { fill: color-mix(in srgb, var(--green) 24%, var(--bg)); stroke: var(--green); stroke-width: 2; }
+.svg-sub { fill: color-mix(in srgb, var(--orange) 24%, var(--bg)); stroke: var(--orange); stroke-width: 2; }
+.svg-txt { fill: var(--fg); font-size: 15px; font-family: inherit; text-anchor: middle; }
+.svg-idx { fill: var(--muted); font-size: 11px; font-family: inherit; text-anchor: middle; }
+.svg-lbl { fill: var(--fg); font-size: 13.5px; font-family: inherit; }
+.svg-line { stroke: var(--muted); stroke-width: 1.4; fill: none; }
+.svg-res { fill: var(--green); font-size: 14px; font-family: inherit; font-weight: 600; }
+
+footer { border-top: 1px solid var(--rule); margin-top: 40px; padding-top: 14px; font-size: .85rem; color: var(--muted); text-align: center; }
+
+/* ---------- thanh điều hướng bên trái ---------- */
+.sidebar { display: none; }
+@media (min-width: 1080px) {
+	.sidebar {
+		display: block;
+		position: fixed; top: 0; left: 0; bottom: 0;
+		width: 254px; padding: 20px 12px 24px 18px;
+		overflow-y: auto;
+		background: var(--card);
+		border-right: 1px solid var(--rule);
+		font-size: 13.6px;
+	}
+	.sidebar .brand {
+		font-weight: 700; font-size: 14px; line-height: 1.3;
+		padding-bottom: 9px; margin-bottom: 8px;
+		border-bottom: 1px solid var(--rule);
+	}
+	.sidebar .brand em { display: block; font-weight: 400; font-style: normal; font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+	.sidebar ol { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+	.sidebar li { margin: 1px 0; }
+	.sidebar a {
+		display: block; position: relative;
+		padding: 5px 8px 5px 32px;
+		color: var(--muted); text-decoration: none;
+		border-radius: 5px; line-height: 1.35;
+		border-left: 2px solid transparent;
+	}
+	.sidebar a::before {
+		counter-increment: s; content: counter(s) ".";
+		position: absolute; left: 9px; font-variant-numeric: tabular-nums;
+	}
+	.sidebar a:hover { color: var(--fg); background: color-mix(in srgb, var(--fg) 7%, transparent); }
+	.sidebar a.active {
+		color: var(--fg); font-weight: 600;
+		background: color-mix(in srgb, var(--blue) 15%, transparent);
+		border-left-color: var(--blue);
+	}
+	body { padding-left: 270px; }
+	nav.toc { display: none; }
+	.box { scroll-margin-top: 14px; }
+}
+
+@media print {
+	.sidebar, #theme { display: none !important; }
+	nav.toc { display: block !important; }
+	body { padding-left: 16px; }
+}
+
+@media (max-width: 620px) {
+	body { font-size: 15px; }
+	.cover h1 { font-size: 1.6rem; }
+	.box .body { padding: 4px 12px 12px; }
+	.copy { opacity: 1; }
+}
+</style>
+</head>
+<body>
+
+<button id="theme" type="button">Nền tối</button>
+
+<aside class="sidebar">
+	<div class="brand">Chuyên đề Tổng tiền tố<em>Bồi dưỡng HSG Tin học — THCS</em></div>
+	<nav>
+		<ol>
+			<li><a href="#m1">Mục đích của chuyên đề</a></li>
+			<li><a href="#m2">Kiến thức nền cần nắm trước</a></li>
+			<li><a href="#m3">Kỹ thuật 1 — Tổng tiền tố cơ bản</a></li>
+			<li><a href="#m4">Kỹ thuật 2 — Mảng hiệu</a></li>
+			<li><a href="#m5">Kỹ thuật 3 — Tiền tố kết hợp bảng băm</a></li>
+			<li><a href="#m6">Kỹ thuật 4 — Tiền tố với phép toán khác</a></li>
+			<li><a href="#m7">Kỹ thuật 5 — Tối ưu nhờ tiền tố</a></li>
+			<li><a href="#m8">Nhận dạng đề — nên dùng kỹ thuật nào</a></li>
+			<li><a href="#m9">Đánh giá độ phức tạp</a></li>
+			<li><a href="#m10">Bốn lỗi khiến học sinh mất điểm nhiều nhất</a></li>
+			<li><a href="#m11">Lộ trình 50 bài luyện tập</a></li>
+		</ol>
+	</nav>
+</aside>
+
+<div class="wrap">
+
+<header class="cover">
+	<div class="kicker">Tài liệu bồi dưỡng học sinh giỏi Tin học</div>
+	<hr>
+	<h1>Chuyên đề Tổng tiền tố</h1>
+	<div class="en">[THẦY VIỆT - CHUYÊN VĨNH PHÚC]</div>
+	<hr>
+	<div class="sub">Năm kỹ thuật cốt lõi và lộ trình 50 bài luyện tập</div>
+	<div class="lvl">Dành cho học sinh trung học cơ sở</div>
+</header>
+
+<section class="box summary">
+	<h2>Về tài liệu này</h2>
+	<div class="body">
+		<p>Tài liệu trình bày trọn vẹn chuyên đề tổng tiền tố dưới dạng <b>năm kỹ thuật</b>, tất cả cùng xuất phát từ một đẳng thức duy nhất. Mỗi kỹ thuật được giới thiệu theo cùng một mạch: cách nghĩ ngây thơ trước, hạn chế của nó, quan sát then chốt để tăng tốc, đoạn mã mẫu, rồi các biến thể và bẫy thường gặp.</p>
+		<p>Phần quan trọng nhất với người mới là <b><a href="#m8" style="color:inherit">Mục 8 — Nhận dạng đề</a></b>: bốn câu hỏi giúp quyết định nên dùng kỹ thuật nào khi vừa đọc xong một đề lạ. Thuộc công thức là một chuyện, biết lúc nào dùng nó lại là chuyện khác.</p>
+		<p><b>Cách dùng:</b> đọc Mục 1–2 để nắm nền, sau đó học lần lượt từng kỹ thuật và làm hết 10 bài của kỹ thuật đó trước khi sang kỹ thuật tiếp theo. Mục 10 nên đọc lại sau mỗi buổi luyện.</p>
+	</div>
+</section>
+
+<nav class="toc">
+	<h2>Mục lục</h2>
+	<ol>
+		<li><a href="#m1">Mục đích của chuyên đề</a></li>
+		<li><a href="#m2">Kiến thức nền cần nắm trước</a></li>
+		<li><a href="#m3">Kỹ thuật 1 — Tổng tiền tố cơ bản</a></li>
+		<li><a href="#m4">Kỹ thuật 2 — Mảng hiệu</a></li>
+		<li><a href="#m5">Kỹ thuật 3 — Tiền tố kết hợp bảng băm</a></li>
+		<li><a href="#m6">Kỹ thuật 4 — Tiền tố với phép toán khác</a></li>
+		<li><a href="#m7">Kỹ thuật 5 — Tối ưu nhờ tiền tố</a></li>
+		<li><a href="#m8">Nhận dạng đề — nên dùng kỹ thuật nào</a></li>
+		<li><a href="#m9">Đánh giá độ phức tạp</a></li>
+		<li><a href="#m10">Bốn lỗi khiến học sinh mất điểm nhiều nhất</a></li>
+		<li><a href="#m11">Lộ trình 50 bài luyện tập</a></li>
+	</ol>
+</nav>
+
+<!-- ==================== 1 ==================== -->
+<section class="box summary" id="m1">
+	<h2>1. Mục đích của chuyên đề</h2>
+	<div class="body">
+		<p>Rất nhiều bài toán trên dãy số hỏi đi hỏi lại cùng một thứ: <b>tổng của một đoạn liên tiếp</b>. Nếu mỗi lần hỏi ta lại cộng dồn từ đầu đoạn đến cuối đoạn thì với <var>N</var> phần tử và <var>Q</var> câu hỏi, chi phí là O(<var>N</var> × <var>Q</var>) — với <var>N</var> = <var>Q</var> = 2 × 10<sup>5</sup> thì đó là 4 × 10<sup>10</sup> phép cộng, không máy nào chạy kịp.</p>
+
+		<p>Tổng tiền tố là cách trả trước một lần chi phí O(<var>N</var>) để sau đó <b>mỗi câu hỏi chỉ tốn O(1)</b>. Toàn bộ chuyên đề xoay quanh một đẳng thức duy nhất:</p>
+
+		<div class="formula">
+			<var>a<sub>l</sub></var> + <var>a<sub>l+1</sub></var> + ⋯ + <var>a<sub>r</sub></var> = <var>P<sub>r</sub></var> − <var>P<sub>l−1</sub></var>,
+			&nbsp;&nbsp;với <var>P</var><sub>0</sub> = 0, <var>P<sub>i</sub></var> = <var>P<sub>i−1</sub></var> + <var>a<sub>i</sub></var>.
+		</div>
+
+		<p>Năm kỹ thuật dưới đây đều là biến tấu của đẳng thức ấy:</p>
+
+		<div class="table-wrap">
+			<table>
+				<thead><tr><th class="c">#</th><th>Kỹ thuật</th><th>Dùng khi nào</th></tr></thead>
+				<tbody>
+					<tr><td class="c">1</td><td>Tổng tiền tố cơ bản</td><td>Hỏi tổng đoạn nhiều lần, mảng không đổi</td></tr>
+					<tr><td class="c">2</td><td>Mảng hiệu</td><td>Cộng giá trị vào cả đoạn nhiều lần, đọc kết quả sau</td></tr>
+					<tr><td class="c">3</td><td>Tiền tố + bảng băm</td><td><b>Đếm</b> số đoạn con thỏa điều kiện về tổng</td></tr>
+					<tr><td class="c">4</td><td>Tiền tố với phép toán khác</td><td>Điều kiện không phải tổng mà là XOR, chẵn/lẻ</td></tr>
+					<tr><td class="c">5</td><td>Tối ưu nhờ tiền tố</td><td>Tìm đoạn con có tổng lớn nhất / nhỏ nhất</td></tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</section>
+
+<!-- ==================== 2 ==================== -->
+<section class="box practice" id="m2">
+	<h2>2. Kiến thức nền cần nắm trước</h2>
+	<div class="body">
+		<p><b>Chỉ số chạy từ 1.</b> Luôn để mảng và tiền tố đánh số từ 1, riêng <var>P</var><sub>0</sub> = 0. Nhờ <var>P</var><sub>0</sub> mà công thức <var>P<sub>r</sub></var> − <var>P<sub>l−1</sub></var> không vỡ khi <var>l</var> = 1: lúc đó <var>P<sub>l−1</sub></var> = <var>P</var><sub>0</sub> = 0, đúng như mong đợi.</p>
+
+		<p><b>Kiểu dữ liệu.</b> Tổng của <var>N</var> phần tử lớn hơn hẳn từng phần tử. Với <var>N</var> ≤ 2 × 10<sup>5</sup> và |<var>a<sub>i</sub></var>| ≤ 10<sup>9</sup>, tổng có thể tới 2 × 10<sup>14</sup> — vượt xa sức chứa của <code class="inline">int</code> (khoảng 2,1 × 10<sup>9</sup>). Mảng tiền tố và biến đáp án phải khai <code class="inline">long long</code>.</p>
+
+		<p><b>Kích thước mảng.</b> Khai theo <b>ràng buộc trong đề</b>, không theo số trong ví dụ. Mảng tiền tố cần thêm ít nhất một ô (<var>P</var><sub>0</sub>), mảng hiệu cần thêm hai ô (<var>d<sub>r+1</sub></var> khi <var>r</var> = <var>N</var>).</p>
+
+		<p><b>Đọc dữ liệu nhanh.</b> Với <var>N</var> lớn, hai dòng đầu <code class="inline">main()</code> là bắt buộc:</p>
+
+		<div class="code-block"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 200005;
+long long a[MAXN], p[MAXN];
+int n, q, i, l, r;
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	cin &gt;&gt; n &gt;&gt; q;
+	for (i = 1; i &lt;= n; i++) cin &gt;&gt; a[i];
+	for (i = 1; i &lt;= n; i++) p[i] = p[i - 1] + a[i]; // dựng tiền tố
+	while (q--) {
+		cin &gt;&gt; l &gt;&gt; r;
+		cout &lt;&lt; p[r] - p[l - 1] &lt;&lt; "\n";             // trả lời O(1)
+	}
+}</code></pre></div>
+	</div>
+</section>
+
+<!-- ==================== 3 ==================== -->
+<section class="box tech" id="m3">
+	<h2>3. Kỹ thuật 1 — Tổng tiền tố cơ bản</h2>
+	<div class="body">
+		<p><b>Cách nghĩ ngây thơ.</b> Mỗi truy vấn (<var>l</var>, <var>r</var>) chạy một vòng lặp cộng từ <var>a<sub>l</sub></var> đến <var>a<sub>r</sub></var>. Đúng, dễ viết, nhưng O(<var>N</var>) cho mỗi truy vấn.</p>
+
+		<p><b>Quan sát then chốt.</b> Tổng đoạn [<var>l</var>, <var>r</var>] chính là <i>tổng từ đầu đến <var>r</var></i> trừ đi <i>tổng từ đầu đến <var>l</var>−1</i>. Phần bị trừ là phần thừa nằm trước đoạn cần lấy:</p>
+
+		<figure>
+			<svg viewBox="0 0 620 190" role="img" aria-label="Minh hoạ tổng đoạn bằng hiệu hai tiền tố">
+				<!-- ngoặc trên: P7 -->
+				<path class="svg-line" d="M 40 42 V 50 H 404 V 42"/>
+				<text class="svg-lbl" x="222" y="34" text-anchor="middle">P<tspan dy="4" font-size="10.5">7</tspan><tspan dy="-4"> = 25</tspan></text>
+				<!-- các ô -->
+				<rect class="svg-cell" x="40"  y="58" width="52" height="44"/>
+				<rect class="svg-cell" x="92"  y="58" width="52" height="44"/>
+				<rect class="svg-cell" x="144" y="58" width="52" height="44"/>
+				<rect class="svg-cell" x="404" y="58" width="52" height="44"/>
+				<rect class="svg-hi"   x="196" y="58" width="208" height="44"/>
+				<line class="svg-line" x1="248" y1="58" x2="248" y2="102" stroke-opacity=".45"/>
+				<line class="svg-line" x1="300" y1="58" x2="300" y2="102" stroke-opacity=".45"/>
+				<line class="svg-line" x1="352" y1="58" x2="352" y2="102" stroke-opacity=".45"/>
+				<text class="svg-txt" x="66"  y="86">3</text>
+				<text class="svg-txt" x="118" y="86">1</text>
+				<text class="svg-txt" x="170" y="86">4</text>
+				<text class="svg-txt" x="222" y="86">1</text>
+				<text class="svg-txt" x="274" y="86">5</text>
+				<text class="svg-txt" x="326" y="86">9</text>
+				<text class="svg-txt" x="378" y="86">2</text>
+				<text class="svg-txt" x="430" y="86">6</text>
+				<text class="svg-idx" x="66"  y="118">1</text>
+				<text class="svg-idx" x="118" y="118">2</text>
+				<text class="svg-idx" x="170" y="118">3</text>
+				<text class="svg-idx" x="222" y="118">4</text>
+				<text class="svg-idx" x="274" y="118">5</text>
+				<text class="svg-idx" x="326" y="118">6</text>
+				<text class="svg-idx" x="378" y="118">7</text>
+				<text class="svg-idx" x="430" y="118">8</text>
+				<!-- ngoặc dưới: P3 -->
+				<path class="svg-line" d="M 40 142 V 134 H 196 V 142"/>
+				<text class="svg-lbl" x="118" y="162" text-anchor="middle">P<tspan dy="4" font-size="10.5">3</tspan><tspan dy="-4"> = 8</tspan></text>
+				<!-- kết quả -->
+				<text class="svg-res" x="480" y="86">25 − 8 = 17</text>
+			</svg>
+			<figcaption>Đoạn tô xanh là [4, 7], tổng bằng 1 + 5 + 9 + 2 = 17, đúng bằng <var>P</var><sub>7</sub> − <var>P</var><sub>3</sub>.</figcaption>
+		</figure>
+
+		<p><b>Mở rộng.</b> Dựng thêm mảng tiền tố của <var>i</var> · <var>a<sub>i</sub></var> thì trả lời được các truy vấn tổng <b>có trọng số</b>. Dựng tiền tố của một mảng đếm (1 nếu phần tử thỏa tính chất, 0 nếu không) thì <b>đếm được số phần tử thỏa tính chất</b> trong đoạn — đây là cách giải các bài đếm số nguyên tố, đếm số chính phương trong đoạn.</p>
+
+		<p><b>Bẫy hay gặp.</b> Mảng vòng tròn: đoạn có thể vắt qua cuối mảng. Khi đó tách làm hai phần [<var>l</var>, <var>N</var>] và [1, <var>r</var>], hoặc lấy tổng cả mảng trừ đi đoạn ở giữa.</p>
+	</div>
+</section>
+
+<!-- ==================== 4 ==================== -->
+<section class="box tech" id="m4">
+	<h2>4. Kỹ thuật 2 — Mảng hiệu (difference array)</h2>
+	<div class="body">
+		<p>Đây là <b>ảnh gương</b> của kỹ thuật 1. Kỹ thuật 1 mạnh khi mảng đứng yên và ta hỏi nhiều; mảng hiệu mạnh khi ngược lại — ta <b>sửa nhiều đoạn</b> rồi mới đọc kết quả một lần.</p>
+
+		<p>Định nghĩa <var>d<sub>i</sub></var> = <var>a<sub>i</sub></var> − <var>a<sub>i−1</sub></var> (quy ước <var>a</var><sub>0</sub> = 0). Chiều ngược lại: <var>a<sub>i</sub></var> = <var>d</var><sub>1</sub> + <var>d</var><sub>2</sub> + ⋯ + <var>d<sub>i</sub></var>, tức là <i>lấy tổng tiền tố của mảng hiệu sẽ khôi phục mảng gốc</i>.</p>
+
+		<p><b>Vì sao lợi.</b> Muốn cộng <var>v</var> vào <i>mọi</i> phần tử trong đoạn [<var>l</var>, <var>r</var>], thay vì sửa <var>r</var> − <var>l</var> + 1 ô, ta chỉ sửa <b>hai ô</b>:</p>
+
+		<div class="formula"><var>d<sub>l</sub></var> += <var>v</var>, &nbsp;&nbsp;&nbsp; <var>d<sub>r+1</sub></var> −= <var>v</var>.</div>
+
+		<figure>
+			<svg viewBox="0 0 620 210" role="img" aria-label="Minh hoạ mảng hiệu khi cộng 5 vào đoạn từ 3 đến 6">
+				<text class="svg-lbl" x="4" y="42">Sửa 2 ô của mảng hiệu <tspan font-style="italic">d</tspan>:</text>
+				<rect class="svg-cell" x="40"  y="54" width="52" height="40"/>
+				<rect class="svg-cell" x="92"  y="54" width="52" height="40"/>
+				<rect class="svg-add"  x="144" y="54" width="52" height="40"/>
+				<rect class="svg-cell" x="196" y="54" width="52" height="40"/>
+				<rect class="svg-cell" x="248" y="54" width="52" height="40"/>
+				<rect class="svg-cell" x="300" y="54" width="52" height="40"/>
+				<rect class="svg-sub"  x="352" y="54" width="52" height="40"/>
+				<rect class="svg-cell" x="404" y="54" width="52" height="40"/>
+				<text class="svg-txt" x="66"  y="80">0</text>
+				<text class="svg-txt" x="118" y="80">0</text>
+				<text class="svg-txt" x="170" y="80">+5</text>
+				<text class="svg-txt" x="222" y="80">0</text>
+				<text class="svg-txt" x="274" y="80">0</text>
+				<text class="svg-txt" x="326" y="80">0</text>
+				<text class="svg-txt" x="378" y="80">−5</text>
+				<text class="svg-txt" x="430" y="80">0</text>
+				<text class="svg-idx" x="170" y="110">d₃</text>
+				<text class="svg-idx" x="378" y="110">d₇</text>
+
+				<text class="svg-lbl" x="4" y="150">Lấy tiền tố của <tspan font-style="italic">d</tspan> ra mảng <tspan font-style="italic">a</tspan>:</text>
+				<rect class="svg-cell" x="40"  y="160" width="52" height="40"/>
+				<rect class="svg-cell" x="92"  y="160" width="52" height="40"/>
+				<rect class="svg-hi"   x="144" y="160" width="208" height="40"/>
+				<rect class="svg-cell" x="352" y="160" width="52" height="40"/>
+				<rect class="svg-cell" x="404" y="160" width="52" height="40"/>
+				<line class="svg-line" x1="196" y1="160" x2="196" y2="200" stroke-opacity=".45"/>
+				<line class="svg-line" x1="248" y1="160" x2="248" y2="200" stroke-opacity=".45"/>
+				<line class="svg-line" x1="300" y1="160" x2="300" y2="200" stroke-opacity=".45"/>
+				<text class="svg-txt" x="66"  y="186">0</text>
+				<text class="svg-txt" x="118" y="186">0</text>
+				<text class="svg-txt" x="170" y="186">5</text>
+				<text class="svg-txt" x="222" y="186">5</text>
+				<text class="svg-txt" x="274" y="186">5</text>
+				<text class="svg-txt" x="326" y="186">5</text>
+				<text class="svg-txt" x="378" y="186">0</text>
+				<text class="svg-txt" x="430" y="186">0</text>
+				<text class="svg-res" x="474" y="186">đoạn [3, 6]</text>
+			</svg>
+			<figcaption>Cộng 5 vào đoạn [3, 6] chỉ tốn hai phép sửa, bất kể đoạn dài bao nhiêu.</figcaption>
+		</figure>
+
+		<p>Ô <var>d<sub>l</sub></var> làm mức tăng bắt đầu có hiệu lực từ vị trí <var>l</var>; ô <var>d<sub>r+1</sub></var> hủy hiệu lực đó ngay sau <var>r</var>. Mỗi thao tác O(1), cuối cùng quét một lượt O(<var>N</var>) để dựng lại mảng.</p>
+
+		<div class="code-block"><pre><code>long long d[MAXN + 2];
+// nhận M thao tác, mỗi thao tác chỉ tốn O(1)
+while (m--) {
+	cin &gt;&gt; l &gt;&gt; r &gt;&gt; v;
+	d[l] += v;
+	d[r + 1] -= v;      // nhớ khai mảng dư 2 ô cho trường hợp r = n
+}
+// khôi phục mảng sau khi đã nhận hết thao tác
+for (i = 1; i &lt;= n; i++) a[i] = a[i - 1] + d[i];</code></pre></div>
+
+		<p><b>Các dạng thường gặp.</b> Đếm độ phủ (mỗi khoảng cộng 1, tiền tố cho biết mỗi điểm bị bao nhiêu khoảng phủ); cộng cấp số cộng vào đoạn (dùng mảng hiệu bậc hai — mảng hiệu của mảng hiệu); ghép mảng hiệu với tiền tố để vừa cộng đoạn vừa truy vấn tổng đoạn.</p>
+	</div>
+</section>
+
+<!-- ==================== 5 ==================== -->
+<section class="box tech" id="m5">
+	<h2>5. Kỹ thuật 3 — Tiền tố kết hợp bảng băm</h2>
+	<div class="body">
+		<p>Khi đề không hỏi tổng của một đoạn cho trước, mà bảo <b>đếm xem có bao nhiêu đoạn con</b> thỏa điều kiện về tổng, thì số đoạn con là <var>N</var>(<var>N</var>+1)/2 — với <var>N</var> = 2 × 10<sup>5</sup> là khoảng 2 × 10<sup>10</sup> đoạn, không thể duyệt hết.</p>
+
+		<p><b>Quan sát then chốt.</b> Vẫn là đẳng thức cũ, nhưng đọc theo chiều ngược: đoạn (<var>i</var>, <var>j</var>] có tổng bằng <var>K</var> khi và chỉ khi</p>
+
+		<div class="formula"><var>P<sub>j</sub></var> − <var>P<sub>i</sub></var> = <var>K</var> &nbsp;⟺&nbsp; <var>P<sub>i</sub></var> = <var>P<sub>j</sub></var> − <var>K</var>.</div>
+
+		<p>Vậy khi duyệt <var>j</var> từ trái sang phải, ta không cần biết các đoạn — chỉ cần biết <b>đã gặp bao nhiêu tiền tố mang giá trị <var>P<sub>j</sub></var> − <var>K</var></b> ở phía trước. Một bảng băm đếm tần suất giá trị tiền tố là đủ.</p>
+
+		<div class="code-block"><pre><code>unordered_map&lt;long long, long long&gt; cnt;
+long long pre = 0, ans = 0;
+cnt[0] = 1;                 // tiền tố rỗng P_0 = 0, đếm 1 lần
+for (i = 1; i &lt;= n; i++) {
+	pre += a[i];
+	ans += cnt[pre - k];    // số đoạn kết thúc tại i có tổng k
+	cnt[pre]++;
+}</code></pre></div>
+
+		<p><b>Ba biến thể phải thuộc.</b></p>
+		<ul>
+			<li><b>Tổng chia hết cho <var>K</var>:</b> thay giá trị tiền tố bằng số dư <var>P<sub>j</sub></var> mod <var>K</var>. Hai tiền tố cùng số dư cho một đoạn chia hết. Nhớ chuẩn hóa số dư âm về [0, <var>K</var>) bằng <code class="inline">((pre % k) + k) % k</code>.</li>
+			<li><b>Đoạn dài nhất</b> (thay vì đếm): với mỗi giá trị tiền tố chỉ lưu <b>vị trí xuất hiện đầu tiên</b>; độ dài lớn nhất là <var>j</var> trừ vị trí đó.</li>
+			<li><b>Đoạn cân bằng hai loại phần tử:</b> đổi một loại thành +1, loại kia thành −1; khi đó “số lượng bằng nhau” trở thành “tổng bằng 0”.</li>
+		</ul>
+
+		<p><b>Lưu ý.</b> Dòng <code class="inline">cnt[0] = 1</code> rất dễ quên, và quên nó thì mất đúng các đoạn bắt đầu từ vị trí 1 — sai lệch nhỏ, khó tìm. Với đề chống băm, dùng <code class="inline">map</code> cho an toàn hoặc <code class="inline">unordered_map</code> có trộn khóa.</p>
+	</div>
+</section>
+
+<!-- ==================== 6 ==================== -->
+<section class="box tech" id="m6">
+	<h2>6. Kỹ thuật 4 — Tiền tố với phép toán khác <span class="note">(nâng cao, có thể bỏ qua ở bậc THCS)</span></h2>
+	<div class="body">
+		<p>Tổng tiền tố hoạt động được là nhờ phép cộng có <b>phép ngược</b> là phép trừ. Bất kỳ phép toán nào có tính chất ấy đều dựng được “tiền tố” của riêng nó.</p>
+
+		<p>Phổ biến nhất là <b>XOR</b>, ký hiệu ⊕. Đặt <var>X</var><sub>0</sub> = 0, <var>X<sub>i</sub></var> = <var>X<sub>i−1</sub></var> ⊕ <var>a<sub>i</sub></var>, thì XOR của đoạn [<var>l</var>, <var>r</var>] bằng <var>X<sub>r</sub></var> ⊕ <var>X<sub>l−1</sub></var> — vì <var>x</var> ⊕ <var>x</var> = 0 nên XOR tự làm phép ngược của chính nó.</p>
+
+		<p>Ngoài XOR còn hai dạng nhẹ hơn, dùng được ngay ở bậc THCS:</p>
+		<ul>
+			<li><b>Tiền tố chẵn/lẻ:</b> đoạn có tổng chẵn khi hai đầu tiền tố cùng tính chẵn/lẻ. Chỉ cần đếm số tiền tố chẵn và số tiền tố lẻ.</li>
+			<li><b>Tiền tố của một tính chất:</b> nếu bài chỉ quan tâm một tính chất của tổng chứ không quan tâm giá trị, hãy dựng tiền tố của tính chất ấy.</li>
+		</ul>
+	</div>
+</section>
+
+<!-- ==================== 7 ==================== -->
+<section class="box tech" id="m7">
+	<h2>7. Kỹ thuật 5 — Tối ưu nhờ tiền tố</h2>
+	<div class="body">
+		<p>Khi đề hỏi <b>tổng đoạn con lớn nhất</b> (chứ không phải tra cứu), ta vẫn viết tổng đoạn là hiệu hai tiền tố: tổng [<var>i</var>+1, <var>j</var>] = <var>P<sub>j</sub></var> − <var>P<sub>i</sub></var>.</p>
+
+		<p><b>Quan sát then chốt.</b> Muốn hiệu này lớn nhất khi đã cố định điểm cuối <var>j</var>, ta cần <var>P<sub>i</sub></var> <b>nhỏ nhất</b> trong các tiền tố đứng trước <var>j</var>. Mà giá trị nhỏ nhất ấy có thể vừa duyệt vừa cập nhật, không cần lưu gì thêm:</p>
+
+		<div class="formula">đáp án = max<sub><var>j</var></sub> ( <var>P<sub>j</sub></var> − min<sub><var>i</var> &lt; <var>j</var></sub> <var>P<sub>i</sub></var> ).</div>
+
+		<div class="code-block"><pre><code>long long pre = 0, mn = 0, ans = LLONG_MIN;
+for (i = 1; i &lt;= n; i++) {
+	pre += a[i];
+	ans = max(ans, pre - mn);   // đoạn tốt nhất kết thúc tại i
+	mn = min(mn, pre);          // cập nhật tiền tố nhỏ nhất
+}</code></pre></div>
+
+		<p><b>Ba hướng mở rộng.</b></p>
+		<ul>
+			<li><b>Ràng buộc độ dài:</b> nếu đoạn phải dài ít nhất <var>L</var>, giá trị min <var>P<sub>i</sub></var> chỉ được lấy trong các chỉ số <var>i</var> ≤ <var>j</var> − <var>L</var> — dùng một biến min “trễ” hoặc hàng đợi đơn điệu.</li>
+			<li><b>Tiền tố hai phía:</b> quét từ trái để có “kết quả tốt nhất kết thúc tại <var>i</var>”, quét từ phải để có “kết quả tốt nhất bắt đầu tại <var>i</var>”, rồi ghép. Dùng cho bài xóa một phần tử, hoặc chọn hai đoạn rời nhau.</li>
+			<li><b>Đổi biến để đưa về tổng:</b> điều kiện “trung bình ≥ <var>X</var>” tương đương “tổng của <var>a<sub>i</sub></var> − <var>X</var> không âm”. Trừ <var>X</var> khỏi mọi phần tử là lại quay về bài toán tổng quen thuộc.</li>
+		</ul>
+
+		<p><b>Bẫy hay gặp.</b> Đoạn con thường bắt buộc <b>khác rỗng</b>. Khởi tạo <code class="inline">ans</code> bằng −∞, tuyệt đối không phải 0 — nếu mọi phần tử đều âm thì đáp án phải là số âm lớn nhất, khởi tạo 0 sẽ cho ra 0 và sai.</p>
+	</div>
+</section>
+
+<!-- ==================== 8 ==================== -->
+<section class="box example" id="m8">
+	<h2>8. Nhận dạng đề — nên dùng kỹ thuật nào</h2>
+	<div class="body">
+		<p>Đọc đề xong, trả lời bốn câu hỏi theo thứ tự:</p>
+		<ol>
+			<li><b>Mảng có bị sửa không?</b>
+				<ul>
+					<li>Không sửa, chỉ hỏi tổng đoạn ⇒ <b>kỹ thuật 1</b>.</li>
+					<li>Bị cộng vào cả đoạn nhiều lần ⇒ <b>kỹ thuật 2</b>.</li>
+				</ul>
+			</li>
+			<li><b>Đề cho sẵn đoạn, hay bắt ta đi tìm đoạn?</b>
+				<ul>
+					<li>Cho sẵn (<var>l</var>, <var>r</var>) ⇒ kỹ thuật 1, trả lời thẳng.</li>
+					<li>Bắt tìm/đếm đoạn ⇒ đi tiếp câu 3.</li>
+				</ul>
+			</li>
+			<li><b>Yêu cầu là đếm, hay là tối ưu?</b>
+				<ul>
+					<li><i>Đếm</i> số đoạn thỏa điều kiện ⇒ <b>kỹ thuật 3</b> (bảng băm).</li>
+					<li><i>Tìm lớn nhất / nhỏ nhất</i> ⇒ <b>kỹ thuật 5</b>.</li>
+				</ul>
+			</li>
+			<li><b>Điều kiện có phải về tổng không?</b>
+				<ul>
+					<li>Là tổng ⇒ dùng thẳng.</li>
+					<li>Là XOR, hoặc chỉ là tính chẵn/lẻ ⇒ <b>kỹ thuật 4</b>, đổi phép cộng thành phép tương ứng rồi lập luận y hệt.</li>
+				</ul>
+			</li>
+		</ol>
+		<p><b>Mẹo cuối.</b> Nếu điều kiện của đề không nói về tổng (ví dụ “đếm số nguyên tố”, “số phần tử chia hết cho 3”), hãy thử <b>đổi mảng gốc thành mảng 0/1</b> — gán 1 cho phần tử thỏa tính chất, 0 cho phần tử không thỏa. Bài đếm lập tức biến thành bài tổng, và cả năm kỹ thuật trên dùng lại được nguyên vẹn.</p>
+	</div>
+</section>
+
+<!-- ==================== 9 ==================== -->
+<section class="box complexity" id="m9">
+	<h2>9. Đánh giá độ phức tạp</h2>
+	<div class="body">
+		<div class="table-wrap">
+			<table>
+				<thead><tr><th class="c">#</th><th>Kỹ thuật</th><th class="c">Thời gian</th><th class="c">Bộ nhớ</th><th>So với cách ngây thơ</th></tr></thead>
+				<tbody>
+					<tr><td class="c">1</td><td>Tổng tiền tố cơ bản</td><td class="c">O(<var>N</var> + <var>Q</var>)</td><td class="c">O(<var>N</var>)</td><td>O(<var>N</var> × <var>Q</var>)</td></tr>
+					<tr><td class="c">2</td><td>Mảng hiệu</td><td class="c">O(<var>N</var> + <var>M</var>)</td><td class="c">O(<var>N</var>)</td><td>O(<var>N</var> × <var>M</var>)</td></tr>
+					<tr><td class="c">3</td><td>Tiền tố + bảng băm</td><td class="c">O(<var>N</var>)</td><td class="c">O(<var>N</var>)</td><td>O(<var>N</var><sup>2</sup>)</td></tr>
+					<tr><td class="c">4</td><td>Tiền tố phép toán khác</td><td class="c">O(<var>N</var>)</td><td class="c">O(<var>N</var>)</td><td>O(<var>N</var><sup>2</sup>)</td></tr>
+					<tr><td class="c">5</td><td>Tối ưu nhờ tiền tố</td><td class="c">O(<var>N</var>)</td><td class="c">O(1) hoặc O(<var>N</var>)</td><td>O(<var>N</var><sup>2</sup>)</td></tr>
+				</tbody>
+			</table>
+		</div>
+		<p>Với <var>N</var> = <var>Q</var> = 2 × 10<sup>5</sup>: cách ngây thơ cần khoảng 4 × 10<sup>10</sup> phép tính — quá tầm với, kể cả khi cho vài giây. Cách dùng tiền tố cần khoảng 4 × 10<sup>5</sup> phép tính, chạy trong vài phần trăm giây. Chênh lệch <b>khoảng 100 000 lần</b>, và đó là toàn bộ giá trị của chuyên đề này.</p>
+		<p>Riêng kỹ thuật 5 đạt bộ nhớ O(1) khi bài cho phép vừa đọc vừa tính, không cần lưu mảng.</p>
+	</div>
+</section>
+
+<!-- ==================== 10 ==================== -->
+<section class="box summary" id="m10">
+	<h2>10. Bốn lỗi khiến học sinh mất điểm nhiều nhất</h2>
+	<div class="body">
+		<p>Bốn lỗi dưới đây không phải lỗi tư duy — các em đều đã nghĩ ra thuật toán đúng — mà là lỗi thói quen lúc gõ code.</p>
+		<p><b>Lỗi 1: khai mảng theo ví dụ, không theo ràng buộc.</b> Ví dụ có <var>N</var> = 6 nên khai <code class="inline">a[10005]</code>, trong khi đề cho <var>N</var> ≤ 2 × 10<sup>5</sup>. Chương trình chạy đúng trên ví dụ, rớt hết test lớn. Hãy đọc dòng ràng buộc <i>trước khi</i> khai mảng, và để mọi mảng trong bài cùng một kích thước.</p>
+		<p><b>Lỗi 2: quên <code class="inline">long long</code>.</b> Tổng 2 × 10<sup>14</sup> nhét vào <code class="inline">int</code> sẽ tràn âm dương lung tung mà không báo lỗi. Ước lượng nhanh: nếu <var>N</var> × max|<var>a<sub>i</sub></var>| vượt 2 × 10<sup>9</sup> thì phải dùng <code class="inline">long long</code>.</p>
+		<p><b>Lỗi 3: khởi tạo <code class="inline">ans = 0</code> cho bài tìm max có số âm.</b> Xem lại bẫy ở kỹ thuật 5. Đúng ra phải khởi tạo bằng −∞, hoặc bằng chính phần tử đầu tiên.</p>
+		<p><b>Lỗi 4: chép hằng số từ test ví dụ vào công thức.</b> Ví dụ có <var>K</var> = 3 nên viết <code class="inline">p[i+2] - p[i-1]</code>; công thức đúng phải là <code class="inline">p[i+k-1] - p[i-1]</code>. Rà lại xem trong code còn con số nào lẽ ra phải là biến.</p>
+		<p>Cả bốn lỗi đều lộ ra trong một phút đọc lại code. Chi tiết và cách tự kiểm tra nằm trong tờ <b>“Sáu việc phải làm trước khi bấm nộp”</b>.</p>
+	</div>
+</section>
+
+<!-- ==================== 11 ==================== -->
+<section class="box practice" id="m11">
+	<h2>11. Lộ trình 50 bài luyện tập</h2>
+	<div class="body">
+		<p>Mỗi kỹ thuật có 10 bài: <b>bài 1–5</b> luyện thuần kỹ thuật, <b>bài 6–10</b> đan xen kiến thức khác (số học, hình học, sắp xếp, phân tích chữ số) để tập nhận dạng kỹ thuật trong bối cảnh lạ.</p>
+		<div class="table-wrap">
+			<table>
+				<thead><tr><th class="c">#</th><th>Kỹ thuật</th><th>Bài 1–5</th><th>Bài 6–10</th></tr></thead>
+				<tbody>
+					<tr><td class="c">1</td><td>Tổng tiền tố cơ bản</td><td>Truy vấn tổng đoạn; cửa sổ cố định; điểm cân bằng; mảng vòng tròn; tổng có trọng số</td><td>Số nguyên tố; tổng chữ số; đường đi Manhattan; số chính phương; diện tích</td></tr>
+					<tr><td class="c">2</td><td>Mảng hiệu</td><td>Cập nhật đoạn; đếm độ phủ; thao tác tối thiểu; cấp số cộng; cộng đoạn + truy vấn tổng</td><td>Độ phủ nguyên tố; độ dài phủ; sắp xếp + nhị phân; chia hết 3; chu vi biểu đồ</td></tr>
+					<tr><td class="c">3</td><td>Tiền tố + bảng băm</td><td>Tổng <var>K</var>; dài nhất tổng <var>K</var>; chia hết <var>K</var>; dài nhất chia hết <var>K</var>; đoạn cân bằng</td><td>Đúng <var>K</var> nguyên tố; BCNN; tổng chữ số; số chính phương; tổng trong [<var>A</var>, <var>B</var>]</td></tr>
+					<tr><td class="c">4</td><td>Tiền tố phép toán khác</td><td>XOR đoạn; đếm XOR = <var>K</var>; tổng chẵn; dài nhất XOR = <var>K</var>; bitmask chẵn lần</td><td>Nguyên tố chẵn lần; XOR tổng chữ số; XOR chính phương; chính phương chẵn lần; tích chính phương</td></tr>
+					<tr><td class="c">5</td><td>Tối ưu nhờ tiền tố</td><td>Đoạn tổng lớn nhất; độ dài tối thiểu; xóa một phần tử; trung bình ≥ <var>X</var>; hai đoạn rời nhau</td><td>Tổng ≤ <var>S</var>; lớn nhất chia hết <var>K</var>; độ dài trong [<var>L</var>, <var>R</var>]; chia gấp khúc; trung bình lớn nhất</td></tr>
+				</tbody>
+			</table>
+		</div>
+		<p><b>Thứ tự khuyến nghị:</b> học kỹ thuật 1 và làm hết 10 bài, rồi sang kỹ thuật 2, 3, 5. Kỹ thuật 4 phần XOR để lại sau cùng — ở bậc THCS có thể bỏ qua, chỉ cần nắm hai dạng nhẹ là tiền tố chẵn/lẻ và tiền tố của một tính chất.</p>
+	</div>
+</section>
+
+<footer>Tác giả: Phan Văn Việt — Đơn vị: THPT Chuyên Vĩnh Phúc - SĐT: 0987072896</footer>
+
+</div>
+
+<script>
+(function () {
+	"use strict";
+
+	/* ---------- đổi nền sáng / tối ---------- */
+	var root = document.documentElement;
+	var btn = document.getElementById("theme");
+
+	// đọc thẳng trạng thái CSS đang áp dụng, không hỏi matchMedia — nhờ vậy
+	// nhãn nút luôn khớp với thứ người đọc đang nhìn thấy
+	function isDark() {
+		return getComputedStyle(root).getPropertyValue("--is-dark").trim() === "1";
+	}
+	function paint() { btn.textContent = isDark() ? "Nền sáng" : "Nền tối"; }
+	btn.addEventListener("click", function () {
+		root.setAttribute("data-theme", isDark() ? "light" : "dark");
+		paint();
+	});
+	window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", paint);
+	paint();
+
+	/* ---------- làm nổi mục đang đọc trên thanh bên ---------- */
+	var navLinks = [].slice.call(document.querySelectorAll(".sidebar a"));
+	var navTargets = navLinks.map(function (a) {
+		return document.querySelector(a.getAttribute("href"));
+	});
+
+	function spy() {
+		var idx = 0;
+		for (var i = 0; i < navTargets.length; i++) {
+			// mục nào có mép trên đã trôi qua vạch 130px thì nó là mục đang đọc
+			if (navTargets[i] && navTargets[i].getBoundingClientRect().top <= 130) idx = i;
+		}
+		// chạm đáy trang thì luôn sáng mục cuối
+		if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) {
+			idx = navLinks.length - 1;
+		}
+		for (var j = 0; j < navLinks.length; j++) {
+			navLinks[j].classList.toggle("active", j === idx);
+		}
+	}
+
+	var ticking = false;
+	function onScroll() {
+		if (ticking) return;
+		ticking = true;
+		window.requestAnimationFrame(function () { spy(); ticking = false; });
+	}
+	if (navLinks.length) {
+		window.addEventListener("scroll", onScroll, { passive: true });
+		window.addEventListener("resize", onScroll);
+		spy();
+	}
+
+	/* ---------- tô màu cú pháp C++ (một lượt quét) ---------- */
+	var KEYWORDS = ["int", "long", "const", "unsigned", "short", "char", "bool", "void",
+		"double", "float", "auto", "for", "while", "do", "if", "else", "return", "break",
+		"continue", "struct", "class", "using", "namespace", "true", "false", "sizeof",
+		"unordered_map", "map", "vector", "pair", "string", "max", "min", "swap", "sort"];
+
+	var RE = new RegExp(
+		"(\\/\\/[^\\n]*)" +                       // 1: chú thích
+		"|(\"(?:[^\"\\\\\\n]|\\\\.)*\")" +        // 2: chuỗi
+		"|(#[a-zA-Z]+)" +                         // 3: tiền xử lý
+		"|\\b(\\d+)\\b" +                         // 4: số
+		"|\\b(" + KEYWORDS.join("|") + ")\\b",    // 5: từ khoá
+		"g");
+
+	function esc(s) {
+		return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+	}
+
+	function highlight(raw) {
+		// escape trước, rồi quét một lượt duy nhất; hàm replacer không quét lại
+		// phần đã chèn thẻ nên không có chuyện lồng thẻ vào nhau
+		return esc(raw).replace(RE, function (m, cmt, str, pp, num, kw) {
+			if (cmt) return '<span class="c">' + cmt + "</span>";
+			if (str) return '<span class="s">' + str + "</span>";
+			if (pp) return '<span class="pp">' + pp + "</span>";
+			if (num) return '<span class="n">' + num + "</span>";
+			if (kw) return '<span class="k">' + kw + "</span>";
+			return m;
+		});
+	}
+
+	/* ---------- nút sao chép ---------- */
+	var blocks = document.querySelectorAll(".code-block");
+	Array.prototype.forEach.call(blocks, function (block) {
+		var codeEl = block.querySelector("code");
+		var raw = codeEl.textContent;
+		codeEl.innerHTML = highlight(raw);
+
+		var b = document.createElement("button");
+		b.className = "copy";
+		b.type = "button";
+		b.textContent = "Sao chép";
+		b.addEventListener("click", function () {
+			function done() {
+				b.textContent = "Đã chép";
+				b.classList.add("done");
+				setTimeout(function () {
+					b.textContent = "Sao chép";
+					b.classList.remove("done");
+				}, 1400);
+			}
+			if (navigator.clipboard && navigator.clipboard.writeText) {
+				navigator.clipboard.writeText(raw).then(done, fallback);
+			} else {
+				fallback();
+			}
+			function fallback() {
+				var ta = document.createElement("textarea");
+				ta.value = raw;
+				ta.style.position = "fixed";
+				ta.style.opacity = "0";
+				document.body.appendChild(ta);
+				ta.select();
+				try { document.execCommand("copy"); done(); } catch (e) { /* bỏ qua */ }
+				document.body.removeChild(ta);
+			}
+		});
+		block.appendChild(b);
+	});
+})();
+</script>
+
+</body>
+</html>
