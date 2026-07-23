@@ -3,167 +3,51 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Chuyên đề: Chu trình Euler</title>
+<title>Chu trình Euler | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
 <style>
-:root{
-  --bg:#ffffff; --fg:#1f2328; --muted:#5b6570; --border:#e4e7eb; --card:#f7f8fa;
-  --blue:#1d4ed8;   --blue-bg:#eff6ff;
-  --purple:#6d28d9; --purple-bg:#f5f3ff;
-  --red:#b91c1c;    --red-bg:#fef2f2;
-  --green:#047857;  --green-bg:#ecfdf5;
-  --amber:#b45309;  --amber-bg:#fffbeb;
-  --code-bg:#f6f8fa; --code-fg:#24292f;
-  --c-kw:#0550ae; --c-str:#0a7d55; --c-cmt:#8b949e; --c-num:#953800; --c-fn:#6639ba; --c-pre:#a3364a;
-  --node:#dbeafe; --node-stroke:#2563eb; --edge:#64748b; --hl:#dc2626; --hl2:#059669;
-}
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#0f1319; --fg:#e6e9ee; --muted:#9aa4b2; --border:#252c37; --card:#161b23;
-    --blue:#7aa2ff;   --blue-bg:#131c2e;
-    --purple:#c4a2ff; --purple-bg:#1d1730;
-    --red:#ff8f8f;    --red-bg:#2a1618;
-    --green:#5fd3a1;  --green-bg:#0f2320;
-    --amber:#f3bf62;  --amber-bg:#251c0f;
-    --code-bg:#12171f; --code-fg:#dce3ec;
-    --c-kw:#79b8ff; --c-str:#7ee2b8; --c-cmt:#7d8794; --c-num:#ffab70; --c-fn:#d2a8ff; --c-pre:#ff9db8;
-    --node:#1e3a68; --node-stroke:#7aa2ff; --edge:#94a3b8; --hl:#ff6b6b; --hl2:#4ade80;
-  }
-}
-:root[data-theme="light"]{
-  --bg:#ffffff; --fg:#1f2328; --muted:#5b6570; --border:#e4e7eb; --card:#f7f8fa;
-  --blue:#1d4ed8; --blue-bg:#eff6ff; --purple:#6d28d9; --purple-bg:#f5f3ff;
-  --red:#b91c1c; --red-bg:#fef2f2; --green:#047857; --green-bg:#ecfdf5;
-  --amber:#b45309; --amber-bg:#fffbeb; --code-bg:#f6f8fa; --code-fg:#24292f;
-  --c-kw:#0550ae; --c-str:#0a7d55; --c-cmt:#8b949e; --c-num:#953800; --c-fn:#6639ba; --c-pre:#a3364a;
-  --node:#dbeafe; --node-stroke:#2563eb; --edge:#64748b; --hl:#dc2626; --hl2:#059669;
-}
-:root[data-theme="dark"]{
-  --bg:#0f1319; --fg:#e6e9ee; --muted:#9aa4b2; --border:#252c37; --card:#161b23;
-  --blue:#7aa2ff; --blue-bg:#131c2e; --purple:#c4a2ff; --purple-bg:#1d1730;
-  --red:#ff8f8f; --red-bg:#2a1618; --green:#5fd3a1; --green-bg:#0f2320;
-  --amber:#f3bf62; --amber-bg:#251c0f; --code-bg:#12171f; --code-fg:#dce3ec;
-  --c-kw:#79b8ff; --c-str:#7ee2b8; --c-cmt:#7d8794; --c-num:#ffab70; --c-fn:#d2a8ff; --c-pre:#ff9db8;
-  --node:#1e3a68; --node-stroke:#7aa2ff; --edge:#94a3b8; --hl:#ff6b6b; --hl2:#4ade80;
-}
-
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{
-  margin:0; background:var(--bg); color:var(--fg);
-  font-family:"Noto Sans","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
-  font-size:16.5px; line-height:1.68;
-}
-.wrap{max-width:900px; margin:0 auto; padding:0 20px 90px}
-
-/* ---- đầu trang ---- */
-header{border-bottom:1px solid var(--border); margin-bottom:26px; padding:34px 0 22px}
-header .kicker{font-size:.8rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); font-weight:600}
-header h1{font-size:2.15rem; line-height:1.2; margin:.28em 0 .18em; letter-spacing:-.015em}
-header .by{color:var(--muted); font-size:.94rem}
-.themebtn{
-  position:fixed; top:14px; right:14px; z-index:20;
-  background:var(--card); color:var(--fg); border:1px solid var(--border);
-  border-radius:999px; padding:7px 14px; font-size:.82rem; cursor:pointer; font-family:inherit;
-}
-.themebtn:hover{border-color:var(--blue)}
-
-/* ---- mục lục ---- */
-nav.toc{background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px 20px; margin-bottom:34px}
-nav.toc b{display:block; margin-bottom:8px; font-size:.9rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
-nav.toc ol{margin:0; padding-left:1.3em; columns:2; column-gap:32px}
-nav.toc li{margin:3px 0; break-inside:avoid}
-nav.toc a{color:var(--fg); text-decoration:none; border-bottom:1px solid transparent}
-nav.toc a:hover{color:var(--blue); border-bottom-color:var(--blue)}
-@media (max-width:640px){ nav.toc ol{columns:1} }
-
-/* ---- tiêu đề mục ---- */
-h2{
-  font-size:1.42rem; margin:2.4em 0 .55em; padding-bottom:.28em;
-  border-bottom:2px solid var(--border); letter-spacing:-.01em; scroll-margin-top:16px;
-}
-h2 .num{color:var(--blue); font-variant-numeric:tabular-nums; margin-right:.45em}
-h3{font-size:1.1rem; margin:1.7em 0 .4em; color:var(--fg)}
-p{margin:.75em 0}
-ul,ol{margin:.65em 0; padding-left:1.5em}
-li{margin:.28em 0}
-strong{font-weight:700}
-em{color:var(--fg)}
-code.inl{
-  background:var(--code-bg); border:1px solid var(--border); border-radius:5px;
-  padding:1px 5px; font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.88em;
-}
-.mathv{font-family:"Cambria Math","Latin Modern Math",Georgia,serif; font-style:italic; padding-right:.09em}
-sub,sup{font-size:.7em; font-style:normal}
-
-/* ---- khung nội dung ---- */
-.box{border-radius:10px; border:1px solid; border-left-width:5px; padding:2px 18px 14px; margin:20px 0}
-.box .t{font-weight:700; margin:14px 0 6px; font-size:1rem; letter-spacing:.01em}
-.box.tech{background:var(--blue-bg);   border-color:var(--blue)}   .box.tech   .t{color:var(--blue)}
-.box.def{background:var(--purple-bg);  border-color:var(--purple)} .box.def    .t{color:var(--purple)}
-.box.warn{background:var(--red-bg);    border-color:var(--red)}    .box.warn   .t{color:var(--red)}
-.box.ex{background:var(--green-bg);    border-color:var(--green)}  .box.ex     .t{color:var(--green)}
-.box.cmplx{background:var(--amber-bg); border-color:var(--amber)}  .box.cmplx  .t{color:var(--amber)}
-
-/* ---- bảng ---- */
-.tablewrap{overflow-x:auto; margin:18px 0; border:1px solid var(--border); border-radius:10px}
-table{border-collapse:collapse; width:100%; min-width:560px; font-size:.94rem}
-th,td{border-bottom:1px solid var(--border); padding:9px 13px; text-align:left; vertical-align:top}
-th{background:var(--card); font-weight:700; color:var(--blue); white-space:nowrap}
-tbody tr:last-child td{border-bottom:none}
-td.c,th.c{text-align:center; white-space:nowrap}
-
-/* ---- hình vẽ ---- */
-figure{margin:22px 0; text-align:center}
-figure svg{max-width:100%; height:auto}
-figcaption{color:var(--muted); font-size:.88rem; margin-top:8px}
-.figrow{display:flex; flex-wrap:wrap; gap:18px; justify-content:center; align-items:flex-start}
-.figrow > div{flex:1 1 260px; max-width:340px}
-.figrow p{font-size:.88rem; color:var(--muted); margin:4px 0 0}
-svg .nd{fill:var(--node); stroke:var(--node-stroke); stroke-width:2}
-svg .lb{fill:var(--fg); font-size:15px; font-weight:700; text-anchor:middle; dominant-baseline:central;
-        font-family:"Noto Sans",system-ui,sans-serif}
-svg .el{fill:var(--muted); font-size:12px; text-anchor:middle; dominant-baseline:central;
-        font-family:"Noto Sans",system-ui,sans-serif}
-svg .eg{stroke:var(--edge); stroke-width:2; fill:none}
-svg .eg.on{stroke:var(--hl); stroke-width:3.4}
-svg .eg.on2{stroke:var(--hl2); stroke-width:3.4}
+/* Hai quy tắc riêng của bài này, chuan.css không có. */
 svg .eg.dim{stroke:var(--border); stroke-width:2; stroke-dasharray:5 4}
-svg .cap{fill:var(--fg); font-size:13px; text-anchor:middle; font-weight:600;
-         font-family:"Noto Sans",system-ui,sans-serif}
-
-/* ---- code ---- */
-.codewrap{position:relative; margin:16px 0}
-.codewrap .name{
-  font-size:.82rem; color:var(--muted); padding:6px 12px; background:var(--card);
-  border:1px solid var(--border); border-bottom:none; border-radius:9px 9px 0 0;
-}
-pre{
-  margin:0; background:var(--code-bg); color:var(--code-fg);
-  border:1px solid var(--border); border-radius:0 0 9px 9px;
-  padding:13px 14px; overflow-x:auto; font-size:13.2px; line-height:1.5;
-  tab-size:2; -moz-tab-size:2;
-}
-.codewrap.noname pre{border-radius:9px}
-pre code{font-family:"Noto Sans Mono","Consolas",ui-monospace,"Courier New",monospace; white-space:pre}
-.cp{
-  position:absolute; top:5px; right:6px; z-index:2; cursor:pointer; font-family:inherit;
-  background:var(--bg); color:var(--muted); border:1px solid var(--border);
-  border-radius:6px; padding:3px 9px; font-size:.76rem; opacity:.75;
-}
-.cp:hover{opacity:1; color:var(--blue); border-color:var(--blue)}
-.k{color:var(--c-kw); font-weight:600}
-.s{color:var(--c-str)}
-.c{color:var(--c-cmt); font-style:italic}
-.n{color:var(--c-num)}
-.f{color:var(--c-fn)}
-.pp{color:var(--c-pre)}
-
-footer{margin-top:56px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted); font-size:.9rem}
+svg .eg.on2{stroke:var(--hl2); stroke-width:3.4}
 </style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Điều kiện tồn tại chu trình Euler và thuật toán Hierholzer.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Chu trình Euler | Lý thuyết CP">
+<meta property="og:description" content="Điều kiện tồn tại chu trình Euler và thuật toán Hierholzer.">
+<!--/cv-head-->
 </head>
-<body>
+<body class="cv-side">
 <button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Chu trình Euler</div>
+  <a href="#s1">1. Bài toán mở đầu</a>
+  <a href="#s2">2. Khái niệm cơ bản</a>
+  <a href="#s3">3. Điều kiện tồn tại</a>
+  <a href="#s4">4. Thuật toán Hierholzer</a>
+  <a href="#s5">5. Thuật toán Fleury</a>
+  <a href="#s6">6. Lỗi thường gặp</a>
+  <a href="#s7">7. Ứng dụng và biến thể</a>
+  <a href="#s8">8. Bài tập mẫu</a>
+  <a href="#s9">9. Bài tập tự luyện</a>
+  <a href="#s10">10. Tổng kết</a>
+</aside>
+
+<div class="main">
 <div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb">Đồ thị &amp; cây<span class="cv-sep">/</span><span class="cv-here">Chu trình Euler</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
 
 <header>
   <div class="kicker">Chuyên đề Lập trình thi đấu</div>
@@ -1204,69 +1088,16 @@ int main() {
   <p>Sau ba câu hỏi đó, phần cài đặt chỉ còn là khuôn mẫu Hierholzer khoảng 30 dòng — hãy học thuộc để viết lại được trong vài phút.</p>
 </div>
 
-<footer>
-  Chuyên đề Lập trình thi đấu — Chu trình Euler · Phan Văn Việt, Trường THPT Chuyên Vĩnh Phúc.
-  Toàn bộ mã nguồn trong tài liệu đã được biên dịch bằng <code class="inl">g++ -std=c++14 -O2 -Wall</code> và chạy kiểm chứng.
-</footer>
-
+</div>
 </div>
 
-<script>
-(function(){
-  /* ---- nút đổi nền sáng / tối ---- */
-  var root = document.documentElement, btn = document.getElementById('tg');
-  btn.addEventListener('click', function(){
-    var cur = root.getAttribute('data-theme');
-    if(!cur) cur = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    root.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
-  });
+<script src="../assets/chuan.js"></script>
 
-  /* ---- tô màu cú pháp C++ (đơn giản, một lượt quét) ---- */
-  var KW = 'int|bool|void|char|long|double|float|unsigned|const|static|struct|class|return|for|while|do|if|else|break|continue|using|namespace|true|false|sizeof|new|delete|inline|auto';
-  var LIB = 'vector|pair|stack|queue|string|map|set|cin|cout|endl|make_pair|push_back|pop_back|reverse|sort|size|empty|top|push|pop|begin|end|first|second|main';
-  var RE = new RegExp(
-      '(\\/\\/[^\\n]*)'                       + '|' +   /* chú thích  */
-      '(&quot;(?:[^&]|&(?!quot;))*&quot;)'     + '|' +   /* xâu ""     */
-      '(&#39;(?:[^&]|&(?!#39;))*&#39;)'        + '|' +   /* ký tự ''   */
-      '("(?:[^"\\\\\\n]|\\\\.)*")'             + '|' +   /* xâu ""     */
-      "('(?:[^'\\\\\\n]|\\\\.)*')"             + '|' +   /* ký tự ''   */
-      '(#[a-z]+)'                              + '|' +   /* tiền xử lý */
-      '\\b(' + KW  + ')\\b'                    + '|' +
-      '\\b(' + LIB + ')\\b'                    + '|' +
-      '\\b(\\d+)\\b', 'g');
-  var CLS = ['c','s','s','s','s','pp','k','f','n'];
-
-  document.querySelectorAll('pre code').forEach(function(el){
-    el.innerHTML = el.innerHTML.replace(RE, function(){
-      for (var i = 1; i <= 9; i++)
-        if (arguments[i] !== undefined)
-          return '<span class="' + CLS[i-1] + '">' + arguments[i] + '</span>';
-      return arguments[0];
-    });
-  });
-
-  /* ---- nút sao chép mã nguồn ---- */
-  document.querySelectorAll('.codewrap').forEach(function(w){
-    var pre = w.querySelector('pre');
-    if(!pre) return;
-    var b = document.createElement('button');
-    b.className = 'cp';
-    b.textContent = 'Sao chép';
-    b.addEventListener('click', function(){
-      var txt = pre.innerText;
-      var done = function(){ b.textContent = 'Đã chép'; setTimeout(function(){ b.textContent = 'Sao chép'; }, 1400); };
-      if (navigator.clipboard && navigator.clipboard.writeText)
-        navigator.clipboard.writeText(txt).then(done, done);
-      else {
-        var ta = document.createElement('textarea');
-        ta.value = txt; document.body.appendChild(ta); ta.select();
-        try { document.execCommand('copy'); } catch(e){}
-        document.body.removeChild(ta); done();
-      }
-    });
-    w.appendChild(b);
-  });
-})();
-</script>
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

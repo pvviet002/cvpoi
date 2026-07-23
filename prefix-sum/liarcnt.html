@@ -3,62 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kỹ thuật Quét Trục Số - EduCode Master</title>
-    
-    <!-- Bổ sung MathJax để render công thức toán học -->
-    <script>
-        MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']]
-            }
-        };
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <title>Kỹ thuật quét trục số | Lý thuyết CP</title>
 
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg: #0B1220;
-            --bg2: #0F1A2E;
-            --panel: #111E36;
-            --accent: #38D6C4;
-            --accent-dim: rgba(56, 214, 196, 0.2);
-            --accent2: #5B8CFF;
-            --mark: #FFB454;
-            --red: #FF6B6B;
-            --green: #4ADE80;
-            --text-main: #E2E8F0;
-            --text-muted: #94A3B8;
-            --shadow-card: 0 20px 60px -30px rgba(0,0,0,.9);
-            --glow: 0 0 15px var(--accent-dim);
-            --border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.03em; }
+    <link rel="stylesheet" href="../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --accent: var(--green);
+  --accent-dim: var(--green-bg);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --text-main: var(--fg);
+  --text-muted: var(--muted);
+  --shadow-card: none;
+  --glow: none;
+  --border: var(--border);
+}
         code, .mono { font-family: 'JetBrains Mono', monospace; }
-
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        section { padding: 80px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-
-        /* Typography */
-        h1 { font-size: 3.5rem; color: #fff; text-shadow: var(--glow); margin-bottom: 1rem; }
-        h2 { font-size: 2.2rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 15px; }
         h2::before { content: ''; width: 4px; height: 1em; background: var(--accent); border-radius: 4px; }
-        p { margin-bottom: 1rem; color: var(--text-muted); font-size: 1.1rem; }
         
         .highlight { color: var(--accent); font-weight: 600; }
         .red-text { color: var(--red); }
@@ -76,7 +42,7 @@
         .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
         @media(max-width: 768px) { .grid2 { grid-template-columns: 1fr; } }
 
-        button {
+        .lab-main button , .lab-toolbar button , .mini-lab button , .card button {
             background: linear-gradient(135deg, var(--accent2), var(--accent));
             color: #000;
             border: none;
@@ -88,20 +54,20 @@
             transition: all 0.3s ease;
             box-shadow: var(--glow);
         }
-        button:hover { transform: translateY(-2px); box-shadow: 0 0 25px var(--accent-dim); }
-        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        .lab-main button:hover , .lab-toolbar button:hover , .mini-lab button:hover , .card button:hover { transform: translateY(-2px); box-shadow: 0 0 25px var(--accent-dim); }
+        .lab-main button:disabled , .lab-toolbar button:disabled , .mini-lab button:disabled , .card button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
         
-        button.btn-outline {
+        .lab-main button.btn-outline , .lab-toolbar button.btn-outline , .mini-lab button.btn-outline , .card button.btn-outline {
             background: transparent;
             color: var(--accent);
             border: 1px solid var(--accent);
             box-shadow: none;
         }
-        button.btn-outline:hover { background: var(--accent-dim); }
+        .lab-main button.btn-outline:hover , .lab-toolbar button.btn-outline:hover , .mini-lab button.btn-outline:hover , .card button.btn-outline:hover { background: var(--accent-dim); }
 
         /* Code Block */
         pre {
-            background: #0A1220;
+            background: var(--code-bg);
             border: 1px solid rgba(255,255,255,0.05);
             border-radius: 12px;
             padding: 20px;
@@ -203,7 +169,7 @@
 
         /* Right: Code & State */
         .state-panel { display: flex; flex-direction: column; gap: 15px; }
-        .code-runner { background: #0A1220; border-radius: 12px; padding: 15px; font-family: 'JetBrains Mono'; font-size: 0.9rem; border: var(--border);}
+        .code-runner { background: var(--code-bg); border-radius: 12px; padding: 15px; font-family: 'JetBrains Mono'; font-size: 0.9rem; border: var(--border);}
         .codeline { padding: 4px 10px; border-radius: 4px; border-left: 3px solid transparent; transition: 0.2s; color: #A6ACCD;}
         .codeline.hot { background: rgba(255, 180, 84, 0.1); border-left-color: var(--mark); color: #fff;}
         
@@ -230,19 +196,86 @@
         .quiz-opt.correct { background: rgba(74, 222, 128, 0.1); border-color: var(--green); }
         .quiz-opt.wrong { background: rgba(255, 107, 107, 0.1); border-color: var(--red); }
         #quiz-explanation { margin-top: 15px; padding: 15px; background: var(--bg2); border-radius: 8px; display: none; }
-    </style>
+    
+        /* Phòng mô phỏng của bài này vốn dựng cho cột rộng 1200px; cột chuẩn
+           chỉ 1000px nên phải cho lưới co lại. min-width:0 là bắt buộc — ô
+           lưới mặc định không nhỏ hơn nội dung, đó là nguồn gốc tràn ngang. */
+        .lab-main{grid-template-columns:minmax(0,1fr) 320px}
+        .lab-main > *{min-width:0; overflow-x:auto}
+        .grid2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+        .grid2 > *{min-width:0}
+        .visual-panel{overflow-x:auto}
+        @media (max-width:1180px){ .lab-main{grid-template-columns:minmax(0,1fr)} }
+    
+        /* Bắt buộc khối mã theo bảng màu của chuẩn: vài trang còn sót màu gõ
+           cứng của bản nền tối, sang nền sáng thì chữ gần như tàng hình
+           (đo được tương phản 1,42). */
+        pre{color:var(--code-fg)}
+        pre .k, pre .t{color:var(--c-kw)}
+        pre .n{color:var(--c-num)}
+        pre .c{color:var(--c-cmt); font-style:italic}
+        pre .s{color:var(--c-str)}
+        pre .f{color:var(--c-fn)}
+        .err pre, .ok pre{background:var(--code-bg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Nén tọa độ và quét sự kiện trên đường thẳng qua bài LIARCNT.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Kỹ thuật quét trục số | Lý thuyết CP">
+<meta property="og:description" content="Nén tọa độ và quét sự kiện trên đường thẳng qua bài LIARCNT.">
+<!--/cv-head-->
 </head>
-<body>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Kỹ thuật quét trục số</div>
+  <a href="#s1">1. Tại sao cần tư duy lại?</a>
+  <a href="#s2">2. Thuật toán cốt lõi và tối ưu</a>
+  <a href="#s3">3. Phòng thí nghiệm tương tác</a>
+  <a href="#s4">4. Cạm bẫy thường gặp</a>
+  <a href="#s5">5. Kiểm tra nhanh</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="index.html">Tổng tiền tố</a><span class="cv-sep">/</span><span class="cv-here">Quét trục số</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
 
     <section id="hero">
         <div class="container">
-            <div class="prereq-box">⚡ Cần biết trước: Mảng, Vòng lặp cơ bản</div>
-            <h1>Trốn Tìm Trên Trục Số</h1>
-            <p style="font-size: 1.3rem; max-width: 800px;">Hướng dẫn giải bài toán <strong>LIARCNT</strong> bằng cách tư duy logic về tọa độ và biến đổi bài toán tối ưu. Học cách máy tính "quét" qua các khả năng một cách thông minh.</p>
-            
-            <div class="mini-lab card">
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Kỹ thuật quét trục số</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p>Đổi bài toán tối ưu thành bài toán đếm trên trục số, rồi quét một lượt qua các mốc thay vì thử mọi khả năng.</p>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tại sao cần tư duy lại?</a></li>
+    <li><a href="#s2">Thuật toán cốt lõi và tối ưu</a></li>
+    <li><a href="#s3">Phòng thí nghiệm tương tác</a></li>
+    <li><a href="#s4">Cạm bẫy thường gặp</a></li>
+    <li><a href="#s5">Kiểm tra nhanh</a></li>
+  </ol>
+</nav>
+
+<div class="mini-lab card">
                 <h3 style="margin-bottom: 10px;">Mini-Lab: Thế nào là nói dối?</h3>
-                <p>Cuội đang trốn. Bờm nhận được 2 lời khai. Thử click vào các vị trí $x$ (nơi bạn đoán Cuội trốn) để xem ai đang nói dối!</p>
+                <p>Cuội đang trốn. Bờm nhận được 2 lời khai. Thử click vào các vị trí <span class="mathv">x</span> (nơi bạn đoán Cuội trốn) để xem ai đang nói dối!</p>
                 <div class="mini-number-line" id="mini-line">
                     <div class="mini-node" data-val="1">1</div>
                     <div class="mini-node" data-val="2">2</div>
@@ -252,11 +285,11 @@
                 </div>
                 <div class="grid2">
                     <div class="logic-card" id="logic-L">
-                        <strong>Bạn A nói:</strong> "Cuội ở tọa độ $x \le 2$" (L 2)
+                        <strong>Bạn A nói:</strong> "Cuội ở tọa độ <span class="mathv">x</span> ≤ 2" (L 2)
                         <div id="res-L" class="mono" style="margin-top:10px; font-size:1.2rem;">-</div>
                     </div>
                     <div class="logic-card" id="logic-G">
-                        <strong>Bạn B nói:</strong> "Cuội ở tọa độ $x \ge 4$" (G 4)
+                        <strong>Bạn B nói:</strong> "Cuội ở tọa độ <span class="mathv">x</span> ≥ 4" (G 4)
                         <div id="res-G" class="mono" style="margin-top:10px; font-size:1.2rem;">-</div>
                     </div>
                 </div>
@@ -267,26 +300,26 @@
 
     <section id="motivation">
         <div class="container">
-            <h2>Tại sao cần tư duy lại?</h2>
+            <h2 id="s1"><span class="num">1.</span>Tại sao cần tư duy lại?</h2>
             <div class="grid2">
                 <div>
-                    <p>Bài toán yêu cầu tìm một tọa độ $x$ sao cho <strong>số người nói dối là ít nhất</strong>.</p>
-                    <p>Tọa độ $x$ có thể là số thực bất kỳ! Nếu ta thử chạy vòng lặp kiểm tra từng giá trị $x = 1, 1.1, 1.2, ...$ thì sẽ <span class="red-text">không bao giờ xong (Vô hạn)</span>.</p>
-                    <p><strong>💡 Điểm mấu chốt:</strong> Sự thật/Dối trá chỉ thay đổi khi $x$ vượt qua các điểm mốc (các giá trị $p$ được cung cấp trong input). Giữa các mốc, số lượng người nói dối là không đổi!</p>
-                    <p>Do đó, ta chỉ cần thử các ứng viên $x$ <strong>chính là các tọa độ $p$</strong> đã cho.</p>
+                    <p>Bài toán yêu cầu tìm một tọa độ <span class="mathv">x</span> sao cho <strong>số người nói dối là ít nhất</strong>.</p>
+                    <p>Tọa độ <span class="mathv">x</span> có thể là số thực bất kỳ! Nếu ta thử chạy vòng lặp kiểm tra từng giá trị <span class="mathv">x</span> = 1, 1.1, 1.2, … thì sẽ <span class="red-text">không bao giờ xong (Vô hạn)</span>.</p>
+                    <p><strong>💡 Điểm mấu chốt:</strong> Sự thật/Dối trá chỉ thay đổi khi <span class="mathv">x</span> vượt qua các điểm mốc (các giá trị <span class="mathv">p</span> được cung cấp trong input). Giữa các mốc, số lượng người nói dối là không đổi!</p>
+                    <p>Do đó, ta chỉ cần thử các ứng viên <span class="mathv">x</span> <strong>chính là các tọa độ <span class="mathv">p</span></strong> đã cho.</p>
                 </div>
-                <div class="card">
+                <div class="box tech">
                     <h3 style="margin-bottom: 15px;">Định nghĩa "Kẻ Nói Dối"</h3>
                     <ul style="list-style: none; padding: 0;">
                         <li style="margin-bottom: 15px;">
-                            <span style="background: rgba(56, 214, 196, 0.2); padding: 4px 8px; border-radius: 4px; font-family: 'JetBrains Mono';">L p</span> (Khai $x \le p$): <br>
-                            Sẽ là nói dối <strong>NẾU</strong> thực tế Cuội ở $x > p$.<br>
-                            👉 Viết ngược lại: Khi ta chọn tọa độ $x$, những người khai `L p` mà có <strong>$p &lt; x$</strong> là kẻ nói dối!
+                            <span style="background: rgba(56, 214, 196, 0.2); padding: 4px 8px; border-radius: 4px; font-family: 'JetBrains Mono';">L p</span> (Khai <span class="mathv">x</span> ≤ <span class="mathv">p</span>): <br>
+                            Sẽ là nói dối <strong>NẾU</strong> thực tế Cuội ở <span class="mathv">x</span> &gt; <span class="mathv">p</span>.<br>
+                            👉 Viết ngược lại: Khi ta chọn tọa độ <span class="mathv">x</span>, những người khai `L p` mà có <strong><span class="mathv">p</span> &lt; <span class="mathv">x</span></strong> là kẻ nói dối!
                         </li>
                         <li>
-                            <span style="background: rgba(91, 140, 255, 0.2); padding: 4px 8px; border-radius: 4px; font-family: 'JetBrains Mono';">G p</span> (Khai $x \ge p$): <br>
-                            Sẽ là nói dối <strong>NẾU</strong> thực tế Cuội ở $x &lt; p$.<br>
-                            👉 Viết ngược lại: Khi ta chọn tọa độ $x$, những người khai `G p` mà có <strong>$p &gt; x$</strong> là kẻ nói dối!
+                            <span style="background: rgba(91, 140, 255, 0.2); padding: 4px 8px; border-radius: 4px; font-family: 'JetBrains Mono';">G p</span> (Khai <span class="mathv">x</span> ≥ <span class="mathv">p</span>): <br>
+                            Sẽ là nói dối <strong>NẾU</strong> thực tế Cuội ở <span class="mathv">x</span> &lt; <span class="mathv">p</span>.<br>
+                            👉 Viết ngược lại: Khi ta chọn tọa độ <span class="mathv">x</span>, những người khai `G p` mà có <strong><span class="mathv">p</span> &gt; <span class="mathv">x</span></strong> là kẻ nói dối!
                         </li>
                     </ul>
                 </div>
@@ -296,27 +329,27 @@
 
     <section id="theory">
         <div class="container">
-            <h2>Thuật toán cốt lõi & Tối ưu</h2>
-            <p>Ta sẽ thu thập tất cả các tọa độ xuất hiện trong Input vào một mảng `points`. Do sự thật chỉ thay đổi ở các "cột mốc" nên ta chỉ cần đặt Cuội vào từng vị trí $x$ trong `points`.</p>
+            <h2 id="s2"><span class="num">2.</span>Thuật toán cốt lõi và tối ưu</h2>
+            <p>Ta sẽ thu thập tất cả các tọa độ xuất hiện trong Input vào một mảng `points`. Do sự thật chỉ thay đổi ở các "cột mốc" nên ta chỉ cần đặt Cuội vào từng vị trí <span class="mathv">x</span> trong `points`.</p>
             
             <div class="grid2" style="margin-top: 30px;">
                 <!-- Cách cơ bản -->
                 <div class="card" style="padding: 20px;">
                     <h3 style="color: var(--mark); margin-bottom: 15px;">Cách 1: Duyệt mảng (Subtask 1)</h3>
-                    <p style="font-size: 0.95rem;">Kiểm tra từng $x$, rồi lặp qua toàn bộ mảng <code>L</code> và <code>G</code> để đếm. Độ phức tạp là $O(N^2)$, chỉ phù hợp $N \le 1000$.</p>
-                    <pre style="margin: 0; padding: 15px;"><code><span class="kw">int</span> min_liars = INF;
+                    <p style="font-size: 0.95rem;">Kiểm tra từng <span class="mathv">x</span>, rồi lặp qua toàn bộ mảng <code>L</code> và <code>G</code> để đếm. Độ phức tạp là O(<span class="mathv">N</span><sup>2</sup>), chỉ phù hợp <span class="mathv">N</span> ≤ 1000.</p>
+                    <div class="codewrap noname"><pre style="margin: 0; padding: 15px;"><code><span class="kw">int</span> min_liars = INF;
 <span class="kw">for</span> (<span class="kw">int</span> x : points) {
     <span class="cm">// Đếm trâu (vòng lặp)</span>
     <span class="kw">int</span> lie_L = <span class="fn">count_if</span>(L, p &lt; x);
                     min_liars = <span class="fn">min</span>(min_liars, lie_L + lie_G);
-}</code></pre>
+}</code></pre></div>
                 </div>
 
                 <!-- Cách tối ưu -->
                 <div class="card" style="padding: 20px; border-color: var(--accent);">
                     <h3 style="color: var(--accent); margin-bottom: 15px;">Cách 2: Mảng cộng dồn (Prefix Sum)</h3>
-                    <p style="font-size: 0.95rem;">Lọc các tọa độ duy nhất và sắp xếp thành mảng <code>U</code>. Dùng mảng cộng dồn đếm số lượng khai $L \le x$ và mảng hậu tố đếm $G \ge x$. Tránh việc duyệt lại mảng nhiều lần, cho phép tính số người nói dối tại mọi mốc trong $O(1)$.</p>
-                    <pre style="margin: 0; padding: 15px;"><code><span class="cm">// 1. Tiền xử lý mảng cộng dồn và hậu tố</span>
+                    <p style="font-size: 0.95rem;">Lọc các tọa độ duy nhất và sắp xếp thành mảng <code>U</code>. Dùng mảng cộng dồn đếm số lượng khai <span class="mathv">L</span> ≤ <span class="mathv">x</span> và mảng hậu tố đếm <span class="mathv">G</span> ≥ <span class="mathv">x</span>. Tránh việc duyệt lại mảng nhiều lần, cho phép tính số người nói dối tại mọi mốc trong O(1).</p>
+                    <div class="codewrap noname"><pre style="margin: 0; padding: 15px;"><code><span class="cm">// 1. Tiền xử lý mảng cộng dồn và hậu tố</span>
 <span class="kw">for</span>(<span class="kw">int</span> i = 0; i &lt; m; ++i) {
     pref_L[i] = (i &gt; 0 ? pref_L[i-1] : 0) + count_L[U[i]];
 }
@@ -331,7 +364,7 @@
     <span class="kw">int</span> lie_G = (i &lt; m-1 ? suff_G[i+1] : 0); <span class="cm">// Số người nói G có p > x</span>
     
     min_liars = <span class="fn">min</span>(min_liars, lie_L + lie_G);
-}</code></pre>
+}</code></pre></div>
                 </div>
             </div>
         </div>
@@ -339,8 +372,8 @@
 
     <section id="lab">
         <div class="container">
-            <h2>Phòng thí nghiệm tương tác (Simulator)</h2>
-            <p>Dữ liệu mẫu: <code>G 3</code>, <code>G 4</code>, <code>G 8</code>, <code>L 2</code>, <code>L 5</code>, <code>L 6</code>, <code>L 9</code>. Các mốc cần kiểm tra: $x \in \{2, 3, 4, 5, 6, 8, 9\}$.</p>
+            <h2 id="s3"><span class="num">3.</span>Phòng thí nghiệm tương tác</h2>
+            <p>Dữ liệu mẫu: <code>G 3</code>, <code>G 4</code>, <code>G 8</code>, <code>L 2</code>, <code>L 5</code>, <code>L 6</code>, <code>L 9</code>. Các mốc cần kiểm tra: <span class="mathv">x</span> ∈ {2, 3, 4, 5, 6, 8, 9}.</p>
             
             <div id="lab-container">
                 <div class="lab-toolbar">
@@ -413,23 +446,23 @@
 
     <section id="pitfalls">
         <div class="container">
-            <h2>Cạm bẫy thường gặp (Pitfalls)</h2>
+            <h2 id="s4"><span class="num">4.</span>Cạm bẫy thường gặp</h2>
             <div class="grid2">
                 <div class="pitfall-box pitfall-bad">
                     <h3 class="red-text">✕ Sai lầm</h3>
                     <p>Nhầm lẫn dấu bằng khi kiểm tra điều kiện nói dối.</p>
-                    <pre style="background: rgba(0,0,0,0.3); border: none;"><code><span class="cm">// L p nghĩa là Cuội <= p.</span>
+                    <div class="codewrap noname"><pre style="background: rgba(0,0,0,0.3); border: none;"><code><span class="cm">// L p nghĩa là Cuội <= p.</span>
 <span class="cm">// KHI NÀO là nói dối?</span>
-<span class="kw">if</span> (p <= x) { lie_L++; } <span class="cm">// SAI!</span></code></pre>
-                    <p style="font-size: 0.9rem; margin-top: 10px;">Nếu $x = p$, thì Cuội ở tại $p$, mệnh đề $x \le p$ vẫn là SỰ THẬT, không phải nói dối.</p>
+<span class="kw">if</span> (p <= x) { lie_L++; } <span class="cm">// SAI!</span></code></pre></div>
+                    <p style="font-size: 0.9rem; margin-top: 10px;">Nếu <span class="mathv">x</span> = <span class="mathv">p</span>, thì Cuội ở tại <span class="mathv">p</span>, mệnh đề <span class="mathv">x</span> ≤ <span class="mathv">p</span> vẫn là SỰ THẬT, không phải nói dối.</p>
                 </div>
                 <div class="pitfall-box pitfall-good">
                     <h3 style="color: var(--green);">✓ Cách Đúng</h3>
-                    <p>Phủ định logic cẩn thận. Mệnh đề $x \le p$ sai khi $x > p$.</p>
-                    <pre style="background: rgba(0,0,0,0.3); border: none;"><code><span class="cm">// L p sai khi thực tế x > p</span>
+                    <p>Phủ định logic cẩn thận. Mệnh đề <span class="mathv">x</span> ≤ <span class="mathv">p</span> sai khi <span class="mathv">x</span> &gt; <span class="mathv">p</span>.</p>
+                    <div class="codewrap noname"><pre style="background: rgba(0,0,0,0.3); border: none;"><code><span class="cm">// L p sai khi thực tế x > p</span>
 <span class="cm">// (hay p < x)</span>
-<span class="kw">if</span> (p &lt; x) { lie_L++; } <span class="cm">// ĐÚNG!</span></code></pre>
-                    <p style="font-size: 0.9rem; margin-top: 10px;">Chỉ đếm khi mốc $p$ nhỏ hơn hẳn $x$ (đối với `L`), hoặc lớn hơn hẳn $x$ (đối với `G`).</p>
+<span class="kw">if</span> (p &lt; x) { lie_L++; } <span class="cm">// ĐÚNG!</span></code></pre></div>
+                    <p style="font-size: 0.9rem; margin-top: 10px;">Chỉ đếm khi mốc <span class="mathv">p</span> nhỏ hơn hẳn <span class="mathv">x</span> (đối với `L`), hoặc lớn hơn hẳn <span class="mathv">x</span> (đối với `G`).</p>
                 </div>
             </div>
         </div>
@@ -437,13 +470,13 @@
 
     <section id="quiz">
         <div class="container">
-            <h2>Kiểm tra nhanh (Quiz)</h2>
+            <h2 id="s5"><span class="num">5.</span>Kiểm tra nhanh</h2>
             <div class="grid2" style="grid-template-columns: 1fr;">
                 
                 <!-- Quiz 1 -->
-                <div class="card">
+                <div class="box tech">
                     <h3 style="margin-bottom: 15px; font-size: 1.3rem;">Câu 1: Xử lý mệnh đề mâu thuẫn</h3>
-                    <p style="font-size: 1.1rem; margin-bottom: 20px;">Giả sử có 1 người khai <code>L 10</code> và 1 người khai <code>G 10</code>. Nếu ta đoán Cuội đang trốn ở đúng tọa độ $x = 10$, có bao nhiêu người trong số 2 người này nói dối?</p>
+                    <p style="font-size: 1.1rem; margin-bottom: 20px;">Giả sử có 1 người khai <code>L 10</code> và 1 người khai <code>G 10</code>. Nếu ta đoán Cuội đang trốn ở đúng tọa độ <span class="mathv">x</span> = 10, có bao nhiêu người trong số 2 người này nói dối?</p>
                     <div id="quiz-options-1">
                         <button class="quiz-opt q1" onclick="checkQuiz(1, 0)">A. 2 người (Cả hai đều nói dối)</button>
                         <button class="quiz-opt q1" onclick="checkQuiz(1, 1)">B. 0 người (Cả hai đều nói thật)</button>
@@ -453,9 +486,9 @@
                 </div>
 
                 <!-- Quiz 2 -->
-                <div class="card">
+                <div class="box tech">
                     <h3 style="margin-bottom: 15px; font-size: 1.3rem;">Câu 2: Dấu vết của Cuội</h3>
-                    <p style="font-size: 1.1rem; margin-bottom: 20px;">Bờm nhận được 3 thông tin: <br>1. Bạn A nói: <code>G 3</code> (Cuội ở $x \ge 3$)<br>2. Bạn B nói: <code>L 5</code> (Cuội ở $x \le 5$)<br>3. Bạn C nói: <code>G 8</code> (Cuội ở $x \ge 8$)<br><br>Nếu Bờm quyết định lục soát tại bụi cây ở vị trí $x = 4$, ai là kẻ nói dối trong tình huống này?</p>
+                    <p style="font-size: 1.1rem; margin-bottom: 20px;">Bờm nhận được 3 thông tin: <br>1. Bạn A nói: <code>G 3</code> (Cuội ở <span class="mathv">x</span> ≥ 3)<br>2. Bạn B nói: <code>L 5</code> (Cuội ở <span class="mathv">x</span> ≤ 5)<br>3. Bạn C nói: <code>G 8</code> (Cuội ở <span class="mathv">x</span> ≥ 8)<br><br>Nếu Bờm quyết định lục soát tại bụi cây ở vị trí <span class="mathv">x</span> = 4, ai là kẻ nói dối trong tình huống này?</p>
                     <div id="quiz-options-2">
                         <button class="quiz-opt q2" onclick="checkQuiz(2, 0)">A. Chỉ bạn A nói dối</button>
                         <button class="quiz-opt q2" onclick="checkQuiz(2, 1)">B. Chỉ bạn B nói dối</button>
@@ -466,9 +499,9 @@
                 </div>
 
                 <!-- Quiz 3 -->
-                <div class="card">
+                <div class="box tech">
                     <h3 style="margin-bottom: 15px; font-size: 1.3rem;">Câu 3: Vận dụng mảng cộng dồn</h3>
-                    <p style="font-size: 1.1rem; margin-bottom: 20px;">Trong thuật toán Mảng cộng dồn (Prefix Sum), công thức tính số người khai L nói dối (điều kiện $p < x$) tại tọa độ $x = U[i]$ là gì?</p>
+                    <p style="font-size: 1.1rem; margin-bottom: 20px;">Trong thuật toán Mảng cộng dồn (Prefix Sum), công thức tính số người khai L nói dối (điều kiện <span class="mathv">p</span> &lt; <span class="mathv">x</span>) tại tọa độ <span class="mathv">x</span> = <span class="mathv">U</span>[<span class="mathv">i</span>] là gì?</p>
                     <div id="quiz-options-3">
                         <button class="quiz-opt q3" onclick="checkQuiz(3, 0)">A. pref_L[i]</button>
                         <button class="quiz-opt q3" onclick="checkQuiz(3, 1)">B. pref_L[i - 1]</button>
@@ -781,10 +814,18 @@
             }
             
             // Re-render toán học
-            if (window.MathJax) {
-                MathJax.typesetPromise([exp]);
-            }
         }
     </script>
+</div>
+</div>
+
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

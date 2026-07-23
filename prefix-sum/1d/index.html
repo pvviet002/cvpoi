@@ -3,78 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chuyên đề: Tổng Tiền Tố Cơ Bản (Prefix Sum 1D)</title>
+    <title>Tổng tiền tố 1D | Lý thuyết CP</title>
     <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
     <!-- html2canvas for Snap -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36; 
-            --line: #22304C; --line2: #2E3F60;
-            --ink: #E6ECF7; --ink-soft: #8FA1C4; --ink-dim: #5A6B8F;
-            --accent: #38D6C4; --accent2: #5B8CFF; 
-            --mark: #FFB454; --pink: #FF6B9D; --red: #FF6B6B;
-            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
-        }
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background-color: var(--bg); color: var(--ink);
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            overflow-x: hidden;
-            position: relative;
-        }
-        
-        /* Background Glow */
-        body::before {
-            content: ''; position: fixed; top: -100px; left: -10%; width: 50vw; height: 50vh;
-            background: radial-gradient(circle, rgba(56,214,196,0.08) 0%, transparent 70%);
-            z-index: -1; pointer-events: none;
-        }
-        body::after {
-            content: ''; position: fixed; top: -50px; right: -10%; width: 60vw; height: 60vh;
-            background: radial-gradient(circle, rgba(91,140,255,0.06) 0%, transparent 70%);
-            z-index: -1; pointer-events: none;
-        }
-
-        /* Layout */
-        .container {
-            max-width: 1200px; margin: 0 auto; padding: 0 24px;
-            display: flex; flex-direction: column; align-items: stretch;
-        }
+    <script src="../../assets/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --line: var(--border);
+  --line2: var(--border);
+  --ink: var(--fg);
+  --ink-soft: var(--muted);
+  --ink-dim: var(--muted);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --pink: var(--purple);
+  --shadow: none;
+}
         @media (max-width: 768px) { .container { padding: 0 16px; } }
-
-        /* Typography */
-        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
-        h1 { font-size: clamp(2rem, 4vw, 3rem); margin: 60px 0 10px; color: #fff; }
-        h2 { font-size: 1.75rem; margin: 50px 0 20px; color: var(--accent); border-bottom: 1px solid var(--line); padding-bottom: 10px; }
-        h3 { font-size: 1.3rem; margin: 25px 0 15px; color: var(--ink); }
-        p { margin-bottom: 16px; }
-        ul, ol { margin-bottom: 16px; padding-left: 24px; }
-        strong { color: #fff; }
-
-        /* Nav */
-        .sticky-nav {
-            position: sticky; top: 0; z-index: 100;
-            background: rgba(11, 18, 32, 0.8); backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--line); padding: 12px 0;
-        }
         .nav-content {
             max-width: 1200px; margin: 0 auto; padding: 0 24px;
             display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;
         }
-        .nav-links { display: flex; gap: 10px; }
-        .nav-btn {
-            font-size: 0.85rem; font-weight: 600; text-decoration: none;
-            padding: 6px 14px; border-radius: 8px; transition: 0.2s;
-            background: rgba(255,255,255,0.03); color: var(--ink); border: 1px solid var(--line2);
-        }
         .nav-btn:hover { background: rgba(56,214,196,0.1); border-color: var(--accent); color: var(--accent); }
-        .breadcrumb { font-size: 0.9rem; color: var(--ink-soft); }
         .breadcrumb span { color: var(--ink); font-weight: 500; }
 
         /* Power sentence */
@@ -126,7 +82,7 @@
         .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
 
         .code-container {
-            background: #0A1220; border-radius: 12px; border: 1px solid var(--line2);
+            background: var(--code-bg); border-radius: 12px; border: 1px solid var(--line2);
             overflow-x: auto; margin-bottom: 24px; font-family: 'JetBrains Mono', monospace;
             font-size: 0.85rem; line-height: 1.6;
         }
@@ -265,27 +221,85 @@
         .pitfall h4 { color: var(--red); margin: 0 0 8px 0; }
         .pitfall-fix { margin-top: 10px; font-size: 0.9em; color: var(--accent); font-weight: 500; display: flex; align-items: center; gap: 8px; }
         .pitfall-fix::before { content: '✓'; display: inline-block; background: rgba(56,214,196,0.2); width: 20px; height: 20px; text-align: center; border-radius: 50%; line-height: 20px; }
+    
+        /* Bắt buộc khối mã theo bảng màu của chuẩn: vài trang còn sót màu gõ
+           cứng của bản nền tối, sang nền sáng thì chữ gần như tàng hình
+           (đo được tương phản 1,42). */
+        pre{color:var(--code-fg)}
+        pre .k, pre .t{color:var(--c-kw)}
+        pre .n{color:var(--c-num)}
+        pre .c{color:var(--c-cmt); font-style:italic}
+        pre .s{color:var(--c-str)}
+        pre .f{color:var(--c-fn)}
+        .err pre, .ok pre{background:var(--code-bg)}
+        .code-line{color:var(--code-fg)}
+        .code-line .c-kw{color:var(--c-kw)} .code-line .c-str{color:var(--c-str)}
+        .code-line .c-cm{color:var(--c-cmt)} .code-line .c-num{color:var(--c-num)}
+        .code-line .c-fn{color:var(--c-fn)} .code-line .c-op{color:var(--fg)}
+</style>
 
-        footer { margin-top: 60px; padding: 30px 0; border-top: 1px solid var(--line); text-align: center; color: var(--ink-dim); font-size: 0.9rem; }
-    </style>
+<!--cv-head-->
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<meta name="description" content="Bài học có mô phỏng từng bước cách dựng mảng cộng dồn và mảng hiệu.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Tổng tiền tố 1D | Lý thuyết CP">
+<meta property="og:description" content="Bài học có mô phỏng từng bước cách dựng mảng cộng dồn và mảng hiệu.">
+<!--/cv-head-->
 </head>
-<body>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
 
-    <nav class="sticky-nav">
-        <div class="nav-content">
-            <div class="breadcrumb">
-                Kỹ thuật cơ bản / <span>Tổng tiền tố (Prefix Sum)</span>
-            </div>
-            <div class="nav-links">
-                <a href="/index.html" class="nav-btn">🏠 Trang chủ</a>
-                <a href="https://cvpoi.id.vn" target="_blank" rel="noopener" class="nav-btn">🌐 cvpoi.id.vn</a>
-            </div>
-        </div>
-    </nav>
+<aside class="side">
+  <div class="hd">Tổng tiền tố 1D</div>
+  <a href="#s1">1. So sánh các cấu trúc tính tổng đoạn</a>
+  <a href="#s2">2. Bài toán và động lực</a>
+  <a href="#s3">3. Lý thuyết cốt lõi</a>
+  <a href="#s4">4. Mô phỏng 1 — dựng mảng tiền tố</a>
+  <a href="#s5">5. Mô phỏng 2 — truy vấn tổng đoạn</a>
+  <a href="#s6">6. Thuật toán và cài đặt</a>
+  <a href="#s7">7. Lỗi thường gặp</a>
+  <a href="#s8">8. Mở rộng — mảng hiệu</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../index.html">Tổng tiền tố</a><span class="cv-sep">/</span><span class="cv-here">Tổng tiền tố 1D</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+
+    
 
     <div class="container">
-        <h1>Mảng Cộng Dồn 1D (Prefix Sum)</h1>
-        <div class="power-text">
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Tổng tiền tố 1D</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p>Tính trước một mảng cộng dồn, sau đó mỗi truy vấn tổng đoạn chỉ còn đúng một phép trừ.</p>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">So sánh các cấu trúc tính tổng đoạn</a></li>
+    <li><a href="#s2">Bài toán và động lực</a></li>
+    <li><a href="#s3">Lý thuyết cốt lõi</a></li>
+    <li><a href="#s4">Mô phỏng 1 — dựng mảng tiền tố</a></li>
+    <li><a href="#s5">Mô phỏng 2 — truy vấn tổng đoạn</a></li>
+    <li><a href="#s6">Thuật toán và cài đặt</a></li>
+    <li><a href="#s7">Lỗi thường gặp</a></li>
+    <li><a href="#s8">Mở rộng — mảng hiệu</a></li>
+  </ol>
+</nav>
+
+<div class="power-text">
             Biến bài toán tính tổng một đoạn bất kỳ từ việc phải lặp qua từng phần tử (chậm chạp) thành <b>một phép trừ duy nhất</b>, nhanh như chớp mắt.
         </div>
 
@@ -305,10 +319,11 @@
             </div>
         </div>
 
-        <h2 id="so-sanh">So sánh các cấu trúc dữ liệu tính tổng đoạn</h2>
+        <h2 id="s1"><span class="num">1.</span>So sánh các cấu trúc tính tổng đoạn</h2>
         <div class="table-wrap snapbox">
+
             <button class="snap-btn" onclick="snapBox(this)">📸 Snap</button>
-            <table>
+            <div class="tablewrap"><table>
                 <thead>
                     <tr>
                         <th>Kỹ thuật</th>
@@ -353,15 +368,15 @@
                         <td>Truy vấn phức tạp (Max/Min), cập nhật cả đoạn.</td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
         </div>
 
-        <h2 id="dong-luc">Bài toán & Động lực</h2>
+        <h2 id="s2"><span class="num">2.</span>Bài toán và động lực</h2>
         <p>Cho một mảng số nguyên <code>a</code> gồm <code>N</code> phần tử đánh số từ 1 đến N. Có <code>Q</code> câu hỏi (truy vấn), mỗi câu cho hai số <code>L</code> và <code>R</code>, yêu cầu in ra tổng các phần tử từ <code>a<sub>L</sub></code> đến <code>a<sub>R</sub></code>.</p>
         <p><b>Cách ngây thơ:</b> Với mỗi truy vấn, dùng một vòng lặp <code>for (i = L → R)</code> cộng dồn lại. Nếu <code>N = 10<sup>5</sup></code> và <code>Q = 10<sup>5</sup></code>, trong trường hợp xấu nhất (L=1, R=N), mỗi truy vấn mất O(N) phép tính. Tổng số phép tính là <code>Q × N = 10<sup>10</sup></code>. Máy tính chấm thi thường chạy ~10<sup>8</sup> phép tính/giây, nên cách này sẽ quá thời gian (Time Limit Exceeded).</p>
         <p><b>Ý tưởng cứu vãn:</b> Ta cần một cách nào đó để tính tổng trong O(1). Nếu ta biết trước số tiền của mình vào cuối mỗi ngày, ta có thể dễ dàng biết được từ ngày L đến ngày R mình đã kiếm được bao nhiêu, bằng cách lấy (Tổng tài sản ngày R) trừ đi (Tổng tài sản ngày L-1).</p>
 
-        <h2 id="ly-thuyet">Lý thuyết cốt lõi</h2>
+        <h2 id="s3"><span class="num">3.</span>Lý thuyết cốt lõi</h2>
         <p>Ta định nghĩa một mảng mới <code>P</code> gọi là <b>mảng tổng tiền tố</b>. Trong đó <code>P<sub>i</sub></code> lưu tổng của các phần tử từ vị trí 1 đến vị trí <code>i</code>.</p>
         <div class="snapbox" style="background: var(--panel); padding: 20px; border-radius: 12px; border: 1px solid var(--line); margin-bottom: 20px;">
             <button class="snap-btn" onclick="snapBox(this)">📸 Snap</button>
@@ -382,8 +397,7 @@
         </div>
         <p><b>Vì sao cần P<sub>0</sub> = 0 ?</b> Nếu L = 1 (tính tổng từ đầu mảng), công thức yêu cầu ta gọi <code>P<sub>0</sub></code>. Để công thức luôn đúng mà không cần viết lệnh <code>if (L == 1)</code>, ta khởi tạo sẵn <code>P<sub>0</sub> = 0</code>.</p>
 
-
-        <h2 id="mo-phong-1">Mô phỏng 1: Xây dựng mảng tiền tố</h2>
+        <h2 id="s4"><span class="num">4.</span>Mô phỏng 1 — dựng mảng tiền tố</h2>
         <div class="lab-container">
             <div class="lab-header">
                 <h3 class="lab-title">Lab 1: Chạy vòng lặp tạo mảng P</h3>
@@ -418,12 +432,12 @@
             <div class="lab-info">
                 <div class="codewrap">
                     <button class="copy-btn" onclick="copyCode(this)">📋 Chép</button>
-                    <div class="code-container"><pre class="code-block" id="lab1-code">
+                    <div class="code-container"><div class="codewrap noname"><pre class="code-block" id="lab1-code">
 <span class="code-line" id="lab1-l1">long long P[7];</span>
 <span class="code-line" id="lab1-l2">P[0] = 0;</span>
 <span class="code-line" id="lab1-l3">for (int i = 1; i &lt;= 6; i++) {</span>
 <span class="code-line" id="lab1-l4">    P[i] = P[i - 1] + a[i];</span>
-<span class="code-line" id="lab1-l5">}</span></pre></div>
+<span class="code-line" id="lab1-l5">}</span></pre></div></div>
                 </div>
                 <div>
                     <div class="lab-vars">
@@ -437,7 +451,7 @@
             </div>
         </div>
 
-        <h2 id="mo-phong-2">Mô phỏng 2: Truy vấn Tổng Đoạn [L, R]</h2>
+        <h2 id="s5"><span class="num">5.</span>Mô phỏng 2 — truy vấn tổng đoạn</h2>
         <div class="lab-container">
             <div class="lab-header">
                 <h3 class="lab-title">Lab 2: Phép trừ O(1)</h3>
@@ -481,13 +495,13 @@
             <div class="lab-info">
                 <div class="codewrap">
                     <button class="copy-btn" onclick="copyCode(this)">📋 Chép</button>
-                    <div class="code-container"><pre class="code-block" id="lab2-code">
+                    <div class="code-container"><div class="codewrap noname"><pre class="code-block" id="lab2-code">
 <span class="code-line" id="lab2-l1">long long query(int L, int R) {</span>
 <span class="code-line" id="lab2-l2">    long long sumR = P[R];</span>
 <span class="code-line" id="lab2-l3">    long long sumL_minus_1 = P[L - 1];</span>
 <span class="code-line" id="lab2-l4">    long long ans = sumR - sumL_minus_1;</span>
 <span class="code-line" id="lab2-l5">    return ans;</span>
-<span class="code-line" id="lab2-l6">}</span></pre></div>
+<span class="code-line" id="lab2-l6">}</span></pre></div></div>
                 </div>
                 <div>
                     <div class="lab-vars">
@@ -502,7 +516,7 @@
             </div>
         </div>
 
-        <h2 id="cai-dat">Thuật toán & Cài đặt</h2>
+        <h2 id="s6"><span class="num">6.</span>Thuật toán và cài đặt</h2>
         
         <div class="algo-steps snapbox">
             <button class="snap-btn" onclick="snapBox(this)">📸 Snap</button>
@@ -530,7 +544,7 @@
 
         <div class="codewrap">
             <button class="copy-btn" onclick="copyCode(this)">📋 Chép</button>
-            <div class="code-container"><pre class="code-block highlight-me">
+            <div class="code-container"><div class="codewrap noname"><pre class="code-block highlight-me">
 #include &lt;iostream&gt;
 #include &lt;vector&gt;
 using namespace std;
@@ -566,26 +580,26 @@ int main() {
     }
 
     return 0;
-}</pre></div>
+}</pre></div></div>
         </div>
 
-        <h2 id="loi-thuong-gap">Lỗi thường gặp</h2>
+        <h2 id="s7"><span class="num">7.</span>Lỗi thường gặp</h2>
         
-        <div class="pitfall snapbox">
+        <div class="box warn snapbox">
             <button class="snap-btn" style="right: 10px;" onclick="snapBox(this)">📸 Snap</button>
             <h4>1. Tràn số nguyên (Integer Overflow)</h4>
             <p>Nếu mảng có 10<sup>5</sup> phần tử, mỗi phần tử lớn cỡ 10<sup>9</sup>, thì tổng tối đa có thể lên tới 10<sup>14</sup>. Con số này vượt qua giới hạn của số nguyên 32-bit (chỉ lưu được cỡ ~2×10<sup>9</sup>).</p>
             <div class="pitfall-fix">Khai báo mảng P bằng <code>long long</code> (trong C++) hoặc <code>long</code> (trong Java).</div>
         </div>
 
-        <div class="pitfall snapbox">
+        <div class="box warn snapbox">
             <button class="snap-btn" style="right: 10px;" onclick="snapBox(this)">📸 Snap</button>
             <h4>2. Quên P[0] = 0 hoặc mảng chạy từ chỉ số 0</h4>
             <p>Nhiều bạn quen đọc mảng từ <code>a[0]</code> đến <code>a[N-1]</code>. Khi truy vấn đoạn <code>[0, R]</code>, công thức trở thành <code>P[R] - P[-1]</code>, gây ra lỗi truy cập ngoài biên (Out of bounds/Segmentation fault).</p>
             <div class="pitfall-fix">Luôn luôn dịch mảng đầu vào để bắt đầu từ chỉ số 1 (<code>a[1]</code> đến <code>a[N]</code>). Khởi tạo mảng P có cỡ N+1 và gán <code>P[0] = 0</code>.</div>
         </div>
 
-        <h2 id="mo-rong">Kỹ thuật Mở Rộng: Mảng Hiệu (Difference Array)</h2>
+        <h2 id="s8"><span class="num">8.</span>Mở rộng — mảng hiệu</h2>
         <p>10 bài toán bạn đang tìm hiểu thực chất dẫn chúng ta đến một kỹ thuật song sinh với Mảng Tiền Tố: <b>Mảng Hiệu (Difference Array)</b>. Nếu Tiền Tố giúp <i>truy vấn tổng đoạn nhanh</i> trên mảng tĩnh, thì Mảng Hiệu giúp <i>cập nhật cộng đoạn nhanh</i>, sau đó mới truy xuất tĩnh.</p>
         
         <div class="power-text" style="margin-top: 10px; margin-bottom: 30px;">
@@ -698,10 +712,7 @@ int main() {
             </div>
         </div>
 
-        <footer>
-            <p>Chuyên đề được thiết kế cho đội tuyển Học sinh giỏi Tin học.</p>
-            <p>© 2026 cvpoi.id.vn - Lập trình thi đấu</p>
-        </footer>
+        
     </div>
 
     <script>
@@ -1141,5 +1152,16 @@ int main() {
             initQuiz();
         };
     </script>
+</div>
+</div>
+
+<script src="../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

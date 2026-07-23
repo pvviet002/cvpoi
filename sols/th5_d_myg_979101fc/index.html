@@ -3,42 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lời giải: Tổng độ đơn điệu</title>
+    <title>Lời giải: Tổng độ đơn điệu | Lý thuyết CP</title>
     
     <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    
     <!-- html2canvas cho tính năng Snap -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="../../assets/html2canvas.min.js"></script>
 
-    <style>
-        :root {
-            --bg: #0B1220; 
-            --bg2: #0F1A2E; 
-            --panel: #111E36;
-            --accent: #38D6C4; 
-            --accent2: #5B8CFF; 
-            --mark: #FFB454; 
-            --red: #FF6B6B;
-            --green: #4ade80;
-            --text-main: #E2E8F0; 
-            --text-muted: #94A3B8;
-            --glow: 0 0 20px rgba(56, 214, 196, .4);
-            --shadow: 0 20px 60px -30px rgba(0, 0, 0, .9);
-            --border: 1px solid rgba(255, 255, 255, .1);
-        }
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-        }
+    <link rel="stylesheet" href="../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --text-main: var(--fg);
+  --text-muted: var(--muted);
+  --glow: none;
+  --shadow: none;
+  --border: var(--border);
+}
 
         /* Nav Bar */
         .topnav {
@@ -49,13 +35,6 @@
             backdrop-filter: blur(10px);
             border-bottom: var(--border);
         }
-        .nav-btn {
-            text-decoration: none; color: #000;
-            background: linear-gradient(135deg, var(--accent2), var(--accent));
-            padding: 8px 18px; border-radius: 8px;
-            font-weight: 600; font-size: 0.9rem;
-            box-shadow: var(--glow); transition: all .3s ease;
-        }
         .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .nav-btn.outline {
             background: transparent; border: 1px solid var(--accent);
@@ -64,21 +43,6 @@
         .nav-btn.outline:hover {
             background: rgba(56, 214, 196, .1); box-shadow: var(--glow);
         }
-
-        /* Bố cục chính */
-        .container {
-            max-width: 1000px; margin: 0 auto;
-            padding: 40px 24px;
-            display: flex; flex-direction: column; gap: 32px;
-        }
-
-        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.03em; }
-        h1 { font-size: 2.2rem; color: #fff; margin-bottom: 8px; }
-        h2 { font-size: 1.5rem; color: var(--accent); margin-bottom: 16px; border-bottom: var(--border); padding-bottom: 8px; }
-        h3 { font-size: 1.2rem; color: var(--accent2); margin-bottom: 12px; }
-        
-        p { margin-bottom: 16px; }
-        strong { color: #fff; }
         
         .badge {
             display: inline-block; padding: 4px 10px; border-radius: 6px;
@@ -111,7 +75,7 @@
         .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
 
         .codewrap pre {
-            background: #0A1220; border: var(--border); border-radius: 12px;
+            background: var(--code-bg); border: var(--border); border-radius: 12px;
             padding: 16px 0; overflow-x: auto;
             font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
             line-height: 1.6;
@@ -158,7 +122,7 @@
         }
 
         .lab-visual {
-            background: #0A1220; border: var(--border); border-radius: 12px;
+            background: var(--code-bg); border: var(--border); border-radius: 12px;
             padding: 20px; margin-bottom: 16px; overflow-x: auto;
             display: flex; flex-direction: column; align-items: center; gap: 20px;
         }
@@ -230,17 +194,76 @@
         .col { flex: 1; background: rgba(0,0,0,0.2); padding: 16px; border-radius: 12px; }
         .col.wrong-col { border-top: 3px solid var(--red); }
         .col.right-col { border-top: 3px solid var(--green); }
-    </style>
+    
+        /* Ép tiêu đề và khối mã theo bảng màu của chuẩn: vài trang còn màu gõ
+           cứng của bản nền tối (h2 màu trắng), sang nền sáng là chữ trắng trên
+           nền trắng — đo được tương phản đúng bằng 1. */
+        h1, h2, h3, h4{color:var(--fg)}
+        h2 .num{color:var(--blue)}
+        pre, .code-line{color:var(--code-fg)}
+        /* Vài trang có quy tắc riêng đặc hiệu hơn (ví dụ .container h2) nên
+           phải dùng !important mới thắng được màu gõ cứng của bản nền tối. */
+        h1, h2, h3, h4{color:var(--fg) !important}
+        h2 .num{color:var(--blue) !important}
+        p, li{color:var(--fg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Tổng độ đơn điệu.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Tổng độ đơn điệu | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Tổng độ đơn điệu.">
+<!--/cv-head-->
 </head>
 <body>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../index.html">Kho lời giải</a><span class="cv-sep">/</span><span class="cv-here">Tổng độ đơn điệu</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Tổng độ đơn điệu</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Phân tích ban đầu</a>
+  <a href="#s3">3. 1. Tư duy đảo ngược: Đếm số lượng dãy con ch…</a>
+  <a href="#s4">4. 2. Tối ưu bằng Quy hoạch động (DP)</a>
+  <a href="#s5">5. 3. Tăng tốc bằng Cây Fenwick (BIT)</a>
+  <a href="#s6">6. Cài đặt</a>
+  <a href="#s7">7. Độ phức tạp & Cạm bẫy</a>
+</aside>
+
+<div class="main">
 
     <!-- Nav Bar -->
-    <nav class="topnav">
-        <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
-        <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
-    </nav>
+    
 
     <div class="container">
+<div class="box tech">
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Phân tích ban đầu</a></li>
+    <li><a href="#s3">1. Tư duy đảo ngược: Đếm số lượng dãy con ch…</a></li>
+    <li><a href="#s4">2. Tối ưu bằng Quy hoạch động (DP)</a></li>
+    <li><a href="#s5">3. Tăng tốc bằng Cây Fenwick (BIT)</a></li>
+    <li><a href="#s6">Cài đặt</a></li>
+    <li><a href="#s7">Độ phức tạp & Cạm bẫy</a></li>
+  </ol>
+</nav>
+
         
         <header>
             <h1>Tổng độ đơn điệu</h1>
@@ -252,7 +275,7 @@
 
         <div class="card snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Tóm tắt đề bài</h2>
+            <h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
             <p>Cho dãy <code>A</code> gồm <code>N</code> phần tử. Tính tổng số đoạn con tăng ngặt của tất cả các dãy con khác rỗng của <code>A</code>, modulo 10<sup>9</sup> + 7.</p>
             <ul>
                 <li><strong>Đoạn con tăng ngặt:</strong> Các phần tử liên tiếp thỏa mãn phần tử sau lớn hơn phần tử trước.</li>
@@ -263,7 +286,7 @@
 
         <div class="card snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Phân tích ban đầu</h2>
+            <h2 id="s2"><span class="num">2.</span>Phân tích ban đầu</h2>
             <p>
                 Cách tiếp cận ngây thơ nhất là duyệt qua toàn bộ 2<sup>N</sup> - 1 dãy con, sau đó đếm số đoạn con tăng ngặt trong mỗi dãy. Độ phức tạp sẽ lên tới O(N · 2<sup>N</sup>), chắc chắn sẽ quá thời gian với N = 200,000.
             </p>
@@ -272,8 +295,8 @@
             </p>
         </div>
 
-        <div class="card" id="mod1">
-            <h2>1. Tư duy đảo ngược: Đếm số lượng dãy con chứa một đoạn</h2>
+        <div class="box tech" id="mod1">
+            <h2 id="s3"><span class="num">3.</span>1. Tư duy đảo ngược: Đếm số lượng dãy con ch…</h2>
             <div class="snapbox">
                 <button class="snap-btn" onclick="snapBox(this)">Snap</button>
                 <p>
@@ -311,8 +334,8 @@
             </div>
         </div>
 
-        <div class="card" id="mod2">
-            <h2>2. Tối ưu bằng Quy hoạch động (DP)</h2>
+        <div class="box tech" id="mod2">
+            <h2 id="s4"><span class="num">4.</span>2. Tối ưu bằng Quy hoạch động (DP)</h2>
             <div class="snapbox">
                 <button class="snap-btn" onclick="snapBox(this)">Snap</button>
                 <p>
@@ -343,8 +366,8 @@
             </div>
         </div>
 
-        <div class="card" id="mod3">
-            <h2>3. Tăng tốc bằng Cây Fenwick (BIT)</h2>
+        <div class="box tech" id="mod3">
+            <h2 id="s5"><span class="num">5.</span>3. Tăng tốc bằng Cây Fenwick (BIT)</h2>
             <div class="snapbox">
                 <button class="snap-btn" onclick="snapBox(this)">Snap</button>
                 <p>
@@ -434,16 +457,16 @@
 
         <div class="card snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Cài đặt</h2>
+            <h2 id="s6"><span class="num">6.</span>Cài đặt</h2>
             <div class="codewrap">
                 <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                <pre class="code" id="code-impl"></pre>
+                <div class="codewrap noname"><pre class="code" id="code-impl"></pre></div>
             </div>
         </div>
 
         <div class="card snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Độ phức tạp & Cạm bẫy</h2>
+            <h2 id="s7"><span class="num">7.</span>Độ phức tạp & Cạm bẫy</h2>
             <p><strong>Thời gian:</strong> O(N log(maxA)). Vòng lặp N lần, mỗi lần gọi <code>getSum</code> và <code>update</code> trên Fenwick Tree mất O(log(maxA)).</p>
             <p><strong>Không gian:</strong> O(N + maxA) để lưu mảng và cấu trúc BIT.</p>
             
@@ -845,5 +868,16 @@ int main() {
         };
 
     </script>
+
+</div>
+
+<script src="../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

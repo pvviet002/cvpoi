@@ -3,67 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mảng 1 chiều trong C++ — Chuyên đề cơ bản</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<title>Mảng 1 chiều | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
 <style>
-  :root{
-    --bg:#0B1220; --bg2:#0F1A2E; --panel:#111E36;
-    --line:#22304C; --line2:#2E3F60;
-    --ink:#E6ECF7; --ink-soft:#8FA1C4; --ink-dim:#5A6B8F;
-    --accent:#38D6C4; --accent2:#5B8CFF; --mark:#FFB454; --pink:#FF6B9D; --red:#FF6B6B;
-    --shadow:0 20px 60px -30px rgba(0,0,0,.9);
-    --glow-a:0 0 0 1px rgba(56,214,196,.4), 0 0 22px -4px rgba(56,214,196,.55);
-    --glow-m:0 0 0 1px rgba(255,180,84,.5), 0 0 22px -4px rgba(255,180,84,.6);
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{
-    background:
-      radial-gradient(1200px 700px at 78% -8%, rgba(91,140,255,.14), transparent 60%),
-      radial-gradient(900px 600px at 12% 8%, rgba(56,214,196,.10), transparent 55%),
-      var(--bg);
-    color:var(--ink);
-    font-family:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-    font-size:15.5px; line-height:1.65; -webkit-font-smoothing:antialiased;
-  }
-  .wrap{max-width:1080px;margin:0 auto;padding:0 22px 100px;position:relative}
+          /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --line: var(--border);
+  --line2: var(--border);
+  --ink: var(--fg);
+  --ink-soft: var(--muted);
+  --ink-dim: var(--muted);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --pink: var(--purple);
+  --shadow: none;
+  --glow-a: none;
+  --glow-m: none;
+}
 
   /* nav */
   .topbar{position:sticky;top:0;z-index:50;background:rgba(11,18,32,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
   .topbar-in{max-width:1080px;margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  .home-btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;background:rgba(255,255,255,.03);border:1px solid var(--line2);border-radius:9px;padding:7px 14px;color:var(--ink);font-weight:600;font-size:.86rem;transition:border-color .2s,background .2s}
   .home-btn:hover{border-color:var(--accent);background:rgba(56,214,196,.07);color:#fff}
   .home-btn svg{width:15px;height:15px;stroke:var(--accent);fill:none;stroke-width:2}
-  .crumb{font-family:"JetBrains Mono",monospace;font-size:.76rem;color:var(--ink-dim);letter-spacing:.03em}
   .crumb b{color:var(--ink-soft);font-weight:500}
-  .visits{margin-left:auto;display:inline-flex;align-items:center;gap:8px;font-family:"JetBrains Mono",monospace;font-size:.78rem;color:var(--ink-soft);background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:100px;padding:5px 13px}
-  .visits svg{width:14px;height:14px;stroke:var(--ink-soft);fill:none;stroke-width:2}
-  .visits .vn{color:var(--mark);font-weight:700;font-variant-numeric:tabular-nums}
-  .visits .vn.pulse{animation:vpulse .5s ease}
-  @keyframes vpulse{0%{transform:scale(1)}45%{transform:scale(1.28);color:#fff}100%{transform:scale(1)}}
   @media (max-width:560px){ .crumb{display:none} }
-  @media (max-width:480px){ .visits{margin-left:0;width:100%;justify-content:center} .home-btn{flex:1;justify-content:center} }
+  @media (max-width:480px){ .home-btn{flex:1;justify-content:center} }
 
   /* chữ */
   h1,h2,h3,.display{font-family:"Space Grotesk",system-ui,sans-serif;letter-spacing:-.02em;line-height:1.1}
-  h1{font-size:clamp(2.1rem,6vw,4rem);font-weight:700}
-  h2{font-size:clamp(1.5rem,3.2vw,2.15rem);font-weight:600;margin-bottom:.3em}
-  h3{font-size:1.08rem;font-weight:600;margin-bottom:.4em;letter-spacing:-.01em}
-  p{margin-bottom:.85em;max-width:66ch;color:#D3DCEC}
   .mono,code{font-family:"JetBrains Mono",ui-monospace,Consolas,monospace}
   p code,li code,td code{background:rgba(91,140,255,.14);color:#A9C4FF;padding:.06em .4em;border-radius:5px;font-size:.86em;font-weight:500;border:1px solid rgba(91,140,255,.18)}
-  strong{color:#fff;font-weight:600}
-  em{color:var(--accent);font-style:normal;font-weight:500}
-  .eyebrow{font-family:"JetBrains Mono",monospace;font-size:.72rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)}
-  .lead{font-size:1.1rem;color:var(--ink-soft);max-width:60ch}
 
   /* hero */
   header{padding:44px 0 30px}
-  .hero-top{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between;margin-bottom:30px}
   .hero-top h1 span{background:linear-gradient(100deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;display:block}
-  .hero-meta{font-size:.85rem;color:var(--ink-soft);text-align:right;border-left:2px solid var(--mark);padding-left:14px;line-height:1.6}
 
   .ruler{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:24px}
   .ruler-head{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
@@ -82,23 +60,20 @@
   @media(max-width:620px){.ruler-note{margin-left:0}}
 
   /* nút */
-  button{font-family:inherit;cursor:pointer;font-weight:600}
+  .lab button, .ruler button{font-family:inherit;cursor:pointer;font-weight:600}
   .btn{background:linear-gradient(180deg,var(--accent),#25b6a6);color:#052b27;border:none;border-radius:9px;padding:9px 16px;font-size:.88rem;transition:transform .12s,filter .2s}
   .btn:hover{filter:brightness(1.08)} .btn:active{transform:translateY(1px)}
   .btn-mark{background:linear-gradient(180deg,var(--mark),#e79b34);color:#3a2200}
   .btn-ghost{background:rgba(255,255,255,.03);color:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:8px 14px;font-size:.85rem;font-weight:500;transition:border-color .2s,background .2s}
   .btn-ghost:hover{border-color:var(--accent);background:rgba(56,214,196,.06)}
   :focus-visible{outline:2.5px solid var(--mark);outline-offset:3px;border-radius:6px}
-
-  /* sections */
-  section{padding:52px 0;border-top:1px solid var(--line);margin-top:6px}
   .sec-head{margin-bottom:26px}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
   .card{background:linear-gradient(180deg,rgba(255,255,255,.025),transparent);border:1px solid var(--line);border-radius:14px;padding:22px 24px;box-shadow:var(--shadow)}
   .card h3{display:flex;align-items:center;gap:10px}
   .num{flex:none;width:26px;height:26px;border-radius:7px;background:rgba(91,140,255,.14);border:1px solid var(--accent2);color:#A9C4FF;font-family:"JetBrains Mono",monospace;font-size:.78rem;font-weight:700;display:grid;place-items:center}
 
-  pre{background:#0A1220;border:1px solid var(--line);border-radius:12px;padding:15px 17px;overflow-x:auto;font-family:"JetBrains Mono",monospace;font-size:.82rem;line-height:1.8;margin:.7em 0;color:#C7D3EA}
+  pre{background:var(--code-bg);border:1px solid var(--line);border-radius:12px;padding:15px 17px;overflow-x:auto;font-family:"JetBrains Mono",monospace;font-size:.82rem;line-height:1.8;margin:.7em 0;color:#C7D3EA}
   pre .k{color:#5B8CFF;font-weight:500} pre .t{color:#7DE0D2} pre .n{color:#FFB454} pre .c{color:#5A6B8F;font-style:italic} pre .s{color:#8FE39A}
 
   ul.tick{list-style:none;margin:.5em 0 .9em}
@@ -145,7 +120,7 @@
   .lg-right{background:rgba(91,140,255,.4);border-color:var(--accent2)}
   .lg-mid{background:rgba(255,107,157,.4);border-color:var(--pink)}
 
-  .code-panel{background:#0A1220;border:1px solid var(--line);border-radius:11px;padding:12px 8px}
+  .code-panel{background:var(--code-bg);border:1px solid var(--line);border-radius:11px;padding:12px 8px}
   .codeline{font-family:"JetBrains Mono",monospace;font-size:.78rem;line-height:1.55;padding:3px 8px 3px 32px;border-radius:6px;position:relative;white-space:pre;color:#B9C6E0;transition:background .15s}
   .codeline::before{content:attr(data-ln);position:absolute;left:8px;color:#3a4a6b;font-size:.68rem}
   .codeline.hot{background:rgba(255,180,84,.14);box-shadow:inset 3px 0 0 var(--mark)}
@@ -192,8 +167,6 @@
   .why{margin-top:10px;font-size:.88rem;color:var(--ink-soft);border-top:1px dashed var(--line2);padding-top:9px;display:none}
   .why.show{display:block} .why b{color:#fff;font-weight:600}
   .score{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--mark)}
-
-  footer{border-top:1px solid var(--line);padding:28px 0 0;color:var(--ink-dim);font-size:.84rem}
   footer b{color:var(--ink-soft)}
 
   @media (max-width:900px){
@@ -205,42 +178,81 @@
     .rbox,.rcell{width:52px}
   }
   @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}html{scroll-behavior:auto}}
+
+  /* Lớp .t (tên kiểu) của khối mã sẵn có trên trang; các lớp .k .c .n .s
+     trùng tên với bộ tô cú pháp của chuẩn nên tự khớp màu. */
+  .t{color:var(--c-kw)}
+
+        /* Bắt buộc khối mã theo bảng màu của chuẩn: vài trang còn sót màu gõ
+           cứng của bản nền tối, sang nền sáng thì chữ gần như tàng hình
+           (đo được tương phản 1,42). */
+        pre{color:var(--code-fg)}
+        pre .k, pre .t{color:var(--c-kw)}
+        pre .n{color:var(--c-num)}
+        pre .c{color:var(--c-cmt); font-style:italic}
+        pre .s{color:var(--c-str)}
+        pre .f{color:var(--c-fn)}
+        .err pre, .ok pre{background:var(--code-bg)}
 </style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Duyệt mảng, tìm kiếm tuyến tính, kỹ thuật lính canh và hai con trỏ.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Mảng 1 chiều | Lý thuyết CP">
+<meta property="og:description" content="Duyệt mảng, tìm kiếm tuyến tính, kỹ thuật lính canh và hai con trỏ.">
+<!--/cv-head-->
 </head>
-<body>
-<div class="topbar">
-  <div class="topbar-in">
-    <a class="home-btn" href="/index.html" aria-label="Về trang chủ">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
-      Trang chủ
-    </a>
-    <a class="home-btn" href="https://cvpoi.id.vn" target="_blank" rel="noopener" aria-label="Đến cvpoi.id.vn">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg>
-      cvpoi.id.vn
-    </a>
-    <span class="crumb"><b>Cơ bản</b> / Mảng 1 chiều</span>
-    <span class="visits" title="Tổng lượt truy cập trang này">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-      Lượt xem: <span class="vn" id="visitCount">…</span>
-    </span>
-  </div>
-</div>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Mảng 1 chiều</div>
+  <a href="#s1">1. Vì sao cần mảng?</a>
+  <a href="#s2">2. Khai báo và truy cập</a>
+  <a href="#s3">3. Duyệt mảng bằng vòng lặp</a>
+  <a href="#s4">4. Nhập, xuất và bài toán mẫu</a>
+  <a href="#s5">5. Hai kỹ thuật lõi</a>
+  <a href="#s6">6. Bốn lỗi thường gặp</a>
+  <a href="#s7">7. Kiểm tra nhanh</a>
+</aside>
+
+<div class="main">
 
 <div class="wrap">
-<header>
-  <div class="hero-top">
-    <div>
-      <div class="eyebrow">Tin học · C++ · Chuyên đề cơ bản</div>
-      <h1>Mảng 1 chiều<span>một dãy ô, đánh số từ 0.</span></h1>
-    </div>
-    <div class="hero-meta">
-      Cần biết trước:<br>
-      <code>cin/cout</code> · <code>if/else</code><br>
-      vòng lặp <code>for</code>
-    </div>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb">Cơ bản<span class="cv-sep">/</span><span class="cv-here">Mảng 1 chiều</span></span>
   </div>
+</nav>
+<!--/cv-nav-->
 
-  <div class="ruler">
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Mảng 1 chiều</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p>Một dãy ô nhớ liên tiếp, đánh số từ 0. Đây là cấu trúc dữ liệu đầu tiên và cũng là thứ xuất hiện trong hầu hết mọi bài thi.</p>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Vì sao cần mảng?</a></li>
+    <li><a href="#s2">Khai báo và truy cập</a></li>
+    <li><a href="#s3">Duyệt mảng bằng vòng lặp</a></li>
+    <li><a href="#s4">Nhập, xuất và bài toán mẫu</a></li>
+    <li><a href="#s5">Hai kỹ thuật lõi</a></li>
+    <li><a href="#s6">Bốn lỗi thường gặp</a></li>
+    <li><a href="#s7">Kiểm tra nhanh</a></li>
+  </ol>
+</nav>
+
+<div class="ruler">
     <div class="ruler-head">
       <div>
         <div class="t">Cạm bẫy số một: chỉ số bắt đầu từ 0</div>
@@ -254,30 +266,29 @@
       <div class="ruler-note" id="rNote"><b>Cách người thường đếm:</b> phần tử thứ 1, 2, 3… Máy tính thì đếm từ 0, nên phần tử thứ <b>k</b> nằm ở <code>a[k−1]</code>.</div>
     </div>
   </div>
-</header>
 
 <!-- 1. VÌ SAO -->
 <section id="vi-sao">
   <div class="sec-head">
     <div class="eyebrow">Phần 1</div>
-    <h2>Vì sao cần mảng?</h2>
+    <h2 id="s1"><span class="num">1.</span>Vì sao cần mảng?</h2>
     <p class="lead">Khi phải lưu nhiều giá trị cùng loại, khai báo từng biến rời rạc là bất khả thi. Mảng cho ta một cái tên chung và một con số để chỉ vào từng ô.</p>
   </div>
   <div class="grid2">
-    <div class="card">
+    <div class="box tech">
       <h3><span class="num">1</span> Bài toán: điểm của 30 học sinh</h3>
       <p>Không dùng mảng, ta phải viết:</p>
-      <pre><span class="t">int</span> d1, d2, d3, d4, d5, ... , d30;  <span class="c">// ác mộng</span></pre>
+      <div class="codewrap noname"><pre><span class="t">int</span> d1, d2, d3, d4, d5, ... , d30;  <span class="c">// ác mộng</span></pre></div>
       <p>Muốn tính điểm trung bình phải cộng cả 30 biến bằng tay. Thêm một học sinh là sửa khắp chương trình.</p>
     </div>
-    <div class="card">
+    <div class="box tech">
       <h3><span class="num">2</span> Lời giải: một mảng duy nhất</h3>
-      <pre><span class="t">int</span> d[<span class="n">30</span>];   <span class="c">// 30 ô, chỉ số 0..29</span>
+      <div class="codewrap noname"><pre><span class="t">int</span> d[<span class="n">30</span>];   <span class="c">// 30 ô, chỉ số 0..29</span>
 
 <span class="c">// cộng tất cả chỉ bằng một vòng lặp:</span>
 <span class="t">int</span> tong = <span class="n">0</span>;
 <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; <span class="n">30</span>; i++)
-    tong += d[i];</pre>
+    tong += d[i];</pre></div>
       <p style="margin-bottom:0">Một cái tên <code>d</code>, một chỉ số <code>i</code>, và mọi thao tác lặp lại gói gọn trong vòng <code>for</code>.</p>
     </div>
   </div>
@@ -287,32 +298,32 @@
 <section id="khai-bao">
   <div class="sec-head">
     <div class="eyebrow">Phần 2</div>
-    <h2>Khai báo và truy cập</h2>
+    <h2 id="s2"><span class="num">2.</span>Khai báo và truy cập</h2>
   </div>
   <div class="grid2">
-    <div class="card">
+    <div class="box tech">
       <h3><span class="num">3</span> Khai báo</h3>
-      <pre><span class="c">// Cú pháp:  kiểu  tên[số_ô];</span>
+      <div class="codewrap noname"><pre><span class="c">// Cú pháp:  kiểu  tên[số_ô];</span>
 <span class="t">int</span>  a[<span class="n">100</span>];      <span class="c">// 100 số nguyên</span>
 <span class="t">double</span> x[<span class="n">50</span>];    <span class="c">// 50 số thực</span>
 
 <span class="c">// Khai báo kèm giá trị:</span>
-<span class="t">int</span> b[<span class="n">5</span>] = {<span class="n">4</span>, <span class="n">8</span>, <span class="n">15</span>, <span class="n">16</span>, <span class="n">23</span>};</pre>
+<span class="t">int</span> b[<span class="n">5</span>] = {<span class="n">4</span>, <span class="n">8</span>, <span class="n">15</span>, <span class="n">16</span>, <span class="n">23</span>};</pre></div>
       <p><b>Mẹo thi:</b> chưa biết trước số phần tử thì khai báo dư, rồi dùng biến <code>n</code> để đánh dấu phần thực sự dùng.</p>
-      <pre><span class="k">const</span> <span class="t">int</span> MAX = <span class="n">100000</span>;
+      <div class="codewrap noname"><pre><span class="k">const</span> <span class="t">int</span> MAX = <span class="n">100000</span>;
 <span class="t">int</span> a[MAX], n;
-cin >> n;   <span class="c">// chỉ dùng a[0..n-1]</span></pre>
+cin >> n;   <span class="c">// chỉ dùng a[0..n-1]</span></pre></div>
     </div>
-    <div class="card">
+    <div class="box tech">
       <h3><span class="num">4</span> Truy cập một ô</h3>
       <p>Với <code>int b[5] = {4, 8, 15, 16, 23};</code>:</p>
-      <table>
+      <div class="tablewrap"><table>
         <tr><th>Viết</th><th>Nghĩa</th><th>Giá trị</th></tr>
         <tr><td><code>b[0]</code></td><td>ô đầu tiên</td><td>4</td></tr>
         <tr><td><code>b[2]</code></td><td>ô thứ ba</td><td>15</td></tr>
         <tr><td><code>b[4]</code></td><td>ô cuối cùng</td><td>23</td></tr>
-      </table>
-      <div class="note" style="margin-bottom:0">
+      </table></div>
+      <div class="box def" style="margin-bottom:0">
         <h3>Nhớ kỹ điều này</h3>
         <p style="margin-bottom:0">Mảng <code>n</code> phần tử có chỉ số hợp lệ từ <code>0</code> đến <code>n−1</code>. Ô cuối là <code>a[n−1]</code>, <strong>không phải</strong> <code>a[n]</code>. Đây là lỗi phổ biến nhất với người mới.</p>
       </div>
@@ -324,7 +335,7 @@ cin >> n;   <span class="c">// chỉ dùng a[0..n-1]</span></pre>
 <section id="duyet">
   <div class="sec-head">
     <div class="eyebrow">Phần 3 · Tương tác</div>
-    <h2>Duyệt mảng bằng vòng lặp</h2>
+    <h2 id="s3"><span class="num">3.</span>Duyệt mảng bằng vòng lặp</h2>
     <p class="lead">Gần như mọi bài toán trên mảng đều là: cho <code>i</code> chạy từ 0 đến <code>n−1</code>, làm gì đó với <code>a[i]</code>. Xem vòng lặp đi qua từng ô.</p>
   </div>
   <div class="lab" id="lab1">
@@ -366,27 +377,27 @@ cin >> n;   <span class="c">// chỉ dùng a[0..n-1]</span></pre>
 <section id="nhap-xuat">
   <div class="sec-head">
     <div class="eyebrow">Phần 4</div>
-    <h2>Nhập, xuất và các bài toán mẫu</h2>
+    <h2 id="s4"><span class="num">4.</span>Nhập, xuất và bài toán mẫu</h2>
   </div>
   <div class="grid2">
-    <div class="card">
+    <div class="box tech">
       <h3><span class="num">5</span> Nhập và in mảng</h3>
-      <pre><span class="t">int</span> a[<span class="n">1000</span>], n;
+      <div class="codewrap noname"><pre><span class="t">int</span> a[<span class="n">1000</span>], n;
 cin >> n;
 <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; n; i++)
     cin >> a[i];        <span class="c">// đọc n số vào mảng</span>
 
 <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; n; i++)
-    cout &lt;&lt; a[i] &lt;&lt; <span class="s">" "</span>;  <span class="c">// in ra cách nhau dấu cách</span></pre>
+    cout &lt;&lt; a[i] &lt;&lt; <span class="s">" "</span>;  <span class="c">// in ra cách nhau dấu cách</span></pre></div>
       <p style="margin-bottom:0">Cùng một khuôn vòng <code>for</code>, chỉ đổi việc bên trong: khi thì <code>cin</code>, khi thì <code>cout</code>, khi thì tính toán.</p>
     </div>
-    <div class="card">
+    <div class="box tech">
       <h3><span class="num">6</span> Tìm max bằng lính canh</h3>
       <p>Đừng khởi tạo <code>max = 0</code> — nếu mảng toàn số âm, kết quả sẽ ra 0 (một số không có trong mảng). Hãy lấy luôn phần tử đầu làm <em>lính canh</em>:</p>
-      <pre><span class="t">int</span> maxV = a[<span class="n">0</span>];   <span class="c">// lính canh an toàn</span>
+      <div class="codewrap noname"><pre><span class="t">int</span> maxV = a[<span class="n">0</span>];   <span class="c">// lính canh an toàn</span>
 <span class="k">for</span> (<span class="t">int</span> i = <span class="n">1</span>; i &lt; n; i++)
     <span class="k">if</span> (a[i] &gt; maxV)
-        maxV = a[i];</pre>
+        maxV = a[i];</pre></div>
       <p style="margin-bottom:0">Bắt đầu vòng lặp từ <code>i = 1</code> vì <code>a[0]</code> đã dùng làm mốc so sánh. Đổi <code>&gt;</code> thành <code>&lt;</code> là được tìm min.</p>
     </div>
   </div>
@@ -396,7 +407,7 @@ cin >> n;
 <section id="ky-thuat">
   <div class="sec-head">
     <div class="eyebrow">Phần 5 · Kỹ thuật</div>
-    <h2>Hai kỹ thuật lõi</h2>
+    <h2 id="s5"><span class="num">5.</span>Hai kỹ thuật lõi</h2>
     <p class="lead">Tìm kiếm tuyến tính (với cờ hiệu) và hai con trỏ (để đảo mảng) — hai mẫu xuất hiện đi xuất hiện lại trong mọi bài mảng về sau.</p>
   </div>
 
@@ -407,9 +418,9 @@ cin >> n;
     <div class="skill"><b>Kỹ năng:</b> quét tuần tự · cờ hiệu <code>flag</code> hoặc lính canh <code>-1</code> · <code>break</code> để dừng sớm.</div>
   </div>
   <div class="grid2" style="margin-bottom:24px">
-    <div class="card">
+    <div class="box tech">
       <h3>Cách 1 — cờ hiệu + break</h3>
-      <pre><span class="t">bool</span> timThay = <span class="k">false</span>;
+      <div class="codewrap noname"><pre><span class="t">bool</span> timThay = <span class="k">false</span>;
 <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; n; i++)
     <span class="k">if</span> (a[i] == X) {
         cout &lt;&lt; i;
@@ -417,17 +428,17 @@ cin >> n;
         <span class="k">break</span>;      <span class="c">// gặp rồi, dừng ngay</span>
     }
 <span class="k">if</span> (!timThay)
-    cout &lt;&lt; <span class="s">"Khong tim thay"</span>;</pre>
+    cout &lt;&lt; <span class="s">"Khong tim thay"</span>;</pre></div>
       <p style="margin-bottom:0">Không có <code>break</code>, chương trình vẫn đúng nhưng quét thừa hết mảng. Với mảng lớn và nhiều truy vấn, đó là lãng phí.</p>
     </div>
-    <div class="card">
+    <div class="box tech">
       <h3>Cách 2 — lính canh thay cờ</h3>
-      <pre><span class="t">int</span> viTri = <span class="n">-1</span>;   <span class="c">// lính canh: chưa thấy</span>
+      <div class="codewrap noname"><pre><span class="t">int</span> viTri = <span class="n">-1</span>;   <span class="c">// lính canh: chưa thấy</span>
 <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; n; i++)
     <span class="k">if</span> (a[i] == X) { viTri = i; <span class="k">break</span>; }
 
 <span class="k">if</span> (viTri == <span class="n">-1</span>) cout &lt;&lt; <span class="s">"Khong tim thay"</span>;
-<span class="k">else</span> cout &lt;&lt; viTri;</pre>
+<span class="k">else</span> cout &lt;&lt; viTri;</pre></div>
       <p style="margin-bottom:0">Chỉ số <code>-1</code> là bất khả thi, nên biến <code>viTri</code> vừa chứa kết quả vừa làm cờ hiệu. Một biến, hai việc.</p>
     </div>
   </div>
@@ -467,16 +478,16 @@ cin >> n;
     <p>Cho mảng, hãy đảo thứ tự các phần tử: phần tử đầu thành cuối, cuối thành đầu.</p>
     <div class="skill"><b>Kỹ năng:</b> hai con trỏ <code>trai</code>, <code>phai</code> từ hai đầu tiến vào giữa · kỹ thuật hoán đổi bằng biến tạm.</div>
   </div>
-  <div class="card" style="margin-bottom:24px">
+  <div class="box tech" style="margin-bottom:24px">
     <h3>Ý tưởng hai con trỏ</h3>
     <p>Đặt một con trỏ ở đầu (<code>trai = 0</code>) và một ở cuối (<code>phai = n−1</code>). Đổi chỗ hai ô đó, rồi cho hai con trỏ tiến vào giữa. Dừng khi chúng gặp nhau.</p>
-    <pre><span class="t">int</span> trai = <span class="n">0</span>, phai = n - <span class="n">1</span>;
+    <div class="codewrap noname"><pre><span class="t">int</span> trai = <span class="n">0</span>, phai = n - <span class="n">1</span>;
 <span class="k">while</span> (trai &lt; phai) {
     <span class="t">int</span> tmp = a[trai];   <span class="c">// hoán đổi cần biến tạm</span>
     a[trai] = a[phai];
     a[phai] = tmp;
     trai++;   phai--;      <span class="c">// tiến vào giữa</span>
-}</pre>
+}</pre></div>
     <p style="margin-bottom:0">Muốn đổi chỗ hai cốc nước phải có cốc thứ ba — biến <code>tmp</code> chính là cái cốc đó. Nếu <code>n</code> lẻ, phần tử ở <strong>chính giữa</strong> đứng yên (khi <code>trai == phai</code> thì vòng lặp dừng).</p>
   </div>
 
@@ -513,28 +524,28 @@ cin >> n;
 <section id="loi">
   <div class="sec-head">
     <div class="eyebrow">Phần 6</div>
-    <h2>Bốn lỗi ai cũng mắc lần đầu</h2>
+    <h2 id="s6"><span class="num">6.</span>Bốn lỗi thường gặp</h2>
   </div>
   <div class="grid2">
-    <div class="err">
+    <div class="box warn">
       <h3>✕ Truy cập vượt biên</h3>
-      <pre><span class="t">int</span> a[<span class="n">5</span>];
-a[<span class="n">5</span>] = <span class="n">9</span>;   <span class="c">// SAI! ô hợp lệ là 0..4</span></pre>
+      <div class="codewrap noname"><pre><span class="t">int</span> a[<span class="n">5</span>];
+a[<span class="n">5</span>] = <span class="n">9</span>;   <span class="c">// SAI! ô hợp lệ là 0..4</span></pre></div>
       <p style="margin:0">Mảng 5 phần tử không có ô số 5. Truy cập <code>a[5]</code> đọc/ghi vào vùng nhớ lạ, cho kết quả bậy hoặc crash.</p>
     </div>
     <div class="ok">
       <h3>✓ Điều kiện lặp đúng</h3>
-      <pre><span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; n; i++)  <span class="c">// i &lt; n</span></pre>
+      <div class="codewrap noname"><pre><span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; n; i++)  <span class="c">// i &lt; n</span></pre></div>
       <p style="margin:0">Luôn là <code>i &lt; n</code>, không phải <code>i &lt;= n</code>. Chỉ số cuối cùng là <code>n−1</code>.</p>
     </div>
-    <div class="err">
+    <div class="box warn">
       <h3>✕ Nghĩ chỉ số bắt đầu từ 1</h3>
-      <pre>a[<span class="n">1</span>]  <span class="c">// đây là ô THỨ HAI, không phải ô đầu</span></pre>
+      <div class="codewrap noname"><pre>a[<span class="n">1</span>]  <span class="c">// đây là ô THỨ HAI, không phải ô đầu</span></pre></div>
       <p style="margin:0">Ô đầu tiên luôn là <code>a[0]</code>. Phần tử thứ <code>k</code> nằm ở <code>a[k−1]</code>.</p>
     </div>
-    <div class="err">
+    <div class="box warn">
       <h3>✕ Khởi tạo max = 0</h3>
-      <pre><span class="t">int</span> maxV = <span class="n">0</span>;  <span class="c">// sai khi mảng toàn số âm</span></pre>
+      <div class="codewrap noname"><pre><span class="t">int</span> maxV = <span class="n">0</span>;  <span class="c">// sai khi mảng toàn số âm</span></pre></div>
       <p style="margin:0">Dùng <code>maxV = a[0]</code> làm lính canh để chắc chắn kết quả là một phần tử thật của mảng.</p>
     </div>
   </div>
@@ -544,15 +555,12 @@ a[<span class="n">5</span>] = <span class="n">9</span>;   <span class="c">// SAI
 <section id="quiz">
   <div class="sec-head">
     <div class="eyebrow">Phần 7</div>
-    <h2>Kiểm tra nhanh</h2>
+    <h2 id="s7"><span class="num">7.</span>Kiểm tra nhanh</h2>
     <p class="lead">Điểm: <span class="score" id="score">0 / 7</span></p>
   </div>
   <div id="quizBox"></div>
 </section>
 
-<footer>
-  Chuyên đề <b>Mảng 1 chiều · C++</b> · Biên soạn cho học sinh mới bắt đầu · Mở bằng trình duyệt bất kỳ, không cần cài đặt.
-</footer>
 </div>
 
 <script>
@@ -872,18 +880,16 @@ const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
   });
 })();
 
-/* =====================================================================
-   BỘ ĐẾM TRUY CẬP
-   ===================================================================== */
-(function(){
-  const el=document.getElementById('visitCount');if(!el)return;
-  const label=el.closest('.visits');const fmt=n=>Number(n).toLocaleString('vi-VN');
-  function show(n,localOnly){el.textContent=fmt(n);el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');if(localOnly&&label)label.title='Lượt xem trên thiết bị này (không kết nối được máy chủ đếm)';}
-  function localFallback(){try{const k='array1d_visits';const n=(parseInt(localStorage.getItem(k)||'0',10)||0)+1;localStorage.setItem(k,n);show(n,true);}catch(e){el.textContent='—';}}
-  const url='https://api.countapi.xyz/hit/cvpoi.vercel.app/array1d';
-  const ctrl=('AbortController'in window)?new AbortController():null;const to=ctrl?setTimeout(()=>ctrl.abort(),4000):null;
-  fetch(url,{signal:ctrl?ctrl.signal:undefined}).then(r=>{if(!r.ok)throw 0;return r.json();}).then(d=>{if(to)clearTimeout(to);(d&&typeof d.value==='number')?show(d.value,false):localFallback();}).catch(()=>{if(to)clearTimeout(to);localFallback();});
-})();
 </script>
+</div>
+
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

@@ -3,25 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cộng cấp số cộng vào đoạn - Lời giải</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
-            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
-            --text-main: #E2E8F0; --text-muted: #94A3B8;
-            --glow: 0 0 20px rgba(56, 214, 196, 0.4);
-            --shadow: 0 20px 60px -30px rgba(0, 0, 0, 0.9);
-            --border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        * { box-sizing: border-box; }
-        body {
-            margin: 0; padding: 0; background: var(--bg); color: var(--text-main);
-            font-family: "Inter", sans-serif; line-height: 1.6;
-        }
+    <title>Lời giải: Cộng cấp số cộng vào đoạn | Lý thuyết CP</title>
+    <script src="../../../assets/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="../../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --text-main: var(--fg);
+  --text-muted: var(--muted);
+  --glow: none;
+  --shadow: none;
+  --border: var(--border);
+}
         
         /* Nav */
         .topnav {
@@ -29,21 +28,9 @@
             padding: 12px 20px; background: rgba(11, 18, 32, 0.85); backdrop-filter: blur(10px);
             border-bottom: var(--border);
         }
-        .nav-btn {
-            text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent));
-            padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all 0.3s ease;
-        }
         .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
         .nav-btn.outline:hover { background: rgba(56, 214, 196, 0.1); box-shadow: var(--glow); }
-        
-        /* Layout */
-        .container { max-width: 1000px; margin: 0 auto; padding: 30px 24px; display: flex; flex-direction: column; gap: 32px; }
-        h1, h2, h3, h4 { font-family: "Space Grotesk", sans-serif; letter-spacing: -0.03em; margin-top: 0; }
-        h1 { font-size: 2.2rem; color: #FFF; margin-bottom: 8px; }
-        h2 { font-size: 1.6rem; color: var(--accent); border-bottom: var(--border); padding-bottom: 12px; margin-bottom: 20px; }
-        h3 { font-size: 1.3rem; color: #FFF; margin-bottom: 16px; }
-        p { margin: 0 0 16px 0; }
         
         /* Badges */
         .badge {
@@ -74,7 +61,7 @@
         /* Code block */
         .codewrap { position: relative; margin-bottom: 20px; }
         .code {
-            background: #0A1220; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;
+            background: var(--code-bg); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;
             padding: 16px 0; overflow-x: auto; font-family: "JetBrains Mono", monospace; font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap;
         }
         .codeline { margin: 0; padding: 0 16px; border-left: 3px solid transparent; }
@@ -155,16 +142,73 @@
         .pitfall-col.wrong .pitfall-title { color: var(--red); }
         .pitfall-col.right .pitfall-title { color: var(--accent); }
         @media (max-width: 768px) { .pitfall-grid { grid-template-columns: 1fr; } }
-    </style>
+    
+        /* Ép tiêu đề và khối mã theo bảng màu của chuẩn: vài trang còn màu gõ
+           cứng của bản nền tối (h2 màu trắng), sang nền sáng là chữ trắng trên
+           nền trắng — đo được tương phản đúng bằng 1. */
+        h1, h2, h3, h4{color:var(--fg)}
+        h2 .num{color:var(--blue)}
+        pre, .code-line{color:var(--code-fg)}
+        /* Vài trang có quy tắc riêng đặc hiệu hơn (ví dụ .container h2) nên
+           phải dùng !important mới thắng được màu gõ cứng của bản nền tối. */
+        h1, h2, h3, h4{color:var(--fg) !important}
+        h2 .num{color:var(--blue) !important}
+        p, li{color:var(--fg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Cộng cấp số cộng vào đoạn (differentarray_09).">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Cộng cấp số cộng vào đoạn | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Cộng cấp số cộng vào đoạn (differentarray_09).">
+<!--/cv-head-->
 </head>
 <body>
-
-<nav class="topnav">
-    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
-    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../index.html">Tổng tiền tố</a><span class="cv-sep">/</span><span class="cv-here">Cộng cấp số cộng vào đoạn</span></span>
+  </div>
 </nav>
+<!--/cv-nav-->
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Cộng cấp số cộng vào đoạn</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Phân tích ban đầu</a>
+  <a href="#s3">3. Mô-đun 1: Mảng hiệu cơ bản (Subtask d = 0)</a>
+  <a href="#s4">4. Mô-đun 2: Mảng hiệu bậc hai (Cấp số cộng)</a>
+  <a href="#s5">5. Cài đặt (C++)</a>
+  <a href="#s6">6. Độ phức tạp</a>
+  <a href="#s7">7. Cạm bẫy khi cài đặt</a>
+</aside>
+
+<div class="main">
 
 <div class="container">
+<div class="box tech">
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Phân tích ban đầu</a></li>
+    <li><a href="#s3">Mô-đun 1: Mảng hiệu cơ bản (Subtask d = 0)</a></li>
+    <li><a href="#s4">Mô-đun 2: Mảng hiệu bậc hai (Cấp số cộng)</a></li>
+    <li><a href="#s5">Cài đặt (C++)</a></li>
+    <li><a href="#s6">Độ phức tạp</a></li>
+    <li><a href="#s7">Cạm bẫy khi cài đặt</a></li>
+  </ol>
+</nav>
+
     <!-- HERO SECTION -->
     <div>
         <h1>Cộng cấp số cộng vào đoạn</h1>
@@ -188,7 +232,7 @@
     <!-- TÓM TẮT ĐỀ BÀI -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Tóm tắt đề bài</h2>
+        <h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
         <p>Cho một mảng A gồm N phần tử ban đầu đều bằng 0. Bạn cần thực hiện Q thao tác. Mỗi thao tác cho bốn số l, r, s, d và yêu cầu cộng vào các phần tử từ chỉ số l đến r một cấp số cộng:</p>
         <p style="margin-left: 20px; font-weight: 600; color: var(--text-main);">
             A[l] nhận s <br>
@@ -205,16 +249,16 @@
     <!-- PHÂN TÍCH BAN ĐẦU -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Phân tích ban đầu</h2>
+        <h2 id="s2"><span class="num">2.</span>Phân tích ban đầu</h2>
         <p>Cách ngây thơ nhất là với mỗi truy vấn, ta dùng một vòng lặp chạy từ l đến r để cộng trực tiếp các giá trị vào mảng A. Tuy nhiên, chiều dài của một truy vấn có thể lên đến N. Với Q truy vấn, tổng số phép tính sẽ xấp xỉ O(N × Q).</p>
         <p>Thay số vào: 2 × 10<sup>5</sup> × 2 × 10<sup>5</sup> = 4 × 10<sup>10</sup> phép tính. Con số này chắc chắn sẽ gây quá thời gian (Time Limit Exceeded) với giới hạn 1.0 giây (thường chịu được khoảng 10<sup>8</sup> phép tính). Ta cần một cách cập nhật chỉ mất O(1) cho mỗi truy vấn, và để làm được điều đó, ta phải tìm hiểu tính chất của "mảng hiệu".</p>
     </div>
 
     <!-- MÔ-ĐUN 1 -->
-    <div class="card">
+    <div class="box tech">
         <div class="snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Mô-đun 1: Mảng hiệu cơ bản (Subtask d = 0)</h2>
+            <h2 id="s3"><span class="num">3.</span>Mô-đun 1: Mảng hiệu cơ bản (Subtask d = 0)</h2>
             <p>Trước khi giải quyết cấp số cộng, hãy xét trường hợp đơn giản: d = 0. Nghĩa là ta chỉ cộng một giá trị V = s vào toàn bộ đoạn [L, R]. Đây là bài toán cập nhật đoạn kinh điển.</p>
             <p>
                 <b>Ý tưởng:</b> Thay vì thao tác trên mảng gốc A, ta thao tác trên mảng hiệu D, định nghĩa là: <b>D[i] = A[i] - A[i-1]</b>.<br>
@@ -255,10 +299,10 @@
     </div>
 
     <!-- MÔ-ĐUN 2 -->
-    <div class="card">
+    <div class="box tech">
         <div class="snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Mô-đun 2: Mảng hiệu bậc hai (Cấp số cộng)</h2>
+            <h2 id="s4"><span class="num">4.</span>Mô-đun 2: Mảng hiệu bậc hai (Cấp số cộng)</h2>
             <p>Bây giờ xét bài toán gốc: cộng s, s+d, s+2d... vào [L, R]. Ta coi cấp số cộng này gồm 3 quá trình thay đổi liên tiếp. Để xử lý cập nhật đoạn trên mảng hiệu D<sub>1</sub>, ta lại dùng mảng hiệu của D<sub>1</sub>, gọi là D<sub>2</sub> (D<sub>2</sub>[i] = D<sub>1</sub>[i] - D<sub>1</sub>[i-1]).</p>
             
             <ul style="margin-top: 16px; list-style: none; padding-left: 0;">
@@ -399,7 +443,7 @@
     <!-- CODE CÀI ĐẶT -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Cài đặt (C++)</h2>
+        <h2 id="s5"><span class="num">5.</span>Cài đặt (C++)</h2>
         <div class="codewrap snapbox">
             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
@@ -448,7 +492,7 @@
     <!-- ĐỘ PHỨC TẠP -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Độ phức tạp</h2>
+        <h2 id="s6"><span class="num">6.</span>Độ phức tạp</h2>
         <p><b>Thời gian:</b> O(N + Q)<br>
         Với mỗi truy vấn, ta chỉ cập nhật đúng 4 điểm trên mảng D<sub>2</sub> nên mất O(1) thời gian, tốn tổng cộng O(Q) cho toàn bộ thao tác. Quá trình cộng dồn khôi phục mảng A cần duyệt mảng một lần, mất O(N) thời gian. Tổng thời gian là O(N + Q), hoàn toàn vượt qua giới hạn thời gian một cách dễ dàng với N, Q ≤ 2 × 10<sup>5</sup>.</p>
         <p><b>Không gian:</b> O(N)<br>
@@ -458,7 +502,7 @@
     <!-- CẠM BẪY -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Cạm bẫy khi cài đặt</h2>
+        <h2 id="s7"><span class="num">7.</span>Cạm bẫy khi cài đặt</h2>
         <div class="pitfall-grid">
             <div class="pitfall-col wrong">
                 <div class="pitfall-title">✕ Lỗi dễ bỏ sót (Index Out of Bounds)</div>
@@ -779,6 +823,16 @@
     })();
 </script>
 
+</div>
+
+<script src="../../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>
 ```eof

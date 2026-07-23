@@ -3,43 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lời giải: Tổng các đường chéo chính [AR2005]</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
-            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
-            --text-main: #E2E8F0; --text-muted: #94A3B8;
-            --glow: 0 0 20px rgba(56,214,196,.4);
-            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
-            --border: 1px solid rgba(255,255,255,.1);
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg); color: var(--text-main);
-            line-height: 1.6; padding-bottom: 60px;
-        }
-        h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.03em; }
+    <title>Lời giải: Tổng các đường chéo chính | Lý thuyết CP</title>
+    <script src="../../../assets/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="../../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --text-main: var(--fg);
+  --text-muted: var(--muted);
+  --glow: none;
+  --shadow: none;
+  --border: var(--border);
+}
         
         /* Nav */
         .topnav {
             position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center;
             padding: 12px 20px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px); border-bottom: var(--border);
         }
-        .nav-btn {
-            text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent));
-            padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease;
-        }
         .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
         .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
-
-        /* Container & Cards */
-        .container { max-width: 1000px; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; gap: 24px; }
         .card {
             background: linear-gradient(180deg, var(--panel), var(--bg2));
             border: var(--border); border-radius: 16px; box-shadow: var(--shadow);
@@ -49,7 +39,6 @@
         /* Typograhpy & Badges */
         .badge { display: inline-block; padding: 4px 10px; background: rgba(91,140,255,.15); color: var(--accent2); border-radius: 6px; font-size: 0.85rem; font-weight: 600; margin-bottom: 12px; }
         .hero-title { font-size: 2.2rem; margin-bottom: 12px; background: linear-gradient(135deg, #fff, var(--text-muted)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .lead { font-size: 1.1rem; color: var(--text-muted); }
         .section-title { font-size: 1.4rem; color: var(--accent); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
         
         /* Code & Snap Buttons */
@@ -69,7 +58,7 @@
 
         /* Code Block */
         .code-block {
-            background: #0A1220; border: var(--border); border-radius: 12px;
+            background: var(--code-bg); border: var(--border); border-radius: 12px;
             font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
             overflow-x: auto; white-space: pre-wrap; padding: 16px 0;
             line-height: 1.6;
@@ -157,16 +146,75 @@
         table.io-table { width: 100%; border-collapse: collapse; margin-top: 12px; background: rgba(0,0,0,.2); border-radius: 8px; overflow: hidden; }
         table.io-table th, table.io-table td { padding: 12px; text-align: left; border: 1px solid rgba(255,255,255,.1); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; vertical-align: top;}
         table.io-table th { background: rgba(255,255,255,.05); color: var(--accent); font-family: 'Inter', sans-serif; font-weight: 600; }
-    </style>
+    
+        /* Ép tiêu đề và khối mã theo bảng màu của chuẩn: vài trang còn màu gõ
+           cứng của bản nền tối (h2 màu trắng), sang nền sáng là chữ trắng trên
+           nền trắng — đo được tương phản đúng bằng 1. */
+        h1, h2, h3, h4{color:var(--fg)}
+        h2 .num{color:var(--blue)}
+        pre, .code-line{color:var(--code-fg)}
+        /* Vài trang có quy tắc riêng đặc hiệu hơn (ví dụ .container h2) nên
+           phải dùng !important mới thắng được màu gõ cứng của bản nền tối. */
+        h1, h2, h3, h4{color:var(--fg) !important}
+        h2 .num{color:var(--blue) !important}
+        p, li{color:var(--fg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Tổng các đường chéo chính (AR2005).">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Tổng các đường chéo chính | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Tổng các đường chéo chính (AR2005).">
+<!--/cv-head-->
 </head>
 <body>
-
-<nav class="topnav">
-    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
-    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../index.html">Mảng 1 chiều</a><span class="cv-sep">/</span><span class="cv-here">Tổng các đường chéo chính</span></span>
+  </div>
 </nav>
+<!--/cv-nav-->
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Tổng các đường chéo chính [AR2005]</div>
+  <a href="#s1">1. 1. Tóm tắt đề bài</a>
+  <a href="#s2">2. 2. Phân tích ban đầu</a>
+  <a href="#s3">3. 3. Bước đi trên một đường chéo</a>
+  <a href="#s4">4. 4. Chọn đúng các điểm xuất phát</a>
+  <a href="#s5">5. 5. Mô phỏng toàn bộ thuật toán (Khớp với ví…</a>
+  <a href="#s6">6. 6. Cài đặt C++</a>
+  <a href="#s7">7. 7. Đánh giá độ phức tạp</a>
+  <a href="#s8">8. 8. Cạm bẫy khi cài đặt</a>
+</aside>
+
+<div class="main">
 
 <div class="container">
+<div class="box tech">
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">1. Tóm tắt đề bài</a></li>
+    <li><a href="#s2">2. Phân tích ban đầu</a></li>
+    <li><a href="#s3">3. Bước đi trên một đường chéo</a></li>
+    <li><a href="#s4">4. Chọn đúng các điểm xuất phát</a></li>
+    <li><a href="#s5">5. Mô phỏng toàn bộ thuật toán (Khớp với ví…</a></li>
+    <li><a href="#s6">6. Cài đặt C++</a></li>
+    <li><a href="#s7">7. Đánh giá độ phức tạp</a></li>
+    <li><a href="#s8">8. Cạm bẫy khi cài đặt</a></li>
+  </ol>
+</nav>
+
     <!-- 3.1. Hero -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
@@ -178,13 +226,13 @@
     <!-- 3.2. Tóm tắt đề -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2 class="section-title">1. Tóm tắt đề bài</h2>
+        <h2 id="s1"><span class="num">1.</span>1. Tóm tắt đề bài</h2>
         <p>Cho một ma trận số nguyên <code>A</code> gồm <code>m</code> hàng và <code>n</code> cột.</p>
         <p><strong>Yêu cầu:</strong> Tính tổng các số trên mọi đường chéo song song với đường chéo chính (hướng đi từ góc trên bên trái xuống góc dưới bên phải). Sẽ có tổng cộng <code>m + n - 1</code> đường chéo như vậy.</p>
         <p><strong>Thứ tự in:</strong> Bắt buộc in tổng theo thứ tự xuất phát từ đường chéo đi qua <code>(m, 1)</code>, lùi dần lên <code>(m - 1, 1)</code> ... đến <code>(1, 1)</code>. Sau đó tiếp tục in các đường chéo xuất phát từ <code>(1, 2)</code>, <code>(1, 3)</code> ... đến <code>(1, n)</code>.</p>
         <p><strong>Ràng buộc:</strong> 1 ≤ <code>m, n</code> ≤ 2000. Giá trị các phần tử <code>a<sub>i, j</sub></code> ≤ 10<sup>6</sup>.</p>
         
-        <table class="io-table">
+        <div class="tablewrap"><table class="io-table">
             <tr>
                 <th>Input ví dụ</th>
                 <th>Output</th>
@@ -200,13 +248,13 @@
                     - Bắt đầu từ (1,3): ô [3] → tổng = 3
                 </td>
             </tr>
-        </table>
+        </table></div>
     </div>
 
     <!-- 3.3. Phân tích ban đầu -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2 class="section-title">2. Phân tích ban đầu</h2>
+        <h2 id="s2"><span class="num">2.</span>2. Phân tích ban đầu</h2>
         <p>Một cách nghĩ ngây thơ là duyệt qua từng ô <code>(i, j)</code> trong ma trận, tính ra "định danh" của đường chéo chứa nó (thường bằng công thức <code>i - j</code>), cộng dồn vào một mảng phụ, rồi cuối cùng in ra mảng đó. Cách này hoàn toàn đúng và tốn O(m × n) thời gian.</p>
         <p>Tuy nhiên, đề bài yêu cầu in ra <strong>theo một thứ tự cụ thể</strong>. Nếu ta làm theo cách cộng dồn, ta sẽ phải vất vả trong việc gán (mapping) giá trị <code>i - j</code> sao cho khớp với thứ tự in ra. Cách dễ hơn, gọn gàng hơn nhiều là: <strong>Ta cần in theo đường chéo nào, thì ta cho một vòng lặp chạy đúng theo đường chéo đó để tính tổng rồi in ra luôn.</strong></p>
     </div>
@@ -214,10 +262,10 @@
     <!-- 3.4. Các mô-đun -->
     
     <!-- Mô-đun 1 -->
-    <div class="card">
+    <div class="box tech">
         <div class="snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2 class="section-title">3. Bước đi trên một đường chéo</h2>
+            <h2 id="s3"><span class="num">3.</span>3. Bước đi trên một đường chéo</h2>
             <p><strong>Mục tiêu:</strong> Làm sao để duyệt hết các ô trên cùng một đường chéo?</p>
             <p><strong>Quan sát:</strong> Một đường chéo song song với đường chéo chính luôn đi theo hướng đông-nam. Nghĩa là, nếu ta đang đứng ở hàng <code>r</code>, cột <code>c</code> (tọa độ <code>(r, c)</code>), thì bước tiếp theo chắc chắn sẽ rơi vào hàng <code>r + 1</code> và cột <code>c + 1</code>.</p>
             <p><strong>Ý tưởng:</strong> Ta chỉ cần một vòng lặp <code>while</code>. Cứ mỗi lần lặp, ta lấy giá trị ô hiện tại cộng vào biến tổng, sau đó tăng cả chỉ số hàng và chỉ số cột lên 1 đơn vị. Vòng lặp dừng lại khi tọa độ vượt ra ngoài biên của ma trận (tức là <code>r &gt; m</code> hoặc <code>c &gt; n</code>).</p>
@@ -252,10 +300,10 @@
     </div>
 
     <!-- Mô-đun 2 -->
-    <div class="card">
+    <div class="box tech">
         <div class="snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2 class="section-title">4. Chọn đúng các điểm xuất phát</h2>
+            <h2 id="s4"><span class="num">4.</span>4. Chọn đúng các điểm xuất phát</h2>
             <p><strong>Mục tiêu:</strong> Làm sao để duyệt đủ mọi đường chéo theo đúng thứ tự đề bài yêu cầu?</p>
             <p><strong>Quan sát:</strong> Mọi đường chéo chéo xuống đều phải bắt đầu từ một ô nằm ở mép trái (cột 1) HOẶC nằm ở mép trên cùng (hàng 1) của ma trận. Đề bài chỉ định in theo thứ tự: từ góc dưới bên trái trượt dần lên đỉnh, sau đó từ đỉnh trượt dần sang phải.</p>
             <p><strong>Ý tưởng:</strong> Ta chia quá trình làm 2 giai đoạn (phase):<br>
@@ -290,7 +338,7 @@
     <!-- Mô-đun 3: Thuật toán toàn vẹn (Gộp) -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2 class="section-title">5. Mô phỏng toàn bộ thuật toán (Khớp với ví dụ)</h2>
+        <h2 id="s5"><span class="num">5.</span>5. Mô phỏng toàn bộ thuật toán (Khớp với ví…</h2>
         <p>Bây giờ ta ghép 2 mô-đun trên lại. Chạy thử trên ma trận ví dụ của đề bài (kích thước 2 hàng × 3 cột).</p>
         
         <div class="lab-container" id="mod3-lab">
@@ -350,8 +398,8 @@
     </div>
 
     <!-- 3.5 Cài đặt -->
-    <div class="card">
-        <h2 class="section-title">6. Cài đặt C++</h2>
+    <div class="box tech">
+        <h2 id="s6"><span class="num">6.</span>6. Cài đặt C++</h2>
         <div class="codewrap">
             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
@@ -413,7 +461,7 @@
     <!-- 3.6 ĐPT -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2 class="section-title">7. Đánh giá độ phức tạp</h2>
+        <h2 id="s7"><span class="num">7.</span>7. Đánh giá độ phức tạp</h2>
         <p><strong>Thời gian:</strong> O(m × n). Quan sát kĩ, ta thấy hai vòng lặp lồng nhau của chúng ta không hề tính trùng hay làm thừa việc. Mỗi một ô <code>(i, j)</code> trong ma trận thuộc về <strong>đúng một</strong> đường chéo, và vòng lặp bên trong <code>while</code> sẽ ghé thăm mỗi ô đúng một lần duy nhất. Do đó tổng số lần thực hiện lệnh cộng chỉ bằng đúng tổng số ô của ma trận (m × n). Với m, n ≤ 2000, số thao tác tối đa là 4 × 10<sup>6</sup>, chạy cực nhanh trong 1 giây.</p>
         <p><strong>Không gian (Bộ nhớ):</strong> O(m × n) để lưu trữ ma trận đầu vào <code>a</code>. Ta không tốn thêm mảng phụ nào khác ngoài một vài biến đếm vòng lặp (O(1)).</p>
     </div>
@@ -421,7 +469,7 @@
     <!-- 3.7 Cạm bẫy -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2 class="section-title">8. Cạm bẫy khi cài đặt</h2>
+        <h2 id="s8"><span class="num">8.</span>8. Cạm bẫy khi cài đặt</h2>
         <div class="pitfall-grid">
             <div class="pitfall-card bad">
                 <div class="pitfall-title">✕ Lỗi dễ mắc</div>
@@ -743,5 +791,16 @@ window.onload = function() {
     mod3.init();
 };
 </script>
+
+</div>
+
+<script src="../../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

@@ -3,41 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lời giải: Tám quân hậu có tấn công nhau không</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            --bg: #0B1220; 
-            --bg2: #0F1A2E; 
-            --panel: #111E36;
-            --accent: #38D6C4; 
-            --accent2: #5B8CFF; 
-            --mark: #FFB454; 
-            --red: #FF6B6B;
-            --text-main: #E2E8F0; 
-            --text-muted: #94A3B8;
-            --glow: 0 0 20px rgba(56,214,196,.4);
-            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
-            --border: 1px solid rgba(255,255,255,.1);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            line-height: 1.6;
-            padding-bottom: 60px;
-        }
-
-        h1, h2, h3, h4 {
-            font-family: 'Space Grotesk', sans-serif;
-            letter-spacing: -0.03em;
-        }
+    <title>Lời giải: Tám quân hậu có tấn công nhau không | Lý thuyết CP</title>
+    <script src="../../../assets/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="../../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --text-main: var(--fg);
+  --text-muted: var(--muted);
+  --glow: none;
+  --shadow: none;
+  --border: var(--border);
+}
 
         .topnav {
             position: sticky;
@@ -50,18 +33,6 @@
             background: rgba(11, 18, 32, 0.85);
             backdrop-filter: blur(10px);
             border-bottom: var(--border);
-        }
-
-        .nav-btn {
-            text-decoration: none;
-            color: #000;
-            background: linear-gradient(135deg, var(--accent2), var(--accent));
-            padding: 8px 18px;
-            border-radius: 8px;
-            font-weight: 600;
-            box-shadow: var(--glow);
-            transition: all 0.3s ease;
-            font-family: 'Inter', sans-serif;
         }
 
         .nav-btn:hover {
@@ -79,15 +50,6 @@
         .nav-btn.outline:hover {
             background: rgba(56, 214, 196, 0.1);
             box-shadow: var(--glow);
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
         }
         @media (max-width: 600px) {
             .container { padding: 16px; }
@@ -120,8 +82,6 @@
             margin-bottom: 12px;
             border: 1px solid rgba(91, 140, 255, 0.3);
         }
-
-        p { margin-bottom: 12px; }
         .hl-text { color: var(--mark); font-weight: 600; }
 
         .codewrap, .snapbox { position: relative; }
@@ -155,7 +115,7 @@
         .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
 
         .codewrap {
-            background-color: #0A1220;
+            background-color: var(--code-bg);
             border: var(--border);
             border-radius: 12px;
             overflow-x: auto;
@@ -427,16 +387,75 @@
         .pit-box h4 { margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
         .pit-box.wrong h4 { color: var(--red); }
         .pit-box.right h4 { color: var(--accent); }
-    </style>
+    
+        /* Ép tiêu đề và khối mã theo bảng màu của chuẩn: vài trang còn màu gõ
+           cứng của bản nền tối (h2 màu trắng), sang nền sáng là chữ trắng trên
+           nền trắng — đo được tương phản đúng bằng 1. */
+        h1, h2, h3, h4{color:var(--fg)}
+        h2 .num{color:var(--blue)}
+        pre, .code-line{color:var(--code-fg)}
+        /* Vài trang có quy tắc riêng đặc hiệu hơn (ví dụ .container h2) nên
+           phải dùng !important mới thắng được màu gõ cứng của bản nền tối. */
+        h1, h2, h3, h4{color:var(--fg) !important}
+        h2 .num{color:var(--blue) !important}
+        p, li{color:var(--fg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Tám quân hậu có tấn công nhau không (arr2d_020).">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Tám quân hậu có tấn công nhau không | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Tám quân hậu có tấn công nhau không (arr2d_020).">
+<!--/cv-head-->
 </head>
 <body>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../index.html">Tổng tiền tố</a><span class="cv-sep">/</span><span class="cv-here">Tám quân hậu</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+<button class="themebtn" id="tg">Nền sáng / tối</button>
 
-    <nav class="topnav">
-        <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
-        <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
-    </nav>
+<aside class="side">
+  <div class="hd">Tám quân hậu có tấn công nhau không</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Phân tích ban đầu</a>
+  <a href="#s3">3. Mô-đun 1: Toán học của các đường chéo</a>
+  <a href="#s4">4. Mô-đun 2: Kỹ thuật mảng đánh dấu (Hash)</a>
+  <a href="#s5">5. Cài đặt (C++)</a>
+  <a href="#s6">6. Độ phức tạp</a>
+  <a href="#s7">7. Cạm bẫy khi cài đặt</a>
+</aside>
+
+<div class="main">
+
+    
 
     <div class="container">
+<div class="box tech">
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Phân tích ban đầu</a></li>
+    <li><a href="#s3">Mô-đun 1: Toán học của các đường chéo</a></li>
+    <li><a href="#s4">Mô-đun 2: Kỹ thuật mảng đánh dấu (Hash)</a></li>
+    <li><a href="#s5">Cài đặt (C++)</a></li>
+    <li><a href="#s6">Độ phức tạp</a></li>
+    <li><a href="#s7">Cạm bẫy khi cài đặt</a></li>
+  </ol>
+</nav>
+
         <header>
             <div class="badge">Hình học Tọa độ & Mảng 1D</div>
             <h1>Tám quân hậu có tấn công nhau không</h1>
@@ -447,7 +466,7 @@
 
         <div class="card snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2 class="card-title">Tóm tắt đề bài</h2>
+            <h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
             <p>Cho tọa độ của 8 quân hậu trên bàn cờ vua kích thước 8 × 8. Một quân hậu tấn công các ô nằm trên cùng hàng, cùng cột, hoặc cùng một trong hai đường chéo đi qua nó.</p>
             <ul>
                 <li><b>Ràng buộc:</b> 8 quân hậu, tọa độ ô từ 1 đến 8 (1 ≤ i, j ≤ 8). Mọi quân hậu đứng ở các ô phân biệt.</li>
@@ -457,17 +476,17 @@
 
         <div class="card snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2 class="card-title">Phân tích ban đầu</h2>
+            <h2 id="s2"><span class="num">2.</span>Phân tích ban đầu</h2>
             <p>Có nhiều cách để giải bài này, từ ngây thơ đến tối ưu:</p>
             <p><b>Cách 1 (Ngây thơ):</b> Khởi tạo một ma trận 8 × 8. Quét từng ô, nếu thấy quân hậu thì dùng 4 vòng lặp `while` đi theo 8 hướng để tìm hậu khác. Cách này dễ code sai, dễ nhầm mép bàn cờ.</p>
             <p><b>Cách 2 (Khá hơn):</b> Xét mọi cặp quân hậu phân biệt (có 8 × 7 / 2 = 28 cặp). Với hai hậu ở tọa độ (r1, c1) và (r2, c2), chúng tấn công nhau nếu r1 = r2 (cùng hàng), c1 = c2 (cùng cột), hoặc |r1 - r2| = |c1 - c2| (cùng chéo). Cách này độ phức tạp O(N<sup>2</sup>), hoàn toàn ổn vì N=8 rất nhỏ.</p>
             <p><b>Cách 3 (Tối ưu nhất - O(N)):</b> Nếu bài toán mở rộng lên N = 10<sup>5</sup>, Cách 2 sẽ quá thời gian. Kỹ thuật thanh lịch nhất là <b>Mảng đánh dấu (Hash Map)</b>. Ta chỉ cần quét qua từng quân hậu một lần, và đánh dấu "chủ quyền" lên hàng, cột và đường chéo mà nó đang đứng. Nếu quân hậu tiếp theo rơi vào "đất đã đánh dấu", ta kết luận <code>YES</code> ngay.</p>
         </div>
 
-        <div class="card">
+        <div class="box tech">
             <div class="snapbox">
                 <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-                <h2 class="card-title">Mô-đun 1: Toán học của các đường chéo</h2>
+                <h2 id="s3"><span class="num">3.</span>Mô-đun 1: Toán học của các đường chéo</h2>
                 <p>Làm sao để biết một ô có thuộc một đường chéo hay không? Ta cần tìm ra một đặc điểm chung (một hằng số) cho tất cả các ô trên cùng một đường thẳng.</p>
                 <ul>
                     <li><b>Đường ngang (Hàng):</b> Mọi ô trên cùng một hàng đều có chung tọa độ dòng (<code>Dòng</code> giống nhau).</li>
@@ -503,10 +522,10 @@
             </div>
         </div>
 
-        <div class="card">
+        <div class="box tech">
             <div class="snapbox">
                 <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-                <h2 class="card-title">Mô-đun 2: Kỹ thuật mảng đánh dấu (Hash)</h2>
+                <h2 id="s4"><span class="num">4.</span>Mô-đun 2: Kỹ thuật mảng đánh dấu (Hash)</h2>
                 <p>Thay vì so sánh từng cặp hậu, ta sẽ chuẩn bị 4 mảng (tương ứng với 4 "sổ đăng ký") cho Hàng, Cột, Chéo Chính và Chéo Phụ.</p>
                 <p>Ta lần lượt mời từng quân hậu lên bàn cờ. Quân hậu sẽ kiểm tra xem "mã" hàng, cột, và chéo của nó đã có tên trong sổ đăng ký chưa.</p>
                 <ul>
@@ -580,8 +599,8 @@
             </ol>
         </div>
 
-        <div class="card">
-            <h2 class="card-title">Cài đặt (C++)</h2>
+        <div class="box tech">
+            <h2 id="s5"><span class="num">5.</span>Cài đặt (C++)</h2>
             
             <div class="codewrap">
                 <button class="copy-btn" onclick="copyCode(this)">Copy</button>
@@ -624,7 +643,7 @@
 
         <div class="card snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2 class="card-title">Độ phức tạp</h2>
+            <h2 id="s6"><span class="num">6.</span>Độ phức tạp</h2>
             <p>Thuật toán sử dụng mảng đánh dấu, thực hiện đọc và xử lý chính xác 8 lần, bất kể dữ liệu đầu vào. Mỗi lần xử lý (kiểm tra `if` và gán `true`) chỉ tốn O(1) thời gian.</p>
             <ul>
                 <li><b>Độ phức tạp thời gian:</b> O(1). Khối lượng tính toán không đổi và cực kỳ nhỏ.</li>
@@ -634,8 +653,8 @@
 
         <div class="card snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2 class="card-title">Cạm bẫy khi cài đặt</h2>
-            <div class="pitfalls">
+            <h2 id="s7"><span class="num">7.</span>Cạm bẫy khi cài đặt</h2>
+            <div class="box warn">
                 <div class="pit-box wrong">
                     <h4>✕ Lỗi thường gặp</h4>
                     <p>Truy cập mảng <code>d1[i - j]</code> khi <code>i &lt; j</code>.</p>
@@ -959,5 +978,16 @@
             initLab2();
         };
     </script>
+
+</div>
+
+<script src="../../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

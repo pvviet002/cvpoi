@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kho lời giải | Lý thuyết CP</title>
+<style>
+  :root{
+    --bg:#0B1220; --bg2:#0F1A2E; --panel:#111E36;
+    --line:#20304C; --line2:#2C3E5E;
+    --ink:#E9EEF8; --ink-soft:#93A4C6; --ink-dim:#5B6C90;
+    --accent:#38D6C4;
+    --accent-soft:rgba(56,214,196,.12);
+    --mono:ui-monospace,"JetBrains Mono","Cascadia Mono","Consolas",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:radial-gradient(1100px 620px at 82% -12%, rgba(56,214,196,.08), transparent 62%), var(--bg);
+    color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh;
+  }
+  .wrap{max-width:1000px;margin:0 auto;padding:0 24px 90px}
+
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(11,18,32,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .topbar-in{max-width:1000px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .home-btn{display:inline-flex;align-items:center;gap:7px;text-decoration:none;border:1px solid var(--line2);border-radius:8px;padding:7px 13px;color:var(--ink-soft);font-weight:500;font-size:.84rem;transition:.18s}
+  .home-btn:hover{border-color:var(--accent);color:var(--ink)}
+  .home-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+  .crumb{font-family:var(--mono);font-size:.76rem;color:var(--ink-dim);letter-spacing:.03em}
+  .crumb b{color:var(--ink-soft);font-weight:500}
+  @media (max-width:560px){ .crumb{display:none} }
+
+  header{padding:56px 0 8px;max-width:660px}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:18px}
+  h1{font-size:clamp(2rem,5vw,3rem);font-weight:700;line-height:1.12;letter-spacing:-.025em}
+  .sub{margin-top:14px;font-size:1.04rem;color:var(--ink-soft)}
+  .meta{margin-top:20px;font-family:var(--mono);font-size:.8rem;color:var(--ink-dim)}
+  .meta b{color:var(--accent);font-weight:700}
+
+  .search{position:relative;margin:36px 0 8px;max-width:420px}
+  .search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--ink-dim);fill:none;stroke-width:2}
+  .search input{width:100%;background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:11px 14px 11px 42px;color:var(--ink);font-family:inherit;font-size:.92rem;transition:.2s}
+  .search input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .search input::placeholder{color:var(--ink-dim)}
+
+  .group{margin-top:38px;scroll-margin-top:70px}
+  .group-head{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+  .group-head h2{font-family:var(--mono);font-size:.76rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);white-space:nowrap}
+  .group-head .rule{flex:1;height:1px;background:var(--line)}
+  .group-head .cnt{font-family:var(--mono);font-size:.72rem;color:var(--ink-dim)}
+  .group.hidden{display:none}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+  .card{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px;text-decoration:none;color:inherit;transition:border-color .18s,transform .18s,background .18s}
+  .card:hover{border-color:var(--accent);transform:translateY(-2px);background:#132241}
+  .card.hidden{display:none}
+  .body{flex:1;min-width:0}
+  .body h3{font-size:.98rem;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+  .body .code{font-family:var(--mono);font-size:.72rem;color:var(--ink-dim);margin-top:3px;letter-spacing:.02em}
+  .arrow{flex:none;width:18px;height:18px;stroke:var(--ink-dim);fill:none;stroke-width:2;transition:.18s}
+  .card:hover .arrow{stroke:var(--accent);transform:translateX(3px)}
+
+  .empty{text-align:center;padding:60px 0;color:var(--ink-dim);font-family:var(--mono);font-size:.9rem;display:none}
+  .empty.show{display:block}
+
+  footer{border-top:1px solid var(--line);margin-top:60px;padding:22px 0 0;color:var(--ink-dim);font-size:.82rem;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  footer b{color:var(--ink-soft);font-weight:500}
+  footer a{color:var(--accent);text-decoration:none}
+
+  @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}html{scroll-behavior:auto}}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Toàn bộ trang hướng dẫn giải bài tập, xếp theo chuyên đề.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Kho lời giải | Lý thuyết CP">
+<meta property="og:description" content="Toàn bộ trang hướng dẫn giải bài tập, xếp theo chuyên đề.">
+<!--/cv-head-->
+</head>
+<body>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb">Bài luyện<span class="cv-sep">/</span><span class="cv-here">Kho lời giải</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Hướng dẫn giải</span>
+    <h1>Kho lời giải</h1>
+    <p class="sub">Mỗi trang phân tích một bài: tóm tắt đề, hướng suy nghĩ từ cách ngây thơ đến thuật toán chuẩn, và độ phức tạp.</p>
+    <p class="meta"><b id="stTotal">0</b> bài <span style="opacity:.4;margin:0 8px">·</span> <b id="stGroup">0</b> nhóm</p>
+  </header>
+
+  <div class="search">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input id="q" type="text" placeholder="Tìm theo tên bài hoặc mã bài…" autocomplete="off">
+  </div>
+
+  <div id="groups"></div>
+  <div class="empty" id="empty">Không tìm thấy bài nào khớp.</div>
+
+  
+</div>
+
+<script>
+/* =====================================================================
+   DANH SÁCH LỜI GIẢI — thêm bài mới: copy một dòng và sửa.
+     code : mã bài trên judge (hiện dưới tên bài)
+     name : tên bài
+     href : đường dẫn tương đối tính từ thư mục sols/
+     group: khóa nhóm — phải trùng key trong GROUPS
+   ===================================================================== */
+const SOLS = [
+  {code:'ar2005',              name:'Tổng các đường chéo chính',            href:'../array-1d/sols/ar2005/',                        group:'array-1d'},
+  {code:'freqk',               name:'Giá trị thường xuyên',                 href:'../array-1d/sols/freqk/',                         group:'array-1d'},
+  {code:'ar1010',              name:'Phần tử thủ lĩnh',                     href:'ar1010/',                                         group:'array-1d'},
+
+  {code:'arr2d_036',           name:'Điểm mù của camera',                   href:'../array-2d/arr2d_036/',                          group:'array-2d'},
+  {code:'arr2d_039',           name:'Tìm khu vực hỏa hoạn lớn nhất',        href:'../array-2d/arr2d_039/',                          group:'array-2d'},
+  {code:'arr2d_040',           name:'Mảng hiệu số 2D',                      href:'../array-2d/arr2d_040/',                          group:'array-2d'},
+  {code:'arr2d_047',           name:'Tìm kiếm số hoàn hảo',                 href:'../array-2d/arr2d_047/',                          group:'array-2d'},
+
+  {code:'differentarray_09',   name:'Cộng cấp số cộng vào đoạn',            href:'../prefix-sum/1d/differentarray_09/',             group:'ps1d'},
+  {code:'prefixsum_05',        name:'Tổng có trọng số',                     href:'../prefix-sum/1d/prefixsum_05/',                  group:'ps1d'},
+
+  // Chương "Tối ưu nhờ tiền tố" — 10 bài liền mạch, nên làm theo đúng thứ tự.
+  {code:'prefixsum_optimize_01', name:'Đoạn con tổng lớn nhất',                    href:'../prefix-sum/1d/prefixsum_optimize/bai1-sol.html',  group:'opt'},
+  {code:'prefixsum_optimize_02', name:'Tổng lớn nhất với độ dài tối thiểu',        href:'../prefix-sum/1d/prefixsum_optimize/bai2-sol.html',  group:'opt'},
+  {code:'prefixsum_optimize_03', name:'Xóa một phần tử để tổng lớn nhất',          href:'../prefix-sum/1d/prefixsum_optimize/bai3-sol.html',  group:'opt'},
+  {code:'prefixsum_optimize_04', name:'Trung bình không nhỏ hơn X',                href:'../prefix-sum/1d/prefixsum_optimize/bai4-sol.html',  group:'opt'},
+  {code:'prefixsum_optimize_05', name:'Hai đoạn con rời nhau tổng lớn nhất',       href:'../prefix-sum/1d/prefixsum_optimize/bai5-sol.html',  group:'opt'},
+  {code:'prefixsum_optimize_06', name:'Tổng lớn nhất không vượt quá S',            href:'../prefix-sum/1d/prefixsum_optimize/bai6-sol.html',  group:'opt'},
+  {code:'prefixsum_optimize_07', name:'Tổng lớn nhất chia hết cho K',              href:'../prefix-sum/1d/prefixsum_optimize/bai7-sol.html',  group:'opt'},
+  {code:'prefixsum_optimize_08', name:'Độ dài trong khoảng cho trước',             href:'../prefix-sum/1d/prefixsum_optimize/bai8-sol.html',  group:'opt'},
+  {code:'prefixsum_optimize_09', name:'Chia đường gấp khúc cân bằng',              href:'../prefix-sum/1d/prefixsum_optimize/bai9-sol.html',  group:'opt'},
+  {code:'prefixsum_optimize_10', name:'Trung bình lớn nhất với độ dài tối thiểu',  href:'../prefix-sum/1d/prefixsum_optimize/bai10-sol.html', group:'opt'},
+
+  {code:'arr2d_015',           name:'Đường đi của quân xe với vật cản',     href:'../prefix-sum/2d/arr2d_015/',                     group:'ps2d'},
+  {code:'arr2d_020',           name:'Tám quân hậu có tấn công nhau không',  href:'../prefix-sum/2d/arr2d_020/',                     group:'ps2d'},
+  {code:'prefixsum_2d_01',     name:'Tổng hình chữ nhật con',               href:'../prefix-sum/2d/prefixsum_2d_01/',               group:'ps2d'},
+  {code:'prefixsum_2d_05',     name:'Đếm hình chữ nhật có tổng bằng S',     href:'../prefix-sum/2d/prefixsum_2d_05/',               group:'ps2d'},
+  {code:'prefixsum_2d_07',     name:'Sự đa dạng của bức tranh',             href:'../prefix-sum/2d/prefixsum_2d_07/',               group:'ps2d'},
+  {code:'prefixsum_2d_09',     name:'Vùng phủ dày đặc nhất',                href:'../prefix-sum/2d/prefixsum_2d_09/',               group:'ps2d'},
+  {code:'prefixsum_2d_11',     name:'Đếm hình chữ nhật chia hết cho K',     href:'../prefix-sum/2d/prefixsum_2d_11/',               group:'ps2d'},
+
+  {code:'viet_lvl3_106',       name:'Tối ưu điểm họp làng (Rerooting DP)',  href:'../tree/viet_lvl3_106/',                          group:'tree'},
+  {code:'viet_lvl4_090',       name:'Kiểm tra tích số trên đường đi',       href:'../tree/viet_lvl4_090/',                          group:'tree'},
+  {code:'viet_lvl4_122',       name:'Đếm số ước nguyên tố trên đường đi',   href:'../tree/sols/viet_lvl4_122/',                     group:'tree'},
+  {code:'viet_lvl4_257',       name:'Hái táo',                              href:'../tree/sols/viet_lvl4_257/',                     group:'tree'},
+
+  {code:'viet_lvl4_1680',      name:'Hợp nhất các đống sỏi',                href:'../dp/range/viet_lvl4_1680/',                     group:'dp'},
+
+  {code:'2627_hsg12_c1p1',     name:'Cước vận chuyển',                      href:'2627_hsg12_c1p1/',                                group:'hsg12'},
+  {code:'2627_hsg12_c1p2',     name:'Ghép thẻ số',                          href:'2627_hsg12_c1p2/',                                group:'hsg12'},
+  {code:'2627_hsg12_c1p3',     name:'Đoạn chia hết',                        href:'2627_hsg12_c1p3/',                                group:'hsg12'},
+  {code:'2627_hsg12_c1p4',     name:'Đảo chiều đường một chiều',            href:'2627_hsg12_c1p4/',                                group:'hsg12'},
+
+  {code:'ki_chuyentuyen',      name:'Chi phí chuyển tuyến',                 href:'ki_chuyentuyen/',                                 group:'khac'},
+  {code:'th5_b_21d_903fc',     name:'Bảng quảng cáo',                       href:'th5_b_21d_903fc/',                                group:'khac'},
+  {code:'th5_d_2d_732fc',      name:'Phân rã cây',                          href:'th5_d_2d_732fc/',                                 group:'khac'},
+  {code:'th5_d_myg_979101fc',  name:'Tổng độ đơn điệu',                     href:'th5_d_myg_979101fc/',                             group:'khac'},
+];
+
+const GROUPS = [
+  {key:'array-1d', label:'Mảng 1 chiều'},
+  {key:'array-2d', label:'Mảng 2 chiều'},
+  {key:'ps1d',     label:'Tổng tiền tố 1D'},
+  {key:'opt',      label:'Tối ưu nhờ tiền tố — 10 bài liền mạch'},
+  {key:'ps2d',     label:'Tổng tiền tố 2D'},
+  {key:'tree',     label:'Cây'},
+  {key:'dp',       label:'Quy hoạch động'},
+  {key:'hsg12',    label:'Đề HSG 12 — 2627, câu 1'},
+  {key:'khac',     label:'Bài luyện khác'},
+];
+
+const groupsBox=document.getElementById('groups');
+const empty=document.getElementById('empty');
+const qInput=document.getElementById('q');
+
+function cardHTML(s){
+  const key=(s.name+' '+s.code).toLowerCase();
+  return `<a class="card" href="${s.href}" data-key="${key}">
+      <div class="body">
+        <h3>${s.name}</h3>
+        <div class="code">${s.code}</div>
+      </div>
+      <svg class="arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>`;
+}
+
+function render(){
+  groupsBox.innerHTML=GROUPS.map(g=>{
+    const items=SOLS.filter(s=>s.group===g.key);
+    if(!items.length) return '';
+    return `<section class="group" id="${g.key}" data-group="${g.key}">
+      <div class="group-head">
+        <h2>${g.label}</h2><div class="rule"></div>
+        <span class="cnt">${items.length}</span>
+      </div>
+      <div class="grid">${items.map(cardHTML).join('')}</div>
+    </section>`;
+  }).join('');
+}
+
+function applyFilter(query){
+  let shown=0;
+  groupsBox.querySelectorAll('.group').forEach(sec=>{
+    let vis=0;
+    sec.querySelectorAll('.card').forEach(c=>{
+      const ok=!query||c.dataset.key.includes(query);
+      c.classList.toggle('hidden',!ok);
+      if(ok){vis++;shown++;}
+    });
+    sec.classList.toggle('hidden',vis===0);
+  });
+  empty.classList.toggle('show',shown===0);
+}
+
+qInput.addEventListener('input',()=>applyFilter(qInput.value.trim().toLowerCase()));
+
+document.getElementById('stTotal').textContent=SOLS.length;
+document.getElementById('stGroup').textContent=GROUPS.filter(g=>SOLS.some(s=>s.group===g.key)).length;
+render();
+if(location.hash){const t=document.querySelector(location.hash);if(t)t.scrollIntoView();}
+</script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>

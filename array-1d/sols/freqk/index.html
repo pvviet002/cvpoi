@@ -3,34 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lời giải: Giá trị thường xuyên [FREQK]</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
-            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
-            --text-main: #E2E8F0; --text-muted: #94A3B8;
-            --glow: 0 0 20px rgba(56, 214, 196, .4);
-            --shadow: 0 20px 60px -30px rgba(0, 0, 0, .9);
-            --border: 1px solid rgba(255, 255, 255, .1);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            line-height: 1.6;
-        }
-
-        h1, h2, h3, h4 {
-            font-family: 'Space Grotesk', sans-serif;
-            letter-spacing: -0.03em;
-            margin-bottom: 16px;
-        }
+    <title>Lời giải: Giá trị thường xuyên | Lý thuyết CP</title>
+    <script src="../../../assets/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="../../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --text-main: var(--fg);
+  --text-muted: var(--muted);
+  --glow: none;
+  --shadow: none;
+  --border: var(--border);
+}
 
         .topnav {
             position: sticky; top: 0; z-index: 100;
@@ -40,24 +30,12 @@
             backdrop-filter: blur(10px);
             border-bottom: var(--border);
         }
-
-        .nav-btn {
-            text-decoration: none; color: #000;
-            background: linear-gradient(135deg, var(--accent2), var(--accent));
-            padding: 8px 18px; border-radius: 8px; font-weight: 600;
-            box-shadow: var(--glow); transition: all .3s ease;
-        }
         .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .nav-btn.outline {
             background: transparent; border: 1px solid var(--accent);
             color: var(--accent); box-shadow: none;
         }
         .nav-btn.outline:hover { background: rgba(56, 214, 196, .1); box-shadow: var(--glow); }
-
-        .container {
-            max-width: 1000px; margin: 0 auto; padding: 40px 24px;
-            display: flex; flex-direction: column; gap: 32px;
-        }
 
         @media (max-width: 768px) { .container { padding: 24px 16px; } }
 
@@ -93,7 +71,7 @@
         .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
 
         .code-block {
-            background: #0A1220; border: var(--border); border-radius: 12px;
+            background: var(--code-bg); border: var(--border); border-radius: 12px;
             padding: 16px 0; overflow-x: auto;
             font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
             line-height: 1.6;
@@ -204,16 +182,75 @@
         table.styled-table th, table.styled-table td { padding: 12px 15px; border: 1px solid rgba(255,255,255,0.1); }
         table.styled-table tbody tr:nth-of-type(even) { background-color: rgba(0,0,0,0.15); }
 
-    </style>
+    
+        /* Ép tiêu đề và khối mã theo bảng màu của chuẩn: vài trang còn màu gõ
+           cứng của bản nền tối (h2 màu trắng), sang nền sáng là chữ trắng trên
+           nền trắng — đo được tương phản đúng bằng 1. */
+        h1, h2, h3, h4{color:var(--fg)}
+        h2 .num{color:var(--blue)}
+        pre, .code-line{color:var(--code-fg)}
+        /* Vài trang có quy tắc riêng đặc hiệu hơn (ví dụ .container h2) nên
+           phải dùng !important mới thắng được màu gõ cứng của bản nền tối. */
+        h1, h2, h3, h4{color:var(--fg) !important}
+        h2 .num{color:var(--blue) !important}
+        p, li{color:var(--fg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Giá trị thường xuyên (FREQK).">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Giá trị thường xuyên | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Giá trị thường xuyên (FREQK).">
+<!--/cv-head-->
 </head>
 <body>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../index.html">Mảng 1 chiều</a><span class="cv-sep">/</span><span class="cv-here">Giá trị thường xuyên</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+<button class="themebtn" id="tg">Nền sáng / tối</button>
 
-    <nav class="topnav">
-        <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
-        <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
-    </nav>
+<aside class="side">
+  <div class="hd">Giá trị thường xuyên</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Phân tích ban đầu</a>
+  <a href="#s3">3. 1. Đếm phân phối trên miền giá trị hữu hạn</a>
+  <a href="#s4">4. 2. Tối ưu bộ nhớ và Xử lý tràn số</a>
+  <a href="#s5">5. Cài đặt (C++)</a>
+  <a href="#s6">6. Độ phức tạp</a>
+  <a href="#s7">7. Cạm bẫy thường gặp</a>
+</aside>
+
+<div class="main">
+
+    
 
     <div class="container">
+<div class="box tech">
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Phân tích ban đầu</a></li>
+    <li><a href="#s3">1. Đếm phân phối trên miền giá trị hữu hạn</a></li>
+    <li><a href="#s4">2. Tối ưu bộ nhớ và Xử lý tràn số</a></li>
+    <li><a href="#s5">Cài đặt (C++)</a></li>
+    <li><a href="#s6">Độ phức tạp</a></li>
+    <li><a href="#s7">Cạm bẫy thường gặp</a></li>
+  </ol>
+</nav>
+
         
         <!-- 3.1. HERO -->
         <div class="card snapbox">
@@ -226,7 +263,7 @@
         <!-- 3.2. TÓM TẮT ĐỀ BÀI -->
         <div class="card snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Tóm tắt đề bài</h2>
+            <h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
             <p>Cho dãy số nguyên x<sub>1</sub>, x<sub>2</sub>, ..., x<sub>n</sub> được sinh theo công thức:</p>
             <p style="text-align: center; margin: 16px 0; font-family: 'JetBrains Mono', monospace; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px;">
                 x<sub>i+2</sub> = ((x<sub>i</sub> · A + x<sub>i+1</sub> · B + C) mod D) - ⌊D/2⌋ (với mọi i ≥ 1)
@@ -239,7 +276,7 @@
             </ul>
             
             <h4>Ví dụ:</h4>
-            <table class="styled-table">
+            <div class="tablewrap"><table class="styled-table">
                 <thead><tr><th>Input</th><th>Output</th><th>Giải thích</th></tr></thead>
                 <tbody>
                     <tr>
@@ -249,23 +286,23 @@
                         <td>Các phần tử của dãy sinh ra là: 1, 2, -1, -1, 1, 0, 1, 0. <br>Tần suất: số -1 (2 lần), số 0 (2 lần), số 1 (3 lần), số 2 (1 lần).<br>Có 3 giá trị xuất hiện ≥ k=2 lần là {-1, 0, 1}.</td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
         </div>
 
         <!-- 3.3. PHÂN TÍCH BAN ĐẦU -->
         <div class="card snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Phân tích ban đầu</h2>
+            <h2 id="s2"><span class="num">2.</span>Phân tích ban đầu</h2>
             <p>Cách tiếp cận "ngây thơ" nhất là dùng một mảng độ dài <code>n</code>, sinh đủ <code>n</code> số, rồi sắp xếp mảng để đếm tần suất. </p>
             <p><strong>Vì sao cách này thất bại?</strong> Với n = 3 · 10<sup>7</sup>, việc cấp phát mảng <code>int</code> cần khoảng 120MB (có thể chấp nhận được), nhưng việc sắp xếp mảng sẽ mất O(n log n) phép toán (hơn 7 · 10<sup>8</sup> thao tác), chắc chắn bị quá thời gian (Time Limit Exceeded). Hơn nữa, việc sinh và lưu toàn bộ mảng cũng làm chậm tốc độ xử lý do cache miss.</p>
             <p>Điểm then chốt nằm ở phép toán modulo <code>D</code>. Vì kết quả của modulo <code>D</code> luôn nằm trong khoảng [0, D-1], nên sau khi trừ đi ⌊D/2⌋, miền giá trị của các phần tử x<sub>i</sub> bị giới hạn trong một khoảng rất nhỏ. Chúng ta sẽ khai thác tính chất này qua các mô-đun dưới đây.</p>
         </div>
 
         <!-- 3.4. MÔ-ĐUN 1 -->
-        <div class="card">
+        <div class="box tech">
             <div class="snapbox">
                 <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-                <h2>1. Đếm phân phối trên miền giá trị hữu hạn</h2>
+                <h2 id="s3"><span class="num">3.</span>1. Đếm phân phối trên miền giá trị hữu hạn</h2>
                 <p><strong>Ta muốn gì?</strong> Đếm số lần xuất hiện của mỗi phần tử mà không cần phải lưu trữ và sắp xếp toàn bộ <code>n</code> phần tử.</p>
                 <p><strong>Quan sát then chốt:</strong> Nhìn vào công thức <code>(... mod D) - ⌊D/2⌋</code>, ta thấy phần <code>mod D</code> cho ra kết quả từ <code>0</code> đến <code>D-1</code>. Do đó, x<sub>i</sub> sẽ chỉ nhận các giá trị trong đoạn <code>[-⌊D/2⌋, D - 1 - ⌊D/2⌋]</code>. Tổng cộng chỉ có đúng <code>D</code> giá trị khả dĩ!</p>
                 <p><strong>Ý tưởng:</strong> Thay vì tạo mảng kích thước 3 · 10<sup>7</sup> để chứa các số, ta chỉ cần tạo một mảng đếm tần suất <code>freq[]</code> có kích thước đúng bằng <code>D</code> (tối đa 2 · 10<sup>5</sup>). Mỗi khi sinh ra một số x<sub>i</sub>, ta tăng <code>freq[x<sub>i</sub>]</code> lên 1. Vì mảng không thể có chỉ số âm, ta cần <strong>tịnh tiến</strong> giá trị bằng cách cộng thêm <code>offset = ⌊D/2⌋</code> vào mọi x<sub>i</sub> trước khi làm chỉ số mảng.</p>
@@ -316,10 +353,10 @@
         </div>
 
         <!-- 3.4. MÔ-ĐUN 2 -->
-        <div class="card">
+        <div class="box tech">
             <div class="snapbox">
                 <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-                <h2>2. Tối ưu bộ nhớ và Xử lý tràn số</h2>
+                <h2 id="s4"><span class="num">4.</span>2. Tối ưu bộ nhớ và Xử lý tràn số</h2>
                 <p><strong>Ta muốn gì?</strong> Cài đặt vòng lặp sinh số hiệu quả mà không bị lỗi bộ nhớ hay tính sai do số quá lớn.</p>
                 <p><strong>Khó khăn then chốt:</strong>
                     <br>1. Ngay cả khi đã dùng mảng đếm, nếu ta vẫn lưu <code>x[]</code> kích thước <code>n</code> để chạy vòng lặp, hệ thống vẫn có thể bị hết bộ nhớ (Memory Limit).
@@ -424,14 +461,14 @@
         <div class="card codewrap snapbox">
             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Cài đặt (C++)</h2>
+            <h2 id="s5"><span class="num">5.</span>Cài đặt (C++)</h2>
             <div class="code-block"><div class="code" id="code-impl"></div></div>
         </div>
 
         <!-- 3.6. ĐỘ PHỨC TẠP -->
         <div class="card snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Độ phức tạp</h2>
+            <h2 id="s6"><span class="num">6.</span>Độ phức tạp</h2>
             <p><strong>Thời gian (Time Complexity):</strong> O(n). Ta có một vòng lặp chạy từ 3 đến n. Mỗi bước lặp chỉ thực hiện các phép toán cơ bản (nhân, cộng, modulo, truy xuất mảng) mất thời gian O(1). Do n ≤ 3 · 10<sup>7</sup>, thuật toán thực hiện khoảng 3 · 10<sup>7</sup> phép toán, chạy cực kỳ nhanh và vượt qua giới hạn thời gian một cách dễ dàng.</p>
             <p><strong>Không gian (Space/Memory Complexity):</strong> O(D). Ta không dùng mảng để lưu dãy n phần tử, mà chỉ lưu tần suất trong mảng <code>freq[]</code> có kích thước tương đương với D. Với D ≤ 2 · 10<sup>5</sup>, mảng này chỉ chiếm khoảng 800KB bộ nhớ, rất tối ưu và an toàn trước giới hạn bộ nhớ chặt chẽ.</p>
         </div>
@@ -439,7 +476,7 @@
         <!-- 3.7. CẠM BẪY KHI CÀI -->
         <div class="card snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Cạm bẫy thường gặp</h2>
+            <h2 id="s7"><span class="num">7.</span>Cạm bẫy thường gặp</h2>
             <div class="pitfall-grid">
                 <div class="pitfall-col wrong">
                     <h4>✕ Lỗi ngây thơ</h4>
@@ -784,6 +821,17 @@ int main() {
             lab2.init();
         };
     </script>
+
+</div>
+
+<script src="../../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>
 ```eof

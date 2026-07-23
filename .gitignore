@@ -1,0 +1,3 @@
+# Rác build của các công cụ Python trong tools/
+__pycache__/
+*.pyc

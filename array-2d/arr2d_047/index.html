@@ -3,26 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lời giải: Tìm kiếm số hoàn hảo (arr2d_047)</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
-            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
-            --text-main: #E2E8F0; --text-muted: #94A3B8;
-            --glow: 0 0 20px rgba(56,214,196,.4);
-            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
-            --border: 1px solid rgba(255,255,255,.1);
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg); color: var(--text-main);
-            line-height: 1.6; padding-bottom: 60px;
-        }
-        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.03em; }
+    <title>Lời giải: Tìm kiếm số hoàn hảo | Lý thuyết CP</title>
+    <link rel="stylesheet" href="../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --text-main: var(--fg);
+  --text-muted: var(--muted);
+  --glow: none;
+  --shadow: none;
+  --border: var(--border);
+}
         
         /* Navigation */
         .topnav {
@@ -30,22 +27,9 @@
             padding: 12px 24px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px);
             border-bottom: var(--border); max-width: 1200px; margin: 0 auto; width: 100%;
         }
-        .nav-btn {
-            text-decoration: none; color: #000;
-            background: linear-gradient(135deg, var(--accent2), var(--accent));
-            padding: 8px 18px; border-radius: 8px; font-weight: 600;
-            box-shadow: var(--glow); transition: all .3s ease; font-size: 0.9rem;
-        }
         .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
         .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
-
-        /* Container */
-        .container { max-width: 1000px; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; gap: 32px; }
-        
-        /* Typography */
-        p { margin-bottom: 16px; color: var(--text-muted); }
-        strong { color: var(--text-main); font-weight: 600; }
         code { font-family: 'JetBrains Mono', monospace; background: rgba(255,255,255,.05); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: var(--accent); }
         
         /* Badges & Hero */
@@ -74,7 +58,7 @@
         .algo-steps code { background: rgba(91,140,255,.14); color: #A9C4FF; padding: .05em .4em; border-radius: 5px; }
 
         /* Code Blocks */
-        .code-block { background: #0A1220; border: var(--border); border-radius: 12px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6; padding: 16px 0; }
+        .code-block { background: var(--code-bg); border: var(--border); border-radius: 12px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6; padding: 16px 0; }
         .codeline { padding: 0 16px; white-space: pre-wrap; border-left: 3px solid transparent; transition: all 0.2s; }
         .codeline.hot { background: rgba(255,180,84,.1); border-left: 3px solid var(--mark); }
         
@@ -87,7 +71,7 @@
         .c-cm { color: #8B949E; font-style: italic; } /* Comment */
 
         /* Interactive Lab UI */
-        .lab-container { margin-top: 20px; border: 1px solid rgba(255,255,255,.05); border-radius: 12px; overflow: hidden; background: #0A1220; }
+        .lab-container { margin-top: 20px; border: 1px solid rgba(255,255,255,.05); border-radius: 12px; overflow: hidden; background: var(--code-bg); }
         .lab-header { background: rgba(255,255,255,.03); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,.05); }
         .lab-controls { display: flex; gap: 8px; }
         .btn-icon { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: var(--text-main); padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 0.85rem; font-family: 'Inter'; display: flex; align-items: center; justify-content: center;}
@@ -147,16 +131,73 @@
         .pitfall-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-weight: 600; }
         .pitfall-card.wrong .pitfall-header { color: var(--red); }
         .pitfall-card.right .pitfall-header { color: var(--accent); }
-    </style>
+    
+        /* Ép tiêu đề và khối mã theo bảng màu của chuẩn: vài trang còn màu gõ
+           cứng của bản nền tối (h2 màu trắng), sang nền sáng là chữ trắng trên
+           nền trắng — đo được tương phản đúng bằng 1. */
+        h1, h2, h3, h4{color:var(--fg)}
+        h2 .num{color:var(--blue)}
+        pre, .code-line{color:var(--code-fg)}
+        /* Vài trang có quy tắc riêng đặc hiệu hơn (ví dụ .container h2) nên
+           phải dùng !important mới thắng được màu gõ cứng của bản nền tối. */
+        h1, h2, h3, h4{color:var(--fg) !important}
+        h2 .num{color:var(--blue) !important}
+        p, li{color:var(--fg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Tìm kiếm số hoàn hảo (arr2d_047).">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Tìm kiếm số hoàn hảo | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Tìm kiếm số hoàn hảo (arr2d_047).">
+<!--/cv-head-->
 </head>
 <body>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../index.html">Mảng 2 chiều</a><span class="cv-sep">/</span><span class="cv-here">Tìm kiếm số hoàn hảo</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+<button class="themebtn" id="tg">Nền sáng / tối</button>
 
-    <nav class="topnav">
-        <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
-        <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
-    </nav>
+<aside class="side">
+  <div class="hd">Tìm kiếm số hoàn hảo</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Phân tích ban đầu</a>
+  <a href="#s3">3. 1. Sự thưa thớt của số hoàn hảo</a>
+  <a href="#s4">4. 2. Duyệt ma trận và duy trì kết quả Max</a>
+  <a href="#s5">5. Cài đặt</a>
+  <a href="#s6">6. Độ phức tạp & Cạm bẫy</a>
+</aside>
+
+<div class="main">
+
+    
 
     <div class="container">
+<div class="box tech">
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Phân tích ban đầu</a></li>
+    <li><a href="#s3">1. Sự thưa thớt của số hoàn hảo</a></li>
+    <li><a href="#s4">2. Duyệt ma trận và duy trì kết quả Max</a></li>
+    <li><a href="#s5">Cài đặt</a></li>
+    <li><a href="#s6">Độ phức tạp & Cạm bẫy</a></li>
+  </ol>
+</nav>
+
         <!-- Hero Section -->
         <section class="hero">
             <div class="badge">Nền tảng</div>
@@ -167,7 +208,7 @@
 
         <!-- Problem Summary -->
         <section class="card">
-            <h2>Tóm tắt đề bài</h2>
+            <h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
             <p><strong>Nhiệm vụ:</strong> Cho một ma trận kích thước N × M. Tìm số hoàn hảo lớn nhất xuất hiện trong ma trận. Nếu không có, in ra <code>-1</code>.</p>
             <p><strong>Số hoàn hảo:</strong> Là số nguyên dương bằng tổng các ước dương nhỏ hơn chính nó (ví dụ: 6 = 1 + 2 + 3).</p>
             <p><strong>Ràng buộc:</strong>
@@ -188,7 +229,7 @@ Output:
 
         <!-- Initial Analysis -->
         <section class="card">
-            <h2>Phân tích ban đầu</h2>
+            <h2 id="s2"><span class="num">2.</span>Phân tích ban đầu</h2>
             <p>Cách "ngây thơ" nhất mà chúng ta thường nghĩ tới: Duyệt qua từng ô của ma trận, và với mỗi giá trị X tại ô đó, ta dùng một vòng lặp từ 1 đến √X để tìm tất cả các ước số, cộng chúng lại và so sánh với X.</p>
             <p><strong>Vì sao cách này thất bại?</strong></p>
             <p>Ma trận có tối đa 1000 × 1000 = 10<sup>6</sup> phần tử. Trong trường hợp xấu nhất, mỗi phần tử đều có giá trị gần 10<sup>9</sup>. Việc kiểm tra một số tốn khoảng √10<sup>9</sup> ≈ 31622 phép toán.</p>
@@ -198,7 +239,7 @@ Output:
 
         <!-- Module 1 -->
         <section class="card">
-            <h2>1. Sự thưa thớt của số hoàn hảo</h2>
+            <h2 id="s3"><span class="num">3.</span>1. Sự thưa thớt của số hoàn hảo</h2>
             <p>Trong toán học, các số hoàn hảo vô cùng hiếm. Tính đến hiện tại, con người mới chỉ tìm ra khoảng hơn 50 số hoàn hảo, và khoảng cách giữa chúng tăng lên theo cấp số nhân.</p>
             <p>Đề bài cho giới hạn phần tử a<sub>ij</sub> ≤ 10<sup>9</sup>. Hãy thử liệt kê xem có bao nhiêu số hoàn hảo nằm trong phạm vi này:</p>
             <ul>
@@ -243,7 +284,7 @@ Output:
 
         <!-- Module 2 -->
         <section class="card">
-            <h2>2. Duyệt ma trận và duy trì kết quả Max</h2>
+            <h2 id="s4"><span class="num">4.</span>2. Duyệt ma trận và duy trì kết quả Max</h2>
             <p>Sau khi đã có "vũ khí" là danh sách 5 số hoàn hảo, việc còn lại rất đơn giản: Ta duyệt lần lượt qua các ô của ma trận 2 chiều.</p>
             <p>Tại mỗi ô, ta kiểm tra xem nó có nằm trong danh sách không. Nếu có, ta cập nhật lại biến lưu trữ kết quả lớn nhất (giả sử đặt tên là <code>ans</code>).</p>
             <p><strong>Cạm bẫy khởi tạo:</strong> Đề bài yêu cầu in ra <code>-1</code> nếu không tìm thấy số hoàn hảo nào. Do mọi số hoàn hảo đều là số dương (> 0), ta có thể khởi tạo giá trị ban đầu của <code>ans = -1</code>. Nếu duyệt hết ma trận mà <code>ans</code> vẫn là -1, nghĩa là không có số nào hợp lệ, ta in thẳng <code>ans</code> ra là chính xác.</p>
@@ -329,7 +370,7 @@ Output:
 
         <!-- Cài đặt -->
         <section class="card">
-            <h2>Cài đặt</h2>
+            <h2 id="s5"><span class="num">5.</span>Cài đặt</h2>
             <div class="code-block">
 <div class="codeline"><span class="c-cm">#include &lt;iostream&gt;</span></div>
 <div class="codeline"><span class="c-cm">#include &lt;vector&gt;</span></div>
@@ -375,7 +416,7 @@ Output:
 
         <!-- Độ phức tạp & Cạm bẫy -->
         <section class="card">
-            <h2>Độ phức tạp & Cạm bẫy</h2>
+            <h2 id="s6"><span class="num">6.</span>Độ phức tạp & Cạm bẫy</h2>
             <p><strong>Thời gian (Time Complexity):</strong> O(N × M). Vòng lặp duyệt qua ma trận tốn N × M lần. Tại mỗi phần tử, thao tác so sánh với mảng tốn tối đa 5 bước (hằng số O(1)). Tổng số phép tính khoảng 10<sup>6</sup>, chạy dư sức qua giới hạn 1 giây của hệ thống.</p>
             <p><strong>Không gian (Space Complexity):</strong> O(1). Chúng ta không cần lưu toàn bộ ma trận vào bộ nhớ mà có thể vừa đọc <code>cin &gt;&gt; val</code> vừa xử lý trực tiếp, tiết kiệm được rất nhiều RAM.</p>
 
@@ -673,5 +714,16 @@ Output:
         };
 
     </script>
+
+</div>
+
+<script src="../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

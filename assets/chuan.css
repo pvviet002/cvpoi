@@ -1,0 +1,203 @@
+/* =====================================================================
+   chuan.css — bộ giao diện chuẩn của chuyên đề.
+
+   TÁCH NGUYÊN VĂN từ ChuyenDe/_template/shell.html (khối <style>).
+   KHÔNG sửa tay file này. Muốn đổi thì sửa shell.html rồi chạy lại
+   tools/tach-shell.py, để tài liệu chuyên đề và website không bao giờ
+   lệch nhau.
+
+   Quy ước dùng: nạp file này TRƯỚC khối <style> riêng của trang, để phần
+   CSS của các phòng mô phỏng còn đè lên được.
+   ===================================================================== */
+
+:root{
+  --is-dark:0;
+  --bg:#ffffff; --fg:#1f2328; --muted:#5b6570; --border:#e4e7eb; --card:#f7f8fa;
+  --blue:#1d4ed8;   --blue-bg:#eff6ff;
+  --purple:#6d28d9; --purple-bg:#f5f3ff;
+  --red:#b91c1c;    --red-bg:#fef2f2;
+  --green:#047857;  --green-bg:#ecfdf5;
+  --amber:#b45309;  --amber-bg:#fffbeb;
+  --code-bg:#f6f8fa; --code-fg:#24292f;
+  --c-kw:#0550ae; --c-str:#0a7d55; --c-cmt:#8b949e; --c-num:#953800; --c-fn:#6639ba; --c-pre:#a3364a;
+  --node:#dbeafe; --node-stroke:#2563eb; --edge:#64748b; --hl:#dc2626; --hl2:#059669;
+  --node2:#ede9fe; --node2-stroke:#7c3aed;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --is-dark:1;
+    --bg:#0f1319; --fg:#e6e9ee; --muted:#9aa4b2; --border:#252c37; --card:#161b23;
+    --blue:#7aa2ff;   --blue-bg:#131c2e;
+    --purple:#c4a2ff; --purple-bg:#1d1730;
+    --red:#ff8f8f;    --red-bg:#2a1618;
+    --green:#5fd3a1;  --green-bg:#0f2320;
+    --amber:#f3bf62;  --amber-bg:#251c0f;
+    --code-bg:#12171f; --code-fg:#dce3ec;
+    --c-kw:#79b8ff; --c-str:#7ee2b8; --c-cmt:#7d8794; --c-num:#ffab70; --c-fn:#d2a8ff; --c-pre:#ff9db8;
+    --node:#1e3a68; --node-stroke:#7aa2ff; --edge:#94a3b8; --hl:#ff6b6b; --hl2:#4ade80;
+    --node2:#2c2148; --node2-stroke:#c4a2ff;
+  }
+}
+:root[data-theme="light"]{
+  --is-dark:0;
+  --bg:#ffffff; --fg:#1f2328; --muted:#5b6570; --border:#e4e7eb; --card:#f7f8fa;
+  --blue:#1d4ed8; --blue-bg:#eff6ff; --purple:#6d28d9; --purple-bg:#f5f3ff;
+  --red:#b91c1c; --red-bg:#fef2f2; --green:#047857; --green-bg:#ecfdf5;
+  --amber:#b45309; --amber-bg:#fffbeb; --code-bg:#f6f8fa; --code-fg:#24292f;
+  --c-kw:#0550ae; --c-str:#0a7d55; --c-cmt:#8b949e; --c-num:#953800; --c-fn:#6639ba; --c-pre:#a3364a;
+  --node:#dbeafe; --node-stroke:#2563eb; --edge:#64748b; --hl:#dc2626; --hl2:#059669;
+  --node2:#ede9fe; --node2-stroke:#7c3aed;
+}
+:root[data-theme="dark"]{
+  --is-dark:1;
+  --bg:#0f1319; --fg:#e6e9ee; --muted:#9aa4b2; --border:#252c37; --card:#161b23;
+  --blue:#7aa2ff; --blue-bg:#131c2e; --purple:#c4a2ff; --purple-bg:#1d1730;
+  --red:#ff8f8f; --red-bg:#2a1618; --green:#5fd3a1; --green-bg:#0f2320;
+  --amber:#f3bf62; --amber-bg:#251c0f; --code-bg:#12171f; --code-fg:#dce3ec;
+  --c-kw:#79b8ff; --c-str:#7ee2b8; --c-cmt:#7d8794; --c-num:#ffab70; --c-fn:#d2a8ff; --c-pre:#ff9db8;
+  --node:#1e3a68; --node-stroke:#7aa2ff; --edge:#94a3b8; --hl:#ff6b6b; --hl2:#4ade80;
+  --node2:#2c2148; --node2-stroke:#c4a2ff;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:"Noto Sans","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  font-size:16.5px; line-height:1.68;
+}
+.wrap{max-width:860px; margin:0 auto; padding:0 20px 90px}
+@media (min-width:1280px){ .wrap{max-width:1000px} }
+@media (min-width:1560px){ .wrap{max-width:1130px} }
+
+/* ---- đầu trang ---- */
+header{border-bottom:1px solid var(--border); margin-bottom:26px; padding:34px 0 22px}
+header .kicker{font-size:.8rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); font-weight:600}
+header h1{font-size:2.15rem; line-height:1.2; margin:.28em 0 .18em; letter-spacing:-.015em}
+header .by{color:var(--muted); font-size:.94rem}
+.themebtn{
+  position:fixed; top:14px; right:14px; z-index:20;
+  background:var(--card); color:var(--fg); border:1px solid var(--border);
+  border-radius:999px; padding:7px 14px; font-size:.82rem; cursor:pointer; font-family:inherit;
+}
+.themebtn:hover{border-color:var(--blue)}
+
+/* ---- mục lục nội tuyến ---- */
+nav.toc{background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px 20px; margin-bottom:34px}
+nav.toc b{display:block; margin-bottom:8px; font-size:.9rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+nav.toc ol{margin:0; padding-left:1.3em; columns:2; column-gap:32px}
+nav.toc li{margin:3px 0; break-inside:avoid}
+nav.toc a{color:var(--fg); text-decoration:none; border-bottom:1px solid transparent}
+nav.toc a:hover{color:var(--blue); border-bottom-color:var(--blue)}
+@media (max-width:640px){ nav.toc ol{columns:1} }
+
+/* ---- thanh điều hướng bên trái (màn hình rộng) ---- */
+aside.side{display:none}
+@media (min-width:1080px){
+  .main{margin-left:254px}
+  nav.toc{display:none}
+  aside.side{
+    display:block; position:fixed; top:0; left:0; bottom:0; width:254px;
+    overflow-y:auto; background:var(--card); border-right:1px solid var(--border);
+    padding:20px 12px 30px; font-size:.88rem;
+  }
+  aside.side .hd{font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--muted); font-size:.75rem; margin:0 10px 12px}
+  aside.side a{display:block; color:var(--muted); text-decoration:none;
+    padding:5px 10px; border-left:3px solid transparent; border-radius:0 7px 7px 0;
+    margin:1px 0; line-height:1.45}
+  aside.side a:hover{color:var(--fg); background:var(--bg)}
+  aside.side a.on{color:var(--blue); background:var(--blue-bg); border-left-color:var(--blue); font-weight:600}
+}
+@media print{
+  aside.side{display:none}
+  .themebtn{display:none}
+  .main{margin-left:0}
+  nav.toc{display:block}
+}
+
+/* ---- tiêu đề mục ---- */
+h2{
+  font-size:1.42rem; margin:2.4em 0 .55em; padding-bottom:.28em;
+  border-bottom:2px solid var(--border); letter-spacing:-.01em; scroll-margin-top:16px;
+}
+h2 .num{color:var(--blue); font-variant-numeric:tabular-nums; margin-right:.45em}
+h3{font-size:1.1rem; margin:1.7em 0 .4em; color:var(--fg)}
+p{margin:.75em 0}
+ul,ol{margin:.65em 0; padding-left:1.5em}
+li{margin:.28em 0}
+strong{font-weight:700}
+em{color:var(--fg)}
+code.inl{
+  background:var(--code-bg); border:1px solid var(--border); border-radius:5px;
+  padding:1px 5px; font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.88em;
+}
+.mathv{font-family:"Cambria Math","Latin Modern Math",Georgia,serif; font-style:italic; padding-right:.09em}
+sub,sup{font-size:.7em; font-style:normal}
+
+/* ---- khung nội dung ---- */
+.box{border-radius:10px; border:1px solid; border-left-width:5px; padding:2px 18px 14px; margin:20px 0}
+.box .t{font-weight:700; margin:14px 0 6px; font-size:1rem; letter-spacing:.01em}
+.box.tech{background:var(--blue-bg);   border-color:var(--blue)}   .box.tech   .t{color:var(--blue)}
+.box.def{background:var(--purple-bg);  border-color:var(--purple)} .box.def    .t{color:var(--purple)}
+.box.warn{background:var(--red-bg);    border-color:var(--red)}    .box.warn   .t{color:var(--red)}
+.box.ex{background:var(--green-bg);    border-color:var(--green)}  .box.ex     .t{color:var(--green)}
+.box.cmplx{background:var(--amber-bg); border-color:var(--amber)}  .box.cmplx  .t{color:var(--amber)}
+
+/* ---- bảng ---- */
+.tablewrap{overflow-x:auto; margin:18px 0; border:1px solid var(--border); border-radius:10px}
+table{border-collapse:collapse; width:100%; min-width:560px; font-size:.94rem}
+th,td{border-bottom:1px solid var(--border); padding:9px 13px; text-align:left; vertical-align:top}
+th{background:var(--card); font-weight:700; color:var(--blue); white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+td.c,th.c{text-align:center; white-space:nowrap}
+
+/* ---- hình vẽ ---- */
+figure{margin:22px 0; text-align:center}
+figure svg{max-width:100%; height:auto}
+figcaption{color:var(--muted); font-size:.88rem; margin-top:8px}
+.figrow{display:flex; flex-wrap:wrap; gap:18px; justify-content:center; align-items:flex-start}
+.figrow > div{flex:1 1 260px; max-width:340px}
+.figrow p{font-size:.88rem; color:var(--muted); margin:4px 0 0}
+svg .nd{fill:var(--node); stroke:var(--node-stroke); stroke-width:2}
+svg .nd2{fill:var(--node2); stroke:var(--node2-stroke); stroke-width:2}
+svg .lb{fill:var(--fg); font-size:15px; font-weight:700; text-anchor:middle; dominant-baseline:central;
+        font-family:"Noto Sans",system-ui,sans-serif}
+svg .el{fill:var(--muted); font-size:12px; text-anchor:middle; dominant-baseline:central;
+        font-family:"Noto Sans",system-ui,sans-serif}
+svg .eg{stroke:var(--edge); stroke-width:2; fill:none}
+svg .eg.on{stroke:var(--hl); stroke-width:3}
+svg .grp{stroke:var(--hl2); stroke-width:2; fill:none; stroke-dasharray:7 5}
+svg .gl{fill:var(--hl2); font-size:12.5px; font-weight:600; text-anchor:middle;
+        font-family:"Noto Sans",system-ui,sans-serif}
+svg .cap{fill:var(--fg); font-size:13px; text-anchor:middle; font-weight:600;
+         font-family:"Noto Sans",system-ui,sans-serif}
+
+/* ---- code ---- */
+.codewrap{position:relative; margin:16px 0}
+.codewrap .name{
+  font-size:.82rem; color:var(--muted); padding:6px 12px; background:var(--card);
+  border:1px solid var(--border); border-bottom:none; border-radius:9px 9px 0 0;
+}
+pre{
+  margin:0; background:var(--code-bg); color:var(--code-fg);
+  border:1px solid var(--border); border-radius:0 0 9px 9px;
+  padding:13px 14px; overflow-x:auto; font-size:13.2px; line-height:1.5;
+  tab-size:2; -moz-tab-size:2;
+}
+.codewrap.noname pre{border-radius:9px}
+pre code{font-family:"Noto Sans Mono","Consolas",ui-monospace,"Courier New",monospace; white-space:pre}
+.cp{
+  position:absolute; top:5px; right:6px; z-index:2; cursor:pointer; font-family:inherit;
+  background:var(--bg); color:var(--muted); border:1px solid var(--border);
+  border-radius:6px; padding:3px 9px; font-size:.76rem; opacity:.75;
+}
+.cp:hover{opacity:1; color:var(--blue); border-color:var(--blue)}
+.k{color:var(--c-kw); font-weight:600}
+.s{color:var(--c-str)}
+.c{color:var(--c-cmt); font-style:italic}
+.n{color:var(--c-num)}
+.f{color:var(--c-fn)}
+.pp{color:var(--c-pre)}
+
+footer{margin-top:56px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted); font-size:.9rem}

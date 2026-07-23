@@ -3,42 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LCA — Nâng nhị phân (Binary Lifting)</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<title>Cây &amp; LCA — nâng nhị phân | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
 <style>
-  :root{
-    --bg:#0B1220;          /* nền xanh mực đêm */
-    --bg2:#0F1A2E;
-    --panel:#111E36;
-    --panel2:#15254A;
-    --line:#22304C;
-    --line2:#2E3F60;
-    --ink:#E6ECF7;
-    --ink-soft:#8FA1C4;
-    --ink-dim:#5A6B8F;
-    --accent:#38D6C4;      /* xanh ngọc — đường đi / đúng */
-    --accent2:#5B8CFF;     /* xanh dương — cấu trúc / up[][] */
-    --jump:#FFB454;        /* hổ phách — bước nhảy 2^j */
-    --lca:#FF6B9D;         /* hồng — đỉnh LCA */
-    --shadow:0 20px 60px -30px rgba(0,0,0,.9);
-    --glow-a:0 0 0 1px rgba(56,214,196,.4), 0 0 22px -4px rgba(56,214,196,.55);
-    --glow-j:0 0 0 1px rgba(255,180,84,.5), 0 0 22px -4px rgba(255,180,84,.6);
-    --glow-l:0 0 0 1px rgba(255,107,157,.55), 0 0 26px -4px rgba(255,107,157,.7);
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{
-    background:
-      radial-gradient(1200px 700px at 78% -8%, rgba(91,140,255,.14), transparent 60%),
-      radial-gradient(900px 600px at 12% 8%, rgba(56,214,196,.10), transparent 55%),
-      var(--bg);
-    color:var(--ink);
-    font-family:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-    font-size:15.5px; line-height:1.65; -webkit-font-smoothing:antialiased;
-  }
-  .wrap{max-width:1120px;margin:0 auto;padding:0 22px 100px}
+          /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --panel2: var(--card);
+  --line: var(--border);
+  --line2: var(--border);
+  --ink: var(--fg);
+  --ink-soft: var(--muted);
+  --ink-dim: var(--muted);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --jump: var(--purple);
+  --lca: var(--purple);
+  --shadow: none;
+  --glow-a: none;
+  --glow-j: none;
+  --glow-l: none;
+}
 
   /* ---------- Thanh nav trên cùng ---------- */
   .topbar{
@@ -47,54 +34,28 @@
     border-bottom:1px solid var(--line);
   }
   .topbar-in{max-width:1120px;margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  .home-btn{
-    display:inline-flex;align-items:center;gap:8px;text-decoration:none;
-    background:rgba(255,255,255,.03);border:1px solid var(--line2);border-radius:9px;
-    padding:7px 14px;color:var(--ink);font-weight:600;font-size:.86rem;transition:border-color .2s,background .2s
-  }
   .home-btn:hover{border-color:var(--accent);background:rgba(56,214,196,.07);color:#fff}
   .home-btn svg{width:15px;height:15px;stroke:var(--accent);fill:none;stroke-width:2}
-  .crumb{font-family:"JetBrains Mono",monospace;font-size:.76rem;color:var(--ink-dim);letter-spacing:.03em}
   .crumb b{color:var(--ink-soft);font-weight:500}
-  .visits{
-    margin-left:auto;display:inline-flex;align-items:center;gap:8px;
-    font-family:"JetBrains Mono",monospace;font-size:.78rem;color:var(--ink-soft);
-    background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:100px;padding:5px 13px
-  }
-  .visits svg{width:14px;height:14px;stroke:var(--ink-soft);fill:none;stroke-width:2}
-  .visits .vn{color:var(--jump);font-weight:700;font-variant-numeric:tabular-nums}
-  .visits .vn.pulse{animation:vpulse .5s ease}
-  @keyframes vpulse{0%{transform:scale(1)}45%{transform:scale(1.28);color:#fff}100%{transform:scale(1)}}
   @media (max-width:560px){ .crumb{display:none} }
   /* topbar responsive extra */
-  @media (max-width:480px){ .visits{margin-left:0;width:100%;justify-content:center} .home-btn{flex:1;justify-content:center} }
+  @media (max-width:480px){ .home-btn{flex:1;justify-content:center} }
 
   h1,h2,h3,.display{font-family:"Space Grotesk", system-ui, sans-serif;letter-spacing:-.02em;line-height:1.1}
-  h1{font-size:clamp(2.2rem,6vw,4rem);font-weight:700}
-  h2{font-size:clamp(1.5rem,3.2vw,2.15rem);font-weight:600;margin-bottom:.3em}
-  h3{font-size:1.08rem;font-weight:600;margin-bottom:.4em;letter-spacing:-.01em}
-  p{margin-bottom:.85em;max-width:66ch;color:#D3DCEC}
   .mono,code{font-family:"JetBrains Mono", ui-monospace, Consolas, monospace}
   p code, li code, td code, .card code{
     background:rgba(91,140,255,.14);color:#A9C4FF;padding:.06em .4em;border-radius:5px;
     font-size:.86em;font-weight:500;border:1px solid rgba(91,140,255,.18);
   }
-  strong{color:#fff;font-weight:600}
-  em{color:var(--accent);font-style:normal;font-weight:500}
-  .eyebrow{font-family:"JetBrains Mono",monospace;font-size:.72rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)}
-  .lead{font-size:1.1rem;color:var(--ink-soft);max-width:60ch}
-  a{color:var(--accent)}
 
   /* ---------- HERO ---------- */
   header{padding:60px 0 40px;position:relative}
-  .kicker{display:flex;gap:12px;align-items:center;margin-bottom:22px;flex-wrap:wrap}
   .chip{
     font-family:"JetBrains Mono",monospace;font-size:.72rem;font-weight:500;
     border:1px solid var(--line2);border-radius:100px;padding:5px 13px;color:var(--ink-soft);
     background:rgba(255,255,255,.02);
   }
   h1 .g{background:linear-gradient(100deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .hero-sub{margin-top:18px;max-width:60ch;font-size:1.12rem;color:var(--ink-soft)}
 
   /* Chữ ký: thước nhảy lũy thừa 2 */
   .ruler{
@@ -122,7 +83,7 @@
   .ruler-read b{color:var(--jump)}
 
   /* ---------- Buttons ---------- */
-  button{font-family:inherit;cursor:pointer;font-weight:600}
+  .lab button, .ruler button, .cpanel button{font-family:inherit;cursor:pointer;font-weight:600}
   .btn{background:linear-gradient(180deg,var(--accent),#25b6a6);color:#052b27;border:none;border-radius:9px;padding:9px 16px;font-size:.88rem;transition:transform .12s,filter .2s}
   .btn:hover{filter:brightness(1.08)}
   .btn:active{transform:translateY(1px)}
@@ -132,9 +93,6 @@
   .ghost:hover{border-color:var(--accent);background:rgba(56,214,196,.06)}
   .ghost.on{border-color:var(--accent);color:var(--accent)}
   :focus-visible{outline:2.5px solid var(--jump);outline-offset:3px;border-radius:6px}
-
-  /* ---------- Sections ---------- */
-  section{padding:56px 0;border-top:1px solid var(--line);margin-top:6px}
   .sec-head{margin-bottom:30px}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
   .card{background:linear-gradient(180deg,rgba(255,255,255,.025),transparent);border:1px solid var(--line);border-radius:14px;padding:22px 24px;box-shadow:var(--shadow)}
@@ -157,7 +115,7 @@
   th{background:rgba(91,140,255,.1);color:#BFD0F0;font-weight:600}
   td code{background:rgba(56,214,196,.1);color:#8FE9DE;border-color:rgba(56,214,196,.2)}
 
-  pre{background:#0A1220;border:1px solid var(--line);border-radius:12px;padding:16px 4px 16px 0;overflow-x:auto;margin:.7em 0}
+  pre{background:var(--code-bg);border:1px solid var(--line);border-radius:12px;padding:16px 4px 16px 0;overflow-x:auto;margin:.7em 0}
   pre code{background:none;border:none;padding:0;color:#C7D3EA;font-size:.82rem;line-height:1.85;display:block}
   .cl{display:block;padding:0 16px 0 52px;position:relative;white-space:pre}
   .cl::before{content:attr(data-n);position:absolute;left:0;width:38px;text-align:right;color:var(--ink-dim);font-size:.72rem;padding-right:8px}
@@ -197,7 +155,7 @@
   .lg-u{background:var(--accent)}.lg-v{background:var(--accent2)}.lg-l{background:var(--lca)}.lg-g{background:var(--jump)}
 
   /* code panel động */
-  .cpanel{background:#0A1220;border:1px solid var(--line);border-radius:11px;padding:12px 4px 12px 0;margin-bottom:14px}
+  .cpanel{background:var(--code-bg);border:1px solid var(--line);border-radius:11px;padding:12px 4px 12px 0;margin-bottom:14px}
   .cline{display:block;padding:1px 14px 1px 44px;position:relative;white-space:pre;font-family:"JetBrains Mono",monospace;font-size:.76rem;line-height:1.62;color:#B9C6E0;border-radius:5px;transition:background .15s}
   .cline::before{content:attr(data-n);position:absolute;left:0;width:32px;text-align:right;color:#3a4a6b;font-size:.68rem;padding-right:7px}
   .cline.hot{background:rgba(255,180,84,.14);box-shadow:inset 3px 0 0 var(--jump)}
@@ -229,8 +187,6 @@
   .note h3{color:var(--jump)}
   .note.blue{background:rgba(91,140,255,.08);border-color:rgba(91,140,255,.25);border-left-color:var(--accent2)}
   .note.blue h3{color:#A9C4FF}
-
-  footer{border-top:1px solid var(--line);padding:28px 0 0;color:var(--ink-dim);font-size:.84rem}
   footer b{color:var(--ink-soft)}
 
   @media (max-width:920px){
@@ -243,39 +199,75 @@
     *{transition-duration:.01ms!important;animation-duration:.01ms!important}
     html{scroll-behavior:auto}
   }
+
+  .t{color:var(--c-kw)}
+
+        /* Bắt buộc khối mã theo bảng màu của chuẩn: vài trang còn sót màu gõ
+           cứng của bản nền tối, sang nền sáng thì chữ gần như tàng hình
+           (đo được tương phản 1,42). */
+        pre{color:var(--code-fg)}
+        pre .k, pre .t{color:var(--c-kw)}
+        pre .n{color:var(--c-num)}
+        pre .c{color:var(--c-cmt); font-style:italic}
+        pre .s{color:var(--c-str)}
+        pre .f{color:var(--c-fn)}
+        .err pre, .ok pre{background:var(--code-bg)}
 </style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Duyệt cây bằng DFS và tìm tổ tiên chung gần nhất bằng nâng nhị phân.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Cây &amp; LCA — nâng nhị phân | Lý thuyết CP">
+<meta property="og:description" content="Duyệt cây bằng DFS và tìm tổ tiên chung gần nhất bằng nâng nhị phân.">
+<!--/cv-head-->
 </head>
-<body>
-<div class="topbar">
-  <div class="topbar-in">
-    <a class="home-btn" href="/index.html" aria-label="Về trang chủ">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
-      Trang chủ
-    </a>
-    <a class="home-btn" href="https://cvpoi.id.vn" target="_blank" rel="noopener" aria-label="Đến cvpoi.id.vn">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg>
-      cvpoi.id.vn
-    </a>
-    <span class="crumb"><b>Chuyên đề</b> / LCA — Nâng nhị phân</span>
-    <span class="visits" title="Tổng lượt truy cập trang này">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-      Lượt xem: <span class="vn" id="visitCount">…</span>
-    </span>
-  </div>
-</div>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Cây và LCA — nâng nhị phân</div>
+  <a href="#s1">1. Bài toán</a>
+  <a href="#s2">2. Bảng nâng nhị phân</a>
+  <a href="#s3">3. Truy vấn LCA(u, v)</a>
+  <a href="#s4">4. Cài đặt đầy đủ</a>
+  <a href="#s5">5. Độ phức tạp</a>
+</aside>
+
+<div class="main">
+
 <div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb">Đồ thị &amp; cây<span class="cv-sep">/</span><span class="cv-here">Cây &amp; LCA</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
 
 <header>
-  <div class="kicker">
-    <span class="eyebrow">Chuyên đề · Lập trình thi đấu</span>
-    <span class="chip">Cây có gốc</span>
-    <span class="chip">Quy hoạch động</span>
-    <span class="chip">O(log N) / truy vấn</span>
-  </div>
-  <h1>Tổ tiên chung gần nhất<br><span class="g">bằng nâng nhị phân.</span></h1>
-  <p class="hero-sub">Thay vì bò từng bước lên cây, ta nhảy <em>2⁰, 2¹, 2², …</em> bước một lần. Mọi số nguyên đều viết được thành tổng các luỹ thừa của 2 — nên mọi quãng đường lên cây đều ghép được từ vài cú nhảy.</p>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Cây và LCA — nâng nhị phân</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
 
-  <div class="ruler">
+<p>Thay vì bò từng bước lên cây, ta nhảy 2⁰, 2¹, 2², … bước một lần. Mỗi truy vấn tổ tiên chung gần nhất chỉ còn O(log N).</p>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Bài toán</a></li>
+    <li><a href="#s2">Bảng nâng nhị phân</a></li>
+    <li><a href="#s3">Truy vấn LCA(u, v)</a></li>
+    <li><a href="#s4">Cài đặt đầy đủ</a></li>
+    <li><a href="#s5">Độ phức tạp</a></li>
+  </ol>
+</nav>
+
+<div class="ruler">
     <h3>Vì sao là luỹ thừa của 2?</h3>
     <div class="sub">Cần đi lên <span id="rTarget" style="color:var(--jump);font-weight:700">13</span> bước. Xem nó được ghép từ những cú nhảy nào — chính là các bit 1 trong biểu diễn nhị phân.</div>
     <div class="track" id="rTrack"></div>
@@ -285,24 +277,23 @@
       <span class="ruler-read" id="rRead">13 = <b>8 + 4 + 1</b> &nbsp;→&nbsp; 3 cú nhảy thay vì 13 bước</span>
     </div>
   </div>
-</header>
 
 <!-- ============ 1. BÀI TOÁN ============ -->
 <section id="bai-toan">
   <div class="sec-head">
     <div class="eyebrow">Phần 1</div>
-    <h2>Bài toán</h2>
+    <h2 id="s1"><span class="num">1.</span>Bài toán</h2>
     <p class="lead">Cho cây có gốc. LCA của <code>u</code> và <code>v</code> là tổ tiên chung nằm ở độ sâu lớn nhất — tổ tiên chung "thấp nhất", gần hai đỉnh nhất.</p>
   </div>
   <div class="grid2">
-    <div class="card">
+    <div class="box tech">
       <h3>Định nghĩa</h3>
       <p>Đỉnh <code>w</code> là <strong>LCA(u, v)</strong> nếu <code>w</code> là tổ tiên của cả <code>u</code> lẫn <code>v</code>, và trong mọi tổ tiên chung thì <code>w</code> có độ sâu lớn nhất.</p>
       <p>LCA hiếm khi là đích cuối. Nó là bước trung gian: có LCA rồi thì khoảng cách hai đỉnh tính ngay được bằng</p>
       <div class="formula">dist(u,v) = depth[u] + depth[v] − <b>2</b>·depth[LCA]</div>
       <p style="margin-bottom:0">Còn nhiều bài khác quy về LCA: đỉnh trên đường đi, truy vấn cây con, k-th ancestor…</p>
     </div>
-    <div class="card hi">
+    <div class="box tech">
       <h3>Cách ngây thơ và giới hạn của nó</h3>
       <p>Đưa hai đỉnh về cùng độ sâu, rồi cho cùng bò lên từng bước tới khi gặp nhau.</p>
       <ul class="tick">
@@ -318,11 +309,11 @@
 <section id="bang-up">
   <div class="sec-head">
     <div class="eyebrow">Phần 2</div>
-    <h2>Bảng nâng nhị phân <code>up[u][j]</code></h2>
+    <h2 id="s2"><span class="num">2.</span>Bảng nâng nhị phân</h2>
     <p class="lead"><code>up[u][j]</code> = tổ tiên cách <code>u</code> đúng <strong>2ʲ</strong> bước lên phía gốc. Đây là toàn bộ "bộ nhớ" cho phép nhảy nhanh.</p>
   </div>
   <div class="grid2">
-    <div class="card">
+    <div class="box tech">
       <h3>Quy hoạch động hai dòng</h3>
       <p><strong>Cơ sở</strong> — nhảy 2⁰ = 1 bước chính là đi tới cha trực tiếp:</p>
       <div class="formula">up[u][<b>0</b>] = cha của u</div>
@@ -330,12 +321,12 @@
       <div class="formula">up[u][j] = up[ up[u][j−1] ][ j−1 ]</div>
       <p style="margin-bottom:0">Nửa đầu đưa <code>u</code> tới điểm giữa; nửa sau đi nốt. Hai lần nhảy <code>2ʲ⁻¹</code> ghép lại đúng <code>2ʲ</code>.</p>
     </div>
-    <div class="card hi">
+    <div class="box tech">
       <h3>Chọn hằng số LOG</h3>
       <p>Cần <code>LOG</code> sao cho <code>2^LOG</code> vượt chiều cao cây tối đa. Với <code>N ≤ 10⁵</code>:</p>
       <div class="formula">2¹⁷ = 131072 &gt; 10⁵ &nbsp;⟹&nbsp; LOG = 20 <b>(dư ra cho an toàn)</b></div>
       <p>Bảng có kích thước <code>N × LOG</code>, tốn <strong>O(N log N)</strong> bộ nhớ.</p>
-      <div class="note blue" style="margin-bottom:0">
+      <div class="box def" style="margin-bottom:0">
         <h3>Thứ tự tính rất quan trọng</h3>
         <p style="margin-bottom:0">Vòng ngoài chạy theo <code>j</code> (cột), vòng trong theo <code>i</code> (đỉnh). Khi tính cột <code>j</code>, mọi giá trị ở cột <code>j−1</code> đã sẵn sàng cho <em>mọi</em> đỉnh — đó là điều kiện để công thức chuyển trạng thái dùng được.</p>
       </div>
@@ -376,12 +367,12 @@
 <section id="truy-van">
   <div class="sec-head">
     <div class="eyebrow">Phần 3</div>
-    <h2>Truy vấn LCA(u, v)</h2>
+    <h2 id="s3"><span class="num">3.</span>Truy vấn LCA(u, v)</h2>
     <p class="lead">Ba nhịp: cân bằng độ sâu → kiểm tra trùng → nhảy đồng thời tới sát dưới LCA.</p>
   </div>
 
   <div class="grid2" style="margin-bottom:26px">
-    <div class="card">
+    <div class="box tech">
       <ol class="steps">
         <li><strong>Cân bằng độ sâu.</strong> Giả sử <code>depth[u] &gt; depth[v]</code>. Nâng <code>u</code> lên đúng <code>depth[u]−depth[v]</code> bước, phân tích hiệu này thành tổng các <code>2ʲ</code> (duyệt các bit 1). Xong bước này hai đỉnh cùng độ sâu.</li>
         <li><strong>Trùng nhau?</strong> Nếu giờ <code>u == v</code> thì <code>v</code> là tổ tiên của <code>u</code> — trả về luôn.</li>
@@ -389,8 +380,8 @@
         <li><strong>Kết luận.</strong> Hết vòng lặp, <code>u</code> và <code>v</code> đứng sát ngay dưới LCA. Đáp án là cha chung: <code>up[u][0]</code>.</li>
       </ol>
     </div>
-    <div class="card hi">
-      <div class="note">
+    <div class="box tech">
+      <div class="box def">
         <h3>Vì sao nhảy khi <em>khác nhau</em>, dừng khi <em>giống nhau</em>?</h3>
         <p>Nghe ngược trực giác, nhưng đây là mấu chốt. Ta muốn dừng ở <strong>hai đỉnh con của LCA</strong>, cao nhất có thể mà vẫn chưa chạm LCA.</p>
         <p style="margin-bottom:0"><code>up[u][j] == up[v][j]</code> nghĩa là cú nhảy <code>2ʲ</code> đưa cả hai về <em>một</em> tổ tiên chung — có thể chính là LCA hoặc cao hơn. Nhảy vào đó là mất dấu ranh giới. Nên ta chỉ nhảy khi kết quả <strong>vẫn khác nhau</strong> (chắc chắn còn dưới LCA), dồn dần khoảng cách tới LCA về 0 theo kiểu nhị phân.</p>
@@ -440,11 +431,11 @@
 <section id="cai-dat">
   <div class="sec-head">
     <div class="eyebrow">Phần 4</div>
-    <h2>Cài đặt đầy đủ</h2>
+    <h2 id="s4"><span class="num">4.</span>Cài đặt đầy đủ</h2>
     <p class="lead">Ba khối: <code>dfs</code> lấy độ sâu và cột <code>j=0</code>, <code>build</code> điền phần còn lại, <code>get_lca</code> trả lời truy vấn.</p>
   </div>
-  <pre><code id="fullcode"></code></pre>
-  <div class="note blue">
+  <div class="codewrap noname"><pre><code id="fullcode"></code></pre></div>
+  <div class="box def">
     <h3>Chi tiết dễ vấp</h3>
     <p style="margin-bottom:0">Gốc quy ước <code>up[root][0] = root</code> (cha của gốc là chính nó) để công thức không vượt mảng. Trong <code>get_lca</code>, bước cân bằng độ sâu đọc các bit của <code>diff</code> bằng <code>(diff &gt;&gt; j) &amp; 1</code>; bước nhảy đồng thời chạy <code>j</code> từ cao xuống 0 và chỉ nhảy khi hai tổ tiên <strong>khác nhau</strong>.</p>
   </div>
@@ -454,20 +445,20 @@
 <section id="do-phuc-tap">
   <div class="sec-head">
     <div class="eyebrow">Phần 5</div>
-    <h2>Độ phức tạp</h2>
+    <h2 id="s5"><span class="num">5.</span>Độ phức tạp</h2>
   </div>
   <div class="grid2">
-    <div class="card">
+    <div class="box tech">
       <h3>Thời gian</h3>
-      <table>
+      <div class="tablewrap"><table>
         <tr><th>Giai đoạn</th><th>Chi phí</th></tr>
         <tr><td>DFS (độ sâu, cột j=0)</td><td><code>O(N)</code></td></tr>
         <tr><td>build() điền up[][]</td><td><code>O(N log N)</code></td></tr>
         <tr><td>Mỗi truy vấn LCA</td><td><code>O(log N)</code></td></tr>
         <tr><td><strong>Tổng với Q truy vấn</strong></td><td><code>O((N+Q) log N)</code></td></tr>
-      </table>
+      </table></div>
     </div>
-    <div class="card">
+    <div class="box tech">
       <h3>Bộ nhớ</h3>
       <p>Mảng tĩnh <code>up[100005][20]</code> cùng danh sách kề chiếm <strong>O(N log N)</strong>.</p>
       <p style="margin-bottom:0">Với <code>N = 10⁵</code>, <code>LOG = 20</code>: bảng <code>up</code> có <code>2·10⁶</code> số nguyên ≈ 8 MB — an toàn trên hầu hết hệ chấm. So với cách ngây thơ <code>O(N)</code>/truy vấn, nâng nhị phân đổi một chút bộ nhớ lấy tốc độ truy vấn theo logarit.</p>
@@ -475,44 +466,9 @@
   </div>
 </section>
 
-<footer>
-  Chuyên đề <b>LCA — Nâng nhị phân</b> · Biên soạn theo tài liệu của thầy Phan Văn Việt, THPT Chuyên Vĩnh Phúc · Trang tương tác chạy hoàn toàn trong trình duyệt, không cần internet.
-</footer>
 </div>
 
 <script>
-/* =====================================================================
-   BỘ ĐẾM TRUY CẬP
-   - Online: đếm chung mọi khách qua CountAPI (một lần mỗi lần tải trang).
-   - Offline / API lỗi: lùi về đếm cục bộ bằng localStorage trên máy này.
-   ===================================================================== */
-(function(){
-  const el=document.getElementById('visitCount');
-  const label=el.closest('.visits');
-  const fmt=n=>Number(n).toLocaleString('vi-VN');
-  function show(n,localOnly){
-    el.textContent=fmt(n);
-    el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');
-    if(localOnly) label.title='Lượt xem trên thiết bị này (không kết nối được máy chủ đếm)';
-  }
-  function localFallback(){
-    try{
-      const k='lca_visits';
-      const n=(parseInt(localStorage.getItem(k)||'0',10)||0)+1;
-      localStorage.setItem(k,n);
-      show(n,true);
-    }catch(e){ el.textContent='—'; }
-  }
-  // namespace + key riêng cho trang này
-  const url='https://api.countapi.xyz/hit/cvpoi.vercel.app/lca';
-  const ctrl=('AbortController'in window)?new AbortController():null;
-  const to=ctrl?setTimeout(()=>ctrl.abort(),4000):null;
-  fetch(url,{signal:ctrl?ctrl.signal:undefined})
-    .then(r=>{ if(!r.ok) throw new Error('bad'); return r.json(); })
-    .then(d=>{ if(to)clearTimeout(to); if(d&&typeof d.value==='number') show(d.value,false); else localFallback(); })
-    .catch(()=>{ if(to)clearTimeout(to); localFallback(); });
-})();
-
 
 /* =====================================================================
    CÂY MẪU (theo tài liệu): gốc 1
@@ -657,7 +613,7 @@ function buildTreeSVG(svg, opts={}){
   buildTreeSVG(svg,{pfx:'b_'});
 
   function drawTable(){
-    let h='<table><tr><th>đỉnh u</th>';
+    let h='<div class="tablewrap"><table><tr><th>đỉnh u</th>';
     for(let j=0;j<LOGV;j++) h+='<th>up[u]['+j+']<br><span style="color:#5A6B8F">2^'+j+'</span></th>';
     h+='</tr>';
     NODES.forEach(u=>{
@@ -670,7 +626,7 @@ function buildTreeSVG(svg, opts={}){
       }
       h+='</tr>';
     });
-    h+='</table>';
+    h+='</table></div>';
     tblBox.innerHTML=h;
   }
   function initCur(){
@@ -987,5 +943,15 @@ function buildTreeSVG(svg, opts={}){
   }).join('');
 })();
 </script>
+</div>
+
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

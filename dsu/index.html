@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Chuyên đề: Cấu trúc dữ liệu các tập rời rạc (DSU)</title>
+<title>Các tập rời rạc (DSU) | Lý thuyết CP</title>
 <style>
 :root{
   --is-dark:0;
@@ -197,8 +197,18 @@ pre code{font-family:"Noto Sans Mono","Consolas",ui-monospace,"Courier New",mono
 
 footer{margin-top:56px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted); font-size:.9rem}
 </style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Hợp nhất hai tập, tìm gốc, nén đường đi và hợp theo hạng.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Các tập rời rạc (DSU) | Lý thuyết CP">
+<meta property="og:description" content="Hợp nhất hai tập, tìm gốc, nén đường đi và hợp theo hạng.">
+<!--/cv-head-->
 </head>
-<body>
+<body class="cv-side">
 <button class="themebtn" id="tg">Nền sáng / tối</button>
 
 <aside class="side">
@@ -217,6 +227,14 @@ footer{margin-top:56px; padding-top:18px; border-top:1px solid var(--border); co
 
 <div class="main">
 <div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb">Cấu trúc dữ liệu<span class="cv-sep">/</span><span class="cv-here">Các tập rời rạc (DSU)</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
 
 <header>
   <div class="kicker">Chuyên đề Lập trình thi đấu</div>
@@ -1116,11 +1134,6 @@ int main() {
 
 <p>Một lời khuyên cuối: DSU chuẩn ngắn tới mức nhiều bạn chép thuộc lòng mà không hiểu, rồi lúng túng ngay khi đề đổi một chi tiết nhỏ. Hãy chắc rằng bạn giải thích được vì sao phải treo cây nhỏ vào cây lớn, và vì sao <code class="inl">par[x]</code> tự nó không có nghĩa gì.</p>
 
-<footer>
-  Chuyên đề Lập trình thi đấu — Cấu trúc dữ liệu các tập rời rạc (DSU) · Phan Văn Việt, Trường THPT Chuyên Vĩnh Phúc.
-  Toàn bộ mã nguồn trong tài liệu đã được biên dịch bằng <code class="inl">g++ -std=c++14 -O2 -Wall</code> và chạy kiểm chứng.
-</footer>
-
 </div>
 </div>
 
@@ -1216,5 +1229,12 @@ int main() {
   highlight();
 })();
 </script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

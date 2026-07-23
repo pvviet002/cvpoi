@@ -3,30 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lời giải: Hái táo</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
-            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
-            --text-main: #E2E8F0; --text-muted: #94A3B8;
-            --glow: 0 0 20px rgba(56,214,196,.4);
-            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
-            --border: 1px solid rgba(255,255,255,.1);
-        }
-        body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text-main); font-family: 'Inter', sans-serif; line-height: 1.6; }
-        h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.03em; color: #fff; margin-top: 0; }
+    <title>Lời giải: Hái táo | Lý thuyết CP</title>
+    <script src="../../../assets/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="../../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --text-main: var(--fg);
+  --text-muted: var(--muted);
+  --glow: none;
+  --shadow: none;
+  --border: var(--border);
+}
         
         .topnav { position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center; padding: 12px 20px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px); border-bottom: var(--border); }
-        .nav-btn { text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent)); padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease; }
         .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
         .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
-
-        .container { max-width: 1000px; margin: 0 auto; padding: 30px 24px; display: flex; flex-direction: column; gap: 40px; }
         @media (max-width: 768px) { .container { padding: 20px 16px; } }
         
         .card { background: linear-gradient(180deg, var(--panel), var(--bg2)); border: var(--border); border-radius: 16px; box-shadow: var(--shadow); padding: 24px; overflow: hidden; }
@@ -40,7 +39,7 @@
         .copy-btn:hover, .snap-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(56,214,196,.1); }
         .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
 
-        .code-container { background: #0A1220; border: var(--border); border-radius: 12px; overflow-x: auto; padding: 16px; font-family: "JetBrains Mono", monospace; font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; }
+        .code-container { background: var(--code-bg); border: var(--border); border-radius: 12px; overflow-x: auto; padding: 16px; font-family: "JetBrains Mono", monospace; font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; }
         .codeline { display: block; padding-left: 8px; border-left: 3px solid transparent; }
         .codeline.hot { background: rgba(255,180,84,.1); border-left: 3px solid var(--mark); }
         
@@ -98,16 +97,75 @@
         .timeline-slot.active { border-color: var(--mark); background: rgba(255,180,84,.2); }
         .timeline-slot.far { border-color: var(--accent); background: rgba(56,214,196,.1); }
         .timeline-ptr { position: absolute; bottom: -20px; font-size: 0.8rem; color: var(--accent); font-family: "JetBrains Mono"; transition: left 0.3s;}
-    </style>
+    
+        /* Ép tiêu đề và khối mã theo bảng màu của chuẩn: vài trang còn màu gõ
+           cứng của bản nền tối (h2 màu trắng), sang nền sáng là chữ trắng trên
+           nền trắng — đo được tương phản đúng bằng 1. */
+        h1, h2, h3, h4{color:var(--fg)}
+        h2 .num{color:var(--blue)}
+        pre, .code-line{color:var(--code-fg)}
+        /* Vài trang có quy tắc riêng đặc hiệu hơn (ví dụ .container h2) nên
+           phải dùng !important mới thắng được màu gõ cứng của bản nền tối. */
+        h1, h2, h3, h4{color:var(--fg) !important}
+        h2 .num{color:var(--blue) !important}
+        p, li{color:var(--fg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Hái táo (viet_lvl4_257).">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Hái táo | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Hái táo (viet_lvl4_257).">
+<!--/cv-head-->
 </head>
 <body>
-
-<nav class="topnav">
-    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
-    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../index.html">Cây &amp; LCA</a><span class="cv-sep">/</span><span class="cv-here">Hái táo</span></span>
+  </div>
 </nav>
+<!--/cv-nav-->
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Hái táo</div>
+  <a href="#s1">1. Tóm tắt bài toán</a>
+  <a href="#s2">2. Phân tích ban đầu</a>
+  <a href="#s3">3. Mô-đun 1: Tính khoảng cách siêu tốc trên cây</a>
+  <a href="#s4">4. Mô-đun 2: "Cắt tỉa" nhánh tìm kiếm bằng Độ s…</a>
+  <a href="#s5">5. Mô-đun 3: Ghép nối thuật toán quy hoạch động</a>
+  <a href="#s6">6. Cài đặt (C++)</a>
+  <a href="#s7">7. Độ phức tạp</a>
+  <a href="#s8">8. Cạm bẫy khi cài đặt</a>
+</aside>
+
+<div class="main">
 
 <div class="container">
+<div class="box tech">
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt bài toán</a></li>
+    <li><a href="#s2">Phân tích ban đầu</a></li>
+    <li><a href="#s3">Mô-đun 1: Tính khoảng cách siêu tốc trên cây</a></li>
+    <li><a href="#s4">Mô-đun 2: "Cắt tỉa" nhánh tìm kiếm bằng Độ s…</a></li>
+    <li><a href="#s5">Mô-đun 3: Ghép nối thuật toán quy hoạch động</a></li>
+    <li><a href="#s6">Cài đặt (C++)</a></li>
+    <li><a href="#s7">Độ phức tạp</a></li>
+    <li><a href="#s8">Cạm bẫy khi cài đặt</a></li>
+  </ol>
+</nav>
+
     <!-- 3.1 Hero -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
@@ -127,7 +185,7 @@
     <!-- 3.2 Tóm tắt đề -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Tóm tắt bài toán</h2>
+        <h2 id="s1"><span class="num">1.</span>Tóm tắt bài toán</h2>
         <p>Cho một cây gồm <code>n</code> đỉnh, gốc tại đỉnh 1, độ sâu tối đa <code>s</code>. Bạn bắt đầu ở đỉnh 1 tại thời điểm <code>t = 0</code>. Đi qua một cạnh mất 1 giây.</p>
         <p>Có <code>m</code> sự kiện xuất hiện táo. Sự kiện thứ <code>i</code> xảy ra tại thời điểm <code>t<sub>i</sub></code>, ở đỉnh <code>w<sub>i</sub></code> có <code>p<sub>i</sub></code> quả táo. Táo biến mất sau 1 giây. Các <code>t<sub>i</sub></code> phân biệt.</p>
         <p><strong>Yêu cầu:</strong> Tìm số táo tối đa có thể hái được.</p>
@@ -144,7 +202,7 @@
     <!-- 3.3 Phân tích ban đầu -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Phân tích ban đầu</h2>
+        <h2 id="s2"><span class="num">2.</span>Phân tích ban đầu</h2>
         <p>Sắp xếp các sự kiện tăng dần theo thời gian <code>t<sub>i</sub></code>. Gọi <code>DP[i]</code> là số táo lớn nhất hái được nếu ta chọn hái táo ở sự kiện thứ <code>i</code>.</p>
         <p>Để tính <code>DP[i]</code>, ta có thể đứng từ một sự kiện <code>j</code> trước đó (với <code>j &lt; i</code>) và di chuyển đến sự kiện <code>i</code>. Điều kiện để đi kịp là: khoảng cách giữa <code>w<sub>j</sub></code> và <code>w<sub>i</sub></code> trên cây không vượt quá chênh lệch thời gian <code>t<sub>i</sub> - t<sub>j</sub></code>.</p>
         <p>Công thức: <code>DP[i] = p<sub>i</sub> + max(DP[j])</code> với mọi <code>j &lt; i</code> thỏa mãn <code>dist(w<sub>j</sub>, w<sub>i</sub>) ≤ t<sub>i</sub> - t<sub>j</sub></code>.</p>
@@ -152,10 +210,10 @@
     </div>
 
     <!-- 3.4 Module 1: Cây và Khoảng Cách -->
-    <div class="card">
+    <div class="box tech">
         <div class="snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Mô-đun 1: Tính khoảng cách siêu tốc trên cây</h2>
+            <h2 id="s3"><span class="num">3.</span>Mô-đun 1: Tính khoảng cách siêu tốc trên cây</h2>
             <p>Để tối ưu, trước tiên ta phải tính được <code>dist(u, v)</code> thật nhanh. Quãng đường ngắn nhất giữa hai đỉnh trên cây luôn đi qua <strong>Tổ tiên chung gần nhất (LCA)</strong> của chúng.</p>
             <p>Công thức khoảng cách: <code>dist(u, v) = depth[u] + depth[v] - 2 × depth[LCA(u, v)]</code> (với <code>depth</code> là độ sâu, gốc có độ sâu 1).</p>
             <p>Sử dụng kỹ thuật Nâng nhị phân (Binary Lifting), ta có thể tìm LCA trong thời gian <code>O(log n)</code> sau khi tiền xử lý mất <code>O(n log n)</code>. Thao tác này đủ nhanh để gọi nhiều lần.</p>
@@ -183,10 +241,10 @@
     </div>
 
     <!-- 3.4 Module 2: Giới hạn tìm kiếm -->
-    <div class="card">
+    <div class="box tech">
         <div class="snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Mô-đun 2: "Cắt tỉa" nhánh tìm kiếm bằng Độ sâu S</h2>
+            <h2 id="s4"><span class="num">4.</span>Mô-đun 2: "Cắt tỉa" nhánh tìm kiếm bằng Độ s…</h2>
             <p>Đây là mấu chốt của bài: đề bài cho độ sâu tối đa <code>s ≤ 1000</code>. Vậy khoảng cách lớn nhất giữa BẤT KỲ hai đỉnh nào trên cây là bao nhiêu? Từ một lá sâu nhất đi lên gốc rồi đi xuống một lá khác, độ dài không vượt quá <code>2 × s</code>.</p>
             <p>Điều đó nghĩa là: nếu chênh lệch thời gian <code>t<sub>i</sub> - t<sub>j</sub> ≥ 2 × s</code>, thì khoảng cách luôn nhỏ hơn hoặc bằng chênh lệch thời gian. Bạn CHẮC CHẮN sẽ kịp di chuyển từ <code>w<sub>j</sub></code> đến <code>w<sub>i</sub></code>, không cần tính <code>dist</code> nữa!</p>
             <p>Vậy khi tính <code>DP[i]</code>, ta chia các sự kiện <code>j &lt; i</code> làm hai nhóm:</p>
@@ -224,10 +282,10 @@
     </div>
 
     <!-- 3.4 Module 3: Mô phỏng toàn vẹn DP -->
-    <div class="card">
+    <div class="box tech">
         <div class="snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Mô-đun 3: Ghép nối thuật toán quy hoạch động</h2>
+            <h2 id="s5"><span class="num">5.</span>Mô-đun 3: Ghép nối thuật toán quy hoạch động</h2>
             <p>Ta khởi tạo một sự kiện ảo: tại thời điểm <code>t=0</code>, đứng ở <code>w=1</code> với 0 táo, <code>DP[0] = 0</code>. Sắp xếp mảng sự kiện (từ 1 đến m) tăng dần theo <code>t</code>.</p>
             <p>Sử dụng con trỏ <code>ptr = 0</code>. Khi xét sự kiện <code>i</code>, ta tăng dần <code>ptr</code> chừng nào <code>t<sub>i</sub> - t<sub>ptr</sub> ≥ 2s</code> và cập nhật <code>max_far = max(max_far, DP[ptr])</code>.</p>
             <p>Sau đó, tính <code>DP[i] = max_far + p<sub>i</sub></code>, rồi lùi <code>j</code> từ <code>i-1</code> về <code>ptr</code>, nếu <code>dist(w<sub>j</sub>, w<sub>i</sub>) ≤ t<sub>i</sub> - t<sub>j</sub></code> thì <code>DP[i] = max(DP[i], DP[j] + p<sub>i</sub>)</code>.</p>
@@ -235,12 +293,12 @@
 
             <div class="lab-ui" id="lab3-ui">
                 <div class="lab-visual" style="flex-direction: column; align-items: stretch; padding: 10px;">
-                    <table id="lab3-table">
+                    <div class="tablewrap"><table id="lab3-table">
                         <thead><tr><th>i</th><th>Thời điểm (t)</th><th>Đỉnh (w)</th><th>Táo (p)</th><th>DP[i]</th></tr></thead>
                         <tbody id="lab3-tbody">
                             <!-- JS fill -->
                         </tbody>
-                    </table>
+                    </table></div>
                     <div style="display: flex; justify-content: space-between; margin-top: 10px; font-family: 'JetBrains Mono'; font-size: 0.9rem;">
                         <div id="lab3-vars" style="color:var(--accent);">ptr = 0 | max_far = 0</div>
                         <div id="lab3-dist" style="color:var(--mark);"></div>
@@ -317,7 +375,7 @@
     <!-- 3.5 Cài đặt -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Cài đặt (C++)</h2>
+        <h2 id="s6"><span class="num">6.</span>Cài đặt (C++)</h2>
         <div class="codewrap">
             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
             <div class="code-container"><div class="code" id="cpp-code"></div></div>
@@ -327,7 +385,7 @@
     <!-- 3.6 Độ phức tạp -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Độ phức tạp</h2>
+        <h2 id="s7"><span class="num">7.</span>Độ phức tạp</h2>
         <p><strong>Thời gian:</strong></p>
         <ul>
             <li>Tiền xử lý LCA: <code>O(n log n)</code>.</li>
@@ -341,8 +399,8 @@
     <!-- 3.7 Cạm bẫy -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Cạm bẫy khi cài đặt</h2>
-        <div class="pitfalls">
+        <h2 id="s8"><span class="num">8.</span>Cạm bẫy khi cài đặt</h2>
+        <div class="box warn">
             <div class="pitfall-box wrong">
                 <h4>✕ Bỏ qua việc kiểm tra đến được từ gốc</h4>
                 <p>Nhiều bạn quên gắn sự kiện ảo xuất phát tại <code>t=0</code>, khiến thuật toán mặc định có thể hái quả táo đầu tiên mà không kiểm tra xem từ gốc (thời điểm 0) đi đến đỉnh đó có kịp trước khi nó rụng không.</p>
@@ -825,5 +883,16 @@ int main() {
         lab3.init();
     };
 </script>
+
+</div>
+
+<script src="../../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

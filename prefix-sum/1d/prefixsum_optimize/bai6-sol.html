@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lời giải: Đoạn con tổng lớn nhất không vượt quá S | Lý thuyết CP</title>
+<link rel="stylesheet" href="../../../assets/chuan.css">
+<style>
+/* Chỉ còn hình SVG, công thức và danh sách 10 bài của chương. */
+.formula{text-align:center;margin:14px 0;font-size:1.05rem;padding:8px 4px;overflow-x:auto}
+code.inline{font-family:"Cascadia Mono",Consolas,"Noto Sans Mono",monospace;font-size:.88em;
+background:color-mix(in srgb,var(--fg) 8%,transparent);padding:1px 5px;border-radius:4px}
+.dsbai{margin-top:14px;padding-top:10px;border-top:1px solid var(--border)}
+.dsbai a{padding:3px 8px 3px 8px;font-size:12.6px}
+.dsbai a.here{color:var(--fg);font-weight:700}
+.dsbai .lb{font-size:11.5px;color:var(--muted);text-transform:uppercase;
+letter-spacing:.05em;margin-bottom:5px}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Đoạn con tổng lớn nhất không vượt quá S.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Đoạn con tổng lớn nhất không vượt quá S | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Đoạn con tổng lớn nhất không vượt quá S.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Đoạn con tổng lớn nhất không vượt quá S</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Kiến thức nền tảng: Hai con trỏ trên dãy k…</a>
+  <a href="#s3">3. Mức 1 — Thử mọi đoạn con (Subtask 1: N ≤ 1…</a>
+  <a href="#s4">4. Mức 2 — Cửa sổ trượt nhờ tính đơn điệu (Su…</a>
+  <a href="#s5">5. Tổ chức dữ liệu và ý nghĩa các biến</a>
+  <a href="#s6">6. Thuật toán từng bước</a>
+  <a href="#s7">7. Đánh giá độ phức tạp</a>
+  <a href="#s8">8. Tự cài đặt</a>
+
+<div class="dsbai">
+		<div class="lb">10 bài của chương</div>
+		<a href="bai1-sol.html">1. Tổng lớn nhất</a>
+		<a href="bai2-sol.html">2. Độ dài tối thiểu</a>
+		<a href="bai3-sol.html">3. Xóa một phần tử</a>
+		<a href="bai4-sol.html">4. Trung bình ≥ X</a>
+		<a href="bai5-sol.html">5. Hai đoạn rời nhau</a>
+		<a href="bai6-sol.html" class="here">6. Tổng ≤ S</a>
+		<a href="bai7-sol.html">7. Chia hết cho K</a>
+		<a href="bai8-sol.html">8. Độ dài trong [L,R]</a>
+		<a href="bai9-sol.html">9. Chia gấp khúc</a>
+		<a href="bai10-sol.html">10. Trung bình lớn nhất</a>
+	</div>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../index.html">Tổng tiền tố</a><span class="cv-sep">/</span><span class="cv-here">Tổng lớn nhất không vượt quá S</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Đoạn con tổng lớn nhất không vượt quá S</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Kiến thức nền tảng: Hai con trỏ trên dãy k…</a></li>
+    <li><a href="#s3">Mức 1 — Thử mọi đoạn con (Subtask 1: N ≤ 1…</a></li>
+    <li><a href="#s4">Mức 2 — Cửa sổ trượt nhờ tính đơn điệu (Su…</a></li>
+    <li><a href="#s5">Tổ chức dữ liệu và ý nghĩa các biến</a></li>
+    <li><a href="#s6">Thuật toán từng bước</a></li>
+    <li><a href="#s7">Đánh giá độ phức tạp</a></li>
+    <li><a href="#s8">Tự cài đặt</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
+<section class="box def">
+<div class="body">
+<p><b>Yêu cầu:</b> Cho dãy <var>N</var> số nguyên <b>không âm</b> và số <var>S</var>. Tìm tổng lớn nhất của một đoạn con khác rỗng sao cho tổng đó <b>không vượt quá <var>S</var></b>. Nếu mọi đoạn đều vượt, in <var>-1</var>. <br>
+		<b>Giới hạn:</b></p>
+<ul><li><var>1 &le; N &le; 2 &times; 10<sup>5</sup></var></li><li><var>0 &le; S &le; 10<sup>18</sup></var>, <var>0 &le; a<sub>i</sub> &le; 10<sup>9</sup></var></li></ul>
+<p>
+		<b>Quy ước ký hiệu:</b> cửa sổ đang xét viết là <var>[l, r]</var> với <var>l</var> là con trỏ trái, <var>r</var> là con trỏ phải.</p>
+</div>
+</section>
+
+<h2 id="s2"><span class="num">2.</span>Kiến thức nền tảng: Hai con trỏ trên dãy không âm</h2>
+<section class="box def">
+<div class="body">
+<p>Ràng buộc <b>mọi <var>a<sub>i</sub> &ge; 0</var></b> là chìa khóa của cả bài. Nó cho ta hai tính chất:</p>
+<ul><li>Mở rộng cửa sổ sang phải thì tổng <b>chỉ tăng</b> (hoặc giữ nguyên).</li><li>Thu hẹp cửa sổ từ trái thì tổng <b>chỉ giảm</b> (hoặc giữ nguyên).</li></ul>
+<p>Tính đơn điệu ấy cho phép dùng <b>hai con trỏ</b>: giữ một cửa sổ <var>[l, r]</var>, mỗi bước đẩy <var>r</var> sang phải một ô, rồi đẩy <var>l</var> tiến tới chừng nào tổng còn vượt ngưỡng.</p>
+<p>Điểm quan trọng: <b>cả hai con trỏ chỉ đi tiến, không bao giờ lùi</b>. Vì thế dù có hai vòng lặp lồng nhau, tổng số bước vẫn chỉ là <var>2N</var> &mdash; chi phí <var>O(N)</var> chứ không phải <var>O(N<sup>2</sup>)</var>.</p>
+<p><b>Code mẫu (khung hai con trỏ):</b></p>
+<div class="codewrap noname"><pre><code>int l = 1;
+long long tong = 0;
+for (int r = 1; r &lt;= n; r++) {
+	tong += a[r];
+	while (tong &gt; s &amp;&amp; l &lt;= r) {
+		tong -= a[l];
+		l++;
+	}
+	// cua so [l, r] hien tai co tong khong vuot S
+}</code></pre></div>
+</div>
+</section>
+
+<h2 id="s3"><span class="num">3.</span>Mức 1 &mdash; Thử mọi đoạn con (Subtask 1: <var>N &le; 10<sup>3</sup></var>)</h2>
+<section class="box tech">
+<div class="body">
+<p>Dựng mảng cộng dồn rồi duyệt mọi cặp <var>(l, r)</var>, giữ tổng lớn nhất trong các tổng không vượt <var>S</var>.</p>
+<p>Chi phí <var>O(N<sup>2</sup>)</var>. Với <var>N &le; 10<sup>3</sup></var> là <var>10<sup>6</sup></var> phép tính, chạy tốt. Với <var>N = 2 &times; 10<sup>5</sup></var> thì thành <var>4 &times; 10<sup>10</sup></var> &mdash; quá tầm.</p>
+</div>
+</section>
+
+<h2 id="s4"><span class="num">4.</span>Mức 2 &mdash; Cửa sổ trượt nhờ tính đơn điệu (Subtask 2)</h2>
+<section class="box tech">
+<div class="body">
+<p><b>Quan sát mấu chốt.</b> Cố định điểm cuối <var>r</var>. Trong các đoạn kết thúc tại <var>r</var> mà tổng không vượt <var>S</var>, ta muốn đoạn có tổng <i>lớn nhất</i>.</p>
+<p>Vì mọi phần tử không âm, đoạn càng dài thì tổng càng lớn. Vậy đoạn tốt nhất kết thúc tại <var>r</var> chính là đoạn <b>dài nhất</b> còn thỏa điều kiện &mdash; tức là kéo <var>l</var> về trái xa nhất có thể.</p>
+<p>Đây là chỗ đẹp của bài: hai mục tiêu &ldquo;tổng lớn nhất&rdquo; và &ldquo;dài nhất&rdquo; <i>trùng nhau</i>, nên chỉ cần một cửa sổ duy nhất là đủ, không phải thử nhiều phương án.</p>
+<figure>
+<svg viewBox="0 0 620 130" role="img" aria-label="Cả hai con trỏ chỉ đi tiến nên tổng chi phí là O(N)">
+
+<rect class="sv-cell" x="40" y="45" width="500" height="46"/>
+<g stroke="var(--rule)" stroke-width="1">
+<line x1="90" y1="45" x2="90" y2="91"/><line x1="140" y1="45" x2="140" y2="91"/>
+<line x1="190" y1="45" x2="190" y2="91"/><line x1="240" y1="45" x2="240" y2="91"/>
+<line x1="290" y1="45" x2="290" y2="91"/><line x1="340" y1="45" x2="340" y2="91"/>
+<line x1="390" y1="45" x2="390" y2="91"/><line x1="440" y1="45" x2="440" y2="91"/>
+<line x1="490" y1="45" x2="490" y2="91"/>
+</g>
+<rect class="sv-hi" x="190" y="45" width="250" height="46"/>
+<text class="sv-t" x="315" y="74">tổng &le; S</text>
+<text class="sv-i" x="190" y="108">l</text><text class="sv-i" x="440" y="108">r</text>
+<line x1="195" y1="30" x2="265" y2="30" stroke="var(--orange)" stroke-width="2"/>
+<polygon points="272,30 262,25 262,35" fill="var(--orange)"/>
+<text class="sv-o" x="230" y="22" text-anchor="middle">l chỉ tiến</text>
+<line x1="445" y1="30" x2="515" y2="30" stroke="var(--blue)" stroke-width="2"/>
+<polygon points="522,30 512,25 512,35" fill="var(--blue)"/>
+<text class="sv-l" x="480" y="22" text-anchor="middle" style="fill:var(--blue)">r chỉ tiến</text>
+
+</svg>
+<figcaption>Dãy không âm nên cả hai con trỏ chỉ đi tiến — tổng chi phí <var>O(N)</var>.</figcaption>
+</figure>
+<p><b>Vì sao đẩy <var>l</var> mà không sợ mất nghiệm.</b> Khi tổng vượt <var>S</var>, mọi đoạn bắt đầu từ <var>l</var> và kết thúc tại <var>r</var> hay xa hơn đều vượt (vì phần tử không âm). Nên bỏ hẳn <var>l</var> đi là an toàn.</p>
+<p><b>Nếu dãy được phép có số âm thì sao?</b> Tiền tố hết đơn điệu, hai con trỏ hỏng ngay: đẩy <var>l</var> đi có thể làm mất một nghiệm tốt ở phía sau. Khi đó phải quay về công cụ khác (cây tìm kiếm, hoặc sắp xếp tiền tố rồi chặt nhị phân). Ràng buộc &ldquo;không âm&rdquo; trong đề chính là thứ mở ra lối đi ngắn này.</p>
+<p><b>Chú ý biên.</b> Phải kiểm tra cửa sổ còn khác rỗng (<code class="inline">l <= r</code>) trước khi cập nhật đáp án. Nếu một phần tử đơn lẻ đã lớn hơn <var>S</var> thì cửa sổ bị đẩy thành rỗng, và trường hợp ấy không được tính &mdash; đó cũng là lúc đáp án có thể phải là <var>-1</var>.</p>
+<p>
+		<b>Chạy tay ví dụ trong đề</b> với <var>N = 4</var>, <var>S = 6</var>, dãy <var>2, 1, 4, 3</var>:</p>
+<div class="tablewrap"><table><thead><tr><th><var>r</var></th><th><var>a<sub>r</sub></var></th><th><code class="inline">tong</code> sau khi cộng</th><th>Đẩy <var>l</var>?</th><th>Cửa sổ</th><th><code class="inline">ans</code></th></tr></thead><tbody><tr><td><var>1</var></td><td><var>2</var></td><td><var>2</var></td><td>không</td><td><var>[1, 1]</var></td><td><var>2</var></td></tr><tr><td><var>2</var></td><td><var>1</var></td><td><var>3</var></td><td>không</td><td><var>[1, 2]</var></td><td><var>3</var></td></tr><tr><td><var>3</var></td><td><var>4</var></td><td><var>7 &rarr; 5</var></td><td>có, bỏ <var>a<sub>1</sub></var></td><td><var>[2, 3]</var></td><td><var>5</var></td></tr><tr><td><var>4</var></td><td><var>3</var></td><td><var>8 &rarr; 3</var></td><td>có, bỏ <var>a<sub>2</sub>, a<sub>3</sub></var></td><td><var>[4, 4]</var></td><td><var>5</var></td></tr></tbody></table></div>
+<p>Đáp án là <var>5</var>, ứng với đoạn <var>[2, 3]</var> gồm <var>1 + 4</var>. Khớp đề.</p>
+</div>
+</section>
+
+<h2 id="s5"><span class="num">5.</span>Tổ chức dữ liệu và ý nghĩa các biến</h2>
+<section class="box tech">
+<div class="body">
+<ul><li><code class="inline">n</code>, <code class="inline">s</code>: số phần tử và ngưỡng trên của tổng.</li><li><code class="inline">a</code>: mảng <code class="inline">long long</code> lưu dãy &mdash; cần lưu vì con trỏ <var>l</var> phải trừ lại giá trị cũ.</li><li><code class="inline">tong</code>: tổng các phần tử trong cửa sổ hiện tại.</li><li><code class="inline">l</code>: con trỏ trái của cửa sổ.</li><li><code class="inline">ans</code>: đáp án, khởi tạo <var>-1</var> đúng theo yêu cầu đề.</li></ul>
+<p><b>Về kiểu dữ liệu.</b> Tổng cả dãy tối đa <var>2 &times; 10<sup>5</sup> &times; 10<sup>9</sup> = 2 &times; 10<sup>14</sup></var> nên <code class="inline">tong</code> phải là <code class="inline">long long</code>. Riêng <var>S</var> được đề cho tới <var>10<sup>18</sup></var> &mdash; lớn hơn nhiều so với mọi tổng có thể đạt &mdash; nên <var>S</var> cũng bắt buộc đọc bằng <code class="inline">long long</code>.</p>
+<p><b>Một nhận xét về ràng buộc.</b> Vì <var>S</var> có thể tới <var>10<sup>18</sup></var> trong khi tổng cả dãy chỉ tới <var>2 &times; 10<sup>14</sup></var>, nhiều bộ dữ liệu sẽ có <var>S</var> lớn hơn cả tổng toàn dãy. Khi đó đáp án đơn giản là tổng của cả dãy &mdash; thuật toán ở trên tự khắc cho ra đúng, không cần xử lý riêng.</p>
+<p><b>Khi nào in <var>-1</var>.</b> Chỉ khi mọi đoạn con khác rỗng đều có tổng vượt <var>S</var>. Vì dãy không âm, điều này tương đương <i>mọi phần tử đều lớn hơn <var>S</var></i>.</p>
+</div>
+</section>
+
+<h2 id="s6"><span class="num">6.</span>Thuật toán từng bước</h2>
+<section class="box ex">
+<div class="body">
+<p><b>Bước 1: Đọc dữ liệu</b></p>
+<ul><li>Đọc <var>N</var>, <var>S</var> và toàn bộ dãy vào mảng <code class="inline">a</code>.</li></ul>
+<p><b>Bước 2: Khởi tạo</b></p>
+<ul><li><code class="inline">ans = -1</code>, <code class="inline">tong = 0</code>, <code class="inline">l = 1</code>.</li></ul>
+<p><b>Bước 3: Cho <var>r</var> chạy từ <var>1</var> đến <var>N</var></b></p>
+<ul><li>Cộng <var>a<sub>r</sub></var> vào <code class="inline">tong</code>.</li><li>Chừng nào <code class="inline">tong > S</code> và <code class="inline">l <= r</code>: trừ <var>a<sub>l</sub></var> ra khỏi <code class="inline">tong</code> rồi tăng <code class="inline">l</code>.</li><li>Nếu <code class="inline">l <= r</code> (cửa sổ khác rỗng): cập nhật <code class="inline">ans = max(ans, tong)</code>.</li></ul>
+<p><b>Bước 4: In kết quả</b></p>
+<ul><li>In giá trị <code class="inline">ans</code> &mdash; tự khắc là <var>-1</var> nếu không có đoạn nào hợp lệ.</li></ul>
+</div>
+</section>
+
+<h2 id="s7"><span class="num">7.</span>Đánh giá độ phức tạp</h2>
+<section class="box cmplx">
+<div class="body">
+<ul><li><b>Thời gian:</b> <var>O(N)</var>. Tuy có vòng <code class="inline">while</code> lồng trong vòng <code class="inline">for</code>, nhưng con trỏ <var>l</var> chỉ đi tiến và không bao giờ vượt quá <var>N</var>, nên tổng số lần thân vòng <code class="inline">while</code> chạy là nhiều nhất <var>N</var>. Cộng lại khoảng <var>4 &times; 10<sup>5</sup></var> phép tính.</li><li><b>Bộ nhớ:</b> một mảng <code class="inline">long long</code> kích thước <var>N</var>, tốn khoảng <var>1,6</var> MB. Độ phức tạp <var>O(N)</var>.</li></ul>
+</div>
+</section>
+
+<h2 id="s8"><span class="num">8.</span>Tự cài đặt</h2>
+<section class="box ex">
+<div class="body">
+<p>Tài liệu này <b>không kèm mã nguồn hoàn chỉnh</b> &mdash; phần cài đặt dành cho bạn.</p>
+<p>Các bước đã mô tả đầy đủ ở mục <i>Thuật toán từng bước</i>; mục <i>Tổ chức dữ liệu</i> cho biết cần những biến nào, kiểu gì, khởi tạo ra sao. Chỉ cần dịch từng bước ấy sang C++ là xong.</p>
+<p><b>Trước khi nộp, kiểm lại bốn điều:</b></p>
+<ol><li>Mảng khai theo <b>ràng buộc trong đề</b>, không theo số trong ví dụ.</li><li>Tổng có vượt <code class="inline">int</code> không? Nếu <var>N &times; max|a<sub>i</sub>|</var> vượt <var>2 &times; 10<sup>9</sup></var> thì phải dùng <code class="inline">long long</code>.</li><li>Biến đáp án khởi tạo <b>đúng chiều</b> &mdash; xem lại mục Tổ chức dữ liệu.</li><li>Thử tay ca biên: <var>N = 1</var>, và ví dụ trong đề.</li></ol>
+</div>
+</section>
+
+</div>
+
+</div>
+
+<script src="../../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>

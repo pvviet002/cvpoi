@@ -3,32 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mảng Hiệu Số 2D - EduCode Master</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
-            --accent: #38D6C4; --accent2: #5B8CFF;
-            --mark: #FFB454; --red: #FF6B6B; --green: #22C55E;
-            --text-main: #E2E8F0; --text-muted: #94A3B8;
-            --glow: 0 0 20px rgba(56,214,196,.4);
-            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
-            --border: 1px solid rgba(255,255,255,.1);
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg); color: var(--text-main);
-            line-height: 1.6;
-        }
-        
-        /* Typography */
-        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.03em; }
-        h1 { font-size: 3rem; background: linear-gradient(135deg, var(--accent2), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(56,214,196,0.3)); margin-bottom: 0.5rem; }
-        h2 { font-size: 2rem; margin-bottom: 1rem; color: #fff; border-bottom: 2px solid var(--panel); padding-bottom: 0.5rem; }
-        p { margin-bottom: 1rem; }
+    <title>Lời giải: Mảng hiệu số 2D | Lý thuyết CP</title>
+    <link rel="stylesheet" href="../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --text-main: var(--fg);
+  --text-muted: var(--muted);
+  --glow: none;
+  --shadow: none;
+  --border: var(--border);
+}
         code, .c-font { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
         
         /* Navigation */
@@ -39,19 +30,10 @@
             background: rgba(11,18,32,.85); backdrop-filter: blur(10px);
             border-bottom: var(--border);
         }
-        .nav-btn {
-            text-decoration: none; color:#000;
-            background: linear-gradient(135deg, var(--accent2), var(--accent));
-            padding: 8px 18px; border-radius: 8px; font-weight: 600;
-            box-shadow: var(--glow); transition: all .3s ease; cursor: pointer; border: none; font-family: inherit; font-size: 0.95rem;
-        }
         .nav-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
         .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: none; }
         .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
         .nav-btn.outline:hover:not(:disabled) { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
-
-        /* Container & Cards */
-        .container { max-width: 1000px; margin: 0 auto; padding: 2rem 20px; }
         .card {
             background: linear-gradient(180deg, var(--panel) 0%, var(--bg2) 100%);
             border: var(--border); border-radius: 16px;
@@ -61,7 +43,7 @@
         
         /* Code Block */
         .code-block {
-            background: #0A1220; border: var(--border); border-radius: 12px;
+            background: var(--code-bg); border: var(--border); border-radius: 12px;
             padding: 16px; overflow-x: auto; font-family: 'JetBrains Mono', monospace;
         }
         .codeline { white-space: pre-wrap; padding: 2px 8px; border-left: 3px solid transparent; transition: all 0.2s; }
@@ -94,7 +76,7 @@
         .lab-toolbar { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; background: var(--panel); padding: 10px; border-radius: 12px; border: var(--border); }
         .step-counter { margin-left: auto; font-family: 'JetBrains Mono'; color: var(--accent); font-weight: bold; }
         
-        .lab-visual { background: #0A1220; border-radius: 12px; padding: 20px; border: var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 350px;}
+        .lab-visual { background: var(--code-bg); border-radius: 12px; padding: 20px; border: var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 350px;}
         .board-grid { display: grid; grid-template-columns: repeat(6, 45px); gap: 4px; } /* 0 to 5 */
         .b-cell { width: 45px; height: 45px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono'; font-size: 1.1rem; color: var(--text-muted); transition: all 0.2s; position: relative;}
         .b-cell.label { background: transparent; border: none; color: #5C6370; font-size: 0.8rem; }
@@ -124,17 +106,74 @@
         .quiz-opt:hover { background: rgba(255,255,255,0.05); transform: translateX(5px); }
         .quiz-opt.correct { background: rgba(34,197,94,0.15); border-color: var(--green); color: #fff; }
         .quiz-opt.wrong-ans { background: rgba(255,107,107,0.15); border-color: var(--red); color: #fff; }
-        .quiz-exp { display: none; margin-top: 16px; padding: 16px; background: #0A1220; border-radius: 8px; border-left: 4px solid var(--accent2); font-size: 0.95rem; }
-    </style>
+        .quiz-exp { display: none; margin-top: 16px; padding: 16px; background: var(--code-bg); border-radius: 8px; border-left: 4px solid var(--accent2); font-size: 0.95rem; }
+    
+        /* Ép tiêu đề và khối mã theo bảng màu của chuẩn: vài trang còn màu gõ
+           cứng của bản nền tối (h2 màu trắng), sang nền sáng là chữ trắng trên
+           nền trắng — đo được tương phản đúng bằng 1. */
+        h1, h2, h3, h4{color:var(--fg)}
+        h2 .num{color:var(--blue)}
+        pre, .code-line{color:var(--code-fg)}
+        /* Vài trang có quy tắc riêng đặc hiệu hơn (ví dụ .container h2) nên
+           phải dùng !important mới thắng được màu gõ cứng của bản nền tối. */
+        h1, h2, h3, h4{color:var(--fg) !important}
+        h2 .num{color:var(--blue) !important}
+        p, li{color:var(--fg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Mảng hiệu số hai chiều (arr2d_040).">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Mảng hiệu số 2D | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Mảng hiệu số hai chiều (arr2d_040).">
+<!--/cv-head-->
 </head>
 <body>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../index.html">Mảng 2 chiều</a><span class="cv-sep">/</span><span class="cv-here">Mảng hiệu số 2D</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+<button class="themebtn" id="tg">Nền sáng / tối</button>
 
-    <nav class="topnav">
-        <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
-        <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
-    </nav>
+<aside class="side">
+  <div class="hd">Mảng Hiệu Số 2D</div>
+  <a href="#s1">1. Tóm tắt đề bài: Rải bom sơn</a>
+  <a href="#s2">2. Vì sao cần Mảng Hiệu Số 2D?</a>
+  <a href="#s3">3. Cú pháp & Nguyên lý hoạt động</a>
+  <a href="#s4">4. Interactive Lab: Mô phỏng Mảng Hiệu Số</a>
+  <a href="#s5">5. Cạm bẫy thường gặp (Lỗi hay sai)</a>
+  <a href="#s6">6. Kiểm tra nhanh (Quiz)</a>
+</aside>
+
+<div class="main">
+
+    
 
     <div class="container">
+<div class="box tech">
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài: Rải bom sơn</a></li>
+    <li><a href="#s2">Vì sao cần Mảng Hiệu Số 2D?</a></li>
+    <li><a href="#s3">Cú pháp & Nguyên lý hoạt động</a></li>
+    <li><a href="#s4">Interactive Lab: Mô phỏng Mảng Hiệu Số</a></li>
+    <li><a href="#s5">Cạm bẫy thường gặp (Lỗi hay sai)</a></li>
+    <li><a href="#s6">Kiểm tra nhanh (Quiz)</a></li>
+  </ol>
+</nav>
+
         <header class="hero">
             <span class="badge">Cần biết trước: Mảng cộng dồn 1D</span>
             <h1>Mảng Hiệu Số 2D</h1>
@@ -153,7 +192,7 @@
         </header>
 
         <section class="card">
-            <h2>Tóm tắt đề bài: Rải bom sơn</h2>
+            <h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài: Rải bom sơn</h2>
             <p><strong>Đề bài:</strong> Bạn có một mặt phẳng kích thước lớn. Người ta thả N tấm thảm (hình chữ nhật). Hãy đếm xem có bao nhiêu ô trên mặt phẳng bị phủ bởi <em>ít nhất một</em> tấm thảm.</p>
             <div class="grid-2">
                 <div>
@@ -179,7 +218,7 @@ Thảm 2: (3,3) tới (4,5)
         </section>
 
         <section class="card">
-            <h2>Vì sao cần Mảng Hiệu Số 2D?</h2>
+            <h2 id="s2"><span class="num">2.</span>Vì sao cần Mảng Hiệu Số 2D?</h2>
             <div class="grid-2">
                 <div class="trap-box wrong" style="border: var(--border);">
                     <div class="trap-title">Ác mộng 2 vòng lặp (Ngây thơ)</div>
@@ -206,7 +245,7 @@ Thảm 2: (3,3) tới (4,5)
         </section>
 
         <section class="card">
-            <h2>Cú pháp & Nguyên lý hoạt động</h2>
+            <h2 id="s3"><span class="num">3.</span>Cú pháp & Nguyên lý hoạt động</h2>
             <p>Để thao tác cộng <code class="c-kw">V</code> vào hình chữ nhật từ <code class="c-kw">(x1, y1)</code> đến <code class="c-kw">(x2, y2)</code> chạy đúng, ta làm việc trên một mảng phụ <code class="c-kw">d</code> (khởi tạo bằng 0). Nguyên lý lan truyền của cộng dồn 2D là "từ trên xuống, từ trái sang":</p>
             <ul style="margin-left: 20px; margin-bottom: 16px; color: var(--text-muted);">
                 <li><strong style="color:#fff;">+V tại (x1, y1):</strong> Mở vòi nước. Từ ô này trở về góc dưới-phải, mọi ô đều được cộng V.</li>
@@ -218,7 +257,7 @@ Thảm 2: (3,3) tới (4,5)
         </section>
 
         <section class="card">
-            <h2>Interactive Lab: Mô phỏng Mảng Hiệu Số</h2>
+            <h2 id="s4"><span class="num">4.</span>Interactive Lab: Mô phỏng Mảng Hiệu Số</h2>
             <p style="color: var(--text-muted); margin-bottom: 20px;">Lưới giả lập kích thước 5×5. Có 2 tấm thảm cần rải:<br>Thảm 1: (2,2) đến (3,4) — Thảm 2: (3,3) đến (4,5).</p>
             
             <div class="lab-toolbar">
@@ -263,7 +302,7 @@ Thảm 2: (3,3) tới (4,5)
         </section>
 
         <section class="card">
-            <h2>Cạm bẫy thường gặp (Lỗi hay sai)</h2>
+            <h2 id="s5"><span class="num">5.</span>Cạm bẫy thường gặp (Lỗi hay sai)</h2>
             <div class="grid-2">
                 <div class="trap-box wrong">
                     <div class="trap-title">✕ Sai chỉ số biên</div>
@@ -289,7 +328,7 @@ Thảm 2: (3,3) tới (4,5)
         </section>
 
         <section class="card">
-            <h2>Kiểm tra nhanh (Quiz)</h2>
+            <h2 id="s6"><span class="num">6.</span>Kiểm tra nhanh (Quiz)</h2>
             <p>Tại sao trong mảng hiệu số 2D, tại tọa độ <code>(x2 + 1, y2 + 1)</code> ta lại dùng phép <strong>cộng</strong> <code>+= V</code> thay vì trừ?</p>
             <div id="quiz-options">
                 <div class="quiz-opt" data-correct="false">A. Để nhân đôi giá trị tại góc, giúp tính tổng nhanh hơn.</div>
@@ -561,5 +600,16 @@ Thảm 2: (3,3) tới (4,5)
             };
         });
     </script>
+
+</div>
+
+<script src="../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

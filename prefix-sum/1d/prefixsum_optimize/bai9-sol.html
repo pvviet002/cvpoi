@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lời giải: Chia đường gấp khúc cân bằng | Lý thuyết CP</title>
+<link rel="stylesheet" href="../../../assets/chuan.css">
+<style>
+/* Chỉ còn hình SVG, công thức và danh sách 10 bài của chương. */
+.formula{text-align:center;margin:14px 0;font-size:1.05rem;padding:8px 4px;overflow-x:auto}
+code.inline{font-family:"Cascadia Mono",Consolas,"Noto Sans Mono",monospace;font-size:.88em;
+background:color-mix(in srgb,var(--fg) 8%,transparent);padding:1px 5px;border-radius:4px}
+.dsbai{margin-top:14px;padding-top:10px;border-top:1px solid var(--border)}
+.dsbai a{padding:3px 8px 3px 8px;font-size:12.6px}
+.dsbai a.here{color:var(--fg);font-weight:700}
+.dsbai .lb{font-size:11.5px;color:var(--muted);text-transform:uppercase;
+letter-spacing:.05em;margin-bottom:5px}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Chia đường gấp khúc cân bằng.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Chia đường gấp khúc cân bằng | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Chia đường gấp khúc cân bằng.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Chia đường gấp khúc cân bằng</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Kiến thức nền tảng: Tiền tố dựng trên CẠNH…</a>
+  <a href="#s3">3. Mức 1 — Tính lại hai nhánh cho mỗi điểm cắ…</a>
+  <a href="#s4">4. Mức 2 — Một mảng tiền tố là đủ (Subtask 2)</a>
+  <a href="#s5">5. Tổ chức dữ liệu và ý nghĩa các biến</a>
+  <a href="#s6">6. Thuật toán từng bước</a>
+  <a href="#s7">7. Đánh giá độ phức tạp</a>
+  <a href="#s8">8. Tự cài đặt</a>
+
+<div class="dsbai">
+		<div class="lb">10 bài của chương</div>
+		<a href="bai1-sol.html">1. Tổng lớn nhất</a>
+		<a href="bai2-sol.html">2. Độ dài tối thiểu</a>
+		<a href="bai3-sol.html">3. Xóa một phần tử</a>
+		<a href="bai4-sol.html">4. Trung bình ≥ X</a>
+		<a href="bai5-sol.html">5. Hai đoạn rời nhau</a>
+		<a href="bai6-sol.html">6. Tổng ≤ S</a>
+		<a href="bai7-sol.html">7. Chia hết cho K</a>
+		<a href="bai8-sol.html">8. Độ dài trong [L,R]</a>
+		<a href="bai9-sol.html" class="here">9. Chia gấp khúc</a>
+		<a href="bai10-sol.html">10. Trung bình lớn nhất</a>
+	</div>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../index.html">Tổng tiền tố</a><span class="cv-sep">/</span><span class="cv-here">Chia đường gấp khúc cân bằng</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Chia đường gấp khúc cân bằng</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Kiến thức nền tảng: Tiền tố dựng trên CẠNH…</a></li>
+    <li><a href="#s3">Mức 1 — Tính lại hai nhánh cho mỗi điểm cắ…</a></li>
+    <li><a href="#s4">Mức 2 — Một mảng tiền tố là đủ (Subtask 2)</a></li>
+    <li><a href="#s5">Tổ chức dữ liệu và ý nghĩa các biến</a></li>
+    <li><a href="#s6">Thuật toán từng bước</a></li>
+    <li><a href="#s7">Đánh giá độ phức tạp</a></li>
+    <li><a href="#s8">Tự cài đặt</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
+<section class="box def">
+<div class="body">
+<p><b>Yêu cầu:</b> Cho <var>N</var> điểm nối tiếp nhau thành một đường gấp khúc, độ dài mỗi cạnh đo theo <b>khoảng cách Manhattan</b> <var>|x - x'| + |y - y'|</var>. Chọn một đỉnh <var>k</var> (với <var>1 < k < N</var>) để tách đường thành hai nhánh: nhánh trái từ điểm <var>1</var> đến điểm <var>k</var>, nhánh phải từ điểm <var>k</var> đến điểm <var>N</var>. Cần chọn <var>k</var> sao cho <b>chênh lệch độ dài hai nhánh nhỏ nhất</b>, và in ra chênh lệch đó. <br>
+		<b>Giới hạn:</b></p>
+<ul><li><var>3 &le; N &le; 2 &times; 10<sup>5</sup></var></li><li><var>|x<sub>i</sub>|, |y<sub>i</sub>| &le; 10<sup>9</sup></var></li></ul>
+<p>
+		<b>Quy ước ký hiệu:</b> <var>d<sub>i</sub></var> là độ dài <b>cạnh</b> nối điểm <var>i</var> với điểm <var>i+1</var> (có <var>N-1</var> cạnh). <var>T</var> là tổng độ dài cả đường.</p>
+</div>
+</section>
+
+<h2 id="s2"><span class="num">2.</span>Kiến thức nền tảng: Tiền tố dựng trên CẠNH, không phải trên ĐỈNH</h2>
+<section class="box def">
+<div class="body">
+<p>Đây là điểm dễ sai nhất của bài, nên phải làm rõ ngay từ đầu.</p>
+<p>Đường gấp khúc có <var>N</var> <b>đỉnh</b> nhưng chỉ có <var>N - 1</var> <b>cạnh</b>. Đại lượng ta cần cộng dồn là <i>độ dài cạnh</i>, nên mảng tiền tố chạy trên tập cạnh chứ không phải tập đỉnh.</p>
+<figure>
+<svg viewBox="0 0 620 110" role="img" aria-label="Tiền tố dựng trên cạnh, không phải trên đỉnh">
+
+<line class="sv-ln" x1="60" y1="55" x2="540" y2="55" style="stroke:var(--fg);stroke-width:2"/>
+<g class="sv-dot">
+<circle cx="60" cy="55" r="5"/><circle cx="180" cy="55" r="5"/><circle cx="300" cy="55" r="5"/>
+<circle cx="420" cy="55" r="5"/><circle cx="540" cy="55" r="5"/>
+</g>
+<text class="sv-i" x="60" y="78">1</text><text class="sv-i" x="180" y="78">2</text>
+<text class="sv-i" x="300" y="78">3</text><text class="sv-i" x="420" y="78">4</text><text class="sv-i" x="540" y="78">5</text>
+<text class="sv-o" x="120" y="42" text-anchor="middle">d₁</text>
+<text class="sv-o" x="240" y="42" text-anchor="middle">d₂</text>
+<text class="sv-o" x="360" y="42" text-anchor="middle">d₃</text>
+<text class="sv-o" x="480" y="42" text-anchor="middle">d₄</text>
+<text class="sv-l" x="20" y="59">đỉnh:</text>
+<text class="sv-i" x="580" y="50">5 đỉnh</text><text class="sv-i" x="580" y="66">4 cạnh</text>
+
+</svg>
+<figcaption>Đường gấp khúc có <var>N</var> đỉnh nhưng chỉ <var>N&minus;1</var> cạnh.</figcaption>
+</figure>
+<p><b>Chọn đỉnh <var>k</var> thì nhánh trái gồm những cạnh nào?</b> Nhánh trái đi từ đỉnh <var>1</var> tới đỉnh <var>k</var>, tức gồm các cạnh <var>d<sub>1</sub>, d<sub>2</sub>, &hellip;, d<sub>k-1</sub></var>. Vậy độ dài nhánh trái là
+		<div class="formula">A<sub>k</sub> = d<sub>1</sub> + d<sub>2</sub> + &hellip; + d<sub>k-1</sub>.</div></p>
+<p>Sai một chỉ số ở đây là lệch cả bài. Cách kiểm nhanh: với <var>k = 2</var>, nhánh trái phải gồm đúng một cạnh <var>d<sub>1</sub></var> &mdash; và công thức trên cho đúng như vậy.</p>
+<p><b>Code mẫu (tính độ dài cạnh):</b></p>
+<div class="codewrap noname"><pre><code>for (int i = 1; i &lt; n; i++) {
+	d[i] = llabs(x[i] - x[i + 1]) + llabs(y[i] - y[i + 1]);
+	tong += d[i];
+}</code></pre></div>
+</div>
+</section>
+
+<h2 id="s3"><span class="num">3.</span>Mức 1 &mdash; Tính lại hai nhánh cho mỗi điểm cắt (Subtask 1: <var>N &le; 10<sup>3</sup></var>)</h2>
+<section class="box tech">
+<div class="body">
+<p>Cách nghĩ thẳng: với mỗi đỉnh <var>k</var> từ <var>2</var> đến <var>N-1</var>, cộng lại độ dài nhánh trái và nhánh phải rồi so sánh.</p>
+<p>Mỗi lần cộng tốn <var>O(N)</var>, tổng cộng <var>O(N<sup>2</sup>)</var>. Với <var>N &le; 10<sup>3</sup></var> là <var>10<sup>6</sup></var> phép tính &mdash; chạy tốt. Với <var>N = 2 &times; 10<sup>5</sup></var> thì <var>4 &times; 10<sup>10</sup></var>, quá tầm.</p>
+</div>
+</section>
+
+<h2 id="s4"><span class="num">4.</span>Mức 2 &mdash; Một mảng tiền tố là đủ (Subtask 2)</h2>
+<section class="box tech">
+<div class="body">
+<p><b>Quan sát mấu chốt.</b> Hai nhánh không độc lập: chúng chia nhau đúng tổng <var>T</var> của cả đường. Nếu nhánh trái dài <var>A</var> thì nhánh phải dài <var>T - A</var>, nên chênh lệch là
+		<div class="formula">| A - (T - A) | = | T - 2A |.</div></p>
+<p>Vậy ta không cần tính nhánh phải &mdash; chỉ cần biết <var>A</var> là đủ. Mà <var>A</var> chính là tiền tố của mảng độ dài cạnh, cộng dồn được trong một lượt quét.</p>
+<figure>
+<svg viewBox="0 0 620 150" role="img" aria-label="Chênh lệch hai nhánh bằng |T − 2A|">
+
+<polyline points="80,110 220,110 220,50" fill="none" stroke="var(--green)" stroke-width="3"/>
+<polyline points="220,50 400,50 400,110 520,110" fill="none" stroke="var(--orange)" stroke-width="3"/>
+<g fill="var(--fg)">
+<circle cx="80" cy="110" r="4"/><circle cx="220" cy="110" r="4"/><circle cx="220" cy="50" r="4"/>
+<circle cx="400" cy="50" r="4"/><circle cx="400" cy="110" r="4"/><circle cx="520" cy="110" r="4"/>
+</g>
+<text class="sv-i" x="80" y="130">1</text><text class="sv-i" x="220" y="130">2</text>
+<text class="sv-i" x="204" y="46">3</text><text class="sv-i" x="400" y="40">4</text>
+<text class="sv-i" x="416" y="126">5</text><text class="sv-i" x="520" y="130">6</text>
+<circle cx="220" cy="50" r="11" fill="none" stroke="var(--orange)" stroke-width="2.4"/>
+<text class="sv-o" x="220" y="28" text-anchor="middle">đỉnh cắt k = 3</text>
+<text class="sv-r" x="118" y="90">nhánh trái A</text>
+<text class="sv-o" x="452" y="86">nhánh phải T &minus; A</text>
+
+</svg>
+<figcaption>Nhánh trái dài <var>A</var> thì nhánh phải dài <var>T&minus;A</var>, chênh lệch <var>|T&minus;2A|</var>.</figcaption>
+</figure>
+<p><b>Vì sao không cần chặt nhị phân.</b> Có thể nghĩ tới việc tìm <var>A</var> gần <var>T/2</var> nhất bằng chặt nhị phân, vì tiền tố tăng dần. Nhưng số ứng viên chỉ là <var>N - 2</var>, mà quét hết cũng chỉ tốn <var>O(N)</var> &mdash; bằng đúng chi phí dựng mảng. Chặt nhị phân không nhanh hơn mà lại thêm chỗ sai chỉ số.</p>
+<p><b>Chú ý biên.</b> Ràng buộc <var>1 < k < N</var> nghĩa là <b>mỗi nhánh phải có ít nhất một cạnh</b>. Đỉnh cắt chạy từ <var>2</var> đến <var>N-1</var>, tương ứng chỉ số cạnh của nhánh trái chạy từ <var>1</var> đến <var>N-2</var>. Lấy nhầm biên là tính cả trường hợp một nhánh rỗng &mdash; sai đề.</p>
+<p>
+		<b>Chạy tay ví dụ trong đề</b> với <var>4</var> điểm <var>(0,0), (2,0), (2,3), (5,3)</var>.</p>
+<p>Độ dài các cạnh: <var>d<sub>1</sub> = |0-2| + |0-0| = 2</var>; <var>d<sub>2</sub> = |2-2| + |0-3| = 3</var>; <var>d<sub>3</sub> = |2-5| + |3-3| = 3</var>. Tổng <var>T = 8</var>.</p>
+<div class="tablewrap"><table><thead><tr><th>Đỉnh cắt <var>k</var></th><th>Nhánh trái <var>A</var></th><th>Nhánh phải <var>T - A</var></th><th>Chênh lệch <var>|T - 2A|</var></th></tr></thead><tbody><tr><td><var>2</var></td><td><var>d<sub>1</sub> = 2</var></td><td><var>6</var></td><td><var>|8 - 4| = 4</var></td></tr><tr><td><var>3</var></td><td><var>d<sub>1</sub> + d<sub>2</sub> = 5</var></td><td><var>3</var></td><td><var>|8 - 10| = 2</var></td></tr></tbody></table></div>
+<p>Đáp án là <var>2</var>, khớp đề. Để ý chỉ có hai đỉnh cắt hợp lệ (<var>k = 2</var> và <var>k = 3</var>), đúng như ràng buộc <var>1 < k < N = 4</var>.</p>
+</div>
+</section>
+
+<h2 id="s5"><span class="num">5.</span>Tổ chức dữ liệu và ý nghĩa các biến</h2>
+<section class="box tech">
+<div class="body">
+<ul><li><code class="inline">n</code>: số điểm.</li><li><code class="inline">x</code>, <code class="inline">y</code>: hai mảng <code class="inline">long long</code> lưu tọa độ &mdash; cần lưu vì phải so hai điểm liên tiếp.</li><li><code class="inline">d</code>: mảng <code class="inline">long long</code>, <code class="inline">d[i]</code> là độ dài cạnh nối điểm <var>i</var> với điểm <var>i+1</var>.</li><li><code class="inline">tong</code>: tổng độ dài cả đường, tức <var>T</var>.</li><li><code class="inline">pre</code>: độ dài nhánh trái tích lũy khi quét.</li><li><code class="inline">ans</code>: chênh lệch nhỏ nhất, khởi tạo <var>-1</var> để đánh dấu &ldquo;chưa có giá trị nào&rdquo;.</li></ul>
+<p><b>Về kiểu dữ liệu &mdash; bài này nặng số.</b> Tọa độ tới <var>10<sup>9</sup></var> về giá trị tuyệt đối, nên hiệu hai tọa độ tới <var>2 &times; 10<sup>9</sup></var> và mỗi cạnh dài tới <var>4 &times; 10<sup>9</sup></var> &mdash; <b>đã vượt <code class="inline">int</code> ngay ở một cạnh đơn lẻ</b>. Tổng <var>N - 1</var> cạnh như vậy lên tới <var>8 &times; 10<sup>14</sup></var>.</p>
+<p>Vậy phải khai <code class="inline">long long</code> cho cả tọa độ, độ dài cạnh và tổng. Dùng <code class="inline">llabs</code> thay cho <code class="inline">abs</code> để lấy trị tuyệt đối của <code class="inline">long long</code>.</p>
+<p><b>Vì sao khởi tạo <code class="inline">ans = -1</code>.</b> Chênh lệch luôn là số không âm, nên <var>-1</var> là giá trị &ldquo;không thể có thật&rdquo;, dùng làm dấu hiệu chưa gán lần nào. Cách này gọn hơn việc dùng một hằng số rất lớn, và không sợ chọn nhầm hằng số nhỏ hơn đáp án thật.</p>
+</div>
+</section>
+
+<h2 id="s6"><span class="num">6.</span>Thuật toán từng bước</h2>
+<section class="box ex">
+<div class="body">
+<p><b>Bước 1: Đọc tọa độ</b></p>
+<ul><li>Đọc <var>N</var> rồi đọc <var>N</var> cặp <var>(x<sub>i</sub>, y<sub>i</sub>)</var> vào hai mảng.</li></ul>
+<p><b>Bước 2: Tính độ dài từng cạnh và tổng</b></p>
+<ul><li>Cho <var>i</var> từ <var>1</var> đến <var>N-1</var>: <code class="inline">d[i] = llabs(x[i]-x[i+1]) + llabs(y[i]-y[i+1])</code>.</li><li>Cộng dồn tất cả vào <code class="inline">tong</code>.</li></ul>
+<p><b>Bước 3: Quét tìm chênh lệch nhỏ nhất</b></p>
+<ul><li>Đặt <code class="inline">pre = 0</code>, <code class="inline">ans = -1</code>.</li><li>Cho <var>i</var> từ <var>1</var> đến <var>N-2</var> (ứng với đỉnh cắt <var>k = i + 1</var>): cộng <code class="inline">d[i]</code> vào <code class="inline">pre</code>.</li><li>Tính <code class="inline">lech = llabs(tong - 2 * pre)</code> rồi cập nhật <code class="inline">ans</code> nếu nhỏ hơn (hoặc <code class="inline">ans</code> còn là <var>-1</var>).</li></ul>
+<p><b>Bước 4: In kết quả</b></p>
+<ul><li>In giá trị <code class="inline">ans</code>.</li></ul>
+</div>
+</section>
+
+<h2 id="s7"><span class="num">7.</span>Đánh giá độ phức tạp</h2>
+<section class="box cmplx">
+<div class="body">
+<ul><li><b>Thời gian:</b> hai lượt quét, mỗi lượt <var>O(N)</var> &mdash; tổng cộng <var>O(N)</var>, khoảng <var>4 &times; 10<sup>5</sup></var> phép tính.</li><li><b>Bộ nhớ:</b> ba mảng <code class="inline">long long</code> kích thước <var>N</var>, tốn khoảng <var>4,8</var> MB. Độ phức tạp <var>O(N)</var>.</li></ul>
+</div>
+</section>
+
+<h2 id="s8"><span class="num">8.</span>Tự cài đặt</h2>
+<section class="box ex">
+<div class="body">
+<p>Tài liệu này <b>không kèm mã nguồn hoàn chỉnh</b> &mdash; phần cài đặt dành cho bạn.</p>
+<p>Các bước đã mô tả đầy đủ ở mục <i>Thuật toán từng bước</i>; mục <i>Tổ chức dữ liệu</i> cho biết cần những biến nào, kiểu gì, khởi tạo ra sao. Chỉ cần dịch từng bước ấy sang C++ là xong.</p>
+<p><b>Trước khi nộp, kiểm lại bốn điều:</b></p>
+<ol><li>Mảng khai theo <b>ràng buộc trong đề</b>, không theo số trong ví dụ.</li><li>Tổng có vượt <code class="inline">int</code> không? Nếu <var>N &times; max|a<sub>i</sub>|</var> vượt <var>2 &times; 10<sup>9</sup></var> thì phải dùng <code class="inline">long long</code>.</li><li>Biến đáp án khởi tạo <b>đúng chiều</b> &mdash; xem lại mục Tổ chức dữ liệu.</li><li>Thử tay ca biên: <var>N = 1</var>, và ví dụ trong đề.</li></ol>
+</div>
+</section>
+
+</div>
+
+</div>
+
+<script src="../../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>

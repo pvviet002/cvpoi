@@ -3,31 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lời giải: Ghép thẻ số</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
-            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
-            --text-main: #E2E8F0; --text-muted: #94A3B8;
-            --glow: 0 0 20px rgba(56,214,196,.4);
-            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
-            --border: 1px solid rgba(255,255,255,.1);
-        }
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); line-height: 1.6; }
-        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.03em; margin-bottom: 16px; }
-        p { margin-bottom: 16px; }
+    <title>Lời giải: Ghép thẻ số | Lý thuyết CP</title>
+    <script src="../../assets/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --text-main: var(--fg);
+  --text-muted: var(--muted);
+  --glow: none;
+  --shadow: none;
+  --border: var(--border);
+}
         
         .topnav { position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center; padding: 12px 20px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px); border-bottom: var(--border); }
-        .nav-btn { text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent)); padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease; }
         .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
         .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
-
-        .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px; display: flex; flex-direction: column; gap: 32px; }
         
         .card { background: linear-gradient(180deg, var(--panel), var(--bg2)); border: var(--border); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); }
         .hero { text-align: center; }
@@ -42,7 +40,7 @@
         .copy-btn:hover, .snap-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(56,214,196,.1); }
         .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
 
-        .code-container { background: #0A1220; border: var(--border); border-radius: 12px; overflow-x: auto; font-family: "JetBrains Mono", monospace; font-size: 0.9rem; padding: 16px 0; }
+        .code-container { background: var(--code-bg); border: var(--border); border-radius: 12px; overflow-x: auto; font-family: "JetBrains Mono", monospace; font-size: 0.9rem; padding: 16px 0; }
         .codeline { padding: 0 16px; white-space: pre-wrap; line-height: 1.6; border-left: 3px solid transparent; }
         .codeline.hot { background: rgba(255,180,84,.1); border-left: 3px solid var(--mark); }
         
@@ -96,16 +94,75 @@
         .cmp-row { display: flex; align-items: center; gap: 20px; font-family: "JetBrains Mono", monospace; font-size: 1.2rem; }
         .cmp-val { padding: 8px 16px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.2); border-radius: 6px; }
         .cmp-op { color: var(--mark); font-weight: bold; }
-    </style>
+    
+        /* Ép tiêu đề và khối mã theo bảng màu của chuẩn: vài trang còn màu gõ
+           cứng của bản nền tối (h2 màu trắng), sang nền sáng là chữ trắng trên
+           nền trắng — đo được tương phản đúng bằng 1. */
+        h1, h2, h3, h4{color:var(--fg)}
+        h2 .num{color:var(--blue)}
+        pre, .code-line{color:var(--code-fg)}
+        /* Vài trang có quy tắc riêng đặc hiệu hơn (ví dụ .container h2) nên
+           phải dùng !important mới thắng được màu gõ cứng của bản nền tối. */
+        h1, h2, h3, h4{color:var(--fg) !important}
+        h2 .num{color:var(--blue) !important}
+        p, li{color:var(--fg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Ghép thẻ số, đề HSG 12 năm 2627 câu 1.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Ghép thẻ số | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Ghép thẻ số, đề HSG 12 năm 2627 câu 1.">
+<!--/cv-head-->
 </head>
 <body>
-
-<nav class="topnav">
-    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
-    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../index.html">Kho lời giải</a><span class="cv-sep">/</span><span class="cv-here">Ghép thẻ số</span></span>
+  </div>
 </nav>
+<!--/cv-nav-->
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Ghép thẻ số</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Phân tích ban đầu</a>
+  <a href="#s3">3. 1. Cạm bẫy của sắp xếp từ điển</a>
+  <a href="#s4">4. 2. Quy tắc ghép đôi (Custom Comparator)</a>
+  <a href="#s5">5. 3. Chạy thuật toán trên mảng</a>
+  <a href="#s6">6. Cài đặt (C++)</a>
+  <a href="#s7">7. Độ phức tạp</a>
+  <a href="#s8">8. Cạm bẫy khi cài đặt</a>
+</aside>
+
+<div class="main">
 
 <div class="container">
+<div class="box tech">
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Phân tích ban đầu</a></li>
+    <li><a href="#s3">1. Cạm bẫy của sắp xếp từ điển</a></li>
+    <li><a href="#s4">2. Quy tắc ghép đôi (Custom Comparator)</a></li>
+    <li><a href="#s5">3. Chạy thuật toán trên mảng</a></li>
+    <li><a href="#s6">Cài đặt (C++)</a></li>
+    <li><a href="#s7">Độ phức tạp</a></li>
+    <li><a href="#s8">Cạm bẫy khi cài đặt</a></li>
+  </ol>
+</nav>
+
     <!-- 3.1. Hero -->
     <div class="card snapbox hero">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
@@ -125,7 +182,7 @@
     <!-- 3.2. Tóm tắt đề bài -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Tóm tắt đề bài</h2>
+        <h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
         <p>Cho N tấm thẻ chứa các dãy chữ số. Cần xếp chúng thành hàng ngang để khi đọc ghép lại, ta được số nguyên lớn nhất.</p>
         <ul>
             <li><strong>Input:</strong> N tấm thẻ (1 ≤ N ≤ 10<sup>5</sup>). Tổng độ dài các dãy chữ số ≤ 10<sup>6</sup>. Các dãy không có số 0 đứng đầu (trừ khi dãy là "0").</li>
@@ -140,7 +197,7 @@
     <!-- 3.3. Phân tích ban đầu -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Phân tích ban đầu</h2>
+        <h2 id="s2"><span class="num">2.</span>Phân tích ban đầu</h2>
         <p>Nếu N rất nhỏ (N ≤ 8), ta có thể sinh tất cả N! hoán vị và so sánh để chọn kết quả tốt nhất. Tuy nhiên, với N lên đến 10<sup>5</sup>, cách này bất khả thi.</p>
         <p>Chúng ta muốn số được tạo ra có các chữ số đầu tiên càng lớn càng tốt. Điều này gợi ý ta nên <strong>sắp xếp</strong> các thẻ ưu tiên những chữ số lớn lên đầu (ví dụ: "9" phải đứng trước "5"). Nhưng liệu sắp xếp từ điển (lexicographical sort) thông thường có đủ tốt?</p>
     </div>
@@ -148,10 +205,10 @@
     <!-- 3.4. CÁC MÔ-ĐUN LỜI GIẢI -->
     
     <!-- Mô-đun 1 -->
-    <div class="card">
+    <div class="box tech">
         <div class="snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>1. Cạm bẫy của sắp xếp từ điển</h2>
+            <h2 id="s3"><span class="num">3.</span>1. Cạm bẫy của sắp xếp từ điển</h2>
             <p><strong>Mục tiêu:</strong> Đưa các chuỗi "lớn" lên trước.</p>
             <p><strong>Khó khăn:</strong> Sắp xếp từ điển mặc định so sánh từng ký tự từ trái qua phải. Nếu một chuỗi là tiền tố của chuỗi kia, chuỗi dài hơn sẽ được coi là lớn hơn. Ví dụ, hệ thống đánh giá "30" > "3".</p>
             <p>Nếu ta xếp theo thứ tự giảm dần mặc định, "30" sẽ đứng trước "3", tạo ra số <strong>303</strong>. Tuy nhiên, nếu xếp "3" trước "30", ta được số <strong>330</strong>. Rõ ràng 330 > 303.</p>
@@ -181,10 +238,10 @@
     </div>
 
     <!-- Mô-đun 2 -->
-    <div class="card">
+    <div class="box tech">
         <div class="snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>2. Quy tắc ghép đôi (Custom Comparator)</h2>
+            <h2 id="s4"><span class="num">4.</span>2. Quy tắc ghép đôi (Custom Comparator)</h2>
             <p><strong>Ý tưởng:</strong> Thay vì cố gắng tìm các luật phức tạp về tiền tố hay độ dài, ta chỉ cần đặt câu hỏi trực tiếp: <em>Giữa thẻ A và thẻ B, ai đứng trước thì có lợi hơn?</em></p>
             <p>Cách kiểm tra nhanh nhất là <strong>thử ghép cả hai trường hợp</strong>: ghép A rồi B (ký hiệu A + B), và ghép B rồi A (ký hiệu B + A). Nếu chuỗi (A + B) lớn hơn chuỗi (B + A), thì chắc chắn A phải đứng trước B trong mảng.</p>
             <p><strong>Vì sao nó đúng?</strong> Quan hệ A + B > B + A có tính chất bắc cầu. Nghĩa là nếu A nên đứng trước B, và B nên đứng trước C, thì tự động A sẽ hợp lý khi đứng trước C. Ta có thể dùng quy tắc này làm hàm so sánh (comparator) cho các thuật toán sắp xếp chuẩn.</p>
@@ -219,10 +276,10 @@
     </div>
 
     <!-- Mô-đun 3 (Lab) -->
-    <div class="card">
+    <div class="box tech">
         <div class="snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>3. Chạy thuật toán trên mảng</h2>
+            <h2 id="s5"><span class="num">5.</span>3. Chạy thuật toán trên mảng</h2>
             <p>Bây giờ ta áp dụng quy tắc <code>A + B > B + A</code> để sắp xếp toàn bộ mảng. Dưới đây là mô phỏng quá trình đưa các thẻ lớn nhất lên đầu (tương tự thuật toán sắp xếp nổi bọt để dễ quan sát từng cặp so sánh).</p>
             
             <div class="array-view" id="lab3-array">
@@ -290,7 +347,7 @@ bool compareCards(const string& a, const string& b) {
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
         <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-        <h2>Cài đặt (C++)</h2>
+        <h2 id="s6"><span class="num">6.</span>Cài đặt (C++)</h2>
         <div class="code-container">
             <div class="raw-code" data-prefix="main">
 #include <iostream>
@@ -341,7 +398,7 @@ int main() {
     <!-- 3.6. Độ phức tạp -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Độ phức tạp</h2>
+        <h2 id="s7"><span class="num">7.</span>Độ phức tạp</h2>
         <ul>
             <li><strong>Thời gian:</strong> Thuật toán <code>std::sort</code> thực hiện khoảng O(N log N) phép so sánh. Mỗi phép so sánh thực hiện nối hai chuỗi có tổng độ dài trung bình là L, với thao tác so sánh chuỗi tốn O(L). Tổng thời gian xấp xỉ O(L · N log N). Tuy nhiên, tổng độ dài mọi chuỗi ≤ 10<sup>6</sup>, nên thực tế việc nối và so sánh diễn ra rất nhanh. Hoàn toàn vượt qua giới hạn 1 giây của ràng buộc.</li>
             <li><strong>Không gian (Bộ nhớ):</strong> Ta lưu trữ mảng N phần tử và tổng các ký tự của chuỗi mất O(Tổng độ dài chuỗi) ≤ 10<sup>6</sup> bytes (khoảng vài MB). Phù hợp với mọi giới hạn bộ nhớ chuẩn.</li>
@@ -351,8 +408,8 @@ int main() {
     <!-- 3.7. Cạm bẫy khi cài -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Cạm bẫy khi cài đặt</h2>
-        <div class="pitfalls">
+        <h2 id="s8"><span class="num">8.</span>Cạm bẫy khi cài đặt</h2>
+        <div class="box warn">
             <div class="pit-col wrong">
                 <h4>✕ Bỏ qua mảng chỉ chứa số 0</h4>
                 <p>Nếu input là <code>3\n0 0 0</code>, in thẳng mảng sau sắp xếp sẽ ra <code>000</code>. Đề bài cấm số 0 vô nghĩa đứng đầu.</p>
@@ -590,5 +647,15 @@ int main() {
     };
 </script>
 
+</div>
+
+<script src="../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

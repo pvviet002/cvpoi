@@ -3,97 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kỹ thuật Chia Căn (Sqrt Decomposition) | Competitive Programming</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg: #0B1220;
-            --bg2: #0F1A2E;
-            --panel: #111E36;
-            --line: #22304C;
-            --line2: #2E3F60;
-            --ink: #E6ECF7;
-            --ink-soft: #8FA1C4;
-            --ink-dim: #5A6B8F;
-            
-            --accent: #38D6C4; /* Xanh ngọc - Phần lẻ đầu / Nổi bật */
-            --accent-blue: #5B8CFF; /* Xanh dương - Phần lẻ cuối */
-            --amber: #FFB454; /* Hổ phách - Đang xét */
-            --pink: #FF6B9D; /* Hồng - Khối nguyên ở giữa */
-            --red: #FF6B6B; /* Đỏ nhạt */
-            --green: #4ADE80; /* Xanh lục - Success */
-            
-            --glow: 0 0 20px rgba(56, 214, 196, 0.15);
-            --font-body: 'Inter', sans-serif;
-            --font-heading: 'Space Grotesk', sans-serif;
-            --font-code: 'JetBrains Mono', monospace;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: var(--font-body);
-            background-color: var(--bg);
-            color: var(--ink);
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        body::before {
-            content: ''; position: absolute; top: -200px; left: -100px; width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(56,214,196,0.08) 0%, transparent 70%);
-            z-index: -1; pointer-events: none;
-        }
-        body::after {
-            content: ''; position: absolute; top: 100px; right: -150px; width: 500px; height: 500px;
-            background: radial-gradient(circle, rgba(91,140,255,0.06) 0%, transparent 70%);
-            z-index: -1; pointer-events: none;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
-            width: 100%;
-        }
+    <title>Chia căn (Sqrt Decomposition) | Lý thuyết CP</title>
+    <link rel="stylesheet" href="../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --line: var(--border);
+  --line2: var(--border);
+  --ink: var(--fg);
+  --ink-soft: var(--muted);
+  --ink-dim: var(--muted);
+  --accent: var(--green);
+  --accent-blue: var(--blue);
+  --pink: var(--purple);
+  --glow: none;
+  --font-body: "Noto Sans","Segoe UI",system-ui,sans-serif;
+  --font-heading: "Noto Sans","Segoe UI",system-ui,sans-serif;
+  --font-code: "Noto Sans Mono","Consolas",ui-monospace,monospace;
+}
 
         @media (max-width: 768px) {
             .container { padding: 0 16px; }
         }
-
-        nav {
-            position: sticky; top: 0; background: rgba(11, 18, 32, 0.85);
-            backdrop-filter: blur(12px); border-bottom: 1px solid var(--line);
-            z-index: 100; padding: 12px 0;
-        }
-
-        .nav-inner { display: flex; justify-content: space-between; align-items: center; }
         .nav-links a {
             color: var(--ink-soft); text-decoration: none; font-size: 0.9rem;
             font-weight: 500; padding: 6px 12px; border-radius: 6px; transition: all 0.2s;
         }
         .nav-links a:hover, .nav-links a:focus-visible { color: var(--ink); background: var(--line); outline: none; }
-        .breadcrumb { color: var(--ink-soft); font-family: var(--font-heading); font-size: 0.95rem; }
         .breadcrumb span { color: var(--accent); }
-
-        section { margin: 48px 0; }
-        h1, h2, h3 { font-family: var(--font-heading); color: var(--ink); margin-bottom: 16px; }
-        h1 { font-size: 2.2rem; background: linear-gradient(to right, var(--accent), var(--accent-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        h2 { font-size: 1.6rem; border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-top: 40px; }
-        h3 { font-size: 1.2rem; color: var(--accent-blue); }
-        p, ul { margin-bottom: 16px; color: var(--ink-soft); }
-        ul { padding-left: 24px; }
-        li { margin-bottom: 6px; }
-        strong { color: var(--ink); font-weight: 600; }
         
         .math { font-family: var(--font-code); background: var(--bg2); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: var(--accent); }
 
@@ -114,13 +54,13 @@
         }
 
         .code-container {
-            background: #0A1220; border: 1px solid var(--line); border-radius: 8px;
+            background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px;
             overflow-x: auto; margin-bottom: 24px; padding: 16px 0;
         }
         .code-line {
             font-family: var(--font-code); font-size: 0.85rem; line-height: 1.6;
             padding: 0 16px; margin: 0; display: block; white-space: pre;
-            color: #A9B7C6; border-left: 3px solid transparent; transition: background 0.2s, border-color 0.2s;
+            color: var(--code-fg); border-left: 3px solid transparent; transition: background 0.2s, border-color 0.2s;
         }
         .code-line.active { background: rgba(56, 214, 196, 0.1); border-left-color: var(--accent); }
 
@@ -130,7 +70,7 @@
         .token-num { color: #6897BB; }
         .token-com { color: #808080; font-style: italic; }
         .token-func { color: #FFC66D; }
-        .token-op { color: #A9B7C6; }
+        .token-op { color: var(--code-fg); }
 
         .sim-container {
             background: var(--bg2); border: 1px solid var(--line2); border-radius: 12px;
@@ -203,15 +143,15 @@
         }
 
         .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
-        button {
+        .sim-container button , .controls-main button , .controls-side button , .quiz-item button {
             background: var(--line); color: var(--ink); border: 1px solid var(--line2); padding: 8px 16px;
             border-radius: 6px; cursor: pointer; font-family: var(--font-body); font-size: 0.9rem; font-weight: 500; transition: all 0.2s;
         }
-        button:hover:not(:disabled) { background: var(--line2); color: #fff; }
-        button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        button.primary { background: var(--accent); color: #000; border-color: var(--accent); }
-        button.primary:hover:not(:disabled) { background: #2CB5A5; }
+        .sim-container button:hover:not(:disabled) , .controls-main button:hover:not(:disabled) , .controls-side button:hover:not(:disabled) , .quiz-item button:hover:not(:disabled) { background: var(--line2); color: #fff; }
+        .sim-container button:focus-visible , .controls-main button:focus-visible , .controls-side button:focus-visible , .quiz-item button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .sim-container button:disabled , .controls-main button:disabled , .controls-side button:disabled , .quiz-item button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .sim-container button.primary , .controls-main button.primary , .controls-side button.primary , .quiz-item button.primary { background: var(--accent); color: #000; border-color: var(--accent); }
+        .sim-container button.primary:hover:not(:disabled) , .controls-main button.primary:hover:not(:disabled) , .controls-side button.primary:hover:not(:disabled) , .quiz-item button.primary:hover:not(:disabled) { background: #2CB5A5; }
 
         .input-group { display: flex; align-items: center; gap: 8px; }
         .input-group label { font-family: var(--font-code); font-size: 0.9rem; color: var(--ink-soft); }
@@ -228,7 +168,7 @@
         .stat-box strong { font-family: var(--font-code); font-size: 1.1rem; color: var(--accent); }
 
         /* Layer 3: Code Frame */
-        .sim-layer-code { width: 100%; background: #0A1220; padding: 16px 0; overflow-x: auto; }
+        .sim-layer-code { width: 100%; background: var(--code-bg); padding: 16px 0; overflow-x: auto; }
 
         .quiz-item { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
         .quiz-item h4 { margin-bottom: 12px; color: var(--ink); }
@@ -248,31 +188,85 @@
         .legend-color { width: 12px; height: 12px; border-radius: 3px; }
 
         @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
-    </style>
-</head>
-<body>
+    
+        /* Bắt buộc khối mã theo bảng màu của chuẩn: vài trang còn sót màu gõ
+           cứng của bản nền tối, sang nền sáng thì chữ gần như tàng hình
+           (đo được tương phản 1,42). */
+        pre{color:var(--code-fg)}
+        pre .k, pre .t{color:var(--c-kw)}
+        pre .n{color:var(--c-num)}
+        pre .c{color:var(--c-cmt); font-style:italic}
+        pre .s{color:var(--c-str)}
+        pre .f{color:var(--c-fn)}
+        .err pre, .ok pre{background:var(--code-bg)}
+</style>
 
-    <nav>
-        <div class="container nav-inner">
-            <div class="breadcrumb">
-                Kỹ thuật <span>/</span> Chia căn
-            </div>
-            <div class="nav-links">
-                <a href="/index.html">Trang chủ</a>
-                <a href="https://cvpoi.id.vn" target="_blank" rel="noopener noreferrer">cvpoi.id.vn</a>
-            </div>
-        </div>
-    </nav>
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Chia mảng thành khối cỡ căn N để truy vấn và cập nhật cùng nhanh.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Chia căn (Sqrt Decomposition) | Lý thuyết CP">
+<meta property="og:description" content="Chia mảng thành khối cỡ căn N để truy vấn và cập nhật cùng nhanh.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Chia căn</div>
+  <a href="#s1">1. Bài toán và động lực</a>
+  <a href="#s2">2. Tóm tắt kỹ thuật và so sánh</a>
+  <a href="#s3">3. Chia khối và tiền xử lý</a>
+  <a href="#s4">4. Truy vấn đoạn [L, R]</a>
+  <a href="#s5">5. Cập nhật một phần tử</a>
+  <a href="#s6">6. Cài đặt C++</a>
+  <a href="#s7">7. Mở rộng nâng cao</a>
+  <a href="#s8">8. Các lỗi thường gặp</a>
+  <a href="#s9">9. Trắc nghiệm củng cố</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb">Cấu trúc dữ liệu<span class="cv-sep">/</span><span class="cv-here">Chia căn</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+
+    
 
     <div class="container">
-        <header>
-            <h1>Kỹ Thuật Chia Căn (Sqrt Decomposition)</h1>
-            <p style="font-size: 1.1rem;">Chia để trị trên mảng: cân bằng giữa cập nhật và truy vấn bằng cách gom mảng thành các khối có kích thước √N.</p>
-        </header>
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Chia căn</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p>Chia mảng thành khoảng √N khối. Truy vấn đoạn và cập nhật một phần tử khi ấy cùng nhanh, mà cài đặt lại ngắn hơn cây phân đoạn nhiều.</p>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Bài toán và động lực</a></li>
+    <li><a href="#s2">Tóm tắt kỹ thuật và so sánh</a></li>
+    <li><a href="#s3">Chia khối và tiền xử lý</a></li>
+    <li><a href="#s4">Truy vấn đoạn [L, R]</a></li>
+    <li><a href="#s5">Cập nhật một phần tử</a></li>
+    <li><a href="#s6">Cài đặt C++</a></li>
+    <li><a href="#s7">Mở rộng nâng cao</a></li>
+    <li><a href="#s8">Các lỗi thường gặp</a></li>
+    <li><a href="#s9">Trắc nghiệm củng cố</a></li>
+  </ol>
+</nav>
 
         <section id="phan-1">
-            <h2>Phần 1: Bài toán & Động lực</h2>
-            <div class="panel">
+            <h2 id="s1"><span class="num">1.</span>Bài toán và động lực</h2>
+            <div class="box tech">
                 <p><strong>Bài toán cơ bản:</strong> Cho một mảng <span class="math">A</span> gồm <span class="math">N</span> phần tử. Cần thực hiện <span class="math">Q</span> thao tác thuộc hai loại:</p>
                 <ul>
                     <li><strong>Truy vấn:</strong> Tính tổng các phần tử trong đoạn <span class="math">[L, R]</span>.</li>
@@ -284,8 +278,8 @@
         </section>
 
         <section id="phan-2">
-            <h2>Phần 2: Tóm tắt Kỹ thuật & So sánh</h2>
-            <div class="panel">
+            <h2 id="s2"><span class="num">2.</span>Tóm tắt kỹ thuật và so sánh</h2>
+            <div class="box tech">
                 <h3 style="margin-top: 0;">1. Tóm tắt đặc điểm</h3>
                 <ul>
                     <li><strong>Ý tưởng chủ đạo:</strong> Chia mảng (hoặc dữ liệu) kích thước <span class="math">N</span> thành khoảng <span class="math">√N</span> khối, mỗi khối có độ dài <span class="math">√N</span>. Tiền xử lý thông tin cho từng khối để gia tốc các truy vấn.</li>
@@ -296,7 +290,7 @@
                 </ul>
 
                 <h3>2. Bảng so sánh với các Cấu trúc dữ liệu khác</h3>
-                <table class="compare-table">
+                <div class="tablewrap"><table class="compare-table">
                     <thead>
                         <tr>
                             <th>Tiêu chí</th>
@@ -337,12 +331,12 @@
                             <td>Thấp (thường chỉ dùng cho tổng/xor đoạn)</td>
                         </tr>
                     </tbody>
-                </table>
+                </table></div>
             </div>
         </section>
 
         <section id="phan-3">
-            <h2>Phần 3: Chia khối & Tiền xử lý</h2>
+            <h2 id="s3"><span class="num">3.</span>Chia khối và tiền xử lý</h2>
             <p>Ta chia mảng <span class="math">N</span> phần tử thành các khối, mỗi khối có kích thước <span class="math">blk ≈ √N</span>. Như vậy sẽ có khoảng <span class="math">√N</span> khối.</p>
             <ul>
                 <li>Phần tử ở vị trí <span class="math">i</span> sẽ thuộc khối thứ <span class="math">i / blk</span> (phép chia lấy phần nguyên).</li>
@@ -379,8 +373,8 @@
         </section>
 
         <section id="phan-4">
-            <h2>Phần 4: Truy vấn đoạn [L, R] trong <span class="math">O(√N)</span></h2>
-            <div class="alert-panel">
+            <h2 id="s4"><span class="num">4.</span>Truy vấn đoạn [L, R]</h2>
+            <div class="box warn">
                 <strong>Khi truy vấn tổng đoạn từ <span class="math">L</span> đến <span class="math">R</span>, có hai trường hợp:</strong>
                 <ol style="margin-top: 8px; padding-left: 20px;">
                     <li><strong><span class="math">L</span> và <span class="math">R</span> nằm trong cùng MỘT khối:</strong> Trực tiếp duyệt vòng lặp <span class="math">i</span> từ <span class="math">L</span> đến <span class="math">R</span> và cộng <span class="math">A[i]</span>. Chi phí tối đa <span class="math">O(√N)</span> (vì đoạn này nằm gọn trong một khối cỡ <span class="math">√N</span>).</li>
@@ -441,7 +435,7 @@
         </section>
 
         <section id="phan-5">
-            <h2>Phần 5: Cập nhật một phần tử <span class="math">O(1)</span></h2>
+            <h2 id="s5"><span class="num">5.</span>Cập nhật một phần tử</h2>
             <p>Khi có yêu cầu thay đổi giá trị <span class="math">A[i] = x</span>, ta cần cập nhật lại thông tin của khối chứa nó để các truy vấn sau vẫn chính xác.</p>
             <ul>
                 <li>Xác định khối: <span class="math">b = i / blk</span>.</li>
@@ -452,14 +446,14 @@
         </section>
 
         <section id="phan-6">
-            <h2>Phần 6: Cài đặt C++ (Point Update, Range Sum)</h2>
+            <h2 id="s6"><span class="num">6.</span>Cài đặt C++</h2>
             <div class="code-container" id="code-full">
                 <!-- Chèn code full -->
             </div>
         </section>
 
         <section id="phan-7">
-            <h2>Phần 7: Mở rộng (Nâng cao)</h2>
+            <h2 id="s7"><span class="num">7.</span>Mở rộng nâng cao</h2>
             <ul>
                 <li><strong>Thuật toán Mo (Mo's Algorithm):</strong> Kỹ thuật offline xử lý nhiều truy vấn đoạn. Bằng cách sắp xếp các truy vấn <span class="math">[L, R]</span> theo khối của <span class="math">L</span>, và với <span class="math">R</span> thì sắp xếp tăng/giảm dần, thuật toán Mo dùng hai con trỏ trượt để trả lời mọi truy vấn trong <span class="math">O((N+Q)√N)</span>. Rất mạnh mẽ với các bài toán không có thao tác cập nhật xen kẽ.</li>
                 <li><strong>Lazy Update theo khối (Range Update):</strong> Ta hoàn toàn có thể cập nhật cả một đoạn <span class="math">[L, R]</span> cộng thêm <span class="math">x</span>. Các phần lẻ hai đầu duyệt và cộng trực tiếp vào <span class="math">A[i]</span>, kết hợp cập nhật lại <span class="math">B[b]</span>. Với các khối nguyên ở giữa, ta duy trì một mảng <span class="math">lazy[b]</span> ghi nhận khối đó đang bị cộng thêm bao nhiêu. Chi phí cập nhật đoạn cũng là <span class="math">O(√N)</span>.</li>
@@ -467,7 +461,7 @@
         </section>
 
         <section id="phan-8">
-            <h2>Phần 8: Các lỗi thường gặp (Bẫy chết người)</h2>
+            <h2 id="s8"><span class="num">8.</span>Các lỗi thường gặp</h2>
             <div class="panel" style="border-color: var(--red); background: rgba(255, 107, 107, 0.05);">
                 <ul style="color: var(--ink);">
                     <li><strong>Sai điều kiện biên khi <span class="math">L</span> và <span class="math">R</span> cùng một khối:</strong> Rất nhiều bạn quên bắt trường hợp <span class="math">bL == bR</span>, dẫn đến việc code rẽ nhánh nhầm vào việc tính lẻ đầu, lẻ cuối chồng chéo lên nhau sinh ra kết quả sai. Luôn có lệnh `if (bL == bR)` riêng biệt.</li>
@@ -478,7 +472,7 @@
         </section>
 
         <section id="phan-9">
-            <h2>Phần 9: Trắc nghiệm củng cố</h2>
+            <h2 id="s9"><span class="num">9.</span>Trắc nghiệm củng cố</h2>
             <div class="score-board">Điểm: <span id="quiz-score">0</span> / 10</div>
             <div id="quiz-container">
                 <!-- JS sẽ bơm câu hỏi vào đây -->
@@ -1057,5 +1051,16 @@ int querySum(int L, int R) {
         });
 
     </script>
+</div>
+</div>
+
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

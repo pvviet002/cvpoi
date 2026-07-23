@@ -3,50 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lời giải: Vùng Phủ Dày Đặc Nhất</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
-            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
-            --text-main: #E2E8F0; --text-muted: #94A3B8;
-            --glow: 0 0 20px rgba(56,214,196,.4);
-            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
-            --border: 1px solid rgba(255,255,255,.1);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            line-height: 1.6;
-        }
-
-        /* Typography */
-        h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.03em; }
-        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
-        h2 { font-size: 1.75rem; color: var(--accent); margin: 2.5rem 0 1.5rem; border-bottom: var(--border); padding-bottom: 0.5rem; }
-        h3 { font-size: 1.25rem; margin: 1.5rem 0 1rem; color: var(--accent2); }
-        p { margin-bottom: 1rem; }
-        strong { color: #fff; }
+    <title>Lời giải: Vùng phủ dày đặc nhất | Lý thuyết CP</title>
+    <script src="../../../assets/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="../../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --text-main: var(--fg);
+  --text-muted: var(--muted);
+  --glow: none;
+  --shadow: none;
+  --border: var(--border);
+}
 
         /* Navigation */
         .topnav {
             position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center;
             padding: 12px 20px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px); border-bottom: var(--border);
         }
-        .nav-btn {
-            text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent));
-            padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease;
-        }
         .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
         .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
-
-        /* Container & Layout */
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 24px 80px; }
         @media (max-width: 768px) { .container { padding: 0 16px 60px; } }
 
         /* Card Elements */
@@ -82,7 +65,7 @@
         .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
 
         /* Code Blocks */
-        .codewrap { background: #0A1220; border: var(--border); border-radius: 12px; margin-bottom: 20px; overflow-x: auto; }
+        .codewrap { background: var(--code-bg); border: var(--border); border-radius: 12px; margin-bottom: 20px; overflow-x: auto; }
         .code { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; padding: 16px 0; min-width: max-content; }
         .codeline { padding: 0 16px; line-height: 1.6; white-space: pre-wrap; display: block; border-left: 3px solid transparent; }
         .codeline.hot { background: rgba(255,180,84,.1); border-left: 3px solid var(--mark); }
@@ -168,16 +151,71 @@
         th { background: rgba(255,255,255,.05); color: var(--accent2); }
 
         .hidden { display: none !important; }
-    </style>
+    
+        /* Ép tiêu đề và khối mã theo bảng màu của chuẩn: vài trang còn màu gõ
+           cứng của bản nền tối (h2 màu trắng), sang nền sáng là chữ trắng trên
+           nền trắng — đo được tương phản đúng bằng 1. */
+        h1, h2, h3, h4{color:var(--fg)}
+        h2 .num{color:var(--blue)}
+        pre, .code-line{color:var(--code-fg)}
+        /* Vài trang có quy tắc riêng đặc hiệu hơn (ví dụ .container h2) nên
+           phải dùng !important mới thắng được màu gõ cứng của bản nền tối. */
+        h1, h2, h3, h4{color:var(--fg) !important}
+        h2 .num{color:var(--blue) !important}
+        p, li{color:var(--fg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Vùng phủ dày đặc nhất (prefixsum_2d_09).">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Vùng phủ dày đặc nhất | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Vùng phủ dày đặc nhất (prefixsum_2d_09).">
+<!--/cv-head-->
 </head>
 <body>
-
-<nav class="topnav">
-    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
-    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../index.html">Tổng tiền tố</a><span class="cv-sep">/</span><span class="cv-here">Vùng phủ dày đặc nhất</span></span>
+  </div>
 </nav>
+<!--/cv-nav-->
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Vùng Phủ Dày Đặc Nhất</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Phân tích ban đầu</a>
+  <a href="#s3">3. Ý tưởng Mảng Hiệu 1D (Tiền đề)</a>
+  <a href="#s4">4. Mở rộng lên Mảng Hiệu 2D</a>
+  <a href="#s5">5. Cài đặt (C++)</a>
+  <a href="#s6">6. Độ phức tạp & Cạm bẫy</a>
+</aside>
+
+<div class="main">
 
 <div class="container">
+<div class="box tech">
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Phân tích ban đầu</a></li>
+    <li><a href="#s3">Ý tưởng Mảng Hiệu 1D (Tiền đề)</a></li>
+    <li><a href="#s4">Mở rộng lên Mảng Hiệu 2D</a></li>
+    <li><a href="#s5">Cài đặt (C++)</a></li>
+    <li><a href="#s6">Độ phức tạp & Cạm bẫy</a></li>
+  </ol>
+</nav>
+
     <!-- HERO SECTION -->
     <header style="margin-top: 40px;">
         <span class="badge">Quy hoạch động / Mảng cộng dồn</span>
@@ -190,14 +228,14 @@
     <!-- TÓM TẮT ĐỀ BÀI -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Tóm tắt đề bài</h2>
+        <h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
         <p>Cho một mặt phẳng lưới kích thước tối đa 1000 × 1000. Có N hình chữ nhật được thả xuống, hình thứ i bao phủ từ góc trên trái (r<sub>1</sub>, c<sub>1</sub>) đến góc dưới phải (r<sub>2</sub>, c<sub>2</sub>).</p>
         <ul>
             <li><strong>Yêu cầu:</strong> Tìm mức độ phủ lớn nhất (số lượng hình chữ nhật đè lên cùng một ô nhiều nhất), và đếm xem có bao nhiêu ô vuông đạt được mức độ phủ này.</li>
             <li><strong>Ràng buộc:</strong> Số lượng hình chữ nhật N ≤ 10<sup>5</sup>; Tọa độ 1 ≤ r<sub>1</sub> ≤ r<sub>2</sub> ≤ 1000 và 1 ≤ c<sub>1</sub> ≤ c<sub>2</sub> ≤ 1000.</li>
         </ul>
         <h3 style="font-size: 1rem; margin-bottom: 8px;">Ví dụ:</h3>
-        <table>
+        <div class="tablewrap"><table>
             <tr><th>Input</th><th>Output</th></tr>
             <tr>
                 <td style="font-family: monospace; white-space: pre-wrap;">3
@@ -206,20 +244,20 @@
 4 4 6 6</td>
                 <td style="font-family: monospace; vertical-align: top;">3 4</td>
             </tr>
-        </table>
+        </table></div>
     </div>
 
     <!-- PHÂN TÍCH BAN ĐẦU -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Phân tích ban đầu</h2>
+        <h2 id="s2"><span class="num">2.</span>Phân tích ban đầu</h2>
         <p><strong>Cách Ngây Thơ:</strong> Với mỗi hình chữ nhật từ (r<sub>1</sub>, c<sub>1</sub>) đến (r<sub>2</sub>, c<sub>2</sub>), ta dùng hai vòng lặp lồng nhau duyệt qua tất cả các ô nằm trong vùng đó và cộng thêm 1 vào mảng kết quả <code>a[r][c]</code>.</p>
         <p><strong>Độ phức tạp:</strong> Một hình chữ nhật có thể rộng tới 1000 × 1000 = 10<sup>6</sup> ô. Nếu có 10<sup>5</sup> hình chữ nhật lớn như vậy, số phép toán lên tới 10<sup>5</sup> × 10<sup>6</sup> = 10<sup>11</sup> phép toán. Cách này chắc chắn sẽ bị <strong>Quá thời gian (TLE)</strong>.</p>
         <p>Chúng ta cần một cách đánh dấu cả một vùng chữ nhật mà chỉ mất số bước cố định O(1). Khởi nguồn từ bài toán 1 chiều, ta sẽ xây dựng ý tưởng Mảng Hiệu (Difference Array).</p>
     </div>
 
     <!-- MÔ-ĐUN 1: Mảng Hiệu 1 Chiều -->
-    <h2 style="margin-top: 40px;">Ý tưởng Mảng Hiệu 1D (Tiền đề)</h2>
+    <h2 id="s3"><span class="num">3.</span>Ý tưởng Mảng Hiệu 1D (Tiền đề)</h2>
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
         <p><strong>Mục tiêu:</strong> Tăng tất cả các phần tử trong đoạn từ chỉ số <code>L</code> đến <code>R</code> lên 1 mà chỉ tốn O(1) thao tác.</p>
@@ -256,7 +294,7 @@
     </div>
 
     <!-- MÔ-ĐUN 2: Mảng Hiệu 2 Chiều -->
-    <h2 style="margin-top: 40px;">Mở rộng lên Mảng Hiệu 2D</h2>
+    <h2 id="s4"><span class="num">4.</span>Mở rộng lên Mảng Hiệu 2D</h2>
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
         <p><strong>Khó khăn:</strong> Bây giờ ta làm việc trên mặt phẳng 2 chiều. Làm sao để "mở vòi nước" và "đóng vòi nước" cho một vùng chữ nhật từ (r<sub>1</sub>, c<sub>1</sub>) đến (r<sub>2</sub>, c<sub>2</sub>)?</p>
@@ -344,7 +382,7 @@
     </div>
 
     <!-- CÀI ĐẶT C++ -->
-    <h2>Cài đặt (C++)</h2>
+    <h2 id="s5"><span class="num">5.</span>Cài đặt (C++)</h2>
     <div class="codewrap">
         <button class="copy-btn" onclick="copyCode(this)">Copy</button>
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
@@ -354,11 +392,11 @@
     <!-- ĐỘ PHỨC TẠP & CẠM BẪY -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Độ phức tạp & Cạm bẫy</h2>
+        <h2 id="s6"><span class="num">6.</span>Độ phức tạp & Cạm bẫy</h2>
         <p><strong>Thời gian:</strong> Có N hình chữ nhật, mỗi hình xử lý 4 điểm chốt mất O(1) → tổng O(N). Quá trình tính mảng tổng tiền tố quét qua lưới 1000 × 1000 mất khoảng 10<sup>6</sup> thao tác. Tổng thời gian là <strong>O(N + R × C)</strong> với R, C = 1000. Cực kỳ nhanh và hoàn toàn vượt qua giới hạn 1 giây.</p>
         <p><strong>Không gian (Bộ nhớ):</strong> 2 mảng 2 chiều kích thước 1005 × 1005 kiểu <code>int</code> (4 byte). Tổng cộng tốn khoảng 2 × 10<sup>6</sup> × 4 bytes ≈ 8 MB. Rất an toàn.</p>
         
-        <div class="pitfalls">
+        <div class="box warn">
             <div class="pit-col wrong">
                 <div class="pit-item">Khai báo mảng vừa đúng kích thước tối đa 1000. <br><span style="font-size: 0.9em; color: var(--text-muted);">Vì ta cần truy cập <code>r2 + 1</code> và <code>c2 + 1</code>, nếu r2 = 1000 thì sẽ gọi mảng ở index 1001 gây lỗi Out of Bounds (Runtime Error).</span></div>
                 <div class="pit-item">Chỉ lấy max ở các tọa độ có hình chữ nhật phủ. <br><span style="font-size: 0.9em; color: var(--text-muted);">Có thể có những khoảng trống giữa các hình, ta phải duyệt qua toàn bộ lưới 1..1000 để đếm số ô đạt max.</span></div>
@@ -714,5 +752,15 @@ int main() {
     };
 </script>
 
+</div>
+
+<script src="../../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

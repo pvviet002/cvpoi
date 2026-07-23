@@ -3,44 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đảo chiều đường một chiều - Solution</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
-            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
-            --text-main: #E2E8F0; --text-muted: #94A3B8;
-            --glow: 0 0 20px rgba(56, 214, 196, .4);
-            --shadow: 0 20px 60px -30px rgba(0, 0, 0, .9);
-            --border: 1px solid rgba(255, 255, 255, .1);
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background-color: var(--bg); color: var(--text-main);
-            font-family: 'Inter', sans-serif; line-height: 1.6;
-            padding-bottom: 60px;
-        }
-        h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.03em; }
-        h1 { font-size: 2.2rem; margin-bottom: 10px; background: linear-gradient(135deg, var(--accent2), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        h3 { font-size: 1.4rem; margin: 30px 0 15px; color: var(--accent); }
-        p { margin-bottom: 15px; }
+    <title>Lời giải: Đảo chiều đường một chiều | Lý thuyết CP</title>
+    <script src="../../assets/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --text-main: var(--fg);
+  --text-muted: var(--muted);
+  --glow: none;
+  --shadow: none;
+  --border: var(--border);
+}
         
         .topnav {
             position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center;
             padding: 12px 20px; background: rgba(11, 18, 32, .85); backdrop-filter: blur(10px); border-bottom: var(--border);
         }
-        .nav-btn {
-            text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent));
-            padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease;
-        }
         .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
         .nav-btn.outline:hover { background: rgba(56, 214, 196, .1); box-shadow: var(--glow); }
-        
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 24px; display: flex; flex-direction: column; }
         .hero { margin-top: 40px; text-align: center; }
         .badge { display: inline-block; padding: 4px 10px; background: rgba(91, 140, 255, .15); color: var(--accent2); border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 15px; }
         
@@ -60,7 +48,7 @@
         .copy-btn:hover, .snap-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(56, 214, 196, .1); }
         .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
 
-        .code-block { background: #0A1220; border: var(--border); border-radius: 12px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6; padding: 16px 0; }
+        .code-block { background: var(--code-bg); border: var(--border); border-radius: 12px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; line-height: 1.6; padding: 16px 0; }
         .codeline { padding: 0 20px; white-space: pre-wrap; display: block; border-left: 3px solid transparent; }
         .codeline.hot { background: rgba(255, 180, 84, .1); border-left-color: var(--mark); }
         
@@ -94,7 +82,7 @@
         .pitfall-col.right h4 { color: var(--accent); }
 
         /* Custom visual elements for Labs */
-        .lab-visual { background: #0A1220; border-radius: 12px; border: var(--border); padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 250px; overflow-x: auto;}
+        .lab-visual { background: var(--code-bg); border-radius: 12px; border: var(--border); padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 250px; overflow-x: auto;}
         
         .node-row { display: flex; gap: 50px; align-items: center; position: relative; margin: 20px 0; }
         .node { width: 44px; height: 44px; border-radius: 50%; background: var(--panel); border: 2px solid var(--accent2); display: flex; align-items: center; justify-content: center; font-weight: 600; font-family: 'JetBrains Mono'; z-index: 2; position: relative; transition: all 0.3s;}
@@ -141,15 +129,77 @@
         table.info-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         table.info-table th, table.info-table td { padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: left; }
         table.info-table th { color: var(--text-muted); font-weight: 500; width: 120px; }
-    </style>
+    
+        /* Ép tiêu đề và khối mã theo bảng màu của chuẩn: vài trang còn màu gõ
+           cứng của bản nền tối (h2 màu trắng), sang nền sáng là chữ trắng trên
+           nền trắng — đo được tương phản đúng bằng 1. */
+        h1, h2, h3, h4{color:var(--fg)}
+        h2 .num{color:var(--blue)}
+        pre, .code-line{color:var(--code-fg)}
+        /* Vài trang có quy tắc riêng đặc hiệu hơn (ví dụ .container h2) nên
+           phải dùng !important mới thắng được màu gõ cứng của bản nền tối. */
+        h1, h2, h3, h4{color:var(--fg) !important}
+        h2 .num{color:var(--blue) !important}
+        p, li{color:var(--fg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Đảo chiều đường một chiều, đề HSG 12 năm 2627 câu 1.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Đảo chiều đường một chiều | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Đảo chiều đường một chiều, đề HSG 12 năm 2627 câu 1.">
+<!--/cv-head-->
 </head>
 <body>
-    <nav class="topnav">
-        <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
-        <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
-    </nav>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../index.html">Kho lời giải</a><span class="cv-sep">/</span><span class="cv-here">Đảo chiều đường một chiều</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Đảo chiều đường một chiều</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Phân tích ban đầu</a>
+  <a href="#s3">3. Mô-đun 1: Lập mô hình đồ thị trọng số 0/1</a>
+  <a href="#s4">4. Mô-đun 2: Thuật toán 0-1 BFS</a>
+  <a href="#s5">5. Thuật toán từng bước</a>
+  <a href="#s6">6. Cài đặt (C++)</a>
+  <a href="#s7">7. Độ phức tạp</a>
+  <a href="#s8">8. Cạm bẫy khi cài đặt</a>
+</aside>
+
+<div class="main">
+
+    
 
     <div class="container">
+<div class="box tech">
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Phân tích ban đầu</a></li>
+    <li><a href="#s3">Mô-đun 1: Lập mô hình đồ thị trọng số 0/1</a></li>
+    <li><a href="#s4">Mô-đun 2: Thuật toán 0-1 BFS</a></li>
+    <li><a href="#s5">Thuật toán từng bước</a></li>
+    <li><a href="#s6">Cài đặt (C++)</a></li>
+    <li><a href="#s7">Độ phức tạp</a></li>
+    <li><a href="#s8">Cạm bẫy khi cài đặt</a></li>
+  </ol>
+</nav>
+
         <div class="hero">
             <div class="badge">Đồ thị / 0-1 BFS</div>
             <h1>Đảo chiều đường một chiều</h1>
@@ -160,25 +210,25 @@
 
         <div class="card snapbox" style="margin-top: 30px;">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h3>Tóm tắt đề bài</h3>
+            <h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
             <p>Cho một đồ thị có hướng gồm N đỉnh (giao lộ) và M cạnh (đoạn đường một chiều).</p>
             <p>Bạn có thể chọn một số cạnh và đảo ngược chiều của chúng, chi phí cho mỗi lần đảo là 1. Hãy tìm tổng chi phí nhỏ nhất để có được một đường đi từ đỉnh 1 đến đỉnh N.</p>
-            <table class="info-table">
+            <div class="tablewrap"><table class="info-table">
                 <tr><th>Dữ liệu vào</th><td>N, M ≤ 2 × 10<sup>5</sup> và M cặp (u, v).</td></tr>
                 <tr><th>Dữ liệu ra</th><td>Chi phí nhỏ nhất, hoặc -1 nếu không thể đến được.</td></tr>
-            </table>
+            </table></div>
             
             <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-top: 15px; display: flex; gap: 20px;">
                 <div style="flex:1;">
                     <strong style="color: var(--accent2)">Ví dụ (Input):</strong><br>
-                    <pre style="font-family:'JetBrains Mono'; font-size:0.9rem; color:var(--text-main); margin-top:5px;">4 3
+                    <div class="codewrap noname"><pre style="font-family:'JetBrains Mono'; font-size:0.9rem; color:var(--text-main); margin-top:5px;">4 3
 1 2
 3 2
-4 3</pre>
+4 3</pre></div>
                 </div>
                 <div style="flex:1;">
                     <strong style="color: var(--accent)">Kết quả (Output):</strong><br>
-                    <pre style="font-family:'JetBrains Mono'; font-size:0.9rem; color:var(--text-main); margin-top:5px;">2</pre>
+                    <div class="codewrap noname"><pre style="font-family:'JetBrains Mono'; font-size:0.9rem; color:var(--text-main); margin-top:5px;">2</pre></div>
                 </div>
             </div>
             <p style="margin-top:10px; font-size:0.95rem; color:var(--text-muted);">
@@ -186,7 +236,7 @@
             </p>
         </div>
 
-        <h3>Phân tích ban đầu</h3>
+        <h2 id="s2"><span class="num">2.</span>Phân tích ban đầu</h2>
         <p>
             Cách tiếp cận ngây thơ là dùng Quay lui (Backtracking) để thử đảo hoặc không đảo từng cạnh, sau đó dùng DFS/BFS kiểm tra xem có đường đi từ 1 đến N hay không. Với M ≤ 2 × 10<sup>5</sup>, số cách cấu hình là 2<sup>M</sup>, điều này là bất khả thi vì sẽ gây ra Quá thời gian (Time Limit Exceeded).
         </p>
@@ -196,7 +246,7 @@
 
         <!-- MODULE 1 -->
         <div id="module-1">
-            <h3>Mô-đun 1: Lập mô hình đồ thị trọng số 0/1</h3>
+            <h2 id="s3"><span class="num">3.</span>Mô-đun 1: Lập mô hình đồ thị trọng số 0/1</h2>
             <div class="card snapbox">
                 <button class="snap-btn" onclick="snapBox(this)">Snap</button>
                 <p>
@@ -275,7 +325,7 @@
 
         <!-- MODULE 2 -->
         <div id="module-2" style="margin-top: 40px;">
-            <h3>Mô-đun 2: Thuật toán 0-1 BFS</h3>
+            <h2 id="s4"><span class="num">4.</span>Mô-đun 2: Thuật toán 0-1 BFS</h2>
             <div class="card snapbox">
                 <button class="snap-btn" onclick="snapBox(this)">Snap</button>
                 <p>
@@ -334,7 +384,7 @@
             </div>
         </div>
 
-        <h3 style="margin-top: 40px;">Thuật toán từng bước</h3>
+        <h2 id="s5"><span class="num">5.</span>Thuật toán từng bước</h2>
         <div class="algo-steps snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
             <ol>
@@ -381,21 +431,21 @@
             </ol>
         </div>
 
-        <h3>Cài đặt (C++)</h3>
+        <h2 id="s6"><span class="num">6.</span>Cài đặt (C++)</h2>
         <div class="codewrap snapbox">
             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
             <div class="code-block code"><div class="codeline"><span class="c-kw">#include</span> <span class="c-str">&lt;iostream&gt;</span></div><div class="codeline"><span class="c-kw">#include</span> <span class="c-str">&lt;vector&gt;</span></div><div class="codeline"><span class="c-kw">#include</span> <span class="c-str">&lt;deque&gt;</span></div><div class="codeline"></div><div class="codeline"><span class="c-kw">using namespace</span> std;</div><div class="codeline"></div><div class="codeline"><span class="c-kw">const</span> <span class="c-ty">int</span> INF = <span class="c-num">1e9</span>;</div><div class="codeline"></div><div class="codeline"><span class="c-ty">int</span> <span class="c-fn">main</span>() {</div><div class="codeline">    <span class="c-cm">// Tối ưu I/O</span></div><div class="codeline">    ios_base::sync_with_stdio(<span class="c-kw">false</span>);</div><div class="codeline">    cin.tie(NULL);</div><div class="codeline"></div><div class="codeline">    <span class="c-ty">int</span> n, m;</div><div class="codeline">    <span class="c-kw">if</span> (!(cin &gt;&gt; n &gt;&gt; m)) <span class="c-kw">return</span> <span class="c-num">0</span>;</div><div class="codeline"></div><div class="codeline">    <span class="c-cm">// Đồ thị lưu cặp {đỉnh_kề, trọng_số}</span></div><div class="codeline">    vector&lt;vector&lt;pair&lt;<span class="c-ty">int</span>, <span class="c-ty">int</span>&gt;&gt;&gt; adj(n + <span class="c-num">1</span>);</div><div class="codeline">    </div><div class="codeline">    <span class="c-kw">for</span> (<span class="c-ty">int</span> i = <span class="c-num">0</span>; i &lt; m; i++) {</div><div class="codeline">        <span class="c-ty">int</span> u, v;</div><div class="codeline">        cin &gt;&gt; u &gt;&gt; v;</div><div class="codeline">        adj[u].push_back({v, <span class="c-num">0</span>}); <span class="c-cm">// Cạnh thuận: không tốn phí</span></div><div class="codeline">        adj[v].push_back({u, <span class="c-num">1</span>}); <span class="c-cm">// Cạnh ngược: tốn phí 1 để đảo chiều</span></div><div class="codeline">    }</div><div class="codeline"></div><div class="codeline">    <span class="c-cm">// Mảng khoảng cách, khởi tạo bằng vô cực</span></div><div class="codeline">    vector&lt;<span class="c-ty">int</span>&gt; dist(n + <span class="c-num">1</span>, INF);</div><div class="codeline">    deque&lt;<span class="c-ty">int</span>&gt; dq;</div><div class="codeline"></div><div class="codeline">    <span class="c-cm">// Bắt đầu từ đỉnh 1</span></div><div class="codeline">    dist[<span class="c-num">1</span>] = <span class="c-num">0</span>;</div><div class="codeline">    dq.push_back(<span class="c-num">1</span>);</div><div class="codeline"></div><div class="codeline">    <span class="c-kw">while</span> (!dq.empty()) {</div><div class="codeline">        <span class="c-ty">int</span> u = dq.front();</div><div class="codeline">        dq.pop_front();</div><div class="codeline"></div><div class="codeline">        <span class="c-kw">for</span> (<span class="c-kw">auto</span> edge : adj[u]) {</div><div class="codeline">            <span class="c-ty">int</span> v = edge.first;</div><div class="codeline">            <span class="c-ty">int</span> w = edge.second;</div><div class="codeline"></div><div class="codeline">            <span class="c-cm">// Nếu tìm được đường đi ngắn hơn tới v</span></div><div class="codeline">            <span class="c-kw">if</span> (dist[v] &gt; dist[u] + w) {</div><div class="codeline">                dist[v] = dist[u] + w;</div><div class="codeline">                </div><div class="codeline">                <span class="c-kw">if</span> (w == <span class="c-num">0</span>) {</div><div class="codeline">                    dq.push_front(v); <span class="c-cm">// Trọng số 0: ưu tiên lên đầu</span></div><div class="codeline">                } <span class="c-kw">else</span> {</div><div class="codeline">                    dq.push_back(v);  <span class="c-cm">// Trọng số 1: xếp hàng phía sau</span></div><div class="codeline">                }</div><div class="codeline">            }</div><div class="codeline">        }</div><div class="codeline">    }</div><div class="codeline"></div><div class="codeline">    <span class="c-cm">// Xuất kết quả</span></div><div class="codeline">    <span class="c-kw">if</span> (dist[n] == INF) {</div><div class="codeline">        cout &lt;&lt; -<span class="c-num">1</span> &lt;&lt; <span class="c-str">"\n"</span>;</div><div class="codeline">    } <span class="c-kw">else</span> {</div><div class="codeline">        cout &lt;&lt; dist[n] &lt;&lt; <span class="c-str">"\n"</span>;</div><div class="codeline">    }</div><div class="codeline"></div><div class="codeline">    <span class="c-kw">return</span> <span class="c-num">0</span>;</div><div class="codeline">}</div></div>
         </div>
 
-        <h3>Độ phức tạp</h3>
+        <h2 id="s7"><span class="num">7.</span>Độ phức tạp</h2>
         <p>
             - <strong>Thời gian:</strong> Mỗi đỉnh được đưa vào hàng đợi deque tối đa 1 lần (do ta chỉ cập nhật khi khoảng cách thật sự nhỏ hơn, và trong 0-1 BFS cạnh ngắn nhất luôn được xét trước nên khi lấy ra từ deque, đỉnh đã có kết quả tối ưu). Mỗi cạnh kề được xét đúng 1 lần. Do đó thời gian là <strong>O(N + M)</strong>. Rất an toàn để vượt qua mức giới hạn 2 × 10<sup>5</sup>.<br>
             - <strong>Không gian (Bộ nhớ):</strong> <strong>O(N + M)</strong> để lưu trữ danh sách kề đồ thị hai chiều (chứa 2M cạnh có hướng) cùng hàng đợi và mảng khoảng cách.
         </p>
 
-        <h3>Cạm bẫy khi cài đặt</h3>
-        <div class="pitfalls">
+        <h2 id="s8"><span class="num">8.</span>Cạm bẫy khi cài đặt</h2>
+        <div class="box warn">
             <div class="pitfall-col wrong">
                 <h4>✕ Sai lầm dễ mắc</h4>
                 <p>Khởi tạo mảng <code>dist</code> bằng 0 hoặc các giá trị nhỏ như <code>-1</code>.</p>
@@ -711,5 +761,16 @@
         })();
 
     </script>
+
+</div>
+
+<script src="../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

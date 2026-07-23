@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lời giải: Tổng lớn nhất với độ dài tối thiểu | Lý thuyết CP</title>
+<link rel="stylesheet" href="../../../assets/chuan.css">
+<style>
+/* Chỉ còn hình SVG, công thức và danh sách 10 bài của chương. */
+.formula{text-align:center;margin:14px 0;font-size:1.05rem;padding:8px 4px;overflow-x:auto}
+code.inline{font-family:"Cascadia Mono",Consolas,"Noto Sans Mono",monospace;font-size:.88em;
+background:color-mix(in srgb,var(--fg) 8%,transparent);padding:1px 5px;border-radius:4px}
+.dsbai{margin-top:14px;padding-top:10px;border-top:1px solid var(--border)}
+.dsbai a{padding:3px 8px 3px 8px;font-size:12.6px}
+.dsbai a.here{color:var(--fg);font-weight:700}
+.dsbai .lb{font-size:11.5px;color:var(--muted);text-transform:uppercase;
+letter-spacing:.05em;margin-bottom:5px}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Tổng lớn nhất với độ dài tối thiểu.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Tổng lớn nhất với độ dài tối thiểu | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Tổng lớn nhất với độ dài tối thiểu.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Tổng lớn nhất với độ dài tối thiểu</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Kiến thức nền tảng: Mảng cộng dồn (Prefix…</a>
+  <a href="#s3">3. Mức 1 — Thử mọi đoạn con (Subtask 1: N ≤ 1…</a>
+  <a href="#s4">4. Mức 2 — Cố định điểm cuối, đi tìm điểm đầu…</a>
+  <a href="#s5">5. Mức 3 — Thêm lại ràng buộc độ dài tối thiể…</a>
+  <a href="#s6">6. Tổ chức dữ liệu và ý nghĩa các biến</a>
+  <a href="#s7">7. Thuật toán từng bước</a>
+  <a href="#s8">8. Đánh giá độ phức tạp</a>
+  <a href="#s9">9. Tự cài đặt</a>
+
+<div class="dsbai">
+		<div class="lb">10 bài của chương</div>
+		<a href="bai1-sol.html">1. Tổng lớn nhất</a>
+		<a href="bai2-sol.html" class="here">2. Độ dài tối thiểu</a>
+		<a href="bai3-sol.html">3. Xóa một phần tử</a>
+		<a href="bai4-sol.html">4. Trung bình ≥ X</a>
+		<a href="bai5-sol.html">5. Hai đoạn rời nhau</a>
+		<a href="bai6-sol.html">6. Tổng ≤ S</a>
+		<a href="bai7-sol.html">7. Chia hết cho K</a>
+		<a href="bai8-sol.html">8. Độ dài trong [L,R]</a>
+		<a href="bai9-sol.html">9. Chia gấp khúc</a>
+		<a href="bai10-sol.html">10. Trung bình lớn nhất</a>
+	</div>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../index.html">Tổng tiền tố</a><span class="cv-sep">/</span><span class="cv-here">Tổng lớn nhất, độ dài tối thiểu</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Tổng lớn nhất với độ dài tối thiểu</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Kiến thức nền tảng: Mảng cộng dồn (Prefix…</a></li>
+    <li><a href="#s3">Mức 1 — Thử mọi đoạn con (Subtask 1: N ≤ 1…</a></li>
+    <li><a href="#s4">Mức 2 — Cố định điểm cuối, đi tìm điểm đầu…</a></li>
+    <li><a href="#s5">Mức 3 — Thêm lại ràng buộc độ dài tối thiể…</a></li>
+    <li><a href="#s6">Tổ chức dữ liệu và ý nghĩa các biến</a></li>
+    <li><a href="#s7">Thuật toán từng bước</a></li>
+    <li><a href="#s8">Đánh giá độ phức tạp</a></li>
+    <li><a href="#s9">Tự cài đặt</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
+<section class="box def">
+<div class="body">
+<p><b>Yêu cầu:</b> Cho dãy <var>N</var> số nguyên và số nguyên dương <var>L</var>. Trong các đoạn con liên tiếp có <b>độ dài ít nhất <var>L</var></b>, hãy tìm đoạn có tổng lớn nhất và in ra tổng đó. <br>
+		<b>Giới hạn:</b></p>
+<ul><li><var>1 &le; L &le; N &le; 2 &times; 10<sup>5</sup></var></li><li><var>|a<sub>i</sub>| &le; 10<sup>9</sup></var> &mdash; lưu ý dãy <b>có thể chứa số âm</b>.</li></ul>
+<p>
+		<b>Quy ước ký hiệu dùng xuyên suốt tài liệu:</b> đoạn con luôn được viết là <var>[i, j]</var>, trong đó <var>i</var> là <b>điểm đầu</b> và <var>j</var> là <b>điểm cuối</b>.</p>
+</div>
+</section>
+
+<h2 id="s2"><span class="num">2.</span>Kiến thức nền tảng: Mảng cộng dồn (Prefix Sum)</h2>
+<section class="box def">
+<div class="body">
+<p>Mảng cộng dồn giúp ta lấy tổng của một đoạn con bất kỳ chỉ bằng <b>một phép trừ</b>. Chi phí bỏ ra là <var>O(N)</var> để dựng mảng một lần, đổi lại mỗi lần hỏi tổng chỉ tốn <var>O(1)</var>.</p>
+<p>Gọi <var>S<sub>i</sub></var> là tổng các phần tử từ vị trí <var>1</var> đến vị trí <var>i</var>, với quy ước <var>S<sub>0</sub> = 0</var>. Ta dựng <var>S</var> bằng công thức <var>S<sub>i</sub> = S<sub>i-1</sub> + a<sub>i</sub></var>. Khi đó tổng đoạn <var>[i, j]</var> bằng
+		<div class="formula">Tổng(i, j) = S<sub>j</sub> - S<sub>i-1</sub>.</div></p>
+<p>Hiểu công thức này rất đơn giản: <var>S<sub>j</sub></var> là tổng từ đầu dãy đến <var>j</var>, trong đó có lẫn phần thừa từ đầu dãy đến <var>i-1</var>. Trừ phần thừa ấy đi là còn lại đúng đoạn cần tìm.</p>
+<figure>
+<svg viewBox="0 0 620 165" role="img" aria-label="Tong doan bang hieu hai tien to">
+
+<text class="sv-l" x="8" y="52">Mảng a:</text>
+<rect class="sv-cell" x="80" y="30" width="62" height="42"/><text class="sv-t" x="111" y="57">a<tspan dy="4" font-size="10">1</tspan></text>
+<rect class="sv-cell" x="142" y="30" width="62" height="42"/><text class="sv-t" x="173" y="57">&hellip;</text>
+<rect class="sv-cell" x="204" y="30" width="62" height="42"/><text class="sv-t" x="235" y="57">a<tspan dy="4" font-size="10">i&minus;1</tspan></text>
+<rect class="sv-hi" x="266" y="30" width="186" height="42"/>
+<text class="sv-t" x="297" y="57">a<tspan dy="4" font-size="10">i</tspan></text>
+<text class="sv-t" x="359" y="57">&hellip;</text>
+<text class="sv-t" x="421" y="57">a<tspan dy="4" font-size="10">j</tspan></text>
+<text class="sv-l" x="8" y="118">Mảng S:</text>
+<rect x="80" y="96" width="62" height="42" fill="color-mix(in srgb,var(--orange) 8%,var(--bg))" stroke="var(--rule)"/><text class="sv-t" x="111" y="123">0</text>
+<rect x="142" y="96" width="62" height="42" fill="color-mix(in srgb,var(--orange) 8%,var(--bg))" stroke="var(--rule)"/><text class="sv-t" x="173" y="123">&hellip;</text>
+<rect x="204" y="96" width="62" height="42" fill="color-mix(in srgb,var(--orange) 8%,var(--bg))" stroke="var(--rule)"/><text class="sv-t" x="235" y="123">S<tspan dy="4" font-size="10">i&minus;1</tspan></text>
+<rect x="266" y="96" width="186" height="42" fill="color-mix(in srgb,var(--orange) 8%,var(--bg))" stroke="var(--rule)"/><text class="sv-t" x="359" y="123">&hellip;</text>
+<rect x="452" y="96" width="62" height="42" fill="color-mix(in srgb,var(--orange) 8%,var(--bg))" stroke="var(--rule)"/><text class="sv-t" x="483" y="123">S<tspan dy="4" font-size="10">j</tspan></text>
+<path class="sv-ln" d="M 266 22 V 14 H 452 V 22"/>
+<text class="sv-l" x="359" y="10" text-anchor="middle">tổng đoạn [i, j]</text>
+<path d="M 483 146 C 483 160 235 160 235 146" fill="none" stroke="var(--orange)" stroke-width="1.8"/>
+<text class="sv-o" x="359" y="160" text-anchor="middle">lấy S<tspan dy="3" font-size="9">j</tspan><tspan dy="-3"> &minus; S</tspan><tspan dy="3" font-size="9">i&minus;1</tspan></text>
+
+</svg>
+<figcaption>Tổng đoạn <var>[i, j]</var> lấy được bằng một phép trừ.</figcaption>
+</figure>
+<p><b>Code mẫu (Mảng cộng dồn cơ bản):</b></p>
+<div class="codewrap noname"><pre><code>long long s[N + 1];
+s[0] = 0;
+for (int i = 1; i &lt;= n; i++) {
+	s[i] = s[i - 1] + a[i];
+}
+// Lấy tổng đoạn từ i đến j
+long long tong = s[j] - s[i - 1];</code></pre></div>
+</div>
+</section>
+
+<h2 id="s3"><span class="num">3.</span>Mức 1 &mdash; Thử mọi đoạn con (Subtask 1: <var>N &le; 10<sup>3</sup></var>)</h2>
+<section class="box tech">
+<div class="body">
+<p>Cách nghĩ đầu tiên, và cũng là cách đúng nhất về mặt ý tưởng: cứ liệt kê hết mọi đoạn con hợp lệ rồi lấy tổng lớn nhất.</p>
+<ul><li>Cho điểm cuối <var>j</var> chạy khắp dãy.</li><li>Với mỗi <var>j</var>, cho điểm đầu <var>i</var> chạy qua mọi vị trí hợp lệ.</li><li>Điều kiện &ldquo;đoạn dài ít nhất <var>L</var>&rdquo; viết thành <var>j - i + 1 &ge; L</var>, tức là <var>i &le; j - L + 1</var>.</li></ul>
+<figure>
+<svg viewBox="0 0 620 130" role="img" aria-label="Mien hop le cua diem dau">
+
+<rect class="sv-cell" x="60" y="40" width="490" height="44"/>
+<g stroke="var(--rule)"><line x1="130" y1="40" x2="130" y2="84"/><line x1="200" y1="40" x2="200" y2="84"/>
+<line x1="270" y1="40" x2="270" y2="84"/><line x1="340" y1="40" x2="340" y2="84"/>
+<line x1="410" y1="40" x2="410" y2="84"/><line x1="480" y1="40" x2="480" y2="84"/></g>
+<rect class="sv-old" x="200" y="40" width="350" height="44"/>
+<text class="sv-t" x="375" y="68">đoạn con đang xét [i, j]</text>
+<text class="sv-i" x="95" y="100">1</text><text class="sv-i" x="200" y="102">i</text>
+<text class="sv-i" x="410" y="102">j&minus;L+1</text><text class="sv-i" x="545" y="100">j</text>
+<path class="sv-ln" d="M 200 32 V 24 H 550 V 32"/>
+<text class="sv-l" x="375" y="18" text-anchor="middle">độ dài &ge; L</text>
+<line x1="95" y1="118" x2="405" y2="118" stroke="var(--fg)" stroke-width="1.4" stroke-dasharray="5 4"/>
+<polygon points="412,118 402,113 402,123" fill="var(--fg)"/>
+<text class="sv-i" x="250" y="114">miền hợp lệ của điểm đầu i</text>
+
+</svg>
+<figcaption>Điều kiện độ dài <var>&ge; L</var> ép điểm đầu <var>i &le; j&minus;L+1</var>.</figcaption>
+</figure>
+<p><b>Vì sao chưa đủ.</b> Hai vòng lặp lồng nhau cho độ phức tạp <var>O(N<sup>2</sup>)</var>. Với <var>N = 2 &times; 10<sup>5</sup></var>, số phép tính lên tới <var>4 &times; 10<sup>10</sup></var> &mdash; không giới hạn thời gian nào chịu nổi. Cách này chỉ ăn được Subtask 1 với <var>N &le; 10<sup>3</sup></var>.</p>
+<p>Điều đáng giá là nó cho ta <b>khung tư duy</b>: duyệt điểm cuối <var>j</var>, rồi tìm điểm đầu <var>i</var> tốt nhất. Hai mức sau chỉ làm một việc &mdash; tăng tốc bước &ldquo;tìm điểm đầu tốt nhất&rdquo; từ <var>O(N)</var> xuống <var>O(1)</var>.</p>
+</div>
+</section>
+
+<h2 id="s4"><span class="num">4.</span>Mức 2 &mdash; Cố định điểm cuối, đi tìm điểm đầu tốt nhất (Subtask 2: <var>L = 1</var>)</h2>
+<section class="box tech">
+<div class="body">
+<p>Hãy tạm bỏ ràng buộc độ dài bằng cách xét trường hợp dễ nhất <var>L = 1</var>, tức đoạn con nào cũng hợp lệ.</p>
+<p><b>Quan sát mấu chốt.</b> Khi đã <b>cố định điểm cuối <var>j</var></b>, tổng đoạn <var>[i, j]</var> là
+		<div class="formula">S<sub>j</sub> - S<sub>i-1</sub>.</div>
+		Trong biểu thức này <var>S<sub>j</sub></var> là một con số đã biết, không đổi. Vậy muốn tổng lớn nhất, ta chỉ cần chọn <var>i</var> sao cho <b><var>S<sub>i-1</sub></var> nhỏ nhất</b>.</p>
+<p>Nói gọn: <i>bài toán &ldquo;tìm đoạn tổng lớn nhất kết thúc tại <var>j</var>&rdquo; biến thành bài toán &ldquo;tìm giá trị nhỏ nhất của mảng <var>S</var> ở phía trước <var>j</var>&rdquo;</i>.</p>
+<figure>
+<svg viewBox="0 0 620 120" role="img" aria-label="Truong hop L = 1">
+
+<rect class="sv-hi" x="60" y="42" width="470" height="44"/>
+<g stroke="var(--rule)" stroke-opacity=".5">
+<line x1="119" y1="42" x2="119" y2="86"/><line x1="178" y1="42" x2="178" y2="86"/>
+<line x1="237" y1="42" x2="237" y2="86"/><line x1="296" y1="42" x2="296" y2="86"/>
+<line x1="355" y1="42" x2="355" y2="86"/><line x1="414" y1="42" x2="414" y2="86"/>
+<line x1="473" y1="42" x2="473" y2="86"/></g>
+<text class="sv-t" x="295" y="70">miền tìm giá trị S<tspan dy="4" font-size="10">i&minus;1</tspan><tspan dy="-4"> nhỏ nhất</tspan></text>
+<text class="sv-i" x="60" y="34">0</text><text class="sv-i" x="500" y="34">j&minus;1</text>
+<text class="sv-i" x="530" y="102">điểm cuối j</text>
+<line x1="295" y1="104" x2="295" y2="92" stroke="var(--orange)" stroke-width="2"/>
+<polygon points="295,88 291,98 299,98" fill="var(--orange)"/>
+<text class="sv-o" x="295" y="118" text-anchor="middle">tìm min(S) ở đây để S<tspan dy="3" font-size="9">j</tspan><tspan dy="-3"> &minus; min(S) lớn nhất</tspan></text>
+
+</svg>
+<figcaption>Khi <var>L = 1</var>, miền hợp lệ chỉ rộng thêm, không mất phần tử nào.</figcaption>
+</figure>
+<p><b>Vì sao không cần tìm lại từ đầu mỗi bước.</b> Đây là chỗ tiết kiệm được nhiều nhất. Khi <var>j</var> dịch sang phải một bước, miền hợp lệ <b>chỉ rộng thêm đúng một phần tử</b> là <var>S<sub>j-1</sub></var>; không phần tử nào bị loại khỏi miền cả.</p>
+<p>Một tập hợp chỉ lớn dần thì giá trị nhỏ nhất của nó cũng chỉ có thể giảm đi. Vì vậy ta không cần lưu cả mảng để dò lại &mdash; chỉ cần <b>một biến</b> <code class="inline">min_s</code> nhớ giá trị nhỏ nhất đã gặp, mỗi bước so thêm một phần tử mới. Chi phí mỗi bước là <var>O(1)</var>.</p>
+</div>
+</section>
+
+<h2 id="s5"><span class="num">5.</span>Mức 3 &mdash; Thêm lại ràng buộc độ dài tối thiểu (Subtask 3)</h2>
+<section class="box tech">
+<div class="body">
+<p>Bây giờ quay lại bài toán gốc với <var>L</var> bất kỳ. Ràng buộc <var>i &le; j - L + 1</var> nghĩa là chỉ số của mảng cộng dồn bị trừ, tức <var>i - 1</var>, phải thỏa mãn
+		<div class="formula">i - 1 &le; j - L.</div></p>
+<p>Vậy khi đứng ở điểm cuối <var>j</var>, ta chỉ được lấy <var>min</var> trên đoạn <var>S<sub>0</sub>, S<sub>1</sub>, &hellip;, S<sub>j-L</sub></var>. Phần từ <var>S<sub>j-L+1</sub></var> trở đi là <b>vùng cấm</b>: chọn điểm đầu ở đó thì đoạn con sẽ ngắn hơn <var>L</var>.</p>
+<figure>
+<svg viewBox="0 0 620 125" role="img" aria-label="Vung cam khi co rang buoc do dai toi thieu">
+
+<rect class="sv-hi" x="50" y="42" width="240" height="44"/>
+<text class="sv-t" x="170" y="70">miền tìm min(S)</text>
+<rect class="sv-bad" x="290" y="42" width="200" height="44"/>
+<text class="sv-t" x="390" y="70">độ dài &lt; L</text>
+<rect class="sv-cell" x="490" y="42" width="60" height="44"/>
+<text class="sv-t" x="520" y="70">j</text>
+<text class="sv-i" x="50" y="34">0</text><text class="sv-i" x="290" y="34">j&minus;L</text><text class="sv-i" x="520" y="34">đang xét</text>
+<line x1="290" y1="102" x2="550" y2="102" stroke="var(--orange)" stroke-width="2"/>
+<text class="sv-o" x="420" y="120" text-anchor="middle">độ dài đúng bằng L</text>
+
+</svg>
+<figcaption>Với <var>L</var> bất kỳ, phần sát điểm cuối trở thành vùng cấm.</figcaption>
+</figure>
+<p><b>May mắn là lập luận ở Mức 2 vẫn còn nguyên giá trị.</b> Khi <var>j</var> dịch từ <var>j</var> sang <var>j+1</var>, biên phải của miền hợp lệ nhích từ <var>j-L</var> sang <var>j-L+1</var> &mdash; vẫn là <b>rộng thêm đúng một phần tử</b>, vẫn <b>không phần tử nào bị loại</b>. Do đó một biến <code class="inline">min_s</code> vẫn đủ dùng.</p>
+<p>Khác biệt duy nhất so với Mức 2: phần tử được nạp thêm ở bước <var>j</var> không phải <var>S<sub>j-1</sub></var> nữa, mà là <var>S<sub>j-L</sub></var>. Nói cách khác, <b>việc nạp dữ liệu chạy chậm hơn việc đọc kết quả đúng <var>L</var> nhịp</b>.</p>
+<p>
+		<b>Chạy tay ví dụ trong đề</b> với <var>N = 5</var>, <var>L = 2</var>, dãy <var>1, -3, 2, 4, -1</var>. Mảng cộng dồn là <var>S = [&thinsp;0, 1, -2, 0, 4, 3&thinsp;]</var>.</p>
+<div class="tablewrap"><table><thead><tr><th>Điểm cuối <var>j</var></th><th>Nạp thêm <var>S<sub>j-L</sub></var></th><th><code class="inline">min_s</code></th><th><var>S<sub>j</sub> - <code class="inline">min<sub>s</sub></code></var></th><th><code class="inline">ans</code></th></tr></thead><tbody><tr><td><var>2</var></td><td><var>S<sub>0</sub> = 0</var></td><td><var>0</var></td><td><var>-2 - 0 = -2</var></td><td><var>-2</var></td></tr><tr><td><var>3</var></td><td><var>S<sub>1</sub> = 1</var></td><td><var>0</var></td><td><var>0 - 0 = 0</var></td><td><var>0</var></td></tr><tr><td><var>4</var></td><td><var>S<sub>2</sub> = -2</var></td><td><var>-2</var></td><td><var>4 - (-2) = 6</var></td><td><var>6</var></td></tr><tr><td><var>5</var></td><td><var>S<sub>3</sub> = 0</var></td><td><var>-2</var></td><td><var>3 - (-2) = 5</var></td><td><var>6</var></td></tr></tbody></table></div>
+<p>Đáp án là <var>6</var>, ứng với đoạn <var>[3, 4]</var> gồm hai phần tử <var>2 + 4</var>. Để ý ở bước <var>j = 4</var>: nhờ đã nạp <var>S<sub>2</sub> = -2</var> từ trước, ta lấy ngay được giá trị nhỏ nhất mà không phải dò lại mảng.</p>
+<p><b>Kết luận.</b> Chỉ cần một vòng lặp duy nhất cho <var>j</var> chạy từ <var>L</var> đến <var>N</var>, mỗi bước làm hai việc <var>O(1)</var>: nạp <var>S<sub>j-L</sub></var> vào <code class="inline">min_s</code>, rồi cập nhật đáp án bằng <var>S<sub>j</sub> - <code class="inline">min<sub>s</sub></code></var>. Độ phức tạp giảm từ <var>O(N<sup>2</sup>)</var> xuống <var>O(N)</var>.</p>
+</div>
+</section>
+
+<h2 id="s6"><span class="num">6.</span>Tổ chức dữ liệu và ý nghĩa các biến</h2>
+<section class="box tech">
+<div class="body">
+<ul><li><code class="inline">n</code>, <code class="inline">l</code>: số lượng phần tử và độ dài tối thiểu theo yêu cầu đề.</li><li><code class="inline">s</code>: mảng <code class="inline">long long</code>, <code class="inline">s[i]</code> lưu tổng các phần tử từ <var>1</var> đến <var>i</var>. Phải dùng <code class="inline">long long</code> vì tổng có thể tới <var>2 &times; 10<sup>5</sup> &times; 10<sup>9</sup> = 2 &times; 10<sup>14</sup></var>, vượt xa sức chứa của <code class="inline">int</code> (khoảng <var>2,1 &times; 10<sup>9</sup></var>).</li><li><code class="inline">min_s</code>: giá trị <var>S</var> nhỏ nhất trong miền hợp lệ ứng với điểm cuối đang xét. Khởi tạo bằng một số rất lớn (<var>10<sup>18</sup></var>) để lần so sánh đầu tiên chắc chắn thay được nó.</li><li><code class="inline">ans</code>: tổng lớn nhất tìm được. Khởi tạo bằng một số rất âm (<var>-10<sup>18</sup></var>).</li></ul>
+<p><b>Vì sao <code class="inline">ans</code> không được khởi tạo bằng <var>0</var>.</b> Đề buộc chọn một đoạn con, mà dãy có thể toàn số âm. Chẳng hạn dãy <var>-5, -2, -9</var> với <var>L = 1</var> có đáp án đúng là <var>-2</var>. Nếu khởi tạo <code class="inline">ans = 0</code> thì chương trình in ra <var>0</var> &mdash; một giá trị không ứng với đoạn con nào. Đây là lỗi rất hay gặp.</p>
+</div>
+</section>
+
+<h2 id="s7"><span class="num">7.</span>Thuật toán từng bước</h2>
+<section class="box ex">
+<div class="body">
+<p><b>Bước 1: Dựng mảng cộng dồn</b></p>
+<ul><li>Đọc <var>N</var> và <var>L</var>.</li><li>Gán <code class="inline">s[0] = 0</code>.</li><li>Cho <var>i</var> chạy từ <var>1</var> đến <var>N</var>: vừa đọc phần tử <var>x</var>, vừa gán <code class="inline">s[i] = s[i-1] + x</code>.</li></ul>
+<p><b>Bước 2: Khởi tạo hai biến theo dõi</b></p>
+<ul><li><code class="inline">min_s = 1e18</code> (chưa nạp giá trị nào).</li><li><code class="inline">ans = -1e18</code> (chưa tìm được đoạn nào).</li></ul>
+<p><b>Bước 3: Cho điểm cuối <var>j</var> chạy từ <var>L</var> đến <var>N</var></b></p>
+<ul><li>Nạp phần tử vừa trở thành hợp lệ: <code class="inline">min_s = min(min_s, s[j-l])</code>.</li><li>Cập nhật đáp án: <code class="inline">ans = max(ans, s[j] - min_s)</code>.</li></ul>
+<p>Thứ tự hai dòng này không được đảo: phải nạp trước rồi mới đọc kết quả, vì <var>S<sub>j-L</sub></var> là một điểm đầu hợp lệ của chính bước <var>j</var>.</p>
+<p><b>Bước 4: In kết quả</b></p>
+<ul><li>In giá trị <code class="inline">ans</code>.</li></ul>
+</div>
+</section>
+
+<h2 id="s8"><span class="num">8.</span>Đánh giá độ phức tạp</h2>
+<section class="box cmplx">
+<div class="body">
+<ul><li><b>Thời gian:</b> dựng mảng cộng dồn tốn <var>O(N)</var>, vòng lặp chính tốn <var>O(N)</var>, tổng cộng <var>O(N)</var>. Với <var>N = 2 &times; 10<sup>5</sup></var> là khoảng <var>4 &times; 10<sup>5</sup></var> phép tính &mdash; chạy trong vài phần trăm giây, thừa sức so với giới hạn <var>1</var> giây. So với cách vét cạn <var>O(N<sup>2</sup>)</var> thì nhanh hơn cỡ <var>10<sup>5</sup></var> lần.</li><li><b>Bộ nhớ:</b> một mảng <code class="inline">long long</code> kích thước <var>N + 1</var>, tốn khoảng <var>1,6</var> MB. Độ phức tạp <var>O(N)</var>.</li></ul>
+</div>
+</section>
+
+<h2 id="s9"><span class="num">9.</span>Tự cài đặt</h2>
+<section class="box ex">
+<div class="body">
+<p>Tài liệu này <b>không kèm mã nguồn hoàn chỉnh</b> &mdash; phần cài đặt dành cho bạn.</p>
+<p>Các bước đã mô tả đầy đủ ở mục <i>Thuật toán từng bước</i>; mục <i>Tổ chức dữ liệu</i> cho biết cần những biến nào, kiểu gì, khởi tạo ra sao. Chỉ cần dịch từng bước ấy sang C++ là xong.</p>
+<p><b>Trước khi nộp, kiểm lại bốn điều:</b></p>
+<ol><li>Mảng khai theo <b>ràng buộc trong đề</b>, không theo số trong ví dụ.</li><li>Tổng có vượt <code class="inline">int</code> không? Nếu <var>N &times; max|a<sub>i</sub>|</var> vượt <var>2 &times; 10<sup>9</sup></var> thì phải dùng <code class="inline">long long</code>.</li><li>Biến đáp án khởi tạo <b>đúng chiều</b> &mdash; xem lại mục Tổ chức dữ liệu.</li><li>Thử tay ca biên: <var>N = 1</var>, và ví dụ trong đề.</li></ol>
+</div>
+</section>
+
+</div>
+
+</div>
+
+<script src="../../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>

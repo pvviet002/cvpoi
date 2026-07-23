@@ -3,40 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tối ưu Điểm Họp Làng (Rerooting DP)</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #0B1220; 
-            --bg2: #0F1A2E; 
-            --panel: #111E36;
-            --accent: #38D6C4;   
-            --accent2: #5B8CFF;  
-            --mark: #FFB454;     
-            --red: #FF6B6B;      
-            --text-main: #E2E8F0; 
-            --text-muted: #94A3B8;
-            --glow: 0 0 20px rgba(56,214,196,.4);
-            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
-            --border: 1px solid rgba(255,255,255,.1);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-        h1, h2, h3 {
-            font-family: 'Space Grotesk', sans-serif;
-            letter-spacing: -0.03em;
-            margin-bottom: 1rem;
-        }
-        p { margin-bottom: 1rem; }
+    <title>Lời giải: Tối ưu điểm họp làng (Rerooting DP) | Lý thuyết CP</title>
+    <link rel="stylesheet" href="../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --text-main: var(--fg);
+  --text-muted: var(--muted);
+  --glow: none;
+  --shadow: none;
+  --border: var(--border);
+}
         
         .topnav {
             position: sticky; 
@@ -50,17 +33,6 @@
             backdrop-filter: blur(10px);
             border-bottom: var(--border);
         }
-        .nav-btn {
-            text-decoration: none; 
-            color: #000;
-            background: linear-gradient(135deg, var(--accent2), var(--accent));
-            padding: 8px 18px; 
-            border-radius: 8px; 
-            font-weight: 600;
-            box-shadow: var(--glow); 
-            transition: all .3s ease;
-            font-family: 'Inter', sans-serif;
-        }
         .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .nav-btn.outline { 
             background: transparent; 
@@ -72,8 +44,6 @@
             background: rgba(56,214,196,.1); 
             box-shadow: var(--glow); 
         }
-
-        .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
         
         .hero { text-align: center; margin-bottom: 50px; }
         .hero h1 { 
@@ -114,7 +84,7 @@
         }
         
         .code-block {
-            background: #0A1220; border: var(--border); border-radius: 12px;
+            background: var(--code-bg); border: var(--border); border-radius: 12px;
             padding: 20px 0; font-family: 'JetBrains Mono', monospace;
             overflow-x: auto; margin-bottom: 20px; font-size: 0.9rem;
         }
@@ -133,7 +103,7 @@
 
         .lab-container {
             display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px;
-            background: #0A1220; border-radius: 16px; border: var(--border); overflow: hidden;
+            background: var(--code-bg); border-radius: 16px; border: var(--border); overflow: hidden;
         }
         @media (max-width: 900px) { .lab-container { grid-template-columns: 1fr; } }
         
@@ -209,16 +179,71 @@
         .mini-node:hover { transform: scale(1.1); box-shadow: var(--glow); }
         .mini-node.sel { background: var(--accent); color: #000; }
         .mini-edge { width: 40px; height: 4px; background: var(--text-muted); }
-    </style>
+    
+        /* Ép tiêu đề và khối mã theo bảng màu của chuẩn: vài trang còn màu gõ
+           cứng của bản nền tối (h2 màu trắng), sang nền sáng là chữ trắng trên
+           nền trắng — đo được tương phản đúng bằng 1. */
+        h1, h2, h3, h4{color:var(--fg)}
+        h2 .num{color:var(--blue)}
+        pre, .code-line{color:var(--code-fg)}
+        /* Vài trang có quy tắc riêng đặc hiệu hơn (ví dụ .container h2) nên
+           phải dùng !important mới thắng được màu gõ cứng của bản nền tối. */
+        h1, h2, h3, h4{color:var(--fg) !important}
+        h2 .num{color:var(--blue) !important}
+        p, li{color:var(--fg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Tối ưu điểm họp làng bằng kỹ thuật đổi gốc.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Tối ưu điểm họp làng (Rerooting DP) | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Tối ưu điểm họp làng bằng kỹ thuật đổi gốc.">
+<!--/cv-head-->
 </head>
 <body>
-
-<nav class="topnav">
-    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
-    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../index.html">Cây &amp; LCA</a><span class="cv-sep">/</span><span class="cv-here">Tối ưu điểm họp làng</span></span>
+  </div>
 </nav>
+<!--/cv-nav-->
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Họp Làng</div>
+  <a href="#s1">1. 1. Tóm tắt đề bài</a>
+  <a href="#s2">2. 2. Vì sao cần Rerooting DP?</a>
+  <a href="#s3">3. 3. Khám phá công thức "Dời điểm họp"</a>
+  <a href="#s4">4. 4. Lab Thực Hành (Rerooting Simulator)</a>
+  <a href="#s5">5. 5. Cạm Bẫy Thường Gặp</a>
+  <a href="#s6">6. 6. Kiểm tra nhanh</a>
+</aside>
+
+<div class="main">
 
 <div class="container">
+<div class="box tech">
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">1. Tóm tắt đề bài</a></li>
+    <li><a href="#s2">2. Vì sao cần Rerooting DP?</a></li>
+    <li><a href="#s3">3. Khám phá công thức "Dời điểm họp"</a></li>
+    <li><a href="#s4">4. Lab Thực Hành (Rerooting Simulator)</a></li>
+    <li><a href="#s5">5. Cạm Bẫy Thường Gặp</a></li>
+    <li><a href="#s6">6. Kiểm tra nhanh</a></li>
+  </ol>
+</nav>
+
     <div class="hero">
         <h1>Họp Làng</h1>
         <p>Tìm tâm của cây với kỹ thuật Quy hoạch động thay rễ (Rerooting DP)</p>
@@ -238,8 +263,8 @@
         </div>
     </div>
 
-    <div class="card">
-        <h2 class="card-title">1. Tóm tắt đề bài</h2>
+    <div class="box tech">
+        <h2 id="s1"><span class="num">1.</span>1. Tóm tắt đề bài</h2>
         <p><strong>Đề bài:</strong> Làng có n ngôi nhà nối bằng n-1 con đường (tạo thành một Đồ thị dạng Cây). Mọi con đường dài 1 đơn vị. Cần tìm 1 ngôi nhà làm nơi tổ chức họp sao cho <strong>tổng quãng đường</strong> từ tất cả các nhà khác tới đó là <strong>nhỏ nhất</strong>.</p>
         
         <div class="grid-2">
@@ -263,8 +288,8 @@
         </div>
     </div>
 
-    <div class="card">
-        <h2 class="card-title">2. Vì sao cần Rerooting DP?</h2>
+    <div class="box tech">
+        <h2 id="s2"><span class="num">2.</span>2. Vì sao cần Rerooting DP?</h2>
         <div class="grid-2">
             <div class="trap-card" style="border-color: var(--text-muted); background: rgba(255,255,255,.05);">
                 <h3 style="color: var(--text-muted);">Cách ngây thơ (Brute Force)</h3>
@@ -283,8 +308,8 @@
         </div>
     </div>
 
-    <div class="card">
-        <h2 class="card-title">3. Khám phá công thức "Dời điểm họp"</h2>
+    <div class="box tech">
+        <h2 id="s3"><span class="num">3.</span>3. Khám phá công thức "Dời điểm họp"</h2>
         <p>Giả sử ta đã biết tổng quãng đường nếu mọi người tụ tập ở nhà <span class="inline-code">u</span> là <span class="inline-code">f[u]</span>. Bây giờ, trưởng làng muốn dời địa điểm sang nhà <span class="inline-code">v</span> (nhà hàng xóm của u).</p>
         <p>Chuyện gì sẽ xảy ra với quãng đường đi của từng người?</p>
         <ul style="margin-left: 20px; margin-bottom: 15px; color: var(--text-muted);">
@@ -319,8 +344,8 @@
         </div>
     </div>
 
-    <div class="card">
-        <h2 class="card-title">4. Lab Thực Hành (Rerooting Simulator)</h2>
+    <div class="box tech">
+        <h2 id="s4"><span class="num">4.</span>4. Lab Thực Hành (Rerooting Simulator)</h2>
         <p>Hãy chạy từng bước để xem thuật toán xử lý cây ví dụ: <strong>1 - 2 - 3 - 4</strong> (n = 4).</p>
         
         <div class="lab-container">
@@ -343,7 +368,7 @@
                 
                 <div class="msg-box" id="msg-box">Sẵn sàng. Nhấn Tiến để bắt đầu!</div>
                 
-                <table class="var-table">
+                <div class="tablewrap"><table class="var-table">
                     <tr>
                         <th>Đỉnh (i)</th>
                         <th>1</th><th>2</th><th>3</th><th>4</th>
@@ -356,7 +381,7 @@
                         <td>f[i]</td>
                         <td id="v-f-1">-</td><td id="v-f-2">-</td><td id="v-f-3">-</td><td id="v-f-4">-</td>
                     </tr>
-                </table>
+                </table></div>
                 
                 <div class="code-block" style="padding: 10px 0; margin-bottom: 0;">
                     <div class="codeline" id="l1"><span class="c-kw">void</span> <span class="c-fn">dfs1</span>(u, p):</div>
@@ -377,8 +402,8 @@
         </div>
     </div>
 
-    <div class="card">
-        <h2 class="card-title">5. Cạm Bẫy Thường Gặp</h2>
+    <div class="box tech">
+        <h2 id="s5"><span class="num">5.</span>5. Cạm Bẫy Thường Gặp</h2>
         <div class="grid-2">
             <div class="trap-card">
                 <h3>✕ Sai lầm: Tính thiếu f[u] trong DFS1</h3>
@@ -393,8 +418,8 @@
         </div>
     </div>
 
-    <div class="card" style="margin-bottom: 0;">
-        <h2 class="card-title">6. Kiểm tra nhanh</h2>
+    <div class="box tech" style="margin-bottom: 0;">
+        <h2 id="s6"><span class="num">6.</span>6. Kiểm tra nhanh</h2>
         <p>Trong công thức <span class="inline-code">f[v] = f[u] - sz[v] + (n - sz[v])</span>, đại lượng <span class="inline-code">(n - sz[v])</span> đại diện cho điều gì?</p>
         
         <button class="quiz-opt" onclick="checkQuiz(this, false)">A. Số người nằm trong nhánh của u nhưng không nằm trong nhánh v.</button>
@@ -746,5 +771,15 @@
     };
 </script>
 
+</div>
+
+<script src="../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

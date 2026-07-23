@@ -3,55 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mảng cộng dồn & Hashing (Map) - Chuyên đề WEB</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:ital,wght@0,400;0,600;1,400&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36; --line: #22304C; --line2: #2E3F60;
-            --ink: #E6ECF7; --ink-soft: #8FA1C4; --ink-dim: #5A6B8F;
-            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --pink: #FF6B9D; --red: #FF6B6B;
-            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--ink);
-            line-height: 1.6; overflow-x: hidden;
-        }
-        body::before {
-            content: ''; position: fixed; top: -20vh; left: -10vw; width: 60vw; height: 60vh;
-            background: radial-gradient(circle, rgba(56,214,196,0.08) 0%, transparent 70%); z-index: -1;
-        }
-        body::after {
-            content: ''; position: fixed; top: -10vh; right: -10vw; width: 50vw; height: 50vh;
-            background: radial-gradient(circle, rgba(91,140,255,0.08) 0%, transparent 70%); z-index: -1;
-        }
-        
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; width: 100%; }
+    <title>Tiền tố kết hợp bảng băm | Lý thuyết CP</title>
+    <script src="../../../assets/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="../../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --line: var(--border);
+  --line2: var(--border);
+  --ink: var(--fg);
+  --ink-soft: var(--muted);
+  --ink-dim: var(--muted);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --pink: var(--purple);
+  --shadow: none;
+}
         @media (max-width: 768px) { .container { padding: 0 16px; } }
-
-        /* Navigation */
-        nav {
-            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            background: rgba(11, 18, 32, 0.8); border-bottom: 1px solid var(--line); padding: 12px 0; margin-bottom: 30px;
-        }
-        .nav-inner { display: flex; align-items: center; gap: 16px; font-size: 0.9rem; }
-        .nav-btn {
-            color: var(--accent); border: 1px solid var(--accent); background: rgba(56,214,196,0.1);
-            padding: 6px 12px; border-radius: 6px; text-decoration: none; font-weight: 600; transition: 0.2s;
-        }
         .nav-btn:hover { background: rgba(56,214,196,0.2); }
-        .breadcrumb { color: var(--ink-soft); font-weight: 500; display: flex; gap: 8px; align-items: center; }
-
-        /* Typography */
-        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; line-height: 1.3; }
-        h1 { font-size: 2.2rem; margin-bottom: 8px; color: #fff; }
-        h2 { font-size: 1.5rem; margin: 40px 0 20px; color: var(--accent2); border-bottom: 1px solid var(--line); padding-bottom: 8px; }
-        h3 { font-size: 1.2rem; margin: 24px 0 12px; color: var(--ink); }
-        p { margin-bottom: 16px; }
-        strong { color: var(--accent); font-weight: 600; }
         
         /* Summary & Cards */
         .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin: 24px 0; }
@@ -84,7 +57,7 @@
         /* Code Block & Copy/Snap */
         .codewrap, .snapbox { position: relative; margin: 20px 0; }
         .code {
-            background: #0A1220; border: 1px solid var(--line); border-radius: 12px;
+            background: var(--code-bg); border: 1px solid var(--line); border-radius: 12px;
             padding: 16px 0; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.6;
         }
         .code div { padding: 0 16px; white-space: pre-wrap; }
@@ -167,44 +140,84 @@
         .q-explain { margin-top: 16px; padding: 12px; border-radius: 8px; font-size: 0.9rem; display: none; line-height: 1.5; }
         .question-card.correct .q-explain { display: block; background: rgba(56,214,196,0.05); border-left: 3px solid var(--accent); }
         .question-card.wrong .q-explain { display: block; background: rgba(255,107,107,0.05); border-left: 3px solid var(--red); }
-
-        footer { text-align: center; padding: 40px 0; color: var(--ink-dim); border-top: 1px solid var(--line); margin-top: 60px; font-size: 0.9rem; }
     </style>
-</head>
-<body>
 
-<nav>
-    <div class="container nav-inner">
-        <a href="/index.html" class="nav-btn">Trang chủ</a>
-        <a href="https://cvpoi.id.vn" target="_blank" rel="noopener" class="nav-btn">cvpoi.id.vn</a>
-        <div class="breadcrumb">Nhóm Kỹ thuật / <span>Mảng cộng dồn & Hashing (Map)</span></div>
-    </div>
+<!--cv-head-->
+<link rel="stylesheet" href="../../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<meta name="description" content="Đếm đoạn con thỏa điều kiện bằng mảng cộng dồn và bảng băm.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Tiền tố kết hợp bảng băm | Lý thuyết CP">
+<meta property="og:description" content="Đếm đoạn con thỏa điều kiện bằng mảng cộng dồn và bảng băm.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Tiền tố kết hợp bảng băm</div>
+  <a href="#s1">1. So sánh với các kỹ thuật thay thế</a>
+  <a href="#s2">2. Bài toán và động lực</a>
+  <a href="#s3">3. Cài đặt C++ — đếm đoạn con tổng K</a>
+  <a href="#s4">4. Đoạn con dài nhất có tổng K</a>
+  <a href="#s5">5. Các lỗi thường gặp</a>
+  <a href="#s6">6. Kiểm tra kiến thức</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../index.html">Tổng tiền tố</a><span class="cv-sep">/</span><span class="cv-here">Tiền tố kết hợp bảng băm</span></span>
+  </div>
 </nav>
+<!--/cv-nav-->
 
 <div class="container">
-    <h1>Kỹ thuật Mảng cộng dồn kết hợp Map</h1>
-    <p>Thay vì sử dụng 2 vòng lặp lồng nhau mất O(N²), kỹ thuật biến đổi công thức và tra cứu trạng thái lịch sử qua Hash Map giúp giải quyết hàng loạt bài toán về đoạn con (Subarray) chỉ với O(N log N) hoặc O(N).</p>
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Tiền tố kết hợp bảng băm</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
 
-    <div class="summary-grid snapbox">
+<p>Khi đề hỏi “có bao nhiêu đoạn con thoả điều kiện”, mảng cộng dồn một mình chưa đủ — phải ghép thêm một bảng băm đếm số lần xuất hiện của tiền tố.</p>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">So sánh với các kỹ thuật thay thế</a></li>
+    <li><a href="#s2">Bài toán và động lực</a></li>
+    <li><a href="#s3">Cài đặt C++ — đếm đoạn con tổng K</a></li>
+    <li><a href="#s4">Đoạn con dài nhất có tổng K</a></li>
+    <li><a href="#s5">Các lỗi thường gặp</a></li>
+    <li><a href="#s6">Kiểm tra kiến thức</a></li>
+  </ol>
+</nav>
+
+<div class="summary-grid snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <div class="card">
+        <div class="box tech">
             <h3>Ý tưởng chủ đạo</h3>
             <p>Phân tích tổng đoạn [L, R] thành hiệu hai tiền tố: S<sub>R</sub> - S<sub>L-1</sub> = K. Biến đổi thành <strong>S<sub>L-1</sub> = S<sub>R</sub> - K</strong>. Ta dùng <code>std::map</code> để lưu trữ lịch sử các S<sub>i</sub> đã gặp, từ đó biết được S<sub>L-1</sub> có tồn tại hay không chỉ trong O(log N).</p>
         </div>
-        <div class="card">
+        <div class="box tech">
             <h3>Dùng khi nào?</h3>
             <p>Khi bài toán yêu cầu Đếm số lượng, Tìm độ dài Max/Min của đoạn con liên tiếp có tổng bằng K, tổng chia hết cho K, hoặc các điều kiện cân bằng (số lượng 0 bằng số lượng 1).</p>
         </div>
-        <div class="card">
+        <div class="box tech">
             <h3>Điểm mạnh & Yếu</h3>
             <p><strong>Mạnh:</strong> Khử vòng lặp lồng nhau, xử lý tốt mảng có số âm và tổng cực lớn.<br><strong>Yếu:</strong> Khai báo <code>std::map</code> mang theo hằng số thời gian (overhead) khá lớn so với mảng tĩnh.</p>
         </div>
     </div>
 
-    <h2>So sánh với các kỹ thuật thay thế</h2>
+    <h2 id="s1"><span class="num">1.</span>So sánh với các kỹ thuật thay thế</h2>
     <div class="table-wrap snapbox">
+
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <table>
+        <div class="tablewrap"><table>
             <thead>
                 <tr>
                     <th>Kỹ thuật</th>
@@ -249,11 +262,11 @@
                     <td>Bài toán có yêu cầu truy vấn xen kẽ với cập nhật dữ liệu.</td>
                 </tr>
             </tbody>
-        </table>
+        </table></div>
         <p style="font-size: 0.85rem; color: var(--ink-dim); padding: 0 16px;">(*) Prefix Sum sinh ra mảng tĩnh, nếu mảng gốc thay đổi (cập nhật), ta phải tính lại toàn bộ Prefix Sum mất O(N).</p>
     </div>
 
-    <h2>Bài toán & Động lực</h2>
+    <h2 id="s2"><span class="num">2.</span>Bài toán và động lực</h2>
     <p><strong>Yêu cầu:</strong> Cho mảng A có N phần tử (có thể chứa số âm). Đếm số lượng đoạn con liên tiếp có tổng đúng bằng K.</p>
     <p>Cách tiếp cận <strong>ngây thơ (Naive)</strong> sẽ cố định điểm đầu L, duyệt điểm cuối R và cộng dồn dần để kiểm tra. Cách này đòi hỏi xét mọi cặp (L, R), dẫn đến O(N²).</p>
     <p><strong>Quan sát then chốt:</strong><br>
@@ -293,7 +306,7 @@
         </ol>
     </div>
 
-    <h2>Cài đặt C++: Đếm số đoạn con tổng K</h2>
+    <h2 id="s3"><span class="num">3.</span>Cài đặt C++ — đếm đoạn con tổng K</h2>
     <div class="codewrap">
         <button class="copy-btn" onclick="copyCode(this)">Copy</button>
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
@@ -362,8 +375,7 @@
         </div>
     </div>
 
-
-    <h2>Kỹ thuật: Đoạn con dài nhất có tổng K</h2>
+    <h2 id="s4"><span class="num">4.</span>Đoạn con dài nhất có tổng K</h2>
     <p>Thay vì đếm số lượng, ta cần tối đa hóa độ dài đoạn <code>(R - L + 1)</code>. Vẫn chung ý tưởng tra cứu <code>target = S[R] - K</code>.</p>
     <p><strong>Quan sát:</strong> Để đoạn <code>[L, R]</code> dài nhất, chỉ số <code>L-1</code> (tức điểm bắt đầu của tiền tố bị cắt đi) phải <strong>nhỏ nhất có thể</strong> (càng xa về bên trái càng tốt). Do đó, trong Hash Map, thay vì lưu tần suất, ta lưu <strong>vị trí xuất hiện đầu tiên</strong> của từng giá trị <code>S[i]</code>.</p>
     
@@ -435,7 +447,7 @@
         </div>
     </div>
 
-    <h2>Các Lỗi Thường Gặp (Pitfalls)</h2>
+    <h2 id="s5"><span class="num">5.</span>Các lỗi thường gặp</h2>
     <div class="summary-grid snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
         <div class="card" style="border-color: var(--red);">
@@ -457,7 +469,7 @@
 
     <div class="quiz-container">
         <div class="quiz-header">
-            <h2>Kiểm tra kiến thức</h2>
+            <h2 id="s6"><span class="num">6.</span>Kiểm tra kiến thức</h2>
             <div class="score-box">Điểm: <span id="quiz-score">0</span> / 12</div>
         </div>
         <div id="quiz-list">
@@ -466,13 +478,6 @@
     </div>
 
 </div>
-
-<footer>
-    <div class="container">
-        <p>Chuyên đề Lập trình thi đấu — Phát triển theo yêu cầu WEB.</p>
-        <p>Bản quyền thuộc về hệ thống bài giảng cvpoi.id.vn. Module Prefix Sum & Map.</p>
-    </div>
-</footer>
 
 <script>
 // --- UTILS ---
@@ -631,7 +636,6 @@ async function snapBox(b){
     makeSteps();
     paint();
 })();
-
 
 // --- LAB 2: Longest subarray with Sum = 2 ---
 (function(){
@@ -823,5 +827,16 @@ quizData.forEach((q, idx) => {
     });
 });
 </script>
+</div>
+</div>
+
+<script src="../../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

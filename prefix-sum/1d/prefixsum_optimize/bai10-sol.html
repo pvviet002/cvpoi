@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lời giải: Trung bình lớn nhất với độ dài tối thiểu | Lý thuyết CP</title>
+<link rel="stylesheet" href="../../../assets/chuan.css">
+<style>
+/* Chỉ còn hình SVG, công thức và danh sách 10 bài của chương. */
+.formula{text-align:center;margin:14px 0;font-size:1.05rem;padding:8px 4px;overflow-x:auto}
+code.inline{font-family:"Cascadia Mono",Consolas,"Noto Sans Mono",monospace;font-size:.88em;
+background:color-mix(in srgb,var(--fg) 8%,transparent);padding:1px 5px;border-radius:4px}
+.dsbai{margin-top:14px;padding-top:10px;border-top:1px solid var(--border)}
+.dsbai a{padding:3px 8px 3px 8px;font-size:12.6px}
+.dsbai a.here{color:var(--fg);font-weight:700}
+.dsbai .lb{font-size:11.5px;color:var(--muted);text-transform:uppercase;
+letter-spacing:.05em;margin-bottom:5px}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Trung bình lớn nhất với độ dài tối thiểu.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Trung bình lớn nhất với độ dài tối thiểu | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Trung bình lớn nhất với độ dài tối thiểu.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Trung bình lớn nhất với độ dài tối thiểu</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Kiến thức nền tảng: Chặt nhị phân trên đáp…</a>
+  <a href="#s3">3. Mức 1 — Thử mọi đoạn con (Subtask 1: N ≤ 1…</a>
+  <a href="#s4">4. Mức 2 — Vì sao không làm thẳng như bài tổn…</a>
+  <a href="#s5">5. Mức 3 — Đảo câu hỏi rồi chặt nhị phân (Sub…</a>
+  <a href="#s6">6. Tổ chức dữ liệu, kiểu số thực và cách chấm</a>
+  <a href="#s7">7. Thuật toán từng bước</a>
+  <a href="#s8">8. Đánh giá độ phức tạp</a>
+  <a href="#s9">9. Tự cài đặt</a>
+
+<div class="dsbai">
+		<div class="lb">10 bài của chương</div>
+		<a href="bai1-sol.html">1. Tổng lớn nhất</a>
+		<a href="bai2-sol.html">2. Độ dài tối thiểu</a>
+		<a href="bai3-sol.html">3. Xóa một phần tử</a>
+		<a href="bai4-sol.html">4. Trung bình ≥ X</a>
+		<a href="bai5-sol.html">5. Hai đoạn rời nhau</a>
+		<a href="bai6-sol.html">6. Tổng ≤ S</a>
+		<a href="bai7-sol.html">7. Chia hết cho K</a>
+		<a href="bai8-sol.html">8. Độ dài trong [L,R]</a>
+		<a href="bai9-sol.html">9. Chia gấp khúc</a>
+		<a href="bai10-sol.html" class="here">10. Trung bình lớn nhất</a>
+	</div>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../index.html">Tổng tiền tố</a><span class="cv-sep">/</span><span class="cv-here">Trung bình lớn nhất</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Trung bình lớn nhất với độ dài tối thiểu</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Kiến thức nền tảng: Chặt nhị phân trên đáp…</a></li>
+    <li><a href="#s3">Mức 1 — Thử mọi đoạn con (Subtask 1: N ≤ 1…</a></li>
+    <li><a href="#s4">Mức 2 — Vì sao không làm thẳng như bài tổn…</a></li>
+    <li><a href="#s5">Mức 3 — Đảo câu hỏi rồi chặt nhị phân (Sub…</a></li>
+    <li><a href="#s6">Tổ chức dữ liệu, kiểu số thực và cách chấm</a></li>
+    <li><a href="#s7">Thuật toán từng bước</a></li>
+    <li><a href="#s8">Đánh giá độ phức tạp</a></li>
+    <li><a href="#s9">Tự cài đặt</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
+<section class="box def">
+<div class="body">
+<p><b>Yêu cầu:</b> Cho dãy <var>N</var> số nguyên và số <var>L</var>. Trong tất cả các đoạn con có <b>độ dài không nhỏ hơn <var>L</var></b>, tìm giá trị <b>trung bình cộng lớn nhất</b>. <br>
+		<b>Giới hạn:</b></p>
+<ul><li><var>1 &le; L &le; N &le; 2 &times; 10<sup>5</sup></var>, <var>|a<sub>i</sub>| &le; 10<sup>9</sup></var></li><li>Đáp án là <b>số thực</b>, chấp nhận sai số tuyệt đối hoặc tương đối không quá <var>10<sup>-4</sup></var>.</li></ul>
+<p>
+		<b>Quy ước ký hiệu:</b> <var>j</var> là điểm cuối của đoạn con. Với một giá trị thử <var>m</var>, ta dựng dãy đã đổi biến <var>b<sub>i</sub> = a<sub>i</sub> - m</var> và mảng cộng dồn <var>S</var> của nó.</p>
+</div>
+</section>
+
+<h2 id="s2"><span class="num">2.</span>Kiến thức nền tảng: Chặt nhị phân trên đáp án</h2>
+<section class="box def">
+<div class="body">
+<p>Khi khó tính thẳng giá trị tối ưu, ta <i>đoán</i> một giá trị <var>m</var> rồi hỏi câu dễ hơn: <i>&ldquo;có đạt được ít nhất <var>m</var> không?&rdquo;</i></p>
+<p>Cách này dùng được khi câu hỏi kiểm tra thỏa hai điều:</p>
+<ul><li><b>Dễ trả lời</b> &mdash; ở đây chỉ tốn <var>O(N)</var>.</li><li><b>Đơn điệu</b> &mdash; nếu đạt được <var>m</var> thì cũng đạt được mọi giá trị nhỏ hơn <var>m</var>. Nhờ đó tập các <var>m</var> &ldquo;đạt được&rdquo; là một tia, và ta chặt nhị phân để thu hẹp dần khoảng chứa đáp án.</li></ul>
+<figure>
+<svg viewBox="0 0 620 100" role="img" aria-label="Hàm kiểm tra đơn điệu nên chặt nhị phân được">
+
+<line x1="50" y1="50" x2="330" y2="50" stroke="var(--green)" stroke-width="4"/>
+<line x1="330" y1="50" x2="570" y2="50" stroke="var(--orange)" stroke-width="4"/>
+<circle cx="330" cy="50" r="5.5" fill="var(--fg)"/>
+<text class="sv-l" x="330" y="34" text-anchor="middle">đáp án</text>
+<text class="sv-r" x="190" y="76" text-anchor="middle">mọi m ở đây: đạt được</text>
+<text class="sv-o" x="450" y="76" text-anchor="middle">mọi m ở đây: không đạt</text>
+<text class="sv-i" x="28" y="54">min</text><text class="sv-i" x="592" y="54">max</text>
+
+</svg>
+<figcaption>Tập các giá trị đạt được là một tia — nhờ vậy chặt nhị phân hợp lệ.</figcaption>
+</figure>
+<p><b>Code mẫu (khung chặt nhị phân trên số thực):</b></p>
+<div class="codewrap noname"><pre><code>double lo = thap, hi = cao;
+for (int buoc = 0; buoc &lt; 60; buoc++) {
+	double mid = (lo + hi) / 2;
+	if (duoc(mid)) lo = mid;
+	else hi = mid;
+}</code></pre></div>
+</div>
+</section>
+
+<h2 id="s3"><span class="num">3.</span>Mức 1 &mdash; Thử mọi đoạn con (Subtask 1: <var>N &le; 10<sup>3</sup></var>)</h2>
+<section class="box tech">
+<div class="body">
+<p>Dựng mảng cộng dồn, duyệt mọi cặp <var>(i, j)</var> có độ dài ít nhất <var>L</var>, tính trung bình rồi giữ giá trị lớn nhất.</p>
+<p>Chi phí <var>O(N<sup>2</sup>)</var>. Với <var>N &le; 10<sup>3</sup></var> là <var>10<sup>6</sup></var> phép tính, chạy tốt và ăn trọn Subtask 1.</p>
+</div>
+</section>
+
+<h2 id="s4"><span class="num">4.</span>Mức 2 &mdash; Vì sao không làm thẳng như bài tổng lớn nhất (Subtask 2: <var>L = 1</var>)</h2>
+<section class="box tech">
+<div class="body">
+<p>Ở bài &ldquo;Tổng lớn nhất với độ dài tối thiểu&rdquo;, ta tối ưu <i>tổng</i> &mdash; một đại lượng viết được thành hiệu hai tiền tố, nên chỉ cần giữ tiền tố nhỏ nhất.</p>
+<p>Ở đây đại lượng cần tối ưu là <i>trung bình</i>, tức một phân số mà <b>cả tử lẫn mẫu đều thay đổi</b> theo đoạn. Không có công thức &ldquo;hiệu hai tiền tố&rdquo; nào cho ra trung bình, nên kỹ thuật cũ không áp thẳng được.</p>
+<p>Ngay cả trường hợp dễ nhất <var>L = 1</var> cũng không đơn giản hơn: đáp án khi ấy là <var>max a<sub>i</sub></var> (đoạn một phần tử luôn tốt nhất, vì trung bình của một tập không bao giờ vượt phần tử lớn nhất của nó) &mdash; nhưng nhận xét ấy không mở rộng được cho <var>L > 1</var>.</p>
+<p>Cần một cách nghĩ khác hẳn.</p>
+</div>
+</section>
+
+<h2 id="s5"><span class="num">5.</span>Mức 3 &mdash; Đảo câu hỏi rồi chặt nhị phân (Subtask 3)</h2>
+<section class="box tech">
+<div class="body">
+<p><b>Quan sát mấu chốt.</b> Thay vì hỏi &ldquo;trung bình lớn nhất là bao nhiêu&rdquo;, hãy hỏi:
+		<div class="formula">có tồn tại đoạn dài ít nhất L với trung bình &ge; m không?</div></p>
+<p>Câu hỏi này ta đã biết cách trả lời &mdash; chính là phép đổi biến của bài <i>Đoạn con dài nhất có trung bình <var>&ge; X</var></i>:
+		<div class="formula">(a<sub>i</sub> + &hellip; + a<sub>j</sub>)/(j-i+1) &ge; m &hArr; (a<sub>i</sub> - m) + &hellip; + (a<sub>j</sub> - m) &ge; 0.</div></p>
+<p>Trừ <var>m</var> khỏi mọi phần tử, bài toán thành &ldquo;có đoạn dài ít nhất <var>L</var> với tổng không âm không&rdquo; &mdash; đúng khuôn của bài <i>Tổng lớn nhất với độ dài tối thiểu</i>, giải bằng biến <code class="inline">min</code> có độ trễ trong <var>O(N)</var>.</p>
+<figure>
+<svg viewBox="0 0 620 120" role="img" aria-label="Hàm kiểm tra dùng lại khuôn biến min có độ trễ">
+
+<rect class="sv-hi" x="40" y="45" width="230" height="46"/>
+<text class="sv-t" x="155" y="74">miền tìm min S</text>
+<rect class="sv-bad" x="270" y="45" width="230" height="46"/>
+<text class="sv-t" x="385" y="74">độ dài &lt; L</text>
+<rect class="sv-cell" x="500" y="45" width="60" height="46"/>
+<text class="sv-t" x="530" y="74">j</text>
+<text class="sv-i" x="270" y="38">j&minus;L</text>
+<text class="sv-i" x="300" y="108">nạp S<tspan dy="3" font-size="9">j&minus;L</tspan><tspan dy="-3"> vào min khi tới j</tspan></text>
+
+</svg>
+<figcaption>Hàm kiểm tra dùng lại đúng khuôn biến min có độ trễ của bài 2.</figcaption>
+</figure>
+<p><b>Hàm kiểm tra đơn điệu.</b> Nếu đạt được trung bình <var>m</var> thì hiển nhiên cũng đạt được mọi giá trị nhỏ hơn <var>m</var> &mdash; vì cùng đoạn ấy vẫn thỏa điều kiện yếu hơn. Vậy chặt nhị phân trên <var>m</var> là hợp lệ.</p>
+<p><b>Chọn khoảng và số vòng lặp.</b> Đáp án luôn nằm giữa phần tử nhỏ nhất và lớn nhất của dãy. Khoảng rộng cỡ <var>2 &times; 10<sup>9</sup></var>; mỗi vòng chia đôi nên sau <var>b</var> vòng độ rộng còn <var>2 &times; 10<sup>9</sup> / 2<sup>b</sup></var>. Muốn xuống dưới <var>10<sup>-4</sup></var> cần <var>b &asymp; 45</var>; ta dùng <var>60</var> vòng cho chắc chắn.</p>
+<p>
+		<b>Chạy tay ví dụ trong đề</b> với <var>N = 6</var>, <var>L = 4</var>, dãy <var>1, 12, -5, -6, 50, 3</var>. Khoảng ban đầu là <var>[-6; 50]</var>:</p>
+<div class="tablewrap"><table><thead><tr><th>Vòng</th><th><var>m</var> thử</th><th>Có đoạn dài <var>&ge; 4</var> với tổng <var>&ge; 0</var>?</th><th>Khoảng mới</th></tr></thead><tbody><tr><td><var>1</var></td><td><var>22,00</var></td><td>không</td><td><var>[-6,00; 22,00]</var></td></tr><tr><td><var>2</var></td><td><var>8,00</var></td><td>có</td><td><var>[8,00; 22,00]</var></td></tr><tr><td><var>3</var></td><td><var>15,00</var></td><td>không</td><td><var>[8,00; 15,00]</var></td></tr><tr><td><var>4</var></td><td><var>11,50</var></td><td>có</td><td><var>[11,50; 15,00]</var></td></tr><tr><td><var>5</var></td><td><var>13,25</var></td><td>không</td><td><var>[11,50; 13,25]</var></td></tr></tbody></table></div>
+<p>Khoảng đang co dần về <var>12,75</var> &mdash; đúng đáp án của đề, ứng với đoạn <var>[2, 5]</var> gồm <var>12 - 5 - 6 + 50 = 51</var> và <var>51 / 4 = 12,75</var>.</p>
+</div>
+</section>
+
+<h2 id="s6"><span class="num">6.</span>Tổ chức dữ liệu, kiểu số thực và cách chấm</h2>
+<section class="box tech">
+<div class="body">
+<ul><li><code class="inline">n</code>, <code class="inline">l</code>: số phần tử và độ dài tối thiểu.</li><li><code class="inline">a</code>: mảng <code class="inline">long long</code> lưu dãy gốc.</li><li><code class="inline">s</code>: mảng <code class="inline">double</code>, <code class="inline">s[i]</code> là tổng cộng dồn của dãy <i>đã trừ <var>m</var></i>. Phải dựng lại ở mỗi vòng chặt nhị phân vì <var>m</var> thay đổi.</li><li><code class="inline">lo</code>, <code class="inline">hi</code>: hai biên của khoảng chứa đáp án.</li></ul>
+<p><b>Vì sao dùng <code class="inline">double</code> mà vẫn an toàn.</b> Giá trị <var>|a<sub>i</sub> - m|</var> không quá <var>2 &times; 10<sup>9</sup></var>, cộng dồn <var>N</var> phần tử cho tới <var>4 &times; 10<sup>14</sup></var>. Kiểu <code class="inline">double</code> biểu diễn chính xác mọi số nguyên tới <var>9 &times; 10<sup>15</sup></var>, nên sai số tích lũy ở đây rất nhỏ so với ngưỡng <var>10<sup>-4</sup></var> mà đề cho phép.</p>
+<p><b>In kết quả.</b> Dùng <code class="inline">cout << fixed << setprecision(6)</code> để in sáu chữ số sau dấu phẩy.</p>
+<p><b>Lưu ý quan trọng về chấm bài.</b> Vì đáp án là số thực, hai lời giải đều đúng có thể in ra <var>999732162,828125</var> và <var>999732162,828133</var> &mdash; lệch ở chữ số thứ mười lăm. Bài này vì thế <b>phải chấm bằng trình chấm ngoài so sánh sai số</b>, không được so khớp chuỗi tuyệt đối. Nếu chấm bằng so khớp chuỗi, một lời giải hoàn toàn đúng vẫn có thể mất điểm oan ở vài test.</p>
+</div>
+</section>
+
+<h2 id="s7"><span class="num">7.</span>Thuật toán từng bước</h2>
+<section class="box ex">
+<div class="body">
+<p><b>Bước 1: Đọc dữ liệu và đặt khoảng ban đầu</b></p>
+<ul><li>Đọc <var>N</var>, <var>L</var> và toàn bộ dãy.</li><li>Đặt <code class="inline">lo</code> bằng phần tử nhỏ nhất, <code class="inline">hi</code> bằng phần tử lớn nhất.</li></ul>
+<p><b>Bước 2: Lặp khoảng <var>60</var> lần</b></p>
+<ul><li>Lấy <code class="inline">mid = (lo + hi) / 2</code>.</li><li>Gọi hàm kiểm tra: có đoạn dài ít nhất <var>L</var> với tổng của <var>a<sub>i</sub> - <code class="inline">mid</code></var> không âm hay không.</li><li>Nếu có thì <code class="inline">lo = mid</code>, ngược lại <code class="inline">hi = mid</code>.</li></ul>
+<p><b>Bước 3: Hàm kiểm tra</b> (chi phí <var>O(N)</var>)</p>
+<ul><li>Dựng <var>S<sub>i</sub> = S<sub>i-1</sub> + a<sub>i</sub> - <code class="inline">mid</code></var>.</li><li>Cho <var>j</var> chạy từ <var>L</var> đến <var>N</var>: nạp <code class="inline">mn = min(mn, S[j-L])</code>, rồi nếu <code class="inline">S[j] - mn >= 0</code> thì trả về <i>có</i>.</li><li>Hết vòng lặp mà chưa gặp thì trả về <i>không</i>.</li></ul>
+<p><b>Bước 4: In kết quả</b></p>
+<ul><li>In <code class="inline">lo</code> với sáu chữ số sau dấu phẩy.</li></ul>
+</div>
+</section>
+
+<h2 id="s8"><span class="num">8.</span>Đánh giá độ phức tạp</h2>
+<section class="box cmplx">
+<div class="body">
+<ul><li><b>Thời gian:</b> <var>60</var> vòng chặt nhị phân, mỗi vòng một lượt quét <var>O(N)</var> &mdash; tổng cộng <var>O(N log (V)/(&epsilon;))</var> với <var>V &asymp; 2 &times; 10<sup>9</sup></var>. Khoảng <var>1,2 &times; 10<sup>7</sup></var> phép tính, chạy trong vài phần mười giây.</li><li><b>Bộ nhớ:</b> một mảng <code class="inline">long long</code> và một mảng <code class="inline">double</code> kích thước <var>N</var>, tốn khoảng <var>3,2</var> MB. Độ phức tạp <var>O(N)</var>.</li></ul>
+</div>
+</section>
+
+<h2 id="s9"><span class="num">9.</span>Tự cài đặt</h2>
+<section class="box ex">
+<div class="body">
+<p>Tài liệu này <b>không kèm mã nguồn hoàn chỉnh</b> &mdash; phần cài đặt dành cho bạn.</p>
+<p>Các bước đã mô tả đầy đủ ở mục <i>Thuật toán từng bước</i>; mục <i>Tổ chức dữ liệu</i> cho biết cần những biến nào, kiểu gì, khởi tạo ra sao. Chỉ cần dịch từng bước ấy sang C++ là xong.</p>
+<p><b>Trước khi nộp, kiểm lại bốn điều:</b></p>
+<ol><li>Mảng khai theo <b>ràng buộc trong đề</b>, không theo số trong ví dụ.</li><li>Tổng có vượt <code class="inline">int</code> không? Nếu <var>N &times; max|a<sub>i</sub>|</var> vượt <var>2 &times; 10<sup>9</sup></var> thì phải dùng <code class="inline">long long</code>.</li><li>Biến đáp án khởi tạo <b>đúng chiều</b> &mdash; xem lại mục Tổ chức dữ liệu.</li><li>Thử tay ca biên: <var>N = 1</var>, và ví dụ trong đề.</li></ol>
+</div>
+</section>
+
+</div>
+
+</div>
+
+<script src="../../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>

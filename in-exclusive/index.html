@@ -3,50 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bao hàm - Loại trừ | Chuyên đề Lập trình thi đấu</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36; --line: #22304C; --line2: #2E3F60;
-            --ink: #E6ECF7; --ink-soft: #8FA1C4; --ink-dim: #5A6B8F;
-            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --pink: #FF6B9D; --red: #FF6B6B;
-            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
-        }
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--ink);
-            line-height: 1.6;
-            overflow-x: hidden;
-            padding-bottom: 60px;
-        }
-        
-        /* Background Glows */
-        body::before, body::after {
-            content: ''; position: fixed; top: -150px; border-radius: 50%; filter: blur(120px); z-index: -1; pointer-events: none;
-        }
-        body::before { left: -100px; width: 400px; height: 400px; background: rgba(56, 214, 196, 0.08); }
-        body::after { right: -100px; width: 500px; height: 500px; background: rgba(91, 140, 255, 0.08); }
-
-        .container {
-            max-width: 1200px; margin: 0 auto; padding: 0 24px; width: 100%;
-        }
+    <title>Bao hàm — loại trừ | Lý thuyết CP</title>
+    <script src="../assets/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --line: var(--border);
+  --line2: var(--border);
+  --ink: var(--fg);
+  --ink-soft: var(--muted);
+  --ink-dim: var(--muted);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --pink: var(--purple);
+  --shadow: none;
+}
         @media (max-width: 768px) { .container { padding: 0 16px; } }
-
-        /* Typography */
-        h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; color: #fff; margin-top: 1.5em; margin-bottom: 0.5em; }
-        h1 { font-size: 2.2rem; color: var(--accent); margin-top: 0; }
-        h2 { font-size: 1.5rem; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
-        h3 { font-size: 1.2rem; color: var(--accent2); }
-        p { margin-bottom: 1em; }
-        ul, ol { margin-left: 1.5em; margin-bottom: 1em; }
-        li { margin-bottom: 0.4em; }
-        strong { color: #fff; font-weight: 600; }
         
         /* Inline Math & Code */
         code {
@@ -55,24 +32,7 @@
         }
         .math { font-style: italic; color: var(--ink-soft); }
         sup, sub { font-size: 0.75em; line-height: 0; }
-
-        /* Navigation */
-        .nav-sticky {
-            position: sticky; top: 0; z-index: 100;
-            background: rgba(11, 18, 32, 0.85); backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--line); padding: 12px 0; margin-bottom: 30px;
-        }
-        .nav-inner {
-            display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 24px;
-        }
-        .nav-links { display: flex; gap: 12px; }
-        .nav-btn {
-            text-decoration: none; font-size: 0.85rem; font-weight: 600;
-            padding: 6px 14px; border-radius: 6px; transition: 0.2s;
-            background: transparent; color: var(--accent); border: 1px solid var(--accent);
-        }
         .nav-btn:hover { background: rgba(56, 214, 196, 0.1); }
-        .breadcrumb { font-size: 0.9rem; color: var(--ink-soft); }
         .breadcrumb span { color: var(--ink); font-weight: 500; }
 
         /* Cards & Boxes */
@@ -121,7 +81,7 @@
         /* Code Blocks */
         .codewrap, .snapbox { position: relative; }
         .code-container {
-            background: #0A1220; border: 1px solid var(--line2); border-radius: 8px;
+            background: var(--code-bg); border: 1px solid var(--line2); border-radius: 8px;
             overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
             line-height: 1.6; margin-bottom: 24px; position: relative;
         }
@@ -158,7 +118,7 @@
         .sim-controls { padding: 16px; background: rgba(0,0,0,0.2); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
         .sim-body { display: flex; flex-direction: column; }
         @media (min-width: 900px) { .sim-body { flex-direction: row; } }
-        .sim-code { flex: 1; border-right: 1px solid var(--line); overflow-x: auto; background: #0A1220; padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.6; }
+        .sim-code { flex: 1; border-right: 1px solid var(--line); overflow-x: auto; background: var(--code-bg); padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.6; }
         .sim-panel { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
         
         .btn {
@@ -222,28 +182,82 @@
             padding: 10px 24px; border-radius: 30px; font-weight: bold; color: var(--accent); box-shadow: 0 10px 20px rgba(0,0,0,0.5);
             z-index: 10; display: inline-block; margin: 20px auto 0; text-align: center;
         }
+    
+        /* Bắt buộc khối mã theo bảng màu của chuẩn: vài trang còn sót màu gõ
+           cứng của bản nền tối, sang nền sáng thì chữ gần như tàng hình
+           (đo được tương phản 1,42). */
+        pre{color:var(--code-fg)}
+        pre .k, pre .t{color:var(--c-kw)}
+        pre .n{color:var(--c-num)}
+        pre .c{color:var(--c-cmt); font-style:italic}
+        pre .s{color:var(--c-str)}
+        pre .f{color:var(--c-fn)}
+        .err pre, .ok pre{background:var(--code-bg)}
+</style>
 
-        footer { text-align: center; padding: 40px 0; color: var(--ink-dim); font-size: 0.9rem; border-top: 1px solid var(--line); margin-top: 40px; }
-    </style>
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Đếm số phần tử thỏa ít nhất một trong nhiều điều kiện.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Bao hàm — loại trừ | Lý thuyết CP">
+<meta property="og:description" content="Đếm số phần tử thỏa ít nhất một trong nhiều điều kiện.">
+<!--/cv-head-->
 </head>
-<body>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Bao hàm — loại trừ</div>
+  <a href="#s1">1. So sánh các kỹ thuật đếm</a>
+  <a href="#s2">2. Bài toán và động lực</a>
+  <a href="#s3">3. Thuật toán từng bước</a>
+  <a href="#s4">4. Cài đặt C++</a>
+  <a href="#s5">5. Mô phỏng 1 — vì sao trừ rồi lại cộng</a>
+  <a href="#s6">6. Mô phỏng 2 — cơ chế bitmask</a>
+  <a href="#s7">7. Mở rộng và lỗi thường gặp</a>
+  <a href="#s8">8. Trắc nghiệm kiểm tra</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb">Toán<span class="cv-sep">/</span><span class="cv-here">Bao hàm — loại trừ</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
 
     <!-- Sticky Nav -->
-    <nav class="nav-sticky">
-        <div class="nav-inner">
-            <div class="breadcrumb">Toán rời rạc / <span>Bao hàm - Loại trừ</span></div>
-            <div class="nav-links">
-                <a href="/index.html" class="nav-btn">Trang chủ</a>
-                <a href="https://cvpoi.id.vn" target="_blank" rel="noopener" class="nav-btn">cvpoi.id.vn</a>
-            </div>
-        </div>
-    </nav>
+    
 
     <div class="container">
-        <h1>Nguyên lý Bao hàm - Loại trừ (PIE)</h1>
-        <p class="math">"Đếm đúng không để sót, trừ đi phần bị trùng lặp."</p>
-        
-        <div class="snapbox card">
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Bao hàm — loại trừ</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p>Đếm số phần tử thỏa ít nhất một trong nhiều điều kiện: cộng vào rồi trừ ra theo số điều kiện chẵn lẻ, để không phần tử nào bị đếm hai lần.</p>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">So sánh các kỹ thuật đếm</a></li>
+    <li><a href="#s2">Bài toán và động lực</a></li>
+    <li><a href="#s3">Thuật toán từng bước</a></li>
+    <li><a href="#s4">Cài đặt C++</a></li>
+    <li><a href="#s5">Mô phỏng 1 — vì sao trừ rồi lại cộng</a></li>
+    <li><a href="#s6">Mô phỏng 2 — cơ chế bitmask</a></li>
+    <li><a href="#s7">Mở rộng và lỗi thường gặp</a></li>
+    <li><a href="#s8">Trắc nghiệm kiểm tra</a></li>
+  </ol>
+</nav>
+
+<div class="snapbox card">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
             <div class="summary-grid">
                 <div class="summary-item">
@@ -265,10 +279,11 @@
             </div>
         </div>
 
-        <h2>Bảng so sánh kỹ thuật đếm</h2>
+        <h2 id="s1"><span class="num">1.</span>So sánh các kỹ thuật đếm</h2>
         <div class="snapbox table-wrap">
+
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <table>
+            <div class="tablewrap"><table>
                 <thead>
                     <tr>
                         <th>Kỹ thuật</th>
@@ -308,10 +323,10 @@
                         <td>Khi tập điều kiện K chính là "tất cả các số nguyên tố", liên quan đến ƯCLN (GCD).</td>
                     </tr>
                 </tbody>
-            </table>
+            </table></div>
         </div>
 
-        <h2>1. Bài toán & Động lực</h2>
+        <h2 id="s2"><span class="num">2.</span>Bài toán và động lực</h2>
         <p>Giả sử bạn cần đếm xem trong khoảng từ 1 đến N (ví dụ N = 10<sup>9</sup>), có bao nhiêu số chia hết cho 2, chia hết cho 3, <strong>hoặc</strong> chia hết cho 5.</p>
         <p><strong>Cách ngây thơ:</strong> Dùng vòng lặp <code>for (i = 1 &rarr; N)</code>, kiểm tra từng số. Rõ ràng sẽ bị Time Limit Exceeded (TLE) vì 10<sup>9</sup> phép toán mất ~1 giây, chưa kể kiểm tra nhiều điều kiện.</p>
         <p><strong>Khó khăn then chốt:</strong> Ta biết số lượng số chia hết cho 2 là <code>N / 2</code>, chia hết cho 3 là <code>N / 3</code>. Nhưng nếu ta chỉ cộng lại: <code>(N / 2) + (N / 3) + (N / 5)</code> thì sẽ <strong>đếm thừa</strong>. Những số như 6 (chia hết cho cả 2 và 3) đã bị cộng 2 lần. Những số như 30 bị cộng tới 3 lần!</p>
@@ -330,7 +345,7 @@
             <p><em>Vì sao đúng?</em> Bất kỳ phần tử nào thuộc đúng X tập hợp (X &ge; 1) sẽ đóng góp vào tổng bằng: C(X,1) - C(X,2) + C(X,3) - ... = 1 (theo khai triển nhị thức Newton của (1-1)<sup>X</sup>). Tức là nó luôn được đếm chính xác 1 lần!</p>
         </div>
 
-        <h2>2. Thuật toán từng bước (Sử dụng Bitmask)</h2>
+        <h2 id="s3"><span class="num">3.</span>Thuật toán từng bước</h2>
         <p>Để duyệt qua mọi cách chọn (giao) của K tập hợp, công cụ mạnh nhất là <strong>Bitmask</strong> (mặt nạ bit). Một số nguyên từ 1 đến 2<sup>K</sup> - 1 sẽ biểu diễn một cấu hình chọn.</p>
         
         <div class="snapbox algo-steps">
@@ -356,7 +371,7 @@
             </ol>
         </div>
 
-        <h2>3. Cài đặt C++</h2>
+        <h2 id="s4"><span class="num">4.</span>Cài đặt C++</h2>
         <div class="codewrap">
             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
@@ -403,7 +418,7 @@ long long solve_PIE(long long N, vector&lt;long long&gt;&amp; primes) {
             </div>
         </div>
 
-        <h2>4. Mô phỏng 1: Tại sao phải trừ rồi lại cộng?</h2>
+        <h2 id="s5"><span class="num">5.</span>Mô phỏng 1 — vì sao trừ rồi lại cộng</h2>
         <p>Hãy xem điều gì xảy ra nếu ta chỉ cộng các tập hợp mà không loại trừ. Bài toán: Tìm các số trong đoạn [1, 15] chia hết cho 2 hoặc 3. <br>
         <em>Màu xanh (Tokens):</em> Các lần một số bị đếm. Mục tiêu là mọi số hợp lệ chỉ có đúng 1 token.</p>
         
@@ -446,7 +461,7 @@ trừ_hết( A ∩ B )
             </div>
         </div>
 
-        <h2>5. Mô phỏng 2: Cơ chế chạy của Bitmask</h2>
+        <h2 id="s6"><span class="num">6.</span>Mô phỏng 2 — cơ chế bitmask</h2>
         <p>Bây giờ ta áp dụng mã giả vào toán học thuần túy. Tìm số lượng số chia hết cho 2, 3, <strong>hoặc</strong> 5 trong đoạn [1, 100]. <br> K = 3, nên ta có 2<sup>3</sup> - 1 = 7 mặt nạ (masks).</p>
         
         <!-- Lab 2: Bitmask Execution -->
@@ -502,7 +517,7 @@ for mask = 1 to 7:
             </div>
         </div>
 
-        <h2>6. Mở rộng & Lỗi thường gặp</h2>
+        <h2 id="s7"><span class="num">7.</span>Mở rộng và lỗi thường gặp</h2>
         <div class="summary-grid">
             <div class="summary-item warn-card">
                 <h4>Lỗi: Tràn số khi tính LCM</h4>
@@ -515,7 +530,7 @@ for mask = 1 to 7:
                 <p><strong>Cách tránh:</strong> Mask 0 biểu diễn "không chọn tập nào". Về mặt PIE cổ điển, ta chỉ giao các tập hợp, nên số lượng tập &ge; 1. Luôn cho <code>mask</code> chạy từ 1. Tuy nhiên, nếu tìm "số lượng không thỏa mãn đ/k nào", ta lấy Tổng mẫu trừ đi PIE.</p>
             </div>
         </div>
-        <div class="card">
+        <div class="box tech">
             <h3>Ứng dụng: Bài toán Hoán vị sai (Derangements)</h3>
             <p>Có N người mang N chiếc mũ tới tiệc. Lúc về, mất điện, mỗi người vơ đại 1 mũ. Hỏi có bao nhiêu cách để <strong>không ai</strong> lấy đúng mũ của mình?</p>
             <p>Sử dụng PIE: Đặt A<sub>i</sub> là tập các cách mà người i lấy đúng mũ của mình. Ta cần tìm: N! - |A<sub>1</sub> &cup; A<sub>2</sub> &cup; ... &cup; A<sub>N</sub>|.<br>
@@ -523,7 +538,7 @@ for mask = 1 to 7:
         </div>
 
         <div class="quiz-container">
-            <h2>7. Trắc nghiệm kiểm tra</h2>
+            <h2 id="s8"><span class="num">8.</span>Trắc nghiệm kiểm tra</h2>
             <!-- Quiz JS will inject questions here -->
             <div id="quiz-wrap"></div>
             <div class="score-box">Điểm: <span id="quiz-score">0</span> / 12</div>
@@ -531,9 +546,7 @@ for mask = 1 to 7:
 
     </div>
 
-    <footer>
-        <p>Biên soạn cho Chuyên đề Lập trình thi đấu. Rendered with HTML5 & JS.</p>
-    </footer>
+    
 
     <script>
         /* Syntax Highlighter (No Regex trapping < >) */
@@ -921,5 +934,16 @@ for mask = 1 to 7:
             });
         });
     </script>
+</div>
+</div>
+
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

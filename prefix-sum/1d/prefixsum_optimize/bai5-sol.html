@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lời giải: Hai đoạn con rời nhau tổng lớn nhất | Lý thuyết CP</title>
+<link rel="stylesheet" href="../../../assets/chuan.css">
+<style>
+/* Chỉ còn hình SVG, công thức và danh sách 10 bài của chương. */
+.formula{text-align:center;margin:14px 0;font-size:1.05rem;padding:8px 4px;overflow-x:auto}
+code.inline{font-family:"Cascadia Mono",Consolas,"Noto Sans Mono",monospace;font-size:.88em;
+background:color-mix(in srgb,var(--fg) 8%,transparent);padding:1px 5px;border-radius:4px}
+.dsbai{margin-top:14px;padding-top:10px;border-top:1px solid var(--border)}
+.dsbai a{padding:3px 8px 3px 8px;font-size:12.6px}
+.dsbai a.here{color:var(--fg);font-weight:700}
+.dsbai .lb{font-size:11.5px;color:var(--muted);text-transform:uppercase;
+letter-spacing:.05em;margin-bottom:5px}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Hai đoạn con rời nhau tổng lớn nhất.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Hai đoạn con rời nhau tổng lớn nhất | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Hai đoạn con rời nhau tổng lớn nhất.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Hai đoạn con rời nhau tổng lớn nhất</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Kiến thức nền tảng: Phân biệt hai loại “tố…</a>
+  <a href="#s3">3. Mức 1 — Thử mọi cặp đoạn (Subtask 1: N ≤ 1…</a>
+  <a href="#s4">4. Mức 2 — Duyệt điểm cắt (Subtask 2)</a>
+  <a href="#s5">5. Tổ chức dữ liệu và ý nghĩa các biến</a>
+  <a href="#s6">6. Thuật toán từng bước</a>
+  <a href="#s7">7. Đánh giá độ phức tạp</a>
+  <a href="#s8">8. Tự cài đặt</a>
+
+<div class="dsbai">
+		<div class="lb">10 bài của chương</div>
+		<a href="bai1-sol.html">1. Tổng lớn nhất</a>
+		<a href="bai2-sol.html">2. Độ dài tối thiểu</a>
+		<a href="bai3-sol.html">3. Xóa một phần tử</a>
+		<a href="bai4-sol.html">4. Trung bình ≥ X</a>
+		<a href="bai5-sol.html" class="here">5. Hai đoạn rời nhau</a>
+		<a href="bai6-sol.html">6. Tổng ≤ S</a>
+		<a href="bai7-sol.html">7. Chia hết cho K</a>
+		<a href="bai8-sol.html">8. Độ dài trong [L,R]</a>
+		<a href="bai9-sol.html">9. Chia gấp khúc</a>
+		<a href="bai10-sol.html">10. Trung bình lớn nhất</a>
+	</div>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../index.html">Tổng tiền tố</a><span class="cv-sep">/</span><span class="cv-here">Hai đoạn con rời nhau</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Hai đoạn con rời nhau tổng lớn nhất</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Kiến thức nền tảng: Phân biệt hai loại “tố…</a></li>
+    <li><a href="#s3">Mức 1 — Thử mọi cặp đoạn (Subtask 1: N ≤ 1…</a></li>
+    <li><a href="#s4">Mức 2 — Duyệt điểm cắt (Subtask 2)</a></li>
+    <li><a href="#s5">Tổ chức dữ liệu và ý nghĩa các biến</a></li>
+    <li><a href="#s6">Thuật toán từng bước</a></li>
+    <li><a href="#s7">Đánh giá độ phức tạp</a></li>
+    <li><a href="#s8">Tự cài đặt</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
+<section class="box def">
+<div class="body">
+<p><b>Yêu cầu:</b> Chọn <b>hai đoạn con liên tiếp khác rỗng, không giao nhau</b> (đoạn thứ nhất nằm hoàn toàn bên trái đoạn thứ hai) sao cho tổng của tất cả phần tử thuộc hai đoạn là lớn nhất. <br>
+		<b>Giới hạn:</b></p>
+<ul><li><var>2 &le; N &le; 2 &times; 10<sup>5</sup></var></li><li><var>|a<sub>i</sub>| &le; 10<sup>9</sup></var> &mdash; dãy có thể toàn số âm.</li></ul>
+<p>
+		<b>Quy ước ký hiệu:</b> vị trí đánh số từ <var>1</var> đến <var>N</var>. Gọi <i>điểm cắt</i> là vị trí <var>i</var> sao cho đoạn thứ nhất nằm gọn trong <var>[1, i]</var> và đoạn thứ hai nằm gọn trong <var>[i+1, N]</var>.</p>
+</div>
+</section>
+
+<h2 id="s2"><span class="num">2.</span>Kiến thức nền tảng: Phân biệt hai loại &ldquo;tốt nhất&rdquo;</h2>
+<section class="box def">
+<div class="body">
+<p>Bài này dễ sai vì có <b>hai đại lượng gần giống nhau</b> mà ý nghĩa khác hẳn. Phải phân biệt rõ trước khi cài:</p>
+<div class="tablewrap"><table><thead><tr><th>Đại lượng</th><th>Ý nghĩa</th></tr></thead><tbody><tr><td><var>cur<sub>i</sub></var></td><td>tổng lớn nhất của đoạn <b>kết thúc đúng tại</b> <var>i</var></td></tr><tr><td><var>tr<sub>i</sub></var></td><td>tổng lớn nhất của đoạn <b>nằm đâu đó trong</b> <var>[1, i]</var></td></tr></tbody></table></div>
+<p>Quan hệ giữa chúng: <var>cur<sub>i</sub> = max(a<sub>i</sub>, cur<sub>i-1</sub> + a<sub>i</sub>)</var>, còn <var>tr<sub>i</sub> = max(tr<sub>i-1</sub>, cur<sub>i</sub>)</var>.</p>
+<p>Nói cách khác, <var>tr</var> là &ldquo;kỷ lục tích lũy&rdquo; của <var>cur</var>. Bài này cần <var>tr</var>, <b>không phải</b> <var>cur</var> &mdash; vì đoạn thứ nhất được phép kết thúc ở bất kỳ đâu trước điểm cắt, không nhất thiết đúng tại đó.</p>
+<p><b>Code mẫu (dựng đồng thời hai biến):</b></p>
+<div class="codewrap noname"><pre><code>cur = best = a[1];
+tr[1] = best;
+for (int i = 2; i &lt;= n; i++) {
+	cur = max(a[i], cur + a[i]);
+	best = max(best, cur);
+	tr[i] = best;
+}</code></pre></div>
+</div>
+</section>
+
+<h2 id="s3"><span class="num">3.</span>Mức 1 &mdash; Thử mọi cặp đoạn (Subtask 1: <var>N &le; 10<sup>3</sup></var>)</h2>
+<section class="box tech">
+<div class="body">
+<p>Cách nghĩ thẳng: duyệt mọi cặp đoạn rời nhau. Bốn chỉ số cần chọn (<var>i<sub>1</sub> &le; j<sub>1</sub> < i<sub>2</sub> &le; j<sub>2</sub></var>) cho chi phí <var>O(N<sup>4</sup>)</var>; dùng mảng cộng dồn để lấy tổng nhanh vẫn không giảm được số cặp.</p>
+<p>Ngay cả với <var>N &le; 10<sup>3</sup></var> thì <var>O(N<sup>4</sup>) = 10<sup>12</sup></var> cũng quá tầm &mdash; cách này phải khéo hơn một chút mới ăn nổi Subtask 1.</p>
+</div>
+</section>
+
+<h2 id="s4"><span class="num">4.</span>Mức 2 &mdash; Duyệt điểm cắt (Subtask 2)</h2>
+<section class="box tech">
+<div class="body">
+<p><b>Quan sát mấu chốt.</b> Hai đoạn rời nhau thì <i>luôn tồn tại</i> một chỗ ngăn cách giữa chúng. Gọi đó là điểm cắt <var>i</var>: đoạn thứ nhất nằm gọn trong <var>[1, i]</var>, đoạn thứ hai nằm gọn trong <var>[i+1, N]</var>.</p>
+<p>Vậy thay vì duyệt bốn chỉ số, ta chỉ duyệt <b>một</b> chỉ số &mdash; điểm cắt &mdash; rồi lấy đoạn tốt nhất ở mỗi bên:
+		<div class="formula">đáp án = max<sub>1 &le; i < N</sub> ( tr<sub>i</sub> + ph<sub>i+1</sub> ),</div>
+		trong đó <var>ph<sub>i</sub></var> là tổng lớn nhất của đoạn nằm đâu đó trong <var>[i, N]</var>.</p>
+<figure>
+<svg viewBox="0 0 620 140" role="img" aria-label="Duyệt điểm cắt, lấy đoạn tốt nhất mỗi bên rồi cộng">
+
+<rect class="sv-hi" x="40" y="45" width="250" height="46" style="fill:color-mix(in srgb,var(--green) 12%,var(--bg))"/>
+<text class="sv-t" x="165" y="74">[1, i]</text>
+<rect class="sv-bad" x="290" y="45" width="250" height="46" style="fill:color-mix(in srgb,var(--orange) 14%,var(--bg))"/>
+<text class="sv-t" x="415" y="74">[i+1, N]</text>
+<line x1="290" y1="28" x2="290" y2="110" stroke="var(--orange)" stroke-width="2.2" stroke-dasharray="6 4"/>
+<text class="sv-o" x="290" y="20" text-anchor="middle">điểm cắt i</text>
+<text class="sv-r" x="165" y="108" text-anchor="middle">lấy tr<tspan dy="4" font-size="10">i</tspan></text>
+<text class="sv-o" x="415" y="108" text-anchor="middle">lấy ph<tspan dy="4" font-size="10">i+1</tspan></text>
+<text class="sv-i" x="290" y="130">hai bên hoàn toàn độc lập</text>
+
+</svg>
+<figcaption>Duyệt điểm cắt, lấy đoạn tốt nhất mỗi bên rồi cộng lại.</figcaption>
+</figure>
+<p>Hai bên hoàn toàn độc lập: chọn đoạn nào bên trái không ảnh hưởng gì tới bên phải. Nên cứ lấy tốt nhất mỗi bên rồi cộng lại.</p>
+<p><b>Đây lại là khuôn &ldquo;quét hai lượt rồi ghép&rdquo;</b> đã gặp ở bài <i>Xóa một phần tử</i>. Khác biệt duy nhất: bài trước ghép <var>fw</var> với <var>bw</var> (đoạn kết thúc/bắt đầu <i>đúng tại</i> một vị trí), bài này ghép <var>tr</var> với <var>ph</var> (đoạn <i>nằm trong</i> một nửa).</p>
+<p><b>Chỗ hay sai nhất.</b> Nếu lỡ dùng <var>fw</var> thay cho <var>tr</var>, ta vô tình ép đoạn thứ nhất phải kết thúc <i>đúng tại</i> điểm cắt &mdash; bỏ sót rất nhiều phương án. Hãy kiểm bằng ví dụ nhỏ trước khi nộp.</p>
+<p>
+		<b>Chạy tay ví dụ trong đề</b> với dãy <var>3, -1, 4, -10, 2, 5</var>:</p>
+<div class="tablewrap"><table><thead><tr><th><var>i</var></th><th><var>1</var></th><th><var>2</var></th><th><var>3</var></th><th><var>4</var></th><th><var>5</var></th><th><var>6</var></th></tr></thead><tbody><tr><td><var>a<sub>i</sub></var></td><td><var>3</var></td><td><var>-1</var></td><td><var>4</var></td><td><var>-10</var></td><td><var>2</var></td><td><var>5</var></td></tr><tr><td><var>tr<sub>i</sub></var></td><td><var>3</var></td><td><var>3</var></td><td><var>6</var></td><td><var>6</var></td><td><var>6</var></td><td><var>7</var></td></tr><tr><td><var>ph<sub>i</sub></var></td><td><var>7</var></td><td><var>7</var></td><td><var>7</var></td><td><var>7</var></td><td><var>7</var></td><td><var>5</var></td></tr></tbody></table></div>
+<p>Thử từng điểm cắt:</p>
+<div class="tablewrap"><table><thead><tr><th>Điểm cắt <var>i</var></th><th><var>tr<sub>i</sub> + ph<sub>i+1</sub></var></th><th>Giá trị</th></tr></thead><tbody><tr><td><var>1</var></td><td><var>3 + 7</var></td><td><var>10</var></td></tr><tr><td><var>2</var></td><td><var>3 + 7</var></td><td><var>10</var></td></tr><tr><td><var>3</var></td><td><var>6 + 7</var></td><td><var>13</var></td></tr><tr><td><var>4</var></td><td><var>6 + 7</var></td><td><var>13</var></td></tr><tr><td><var>5</var></td><td><var>6 + 5</var></td><td><var>11</var></td></tr></tbody></table></div>
+<p>Đáp án là <var>13</var>, ứng với đoạn <var>[1, 3]</var> có tổng <var>3 - 1 + 4 = 6</var> và đoạn <var>[5, 6]</var> có tổng <var>2 + 5 = 7</var>. Khớp đề.</p>
+</div>
+</section>
+
+<h2 id="s5"><span class="num">5.</span>Tổ chức dữ liệu và ý nghĩa các biến</h2>
+<section class="box tech">
+<div class="body">
+<ul><li><code class="inline">n</code>: số phần tử.</li><li><code class="inline">a</code>: mảng <code class="inline">long long</code> lưu dãy gốc &mdash; bắt buộc lưu vì phải quét hai chiều.</li><li><code class="inline">tr</code>: <code class="inline">tr[i]</code> là tổng lớn nhất của đoạn nằm trong <var>[1, i]</var>.</li><li><code class="inline">ph</code>: <code class="inline">ph[i]</code> là tổng lớn nhất của đoạn nằm trong <var>[i, N]</var>.</li><li><code class="inline">cur</code>, <code class="inline">best</code>: hai biến tạm dùng khi quét &mdash; <code class="inline">cur</code> cho đoạn kết thúc tại vị trí đang xét, <code class="inline">best</code> cho kỷ lục tích lũy.</li><li><code class="inline">ans</code>: đáp án, khởi tạo <code class="inline">LLONG_MIN</code>.</li></ul>
+<p>Tổng có thể tới <var>2 &times; 10<sup>14</sup></var> nên mọi đại lượng trên đều phải là <code class="inline">long long</code>.</p>
+<p><b>Vì sao <code class="inline">ans</code> không được khởi tạo bằng <var>0</var>.</b> Đề buộc chọn <i>hai</i> đoạn khác rỗng, mà dãy có thể toàn số âm. Chẳng hạn dãy <var>-5, -2</var> có đáp án đúng là <var>-7</var> (buộc phải lấy cả hai phần tử). Khởi tạo <var>0</var> sẽ in ra <var>0</var> &mdash; sai.</p>
+</div>
+</section>
+
+<h2 id="s6"><span class="num">6.</span>Thuật toán từng bước</h2>
+<section class="box ex">
+<div class="body">
+<p><b>Bước 1: Đọc dữ liệu</b></p>
+<ul><li>Đọc <var>N</var> và toàn bộ dãy vào mảng <code class="inline">a</code>.</li></ul>
+<p><b>Bước 2: Quét từ trái dựng <var>tr</var></b></p>
+<ul><li>Khởi tạo <code class="inline">cur = best = a[1]</code>, <code class="inline">tr[1] = best</code>.</li><li>Cho <var>i</var> từ <var>2</var> đến <var>N</var>: cập nhật <code class="inline">cur = max(a[i], cur + a[i])</code>, rồi <code class="inline">best = max(best, cur)</code>, rồi <code class="inline">tr[i] = best</code>.</li></ul>
+<p><b>Bước 3: Quét từ phải dựng <var>ph</var></b></p>
+<ul><li>Khởi tạo <code class="inline">cur = best = a[n]</code>, <code class="inline">ph[n] = best</code>.</li><li>Cho <var>i</var> từ <var>N-1</var> về <var>1</var>: làm y hệt Bước 2 nhưng theo chiều ngược.</li></ul>
+<p><b>Bước 4: Duyệt điểm cắt</b></p>
+<ul><li>Cho <var>i</var> từ <var>1</var> đến <var>N-1</var>: thử <code class="inline">ans = max(ans, tr[i] + ph[i+1])</code>.</li><li>In giá trị <code class="inline">ans</code>.</li></ul>
+</div>
+</section>
+
+<h2 id="s7"><span class="num">7.</span>Đánh giá độ phức tạp</h2>
+<section class="box cmplx">
+<div class="body">
+<ul><li><b>Thời gian:</b> ba lượt quét độc lập, mỗi lượt <var>O(N)</var> &mdash; tổng cộng <var>O(N)</var>, khoảng <var>6 &times; 10<sup>5</sup></var> phép tính.</li><li><b>Bộ nhớ:</b> ba mảng <code class="inline">long long</code> kích thước <var>N</var>, tốn khoảng <var>4,8</var> MB. Độ phức tạp <var>O(N)</var>.</li></ul>
+</div>
+</section>
+
+<h2 id="s8"><span class="num">8.</span>Tự cài đặt</h2>
+<section class="box ex">
+<div class="body">
+<p>Tài liệu này <b>không kèm mã nguồn hoàn chỉnh</b> &mdash; phần cài đặt dành cho bạn.</p>
+<p>Các bước đã mô tả đầy đủ ở mục <i>Thuật toán từng bước</i>; mục <i>Tổ chức dữ liệu</i> cho biết cần những biến nào, kiểu gì, khởi tạo ra sao. Chỉ cần dịch từng bước ấy sang C++ là xong.</p>
+<p><b>Trước khi nộp, kiểm lại bốn điều:</b></p>
+<ol><li>Mảng khai theo <b>ràng buộc trong đề</b>, không theo số trong ví dụ.</li><li>Tổng có vượt <code class="inline">int</code> không? Nếu <var>N &times; max|a<sub>i</sub>|</var> vượt <var>2 &times; 10<sup>9</sup></var> thì phải dùng <code class="inline">long long</code>.</li><li>Biến đáp án khởi tạo <b>đúng chiều</b> &mdash; xem lại mục Tổ chức dữ liệu.</li><li>Thử tay ca biên: <var>N = 1</var>, và ví dụ trong đề.</li></ol>
+</div>
+</section>
+
+</div>
+
+</div>
+
+<script src="../../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>

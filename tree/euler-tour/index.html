@@ -3,74 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kỹ thuật Euler Tour Trên Cây</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@600;700&display=swap');
-
-        :root {
-            --bg: #0B1220;
-            --bg2: #0F1A2E;
-            --panel: #111E36;
-            --line: #22304C;
-            --line2: #2E3F60;
-            --ink: #E6ECF7;
-            --ink-soft: #8FA1C4;
-            --ink-dim: #5A6B8F;
-            --accent: #38D6C4;
-            --accent2: #5B8CFF;
-            --highlight: #FFB454;
-            --pink: #FF6B9D;
-            --correct: #4ade80;
-            --wrong: #f87171;
-            
-            --font-head: 'Space Grotesk', sans-serif;
-            --font-body: 'Inter', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body {
-            background-color: var(--bg);
-            color: var(--ink);
-            font-family: var(--font-body);
-            line-height: 1.6;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Nền Gradient mờ */
-        body::before, body::after {
-            content: '';
-            position: fixed;
-            width: 600px;
-            height: 600px;
-            border-radius: 50%;
-            filter: blur(120px);
-            z-index: -1;
-            opacity: 0.15;
-            pointer-events: none;
-        }
-        body::before {
-            top: -200px; left: -100px;
-            background: radial-gradient(circle, var(--accent), transparent);
-        }
-        body::after {
-            top: 20%; right: -200px;
-            background: radial-gradient(circle, var(--accent2), transparent);
-        }
-
-        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+    <title>Euler Tour trên cây | Lý thuyết CP</title>
+    <link rel="stylesheet" href="../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --line: var(--border);
+  --line2: var(--border);
+  --ink: var(--fg);
+  --ink-soft: var(--muted);
+  --ink-dim: var(--muted);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --highlight: var(--amber);
+  --pink: var(--purple);
+  --correct: var(--green);
+  --wrong: var(--red);
+  --font-head: "Noto Sans","Segoe UI",system-ui,sans-serif;
+  --font-body: "Noto Sans","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Noto Sans Mono","Consolas",ui-monospace,monospace;
+}
         a:hover { color: var(--accent2); }
-
-        /* Typography */
-        h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 700; color: var(--ink); margin-bottom: 1rem; }
-        h1 { font-size: 2.2rem; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        h2 { font-size: 1.5rem; margin-top: 2rem; border-bottom: 1px solid var(--line); padding-bottom: 0.5rem; }
-        h3 { font-size: 1.2rem; color: var(--ink-soft); margin-top: 1.5rem; }
-        p, ul, ol { margin-bottom: 1rem; color: var(--ink-soft); }
-        li { margin-left: 1.5rem; margin-bottom: 0.5rem; }
-        strong { color: var(--ink); font-weight: 600; }
         code { font-family: var(--font-mono); background: var(--bg2); padding: 0.1rem 0.3rem; border-radius: 4px; font-size: 0.9em; color: var(--accent2); }
 
         /* Layout & Components */
@@ -80,16 +36,6 @@
             margin: 0 auto; 
             padding: 0 24px; 
         }
-        
-        .sticky-nav {
-            position: sticky; top: 0; z-index: 100;
-            background: rgba(11, 18, 32, 0.8); backdrop-filter: blur(8px);
-            border-bottom: 1px solid var(--line);
-            padding: 0.75rem 1rem;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .nav-links { display: flex; gap: 1rem; }
-        .breadcrumb { font-family: var(--font-head); color: var(--ink-soft); font-size: 0.9rem; }
         .breadcrumb span { color: var(--ink); font-weight: 600; }
 
         .btn {
@@ -197,7 +143,7 @@
 
         /* Code Block Highlighter */
         pre.code-block {
-            background: #0A1220; padding: 16px; border-radius: 8px; border: 1px solid var(--line);
+            background: var(--code-bg); padding: 16px; border-radius: 8px; border: 1px solid var(--line);
             overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6;
             tab-size: 4; margin-top: 1rem; position: relative; white-space: pre; width: 100%;
             counter-reset: line;
@@ -251,30 +197,79 @@
         
         :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
         @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
-    </style>
+    
+        /* Bắt buộc khối mã theo bảng màu của chuẩn: vài trang còn sót màu gõ
+           cứng của bản nền tối, sang nền sáng thì chữ gần như tàng hình
+           (đo được tương phản 1,42). */
+        pre{color:var(--code-fg)}
+        pre .k, pre .t{color:var(--c-kw)}
+        pre .n{color:var(--c-num)}
+        pre .c{color:var(--c-cmt); font-style:italic}
+        pre .s{color:var(--c-str)}
+        pre .f{color:var(--c-fn)}
+        .err pre, .ok pre{background:var(--code-bg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<meta name="description" content="Đưa cây về mảng để dùng được các truy vấn đoạn.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Euler Tour trên cây | Lý thuyết CP">
+<meta property="og:description" content="Đưa cây về mảng để dùng được các truy vấn đoạn.">
+<!--/cv-head-->
 </head>
-<body>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
 
-    <nav class="sticky-nav">
-        <div class="breadcrumb">
-            <a href="/index.html">Trang chủ</a> / <span>Đồ thị & Cây</span> / <span>Euler Tour</span>
-        </div>
-        <div class="nav-links">
-            <a href="https://cvpoi.id.vn" target="_blank" class="btn">Mở cvpoi.id.vn</a>
-        </div>
-    </nav>
+<aside class="side">
+  <div class="hd">Euler Tour trên cây</div>
+  <a href="#s1">1. Bài toán và động lực</a>
+  <a href="#s2">2. Hai kiểu Euler Tour thường gặp</a>
+  <a href="#s3">3. Mô phỏng 1 — DFS sinh Euler Tour</a>
+  <a href="#s4">4. Công thức và cài đặt mẫu</a>
+  <a href="#s5">5. Mô phỏng 2 — cây con là một đoạn</a>
+  <a href="#s6">6. Kiểm tra kiến thức</a>
+</aside>
 
-    <!-- WRAPPER VĂN BẢN (720px) -->
-    <div class="container-text">
-        <header style="margin: 3rem 0;">
-            <h1>Kỹ thuật Euler Tour trên Cây</h1>
-            <p style="font-size: 1.1rem;">Khám phá sức mạnh của việc biến đổi cấu trúc cây thành mảng phẳng, mở khóa khả năng áp dụng Segment Tree/BIT cho các bài toán truy vấn cây con.</p>
-        </header>
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../index.html">Cây &amp; LCA</a><span class="cv-sep">/</span><span class="cv-here">Euler Tour</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Euler Tour trên cây</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p>Duyệt cây một lượt rồi ghi lại thứ tự vào, thứ tự ra. Nhờ đó mỗi cây con trở thành một đoạn liên tục trên mảng, và mọi kỹ thuật truy vấn đoạn đều dùng được.</p>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Bài toán và động lực</a></li>
+    <li><a href="#s2">Hai kiểu Euler Tour thường gặp</a></li>
+    <li><a href="#s3">Mô phỏng 1 — DFS sinh Euler Tour</a></li>
+    <li><a href="#s4">Công thức và cài đặt mẫu</a></li>
+    <li><a href="#s5">Mô phỏng 2 — cây con là một đoạn</a></li>
+    <li><a href="#s6">Kiểm tra kiến thức</a></li>
+  </ol>
+</nav>
+
+<div>
 
         <!-- PHẦN 1 & 2: Lý thuyết -->
-        <div class="card">
+        <div class="box tech">
             <div class="card-glow"></div>
-            <h2 style="margin-top: 0;">Phần 1: Bài toán & Động lực</h2>
+            <h2 id="s1"><span class="num">1.</span>Bài toán và động lực</h2>
             <p>Giả sử bạn được cho một cây có gốc (Rooted Tree) gồm <code>N</code> đỉnh. Mỗi đỉnh chứa một giá trị. Bạn phải trả lời <code>Q</code> truy vấn thuộc các loại sau:</p>
             <ul>
                 <li><strong>Cập nhật:</strong> Thay đổi giá trị của đỉnh <code>u</code> (hoặc cộng thêm vào toàn bộ cây con của <code>u</code>).</li>
@@ -286,7 +281,7 @@
                 <strong>Chìa khóa:</strong> Euler Tour biến CÂY thành MẢNG PHẲNG. Cây con ↔ Đoạn liên tục trên mảng.
             </div>
 
-            <h2 style="margin-top: 2.5rem;">Phần 2: Hai kiểu Euler Tour thường gặp</h2>
+            <h2 id="s2"><span class="num">2.</span>Hai kiểu Euler Tour thường gặp</h2>
             <p>Có 2 cách đánh số thời gian (timer) khi duyệt DFS để tạo ra mảng phẳng. Cần phân biệt rõ để tránh sai lệch chỉ số.</p>
             
             <h3>Kiểu A: In/Out (Mảng kích thước 2N)</h3>
@@ -309,9 +304,9 @@
 
     <!-- WRAPPER RỘNG (1200px) CHO MÔ PHỎNG 1 -->
     <div class="container-wide">
-        <div class="card" style="border-color: var(--accent2);">
+        <div class="box tech">
             <div class="card-glow" style="background: linear-gradient(90deg, transparent, var(--accent2), transparent);"></div>
-            <h2 style="margin-top: 0;">Mô phỏng 1: DFS sinh Euler Tour</h2>
+            <h2 id="s3"><span class="num">3.</span>Mô phỏng 1 — DFS sinh Euler Tour</h2>
             <p style="font-size: 0.9rem;">Quan sát cách DFS "trải phẳng" cây. Chú ý thanh ghi thời gian và mảng bên dưới cuộn dài liền mạch khi được thêm ô mới.</p>
             
             <!-- Tầng 1: Cây SVG & Bảng điều khiển -->
@@ -363,16 +358,16 @@
             <!-- Tầng 3: Khối code -->
             <div class="sim-layer-3">
                 <h3 style="font-size: 0.9rem; margin: 0 0 0.5rem 0; text-align: left; color: var(--ink-soft);">Mã nguồn chạy tương ứng</h3>
-                <pre class="code-block" id="code-dfs" style="margin-top: 0;"></pre>
+                <div class="codewrap noname"><pre class="code-block" id="code-dfs" style="margin-top: 0;"></pre></div>
             </div>
         </div>
     </div>
 
     <!-- WRAPPER VĂN BẢN (720px) CHO PHẦN 3 & 4 -->
-    <div class="container-text">
-        <div class="card" style="margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom: none;">
+    <div>
+        <div class="box tech">
             <div class="card-glow"></div>
-            <h2 style="margin-top: 0;">Phần 3 & 4: Công thức tính & Cài đặt mẫu</h2>
+            <h2 id="s4"><span class="num">4.</span>Công thức và cài đặt mẫu</h2>
             
             <h3>1. Công thức đoạn cây con</h3>
             <p>Như đã thấy ở mô phỏng, để lấy đoạn mảng tương ứng với cây con <code>u</code>:</p>
@@ -401,16 +396,16 @@
 
     <!-- WRAPPER RỘNG (1200px) CHO KHỐI CODE LÝ THUYẾT -->
     <div class="container-wide">
-        <div class="card" style="margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; padding-top: 0;">
-            <pre class="code-block" id="code-full" style="margin-top: 1rem;"></pre>
+        <div class="box tech">
+            <div class="codewrap noname"><pre class="code-block" id="code-full" style="margin-top: 1rem;"></pre></div>
         </div>
     </div>
 
     <!-- WRAPPER RỘNG (1200px) CHO MÔ PHỎNG 2 -->
     <div class="container-wide">
-        <div class="card" style="border-color: var(--pink);">
+        <div class="box tech">
             <div class="card-glow" style="background: linear-gradient(90deg, transparent, var(--pink), transparent);"></div>
-            <h2 style="margin-top: 0;">Mô phỏng 2: Trực giác "Cây con là một đoạn liên tục"</h2>
+            <h2 id="s5"><span class="num">5.</span>Mô phỏng 2 — cây con là một đoạn</h2>
             <p><strong>Bấm vào một đỉnh bất kỳ trên cây</strong>. Hãy quan sát cách toàn bộ các đỉnh thuộc cây con đó sáng lên, và điều kỳ diệu là chúng tạo thành một <strong>khối liền mạch</strong> không thể phá vỡ trên mảng Euler.</p>
             
             <!-- Tầng 1 -->
@@ -443,7 +438,7 @@
                         </div>
                     </div>
 
-                    <div class="card" style="background: var(--bg); margin-bottom: 0; padding: 1rem; margin-top: 1rem;">
+                    <div class="box tech">
                         <h4 style="margin-top: 0; margin-bottom: 0.5rem;">Kiểm tra Tổ tiên (Ancestor Check)</h4>
                         <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
                             <label>u:</label>
@@ -468,9 +463,9 @@
     </div>
 
     <!-- WRAPPER VĂN BẢN (720px) CHO CÁC PHẦN CÒN LẠI -->
-    <div class="container-text">
+    <div>
         <!-- PHẦN 6: Các lỗi thường gặp -->
-        <div class="card" style="background: var(--bg); margin-bottom: 1.5rem; border-color: #f87171;">
+        <div class="box tech">
             <h3 style="color: #f87171; margin-top: 0;">Phần 6: Các Lỗi Thường Gặp</h3>
             <ul style="margin-bottom: 0;">
                 <li><strong>Nhầm lẫn mảng N và 2N:</strong> Dùng Kiểu B (pos) nhưng lại gán <code>tout[u] = timer</code> lúc ra khỏi DFS (làm timer tăng không khớp).</li>
@@ -480,9 +475,9 @@
         </div>
 
         <!-- PHẦN 7: Trắc nghiệm -->
-        <div class="card">
+        <div class="box tech">
             <div class="card-glow"></div>
-            <h2>Phần 7: Kiểm tra kiến thức</h2>
+            <h2 id="s6"><span class="num">6.</span>Kiểm tra kiến thức</h2>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <p>Kiểm tra lại độ hiểu bài của bạn. Chọn đáp án đúng cho các câu hỏi sau.</p>
                 <div style="background: var(--bg2); padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--accent); color: var(--accent); font-weight: bold;">
@@ -495,9 +490,7 @@
             </div>
         </div>
 
-        <footer style="text-align: center; margin: 2rem 0; padding-top: 2rem; border-top: 1px solid var(--line); color: var(--ink-dim); font-size: 0.9rem;">
-            Tài liệu tương tác: Kỹ thuật Euler Tour trên Cây.<br>Mọi thuật toán đều được mô phỏng trực tiếp bằng JavaScript trên trình duyệt.
-        </footer>
+        
     </div>
 
     <script>
@@ -1189,5 +1182,16 @@ int main() {
         renderQuiz();
 
     </script>
+</div>
+</div>
+
+<script src="../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

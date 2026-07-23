@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lời giải: Đoạn con dài nhất có trung bình không nhỏ hơn X | Lý thuyết CP</title>
+<link rel="stylesheet" href="../../../assets/chuan.css">
+<style>
+/* Chỉ còn hình SVG, công thức và danh sách 10 bài của chương. */
+.formula{text-align:center;margin:14px 0;font-size:1.05rem;padding:8px 4px;overflow-x:auto}
+code.inline{font-family:"Cascadia Mono",Consolas,"Noto Sans Mono",monospace;font-size:.88em;
+background:color-mix(in srgb,var(--fg) 8%,transparent);padding:1px 5px;border-radius:4px}
+.dsbai{margin-top:14px;padding-top:10px;border-top:1px solid var(--border)}
+.dsbai a{padding:3px 8px 3px 8px;font-size:12.6px}
+.dsbai a.here{color:var(--fg);font-weight:700}
+.dsbai .lb{font-size:11.5px;color:var(--muted);text-transform:uppercase;
+letter-spacing:.05em;margin-bottom:5px}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Đoạn con dài nhất có trung bình không nhỏ hơn X.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Đoạn con dài nhất có trung bình không nhỏ hơn X | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Đoạn con dài nhất có trung bình không nhỏ hơn X.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Đoạn con dài nhất có trung bình không nhỏ hơn X</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Kiến thức nền tảng: Đổi biến để xóa phép c…</a>
+  <a href="#s3">3. Mức 1 — Thử mọi đoạn con (Subtask 1: N ≤ 1…</a>
+  <a href="#s4">4. Mức 2 — Chỉ những tiền tố “thấp kỷ lục” mớ…</a>
+  <a href="#s5">5. Mức 3 — Quét từ phải sang để ghép cặp (Sub…</a>
+  <a href="#s6">6. Tổ chức dữ liệu và ý nghĩa các biến</a>
+  <a href="#s7">7. Thuật toán từng bước</a>
+  <a href="#s8">8. Đánh giá độ phức tạp</a>
+  <a href="#s9">9. Tự cài đặt</a>
+
+<div class="dsbai">
+		<div class="lb">10 bài của chương</div>
+		<a href="bai1-sol.html">1. Tổng lớn nhất</a>
+		<a href="bai2-sol.html">2. Độ dài tối thiểu</a>
+		<a href="bai3-sol.html">3. Xóa một phần tử</a>
+		<a href="bai4-sol.html" class="here">4. Trung bình ≥ X</a>
+		<a href="bai5-sol.html">5. Hai đoạn rời nhau</a>
+		<a href="bai6-sol.html">6. Tổng ≤ S</a>
+		<a href="bai7-sol.html">7. Chia hết cho K</a>
+		<a href="bai8-sol.html">8. Độ dài trong [L,R]</a>
+		<a href="bai9-sol.html">9. Chia gấp khúc</a>
+		<a href="bai10-sol.html">10. Trung bình lớn nhất</a>
+	</div>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../index.html">Tổng tiền tố</a><span class="cv-sep">/</span><span class="cv-here">Trung bình không nhỏ hơn X</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Đoạn con dài nhất có trung bình không nhỏ hơn X</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Kiến thức nền tảng: Đổi biến để xóa phép c…</a></li>
+    <li><a href="#s3">Mức 1 — Thử mọi đoạn con (Subtask 1: N ≤ 1…</a></li>
+    <li><a href="#s4">Mức 2 — Chỉ những tiền tố “thấp kỷ lục” mớ…</a></li>
+    <li><a href="#s5">Mức 3 — Quét từ phải sang để ghép cặp (Sub…</a></li>
+    <li><a href="#s6">Tổ chức dữ liệu và ý nghĩa các biến</a></li>
+    <li><a href="#s7">Thuật toán từng bước</a></li>
+    <li><a href="#s8">Đánh giá độ phức tạp</a></li>
+    <li><a href="#s9">Tự cài đặt</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
+<section class="box def">
+<div class="body">
+<p><b>Yêu cầu:</b> Cho dãy <var>N</var> số nguyên và số <var>X</var>. Tìm <b>độ dài lớn nhất</b> của một đoạn con có trung bình cộng không nhỏ hơn <var>X</var>:
+		<div class="formula">(a<sub>i</sub> + a<sub>i+1</sub> + &hellip; + a<sub>j</sub>)/(j - i + 1) &ge; X.</div>
+		Không tồn tại đoạn nào thỏa mãn thì in <var>0</var>. <br>
+		<b>Giới hạn:</b></p>
+<ul><li><var>1 &le; N &le; 2 &times; 10<sup>5</sup></var></li><li><var>|X| &le; 10<sup>9</sup></var>, <var>|a<sub>i</sub>| &le; 10<sup>9</sup></var></li></ul>
+<p>
+		<b>Quy ước ký hiệu:</b> đoạn con viết là <var>[i, j]</var> với <var>i</var> là điểm đầu, <var>j</var> là điểm cuối. Mảng cộng dồn của dãy <i>đã đổi biến</i> ký hiệu là <var>S</var>.</p>
+</div>
+</section>
+
+<h2 id="s2"><span class="num">2.</span>Kiến thức nền tảng: Đổi biến để xóa phép chia</h2>
+<section class="box def">
+<div class="body">
+<p>Điều kiện của đề chứa một phân số, mà cả tử lẫn mẫu đều thay đổi theo đoạn &mdash; rất khó xử lý trực tiếp. Mẹo chuẩn là <b>nhân chéo rồi chuyển vế</b>:
+		<div class="formula">(a<sub>i</sub> + &hellip; + a<sub>j</sub>)/(j-i+1) &ge; X &hArr; a<sub>i</sub> + &hellip; + a<sub>j</sub> &ge; X &middot; (j-i+1) &hArr; (a<sub>i</sub> - X) + (a<sub>i+1</sub> - X) + &hellip; + (a<sub>j</sub> - X) &ge; 0.</div></p>
+<p>Vế cuối chỉ còn một điều kiện về <b>tổng</b>. Vậy hãy trừ <var>X</var> khỏi mọi phần tử ngay khi đọc vào, rồi làm việc trên dãy mới:
+		<div class="formula">b<sub>i</sub> = a<sub>i</sub> - X, &nbsp;&nbsp;&nbsp;&nbsp; S<sub>i</sub> = S<sub>i-1</sub> + b<sub>i</sub>.</div></p>
+<p>Bài toán trở thành: <i>tìm đoạn dài nhất có tổng không âm</i>. Phép đổi biến này xóa sạch số thực lẫn phép chia &mdash; một mẹo dùng lại được ở bài <i>Trung bình lớn nhất</i> phía sau.</p>
+<p><b>Code mẫu (đổi biến rồi cộng dồn):</b></p>
+<div class="codewrap noname"><pre><code>for (int i = 1; i &lt;= n; i++) {
+	long long a;
+	cin &gt;&gt; a;
+	s[i] = s[i - 1] + a - x;
+}</code></pre></div>
+</div>
+</section>
+
+<h2 id="s3"><span class="num">3.</span>Mức 1 &mdash; Thử mọi đoạn con (Subtask 1: <var>N &le; 10<sup>3</sup></var>)</h2>
+<section class="box tech">
+<div class="body">
+<p>Sau khi đổi biến, ta duyệt mọi cặp <var>(i, j)</var>, kiểm tra <var>S<sub>j</sub> - S<sub>i-1</sub> &ge; 0</var>, và giữ độ dài lớn nhất.</p>
+<p>Chi phí <var>O(N<sup>2</sup>)</var>. Với <var>N &le; 10<sup>3</sup></var> là <var>10<sup>6</sup></var> phép tính &mdash; chạy tốt, ăn trọn Subtask 1. Với <var>N = 2 &times; 10<sup>5</sup></var> thì thành <var>4 &times; 10<sup>10</sup></var>, quá tầm.</p>
+</div>
+</section>
+
+<h2 id="s4"><span class="num">4.</span>Mức 2 &mdash; Chỉ những tiền tố &ldquo;thấp kỷ lục&rdquo; mới đáng làm điểm đầu (Subtask 2)</h2>
+<section class="box tech">
+<div class="body">
+<p>Điều kiện <var>S<sub>j</sub> - S<sub>i-1</sub> &ge; 0</var> viết lại thành
+		<div class="formula">S<sub>i-1</sub> &le; S<sub>j</sub>.</div>
+		Ta muốn đoạn dài nhất, tức muốn <var>i</var> càng nhỏ càng tốt.</p>
+<p><b>Quan sát mấu chốt.</b> Xét hai vị trí <var>p < q</var> mà <var>S<sub>p</sub> &le; S<sub>q</sub></var>. Khi ấy <var>q</var> <b>không bao giờ</b> là lựa chọn tốt hơn <var>p</var>: hễ <var>q</var> dùng được (tức <var>S<sub>q</sub> &le; S<sub>j</sub></var>) thì <var>p</var> cũng dùng được, mà <var>p</var> lại ở xa hơn nên cho đoạn dài hơn.</p>
+<p>Vậy chỉ những vị trí <b>lập kỷ lục thấp mới</b> &mdash; nhỏ hơn hẳn mọi giá trị đứng trước &mdash; mới đáng làm điểm đầu. Ta gom chúng vào một ngăn xếp, và ngăn xếp ấy tự khắc có giá trị <b>giảm dần</b>.</p>
+<figure>
+<svg viewBox="0 0 620 210" role="img" aria-label="Chỉ những tiền tố lập kỷ lục thấp mới đáng làm điểm đầu">
+
+<line class="sv-ln" x1="40" y1="150" x2="580" y2="150"/>
+<text class="sv-i" x="592" y="154">vị trí</text>
+<line class="sv-ln" x1="50" y1="185" x2="50" y2="35"/>
+<text class="sv-i" x="50" y="28">S</text>
+<polyline class="sv-g" style="stroke:var(--blue)" points="70,60 170,60 270,124 370,92 470,156 570,92"/>
+<g class="sv-dot">
+<circle cx="70" cy="60" r="4"/><circle cx="170" cy="60" r="4"/><circle cx="270" cy="124" r="4"/>
+<circle cx="370" cy="92" r="4"/><circle cx="470" cy="156" r="4"/><circle cx="570" cy="92" r="4"/>
+</g>
+<g fill="none" stroke="var(--orange)" stroke-width="2.4">
+<circle cx="70" cy="60" r="10"/><circle cx="270" cy="124" r="10"/><circle cx="470" cy="156" r="10"/>
+</g>
+<text class="sv-o" x="70" y="86" text-anchor="middle">0</text>
+<text class="sv-o" x="270" y="150" text-anchor="middle">2</text>
+<text class="sv-o" x="470" y="182" text-anchor="middle">4</text>
+<text class="sv-i" x="170" y="48">1</text><text class="sv-i" x="370" y="80">3</text><text class="sv-i" x="570" y="80">5</text>
+<text class="sv-o" x="330" y="30" text-anchor="middle">vòng cam = kỷ lục thấp mới, được vào ngăn xếp</text>
+
+</svg>
+<figcaption>Chỉ những vị trí lập kỷ lục thấp mới đáng làm điểm đầu.</figcaption>
+</figure>
+<p>Với ví dụ của đề (<var>N=5</var>, <var>X=3</var>, dãy <var>3,1,4,1,5</var>) ta có <var>S = [&thinsp;0, 0, -2, -1, -3, -1&thinsp;]</var>, và ngăn xếp gồm các vị trí <var>0, 2, 4</var> với giá trị <var>0, -2, -3</var>.</p>
+<p>Chú ý vị trí <var>1</var> không vào ngăn xếp vì <var>S<sub>1</sub> = 0</var> không nhỏ hơn <var>S<sub>0</sub> = 0</var> &mdash; giữ vị trí <var>0</var> luôn tốt hơn.</p>
+</div>
+</section>
+
+<h2 id="s5"><span class="num">5.</span>Mức 3 &mdash; Quét từ phải sang để ghép cặp (Subtask 2)</h2>
+<section class="box tech">
+<div class="body">
+<p>Giờ ta có ngăn xếp các ứng viên điểm đầu, giá trị giảm dần. Việc còn lại là ghép mỗi điểm cuối <var>j</var> với ứng viên xa nhất dùng được.</p>
+<p><b>Mẹo: quét <var>j</var> từ phải sang trái.</b> Chừng nào đỉnh ngăn xếp còn thỏa <var>S<sub>j</sub> &ge; S<sub>đỉnh</sub></var>, ta ghi nhận độ dài <var>j - đỉnh</var> rồi <b>bỏ hẳn đỉnh đi</b>.</p>
+<p>Vì sao bỏ được mà không sợ mất nghiệm? Vì các <var>j</var> xét sau đều <i>nhỏ hơn</i> <var>j</var> hiện tại, nên nếu chúng cũng ghép được với đỉnh ấy thì chỉ cho đoạn <i>ngắn hơn</i> &mdash; không thể tốt hơn kết quả vừa ghi nhận.</p>
+<figure>
+<svg viewBox="0 0 620 120" role="img" aria-label="Quét từ phải sang, mỗi đỉnh chỉ bị bỏ một lần">
+
+<rect class="sv-old" x="40" y="40" width="500" height="42"/>
+<rect class="sv-bad" x="40" y="40" width="160" height="42"/>
+<text class="sv-t" x="120" y="68">ngăn xếp ứng viên</text>
+<rect class="sv-hi" x="380" y="40" width="160" height="42"/>
+<text class="sv-t" x="460" y="68">điểm cuối j</text>
+<line x1="530" y1="100" x2="55" y2="100" stroke="var(--orange)" stroke-width="2"/>
+<polygon points="48,100 58,95 58,105" fill="var(--orange)"/>
+<text class="sv-l" x="292" y="116" text-anchor="middle" style="fill:var(--orange)">quét j từ phải sang trái</text>
+<line x1="380" y1="24" x2="205" y2="24" stroke="var(--green)" stroke-width="2"/>
+<polygon points="198,24 208,19 208,29" fill="var(--green)"/>
+<text class="sv-r" x="292" y="16" text-anchor="middle">ghép được thì lấy độ dài rồi bỏ đỉnh</text>
+
+</svg>
+<figcaption>Quét từ phải sang trái; mỗi đỉnh chỉ bị bỏ khỏi ngăn xếp một lần.</figcaption>
+</figure>
+<p>Mỗi vị trí vào ngăn xếp đúng một lần và ra khỏi ngăn xếp nhiều nhất một lần, nên tổng chi phí của cả quá trình là <var>O(N)</var>.</p>
+<p>
+		<b>Chạy tay ví dụ trong đề</b> (<var>N=5</var>, <var>X=3</var>, dãy <var>3, 1, 4, 1, 5</var>; <var>S = [&thinsp;0, 0, -2, -1, -3, -1&thinsp;]</var>; ngăn xếp <var>[&thinsp;0, 2, 4&thinsp;]</var>):</p>
+<div class="tablewrap"><table><thead><tr><th><var>j</var></th><th><var>S<sub>j</sub></var></th><th>Đỉnh ngăn xếp</th><th>So sánh</th><th>Độ dài ghi nhận</th></tr></thead><tbody><tr><td><var>5</var></td><td><var>-1</var></td><td><var>4</var> (giá trị <var>-3</var>)</td><td><var>-1 &ge; -3</var>: ghép được</td><td><var>5 - 4 = 1</var></td></tr><tr><td><var>5</var></td><td><var>-1</var></td><td><var>2</var> (giá trị <var>-2</var>)</td><td><var>-1 &ge; -2</var>: ghép được</td><td><var>5 - 2 = 3</var></td></tr><tr><td><var>5</var></td><td><var>-1</var></td><td><var>0</var> (giá trị <var>0</var>)</td><td><var>-1 < 0</var>: dừng</td><td>&mdash;</td></tr><tr><td><var>4</var></td><td><var>-3</var></td><td><var>0</var> (giá trị <var>0</var>)</td><td><var>-3 < 0</var>: dừng</td><td>&mdash;</td></tr></tbody></table></div>
+<p>Đáp án là <var>3</var>, ứng với đoạn <var>[3, 5]</var> gồm <var>4 + 1 + 5 = 10</var> và <var>10 / 3 &asymp; 3,33 &ge; 3</var>. Khớp đề.</p>
+</div>
+</section>
+
+<h2 id="s6"><span class="num">6.</span>Tổ chức dữ liệu và ý nghĩa các biến</h2>
+<section class="box tech">
+<div class="body">
+<ul><li><code class="inline">n</code>, <code class="inline">x</code>: số phần tử và ngưỡng trung bình.</li><li><code class="inline">s</code>: mảng <code class="inline">long long</code>, <code class="inline">s[i]</code> là tổng cộng dồn của dãy <i>đã trừ <var>X</var></i>.</li><li><code class="inline">st</code>: mảng <code class="inline">int</code> dùng làm ngăn xếp, lưu <b>chỉ số</b> chứ không lưu giá trị.</li><li><code class="inline">top</code>: số phần tử hiện có trong ngăn xếp.</li><li><code class="inline">ans</code>: độ dài lớn nhất tìm được, khởi tạo <var>0</var> (đề cho phép in <var>0</var> khi không có đoạn nào).</li></ul>
+<p><b>Về kiểu dữ liệu.</b> Sau khi đổi biến, mỗi phần tử <var>a<sub>i</sub> - X</var> có thể tới <var>2 &times; 10<sup>9</sup></var> &mdash; đã vượt <code class="inline">int</code>. Cộng dồn <var>N</var> phần tử như vậy cho tới <var>4 &times; 10<sup>14</sup></var>. Mảng <code class="inline">s</code> bắt buộc là <code class="inline">long long</code>.</p>
+<p>Riêng <code class="inline">ans</code> là một <i>độ dài</i>, không quá <var>N</var>, nên <code class="inline">int</code> là đủ. Đây cũng là lý do bài này khởi tạo <code class="inline">ans = 0</code> chứ không phải <var>-&infin;</var> như các bài tìm tổng &mdash; đề đã nói rõ không có đoạn nào thì in <var>0</var>.</p>
+</div>
+</section>
+
+<h2 id="s7"><span class="num">7.</span>Thuật toán từng bước</h2>
+<section class="box ex">
+<div class="body">
+<p><b>Bước 1: Đọc và đổi biến</b></p>
+<ul><li>Đọc <var>N</var>, <var>X</var>.</li><li>Với mỗi phần tử <var>a</var>, gán <code class="inline">s[i] = s[i-1] + a - x</code>.</li></ul>
+<p><b>Bước 2: Dựng ngăn xếp các kỷ lục thấp</b></p>
+<ul><li>Đẩy vị trí <var>0</var> vào ngăn xếp.</li><li>Cho <var>i</var> từ <var>1</var> đến <var>N</var>: nếu <code class="inline">s[i]</code> nhỏ hơn giá trị ở đỉnh thì đẩy <var>i</var> vào.</li></ul>
+<p><b>Bước 3: Quét từ phải sang trái để ghép</b></p>
+<ul><li>Cho <var>j</var> từ <var>N</var> về <var>1</var>.</li><li>Chừng nào ngăn xếp khác rỗng và <code class="inline">s[j] >= s[đỉnh]</code>: cập nhật <code class="inline">ans = max(ans, j - đỉnh)</code>, rồi bỏ đỉnh.</li></ul>
+<p><b>Bước 4: In kết quả</b></p>
+<ul><li>In giá trị <code class="inline">ans</code>.</li></ul>
+</div>
+</section>
+
+<h2 id="s8"><span class="num">8.</span>Đánh giá độ phức tạp</h2>
+<section class="box cmplx">
+<div class="body">
+<ul><li><b>Thời gian:</b> <var>O(N)</var>. Bước dựng ngăn xếp quét một lượt; bước ghép cặp tuy có vòng lặp lồng nhau nhưng mỗi vị trí chỉ bị bỏ khỏi ngăn xếp đúng một lần, nên tổng số thao tác vẫn tuyến tính. Khoảng <var>4 &times; 10<sup>5</sup></var> phép tính.</li><li><b>Bộ nhớ:</b> một mảng <code class="inline">long long</code> và một mảng <code class="inline">int</code> kích thước <var>N</var>, tốn khoảng <var>2,4</var> MB. Độ phức tạp <var>O(N)</var>.</li></ul>
+</div>
+</section>
+
+<h2 id="s9"><span class="num">9.</span>Tự cài đặt</h2>
+<section class="box ex">
+<div class="body">
+<p>Tài liệu này <b>không kèm mã nguồn hoàn chỉnh</b> &mdash; phần cài đặt dành cho bạn.</p>
+<p>Các bước đã mô tả đầy đủ ở mục <i>Thuật toán từng bước</i>; mục <i>Tổ chức dữ liệu</i> cho biết cần những biến nào, kiểu gì, khởi tạo ra sao. Chỉ cần dịch từng bước ấy sang C++ là xong.</p>
+<p><b>Trước khi nộp, kiểm lại bốn điều:</b></p>
+<ol><li>Mảng khai theo <b>ràng buộc trong đề</b>, không theo số trong ví dụ.</li><li>Tổng có vượt <code class="inline">int</code> không? Nếu <var>N &times; max|a<sub>i</sub>|</var> vượt <var>2 &times; 10<sup>9</sup></var> thì phải dùng <code class="inline">long long</code>.</li><li>Biến đáp án khởi tạo <b>đúng chiều</b> &mdash; xem lại mục Tổ chức dữ liệu.</li><li>Thử tay ca biên: <var>N = 1</var>, và ví dụ trong đề.</li></ol>
+</div>
+</section>
+
+</div>
+
+</div>
+
+<script src="../../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>

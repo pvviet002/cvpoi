@@ -3,42 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lời giải: Tổng có trọng số</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
-            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
-            --text-main: #E2E8F0; --text-muted: #94A3B8;
-            --glow: 0 0 20px rgba(56,214,196,.4);
-            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
-            --border: 1px solid rgba(255,255,255,.1);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main);
-            line-height: 1.6; padding-bottom: 60px;
-        }
-
-        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.03em; }
+    <title>Lời giải: Tổng có trọng số | Lý thuyết CP</title>
+    <script src="../../../assets/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="../../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --text-main: var(--fg);
+  --text-muted: var(--muted);
+  --glow: none;
+  --shadow: none;
+  --border: var(--border);
+}
         
         /* Nav */
         .topnav {
             position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center;
             padding: 12px 20px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px); border-bottom: var(--border);
         }
-        .nav-btn {
-            text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent));
-            padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease;
-        }
         .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
         .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
-
-        /* Layout */
-        .container { max-width: 1000px; margin: 0 auto; padding: 24px 24px; display: flex; flex-direction: column; gap: 32px; }
         
         /* Cards */
         .card {
@@ -64,7 +55,7 @@
 
         /* Code Blocks */
         .codewrap {
-            background: #0A1220; border: var(--border); border-radius: 12px;
+            background: var(--code-bg); border: var(--border); border-radius: 12px;
             overflow-x: auto; margin: 16px 0; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
         }
         .code { padding: 16px 0; min-width: max-content; }
@@ -81,9 +72,6 @@
         
         /* Typography utils */
         .highlight { color: var(--mark); font-weight: 600; }
-        p { margin-bottom: 12px; }
-        ul { margin-left: 20px; margin-bottom: 16px; color: var(--text-muted); }
-        li { margin-bottom: 6px; }
         code {
             font-family: 'JetBrains Mono', monospace; background: rgba(255,255,255,.1);
             padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: #A9C4FF;
@@ -125,7 +113,7 @@
         .msg-box { background: rgba(91,140,255,.1); border-left: 4px solid var(--accent2); padding: 12px 16px; border-radius: 0 8px 8px 0; font-size: 0.95rem; min-height: 48px; display: flex; align-items: center; }
 
         /* Quiz */
-        .quiz-card { background: rgba(11,18,32,.6); border: 1px dashed rgba(255,255,255,.2); }
+        .quiz-card { background: var(--card); border: 1px dashed var(--border); }
         .quiz-opts { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
         .quiz-opt {
             padding: 12px 16px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
@@ -163,16 +151,71 @@
 
         /* Formula display */
         .formula-box { background: rgba(0,0,0,.3); padding: 16px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; text-align: center; font-size: 1.1rem; color: #E2E8F0; margin: 12px 0; overflow-x: auto;}
-    </style>
+    
+        /* Ép tiêu đề và khối mã theo bảng màu của chuẩn: vài trang còn màu gõ
+           cứng của bản nền tối (h2 màu trắng), sang nền sáng là chữ trắng trên
+           nền trắng — đo được tương phản đúng bằng 1. */
+        h1, h2, h3, h4{color:var(--fg)}
+        h2 .num{color:var(--blue)}
+        pre, .code-line{color:var(--code-fg)}
+        /* Vài trang có quy tắc riêng đặc hiệu hơn (ví dụ .container h2) nên
+           phải dùng !important mới thắng được màu gõ cứng của bản nền tối. */
+        h1, h2, h3, h4{color:var(--fg) !important}
+        h2 .num{color:var(--blue) !important}
+        p, li{color:var(--fg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Tổng có trọng số (prefixsum_05).">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Tổng có trọng số | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Tổng có trọng số (prefixsum_05).">
+<!--/cv-head-->
 </head>
 <body>
-
-<nav class="topnav">
-    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
-    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../index.html">Tổng tiền tố</a><span class="cv-sep">/</span><span class="cv-here">Tổng có trọng số</span></span>
+  </div>
 </nav>
+<!--/cv-nav-->
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Tổng có trọng số</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Phân tích ban đầu</a>
+  <a href="#s3">3. Bóc tách hệ số biến đổi</a>
+  <a href="#s4">4. Dùng hai mảng cộng dồn</a>
+  <a href="#s5">5. Cài đặt C++</a>
+  <a href="#s6">6. Cạm bẫy khi cài đặt</a>
+</aside>
+
+<div class="main">
 
 <div class="container">
+<div class="box tech">
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Phân tích ban đầu</a></li>
+    <li><a href="#s3">Bóc tách hệ số biến đổi</a></li>
+    <li><a href="#s4">Dùng hai mảng cộng dồn</a></li>
+    <li><a href="#s5">Cài đặt C++</a></li>
+    <li><a href="#s6">Cạm bẫy khi cài đặt</a></li>
+  </ol>
+</nav>
+
     <!-- Hero -->
     <div class="hero">
         <div class="badge">Kỹ thuật mảng cộng dồn</div>
@@ -183,7 +226,7 @@
     <!-- Tóm tắt đề bài -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2 class="card-title">Tóm tắt đề bài</h2>
+        <h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
         <p>Cho dãy N số nguyên a<sub>1</sub>, a<sub>2</sub>, ..., a<sub>N</sub>. Có Q truy vấn, mỗi truy vấn cho 2 vị trí L và R.</p>
         <p>Với mỗi truy vấn, cần tính tổng:</p>
         <div class="formula-box">
@@ -202,7 +245,7 @@
     <!-- Phân tích ban đầu -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2 class="card-title">Phân tích ban đầu</h2>
+        <h2 id="s2"><span class="num">2.</span>Phân tích ban đầu</h2>
         <p>Cách đơn giản nhất (ngây thơ) là với mỗi truy vấn từ L đến R, ta dùng một vòng lặp <code>for</code> từ L đến R, nhân từng phần tử với hệ số tương ứng rồi cộng dồn lại.</p>
         <p><b>Vì sao cách này không đủ tốt?</b></p>
         <ul>
@@ -216,7 +259,7 @@
     <!-- Module 1: Giải thích ý 1 -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2 class="card-title">Bước 1: Bóc tách hệ số biến đổi</h2>
+        <h2 id="s3"><span class="num">3.</span>Bóc tách hệ số biến đổi</h2>
         <p>Trở ngại lớn nhất là phần tử a<sub>i</sub> (nằm trong đoạn L..R) đang bị nhân với hệ số phụ thuộc vào L: chính xác là <code>(i - L + 1)</code>.</p>
         <p>Hãy phân phối phép nhân này ra: <br>
            <code>(i - L + 1) · a<sub>i</sub> = i · a<sub>i</sub> - (L - 1) · a<sub>i</sub></code>
@@ -258,7 +301,7 @@
     <!-- Module 2: Giải thích ý 2 -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2 class="card-title">Bước 2: Dùng hai mảng cộng dồn</h2>
+        <h2 id="s4"><span class="num">4.</span>Dùng hai mảng cộng dồn</h2>
         <p>Nhờ bước phân tách trên, ta thấy để tính S, ta chỉ cần 2 công cụ:</p>
         <ol>
             <li><b>Tổng các (a<sub>i</sub>) trên đoạn [L, R]:</b> Dùng mảng cộng dồn bình thường <code>P</code>, trong đó <code>P[i] = P[i-1] + a<sub>i</sub></code>.</li>
@@ -361,7 +404,7 @@
     <!-- Cài đặt & Độ phức tạp -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2 class="card-title">Cài đặt C++</h2>
+        <h2 id="s5"><span class="num">5.</span>Cài đặt C++</h2>
         <div class="codewrap">
             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
             <div class="code" id="code-block">
@@ -416,8 +459,8 @@ int main() {
     <!-- Cạm bẫy -->
     <div class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2 class="card-title">Cạm bẫy khi cài đặt</h2>
-        <div class="pitfalls">
+        <h2 id="s6"><span class="num">6.</span>Cạm bẫy khi cài đặt</h2>
+        <div class="box warn">
             <div class="pitfall-col wrong">
                 <h4>✕ Sai lầm dễ mắc</h4>
                 <p><b>Dùng int thay vì long long:</b> Tổng giá trị tối đa của <code>M[N]</code> có thể đạt tới (N × (N+1) / 2) × max(A) ≈ (2×10<sup>5</sup>)<sup>2</sup>/2 × 10<sup>6</sup> = 2 × 10<sup>16</sup>. Số này vượt xa giới hạn của số nguyên 32-bit thông thường (int chỉ lưu tới ~2 × 10<sup>9</sup>), dẫn đến kết quả âm hoặc sai bét.</p>
@@ -427,7 +470,7 @@ int main() {
                 <p><b>Khai báo long long:</b> Sử dụng <code>long long</code> (số nguyên 64-bit) cho các mảng <code>a</code>, <code>p</code>, <code>m</code> và các biến <code>sum_m</code>, <code>sum_p</code>, <code>ans</code>. Ngay cả biến đọc vị trí l và r cũng nên ép kiểu đúng khi thực hiện phép nhân <code>(l - 1) * sum_p</code>.</p>
             </div>
         </div>
-        <div class="pitfalls" style="margin-top:16px;">
+        <div class="box warn" style="margin-top:16px;">
             <div class="pitfall-col wrong">
                 <h4>✕ Sai lầm dễ mắc</h4>
                 <p><b>Xử lý biên l = 1 bị lỗi (Index out of bounds):</b> Nếu mảng đánh số từ 0, công thức <code>P[L-1]</code> sẽ gọi <code>P[-1]</code>, gây crash chương trình (Segmentation Fault).</p>
@@ -689,6 +732,17 @@ int main() {
         lab2Obj.init();
     };
 </script>
+
+</div>
+
+<script src="../../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>
 ```eof

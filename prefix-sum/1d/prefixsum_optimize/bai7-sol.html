@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lời giải: Đoạn con tổng lớn nhất chia hết cho K | Lý thuyết CP</title>
+<link rel="stylesheet" href="../../../assets/chuan.css">
+<style>
+/* Chỉ còn hình SVG, công thức và danh sách 10 bài của chương. */
+.formula{text-align:center;margin:14px 0;font-size:1.05rem;padding:8px 4px;overflow-x:auto}
+code.inline{font-family:"Cascadia Mono",Consolas,"Noto Sans Mono",monospace;font-size:.88em;
+background:color-mix(in srgb,var(--fg) 8%,transparent);padding:1px 5px;border-radius:4px}
+.dsbai{margin-top:14px;padding-top:10px;border-top:1px solid var(--border)}
+.dsbai a{padding:3px 8px 3px 8px;font-size:12.6px}
+.dsbai a.here{color:var(--fg);font-weight:700}
+.dsbai .lb{font-size:11.5px;color:var(--muted);text-transform:uppercase;
+letter-spacing:.05em;margin-bottom:5px}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Đoạn con tổng lớn nhất chia hết cho K.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Đoạn con tổng lớn nhất chia hết cho K | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Đoạn con tổng lớn nhất chia hết cho K.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Đoạn con tổng lớn nhất chia hết cho K</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Kiến thức nền tảng: Cùng số dư thì hiệu ch…</a>
+  <a href="#s3">3. Mức 1 — Thử mọi đoạn con (Subtask 1: N ≤ 1…</a>
+  <a href="#s4">4. Mức 2 — Ghép hai ý tưởng đã học (Subtask 2…</a>
+  <a href="#s5">5. Tổ chức dữ liệu và ý nghĩa các biến</a>
+  <a href="#s6">6. Thuật toán từng bước</a>
+  <a href="#s7">7. Đánh giá độ phức tạp</a>
+  <a href="#s8">8. Tự cài đặt</a>
+
+<div class="dsbai">
+		<div class="lb">10 bài của chương</div>
+		<a href="bai1-sol.html">1. Tổng lớn nhất</a>
+		<a href="bai2-sol.html">2. Độ dài tối thiểu</a>
+		<a href="bai3-sol.html">3. Xóa một phần tử</a>
+		<a href="bai4-sol.html">4. Trung bình ≥ X</a>
+		<a href="bai5-sol.html">5. Hai đoạn rời nhau</a>
+		<a href="bai6-sol.html">6. Tổng ≤ S</a>
+		<a href="bai7-sol.html" class="here">7. Chia hết cho K</a>
+		<a href="bai8-sol.html">8. Độ dài trong [L,R]</a>
+		<a href="bai9-sol.html">9. Chia gấp khúc</a>
+		<a href="bai10-sol.html">10. Trung bình lớn nhất</a>
+	</div>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../index.html">Tổng tiền tố</a><span class="cv-sep">/</span><span class="cv-here">Tổng chia hết cho K</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Đoạn con tổng lớn nhất chia hết cho K</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Kiến thức nền tảng: Cùng số dư thì hiệu ch…</a></li>
+    <li><a href="#s3">Mức 1 — Thử mọi đoạn con (Subtask 1: N ≤ 1…</a></li>
+    <li><a href="#s4">Mức 2 — Ghép hai ý tưởng đã học (Subtask 2…</a></li>
+    <li><a href="#s5">Tổ chức dữ liệu và ý nghĩa các biến</a></li>
+    <li><a href="#s6">Thuật toán từng bước</a></li>
+    <li><a href="#s7">Đánh giá độ phức tạp</a></li>
+    <li><a href="#s8">Tự cài đặt</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
+<section class="box def">
+<div class="body">
+<p><b>Yêu cầu:</b> Cho dãy <var>N</var> số nguyên và số nguyên dương <var>K</var>. Tìm tổng lớn nhất của một đoạn con khác rỗng có tổng <b>chia hết cho <var>K</var></b>. Không tồn tại đoạn nào thì in <var>0</var>. <br>
+		<b>Giới hạn:</b></p>
+<ul><li><var>1 &le; N &le; 2 &times; 10<sup>5</sup></var>, <var>1 &le; K &le; 10<sup>9</sup></var></li><li><var>|a<sub>i</sub>| &le; 10<sup>9</sup></var> &mdash; dãy <b>có số âm</b>, đây là nguồn gốc của bẫy chính trong bài.</li></ul>
+<p>
+		<b>Quy ước ký hiệu:</b> <var>S<sub>j</sub></var> là tổng cộng dồn từ đầu dãy đến vị trí <var>j</var>, với <var>S<sub>0</sub> = 0</var>. Đoạn con viết là <var>(i, j]</var>, nghĩa là gồm các phần tử từ <var>i+1</var> đến <var>j</var>.</p>
+</div>
+</section>
+
+<h2 id="s2"><span class="num">2.</span>Kiến thức nền tảng: Cùng số dư thì hiệu chia hết</h2>
+<section class="box def">
+<div class="body">
+<p>Tổng đoạn <var>(i, j]</var> bằng <var>S<sub>j</sub> - S<sub>i</sub></var>. Điều kiện &ldquo;chia hết cho <var>K</var>&rdquo; viết thành
+		<div class="formula">S<sub>j</sub> - S<sub>i</sub> &equiv; 0 mod K &hArr; S<sub>i</sub> &equiv; S<sub>j</sub> mod K.</div></p>
+<p>Nói cách khác: <b>hai tiền tố cùng số dư khi chia <var>K</var> thì đoạn nằm giữa chúng có tổng chia hết cho <var>K</var></b>. Đây chính là ý tưởng cốt lõi đã học ở chương &ldquo;Tiền tố kết hợp bảng băm&rdquo;.</p>
+<p><b>Bẫy số dư âm &mdash; phải nhớ nằm lòng.</b> Trong C++, phép <code class="inline">%</code> với số bị chia âm cho ra kết quả <b>âm</b>: <code class="inline">(-7) % 3</code> bằng <var>-1</var> chứ không phải <var>2</var>. Hai tiền tố thực chất cùng lớp dư sẽ bị coi là khác nhau, và đáp án sai.</p>
+<p>Cách chuẩn hóa: cộng thêm <var>K</var> rồi lấy dư lần nữa.</p>
+<p><b>Code mẫu (chuẩn hóa số dư):</b></p>
+<div class="codewrap noname"><pre><code>long long du = ((pre % k) + k) % k;
+// luon nam trong [0, k), ke ca khi pre am</code></pre></div>
+<p>Nhiều lời giải mẫu trên mạng viết bằng Python, mà Python luôn trả số dư không âm nên <i>không lộ ra bẫy này</i>. Chép ý tưởng sang C++ mà quên chuẩn hóa là sai ngay ở test đầu tiên có số âm.</p>
+</div>
+</section>
+
+<h2 id="s3"><span class="num">3.</span>Mức 1 &mdash; Thử mọi đoạn con (Subtask 1: <var>N &le; 10<sup>3</sup></var>)</h2>
+<section class="box tech">
+<div class="body">
+<p>Dựng mảng cộng dồn, duyệt mọi cặp <var>(i, j)</var>, kiểm tra <var>(S<sub>j</sub> - S<sub>i</sub>) mod K = 0</var> rồi giữ tổng lớn nhất.</p>
+<p>Chi phí <var>O(N<sup>2</sup>)</var>. Với <var>N &le; 10<sup>3</sup></var> là <var>10<sup>6</sup></var> phép tính, chạy tốt. Với <var>N = 2 &times; 10<sup>5</sup></var> thì thành <var>4 &times; 10<sup>10</sup></var> &mdash; quá tầm.</p>
+</div>
+</section>
+
+<h2 id="s4"><span class="num">4.</span>Mức 2 &mdash; Ghép hai ý tưởng đã học (Subtask 2)</h2>
+<section class="box tech">
+<div class="body">
+<p>Bài này là giao điểm của hai thứ đã học riêng lẻ:</p>
+<div class="tablewrap"><table><thead><tr><th>Từ chương bảng băm</th><th>Đoạn chia hết <var>K</var> <var>&hArr;</var> hai tiền tố cùng số dư</th></tr></thead><tbody><tr><td>Từ bài &ldquo;Đoạn con tổng lớn nhất&rdquo;</td><td>Muốn hiệu <var>S<sub>j</sub> - S<sub>i</sub></var> lớn nhất thì cần <var>S<sub>i</sub></var> nhỏ nhất</td></tr></tbody></table></div>
+<p>Ghép lại được ý tưởng: <b>với mỗi lớp số dư, ta giữ giá trị tiền tố nhỏ nhất đã gặp trong lớp đó</b>. Khi tới <var>j</var>, tra đúng lớp dư của <var>S<sub>j</sub></var> rồi lấy hiệu.</p>
+<figure>
+<svg viewBox="0 0 620 190" role="img" aria-label="Mỗi lớp số dư giữ riêng một giá trị tiền tố nhỏ nhất">
+
+<rect x="30" y="30" width="150" height="40" rx="5" fill="color-mix(in srgb,var(--blue) 12%,var(--bg))" stroke="var(--blue)"/>
+<text class="sv-t" x="105" y="55">dư 2</text>
+<rect x="30" y="80" width="150" height="40" rx="5" fill="color-mix(in srgb,var(--orange) 12%,var(--bg))" stroke="var(--orange)"/>
+<text class="sv-t" x="105" y="105">dư 1</text>
+<rect x="30" y="130" width="150" height="40" rx="5" fill="color-mix(in srgb,var(--green) 12%,var(--bg))" stroke="var(--green)"/>
+<text class="sv-t" x="105" y="155">dư 0</text>
+<text class="sv-t" x="245" y="55">S₃ = 8</text><text class="sv-t" x="355" y="55">S₅ = 14</text>
+<text class="sv-t" x="245" y="105">S₂ = 4</text>
+<text class="sv-t" x="245" y="155">S₀ = 0</text><text class="sv-t" x="355" y="155">S₁ = 3</text><text class="sv-t" x="465" y="155">S₄ = 9</text>
+<line x1="245" y1="168" x2="245" y2="180" stroke="var(--green)" stroke-width="2"/>
+<text class="sv-r" x="300" y="188" text-anchor="middle">nhỏ nhất của lớp &rArr; giữ lại</text>
+<path d="M 465 142 C 430 110 300 110 262 142" fill="none" stroke="var(--fg)" stroke-width="1.6"/>
+<text class="sv-l" x="365" y="112" text-anchor="middle">9 &minus; 0 = 9</text>
+
+</svg>
+<figcaption>Mỗi lớp số dư giữ riêng một giá trị tiền tố nhỏ nhất.</figcaption>
+</figure>
+<p><b>Khác biệt so với bài &ldquo;Đoạn con tổng lớn nhất&rdquo;.</b> Ở bài đó chỉ cần <i>một</i> biến <code class="inline">min</code> duy nhất. Ở đây cần <i>một biến <code class="inline">min</code> cho mỗi lớp số dư</i>. Vì <var>K</var> tới <var>10<sup>9</sup></var>, ta không thể khai mảng <var>K</var> phần tử &mdash; phải dùng <b>bảng băm</b>, và thực tế chỉ có nhiều nhất <var>N+1</var> lớp dư xuất hiện.</p>
+<p><b>Chú ý &ldquo;không tồn tại thì in <var>0</var>&rdquo;.</b> Đáp án hợp lệ có thể là số âm, nên không được dùng <var>0</var> làm giá trị khởi tạo để phân biệt. Hãy dùng một <b>biến cờ</b> riêng đánh dấu đã tìm được đoạn nào chưa.</p>
+<p>
+		<b>Chạy tay ví dụ trong đề</b> với <var>N = 5</var>, <var>K = 3</var>, dãy <var>3, 1, 4, 1, 5</var>:</p>
+<div class="tablewrap"><table><thead><tr><th><var>j</var></th><th><var>a<sub>j</sub></var></th><th><var>S<sub>j</sub></var></th><th>Số dư</th><th>Lớp dư đã có?</th><th><code class="inline">ans</code></th></tr></thead><tbody><tr><td><var>1</var></td><td><var>3</var></td><td><var>3</var></td><td><var>0</var></td><td>có, <code class="inline">mn</code><var>[0] = 0</var> <var>&rArr;</var> <var>3 - 0 = 3</var></td><td><var>3</var></td></tr><tr><td><var>2</var></td><td><var>1</var></td><td><var>4</var></td><td><var>1</var></td><td>chưa, ghi <code class="inline">mn</code><var>[1] = 4</var></td><td><var>3</var></td></tr><tr><td><var>3</var></td><td><var>4</var></td><td><var>8</var></td><td><var>2</var></td><td>chưa, ghi <code class="inline">mn</code><var>[2] = 8</var></td><td><var>3</var></td></tr><tr><td><var>4</var></td><td><var>1</var></td><td><var>9</var></td><td><var>0</var></td><td>có, <code class="inline">mn</code><var>[0] = 0</var> <var>&rArr;</var> <var>9 - 0 = 9</var></td><td><var>9</var></td></tr><tr><td><var>5</var></td><td><var>5</var></td><td><var>14</var></td><td><var>2</var></td><td>có, <code class="inline">mn</code><var>[2] = 8</var> <var>&rArr;</var> <var>14 - 8 = 6</var></td><td><var>9</var></td></tr></tbody></table></div>
+<p>Đáp án là <var>9</var>, ứng với đoạn <var>[1, 4]</var> có tổng <var>3 + 1 + 4 + 1 = 9</var>, chia hết cho <var>3</var>. Khớp đề.</p>
+<p>Để ý dòng <var>j = 5</var>: lớp dư <var>2</var> đã có sẵn giá trị nhỏ nhất là <var>8</var>, nên ta lấy ngay <var>14 - 8 = 6</var> mà không cần dò lại toàn bộ.</p>
+</div>
+</section>
+
+<h2 id="s5"><span class="num">5.</span>Tổ chức dữ liệu và ý nghĩa các biến</h2>
+<section class="box tech">
+<div class="body">
+<ul><li><code class="inline">n</code>, <code class="inline">k</code>: số phần tử và số chia.</li><li><code class="inline">pre</code>: tổng cộng dồn hiện tại, tức <var>S<sub>j</sub></var>.</li><li><code class="inline">du</code>: số dư của <code class="inline">pre</code> khi chia <var>K</var>, <b>đã chuẩn hóa</b> về <var>[0, K)</var>.</li><li><code class="inline">mn</code>: bảng băm <code class="inline">unordered_map<long long, long long></code>, <code class="inline">mn[d]</code> là giá trị tiền tố <i>nhỏ nhất</i> đã gặp trong lớp dư <var>d</var>. Khởi tạo <code class="inline">mn[0] = 0</code> cho tiền tố rỗng.</li><li><code class="inline">ans</code>: đáp án; <code class="inline">co</code>: biến cờ đánh dấu đã tìm được đoạn hợp lệ hay chưa.</li></ul>
+<p><b>Về kiểu dữ liệu.</b> Tiền tố tới <var>2 &times; 10<sup>5</sup> &times; 10<sup>9</sup> = 2 &times; 10<sup>14</sup></var>, nên <code class="inline">pre</code>, <code class="inline">ans</code> và giá trị trong bảng băm đều phải là <code class="inline">long long</code>. Khóa của bảng băm là số dư, tới <var>10<sup>9</sup> - 1</var>, cũng nên để <code class="inline">long long</code> cho thống nhất.</p>
+<p><b>Vì sao cần biến cờ <code class="inline">co</code>.</b> Nếu khởi tạo <code class="inline">ans = 0</code> rồi cuối cùng in <code class="inline">ans</code>, ta không phân biệt được hai trường hợp: &ldquo;không có đoạn nào&rdquo; và &ldquo;có đoạn nhưng tổng lớn nhất đúng bằng <var>0</var>&rdquo;. Cả hai đều in <var>0</var> nên may mắn không sai &mdash; nhưng nếu đề đổi quy ước (chẳng hạn in <var>-1</var> khi không có), lối viết ấy hỏng ngay. Dùng cờ là cách viết an toàn, diễn đạt đúng ý.</p>
+</div>
+</section>
+
+<h2 id="s6"><span class="num">6.</span>Thuật toán từng bước</h2>
+<section class="box ex">
+<div class="body">
+<p><b>Bước 1: Khởi tạo</b></p>
+<ul><li>Đọc <var>N</var>, <var>K</var>.</li><li>Đặt <code class="inline">mn[0] = 0</code> (tiền tố rỗng, số dư <var>0</var>), <code class="inline">pre = 0</code>, <code class="inline">co = false</code>.</li></ul>
+<p><b>Bước 2: Quét dãy một lượt</b>, với mỗi phần tử:</p>
+<ul><li>Cộng dồn vào <code class="inline">pre</code>.</li><li>Tính <code class="inline">du = ((pre % k) + k) % k</code>.</li><li>Nếu lớp <code class="inline">du</code> đã có trong bảng: thử cập nhật đáp án bằng <code class="inline">pre - mn[du]</code>, và bật cờ <code class="inline">co</code>.</li><li>Nếu lớp <code class="inline">du</code> chưa có, hoặc <code class="inline">pre</code> nhỏ hơn giá trị đang lưu: ghi <code class="inline">mn[du] = pre</code>.</li></ul>
+<p><b>Bước 3: In kết quả</b></p>
+<ul><li>Nếu cờ <code class="inline">co</code> đã bật thì in <code class="inline">ans</code>, ngược lại in <var>0</var>.</li></ul>
+</div>
+</section>
+
+<h2 id="s7"><span class="num">7.</span>Đánh giá độ phức tạp</h2>
+<section class="box cmplx">
+<div class="body">
+<ul><li><b>Thời gian:</b> một lượt quét <var>N</var> phần tử, mỗi bước làm một vài thao tác trên bảng băm với chi phí <var>O(1)</var> trung bình. Tổng cộng <var>O(N)</var>, khoảng <var>2 &times; 10<sup>5</sup></var> phép tính.</li><li><b>Bộ nhớ:</b> bảng băm chứa nhiều nhất <var>min(N+1, K)</var> khóa. Độ phức tạp <var>O(min(N, K))</var>.</li></ul>
+</div>
+</section>
+
+<h2 id="s8"><span class="num">8.</span>Tự cài đặt</h2>
+<section class="box ex">
+<div class="body">
+<p>Tài liệu này <b>không kèm mã nguồn hoàn chỉnh</b> &mdash; phần cài đặt dành cho bạn.</p>
+<p>Các bước đã mô tả đầy đủ ở mục <i>Thuật toán từng bước</i>; mục <i>Tổ chức dữ liệu</i> cho biết cần những biến nào, kiểu gì, khởi tạo ra sao. Chỉ cần dịch từng bước ấy sang C++ là xong.</p>
+<p><b>Trước khi nộp, kiểm lại bốn điều:</b></p>
+<ol><li>Mảng khai theo <b>ràng buộc trong đề</b>, không theo số trong ví dụ.</li><li>Tổng có vượt <code class="inline">int</code> không? Nếu <var>N &times; max|a<sub>i</sub>|</var> vượt <var>2 &times; 10<sup>9</sup></var> thì phải dùng <code class="inline">long long</code>.</li><li>Biến đáp án khởi tạo <b>đúng chiều</b> &mdash; xem lại mục Tổ chức dữ liệu.</li><li>Thử tay ca biên: <var>N = 1</var>, và ví dụ trong đề.</li></ol>
+</div>
+</section>
+
+</div>
+
+</div>
+
+<script src="../../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>

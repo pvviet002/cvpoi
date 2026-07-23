@@ -3,164 +3,46 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Xóa một phần tử để tổng lớn nhất — Hướng dẫn giải</title>
+<title>Lời giải: Xóa một phần tử để tổng lớn nhất | Lý thuyết CP</title>
+<link rel="stylesheet" href="../../../assets/chuan.css">
 <style>
-:root{
---bg:#fff;--fg:#1c1c1e;--muted:#6b6b70;--rule:#d8d8dc;--card:#fafafa;
---code-bg:#fbfbf8;--code-fg:#24292e;--code-border:#e2e2e0;
---kw:#0b57b8;--cmt:#1a7f37;--str:#8250b4;--num:#b3541e;--pre:#7a4dbd;
---gray:#5b5b60;--purple:#8a3d8f;--blue:#1f5fbf;--green:#2c7a3f;--orange:#9a5a0e;
---tint:.07;--shadow:0 1px 2px rgba(0,0,0,.06);--is-dark:0;
-}
-@media (prefers-color-scheme:dark){:root{
---bg:#16171a;--fg:#e6e6e9;--muted:#9a9aa2;--rule:#35363b;--card:#1d1e22;
---code-bg:#1b1c20;--code-fg:#dcdce2;--code-border:#34353a;
---kw:#77aaff;--cmt:#7bc98a;--str:#c69cf0;--num:#f0a56a;--pre:#b593e8;
---gray:#9b9ba3;--purple:#d78bdc;--blue:#6fa4f5;--green:#6cc47f;--orange:#e8ac5a;
---tint:.13;--shadow:none;--is-dark:1;
-}}
-:root[data-theme=light]{
---bg:#fff;--fg:#1c1c1e;--muted:#6b6b70;--rule:#d8d8dc;--card:#fafafa;
---code-bg:#fbfbf8;--code-fg:#24292e;--code-border:#e2e2e0;
---kw:#0b57b8;--cmt:#1a7f37;--str:#8250b4;--num:#b3541e;--pre:#7a4dbd;
---gray:#5b5b60;--purple:#8a3d8f;--blue:#1f5fbf;--green:#2c7a3f;--orange:#9a5a0e;
---tint:.07;--shadow:0 1px 2px rgba(0,0,0,.06);--is-dark:0;
-}
-:root[data-theme=dark]{
---bg:#16171a;--fg:#e6e6e9;--muted:#9a9aa2;--rule:#35363b;--card:#1d1e22;
---code-bg:#1b1c20;--code-fg:#dcdce2;--code-border:#34353a;
---kw:#77aaff;--cmt:#7bc98a;--str:#c69cf0;--num:#f0a56a;--pre:#b593e8;
---gray:#9b9ba3;--purple:#d78bdc;--blue:#6fa4f5;--green:#6cc47f;--orange:#e8ac5a;
---tint:.13;--shadow:none;--is-dark:1;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;padding:0 16px 64px;background:var(--bg);color:var(--fg);
-font-family:"Segoe UI","Noto Sans","Helvetica Neue",Arial,sans-serif;
-font-size:16px;line-height:1.62;-webkit-text-size-adjust:100%}
-.wrap{max-width:860px;margin:0 auto}
-@media(min-width:1280px){.wrap{max-width:1000px}}
-@media(min-width:1560px){.wrap{max-width:1130px}}
-
-header.top{padding:34px 0 6px}
-header.top .kicker{font-size:13px;color:var(--fg);opacity:.75;letter-spacing:.06em;text-transform:uppercase}
-header.top hr{border:0;border-top:2px solid var(--fg);margin:12px 0}
-header.top h1{font-size:1.7rem;margin:6px 0 2px;line-height:1.25}
-header.top .ma{font-size:.92rem;color:var(--muted);font-family:"Cascadia Mono",Consolas,monospace}
-
-#theme{position:fixed;top:12px;right:12px;z-index:50;background:var(--card);color:var(--fg);
-border:1px solid var(--rule);border-radius:999px;padding:7px 14px;font-size:13px;
-cursor:pointer;font-family:inherit;box-shadow:var(--shadow)}
-#theme:hover{border-color:var(--muted)}
-
-.box{border:1px solid var(--bc);border-radius:8px;margin:22px 0;overflow:hidden;
-background:color-mix(in srgb,var(--bc) calc(var(--tint)*100%),var(--bg));scroll-margin-top:16px}
-.box>h2{margin:0;font-size:1.12rem;font-weight:700;padding:10px 15px;line-height:1.35;
-background:color-mix(in srgb,#14151a calc(var(--is-dark)*82%),var(--bc));
-color:color-mix(in srgb,var(--bc) calc(var(--is-dark)*100%),#fff);
-border-bottom:1px solid color-mix(in srgb,var(--bc) calc(var(--is-dark)*55% + 10%),transparent)}
-.box .body{padding:4px 16px 14px}
-.summary{--bc:var(--gray)}.practice{--bc:var(--purple)}.tech{--bc:var(--blue)}
-.example{--bc:var(--green)}.complexity{--bc:var(--orange)}
-
-p{margin:10px 0}ul,ol{margin:8px 0;padding-left:24px}li{margin:4px 0}
+/* Chỉ còn hình SVG, công thức và danh sách 10 bài của chương. */
+.formula{text-align:center;margin:14px 0;font-size:1.05rem;padding:8px 4px;overflow-x:auto}
 code.inline{font-family:"Cascadia Mono",Consolas,"Noto Sans Mono",monospace;font-size:.88em;
 background:color-mix(in srgb,var(--fg) 8%,transparent);padding:1px 5px;border-radius:4px}
-.formula{text-align:center;margin:14px 0;font-size:1.05rem;padding:8px 4px;overflow-x:auto}
-var{font-style:italic}
-
-.table-wrap{overflow-x:auto;margin:14px 0;-webkit-overflow-scrolling:touch}
-table{border-collapse:collapse;width:100%;font-size:.93rem;min-width:420px}
-th,td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
-th{background:color-mix(in srgb,var(--bc,var(--gray)) 16%,var(--bg));font-weight:700}
-td.c,th.c{text-align:center}
-
-.code-block{position:relative;margin:14px 0}
-.code-block pre{margin:0;padding:12px 14px;background:var(--code-bg);color:var(--code-fg);
-border:1px solid var(--code-border);border-radius:7px;overflow-x:auto;tab-size:2;-moz-tab-size:2;
-font-family:"Cascadia Mono",Consolas,"Noto Sans Mono",monospace;font-size:13.5px;line-height:1.55}
-.copy{position:absolute;top:7px;right:8px;background:var(--bg);color:var(--muted);
-border:1px solid var(--rule);border-radius:5px;font-size:11.5px;padding:3px 9px;cursor:pointer;
-font-family:inherit;opacity:0;transition:opacity .15s}
-.code-block:hover .copy,.copy:focus{opacity:1}
-.copy.done{color:var(--green);border-color:var(--green)}
-.k{color:var(--kw);font-weight:600}.c{color:var(--cmt);font-style:italic}
-.s{color:var(--str)}.n{color:var(--num)}.pp{color:var(--pre);font-weight:600}
-
-figure{margin:18px 0;text-align:center}
-figure svg{max-width:100%;height:auto}
-figcaption{font-size:.87rem;color:var(--muted);margin-top:6px}
-.sv-cell{fill:color-mix(in srgb,var(--blue) 8%,var(--bg));stroke:var(--rule);stroke-width:1.2}
-.sv-hi{fill:color-mix(in srgb,var(--green) 22%,var(--bg));stroke:var(--green);stroke-width:2}
-.sv-bad{fill:color-mix(in srgb,var(--orange) 20%,var(--bg));stroke:var(--orange);stroke-width:2}
-.sv-old{fill:color-mix(in srgb,var(--fg) 10%,var(--bg));stroke:var(--rule);stroke-width:1.2}
-.sv-t{fill:var(--fg);font-size:14px;font-family:inherit;text-anchor:middle}
-.sv-i{fill:var(--muted);font-size:11.5px;font-family:inherit;text-anchor:middle}
-.sv-l{fill:var(--fg);font-size:13px;font-family:inherit}
-.sv-ln{stroke:var(--muted);stroke-width:1.4;fill:none}
-.sv-g{stroke:var(--green);stroke-width:2;fill:none}
-.sv-r{fill:var(--green);font-size:13.5px;font-family:inherit;font-weight:600}
-.sv-o{fill:var(--orange);font-size:13.5px;font-family:inherit;font-weight:600}
-.sv-dot{fill:var(--blue)}
-
-nav.toc{border:1px solid var(--rule);border-radius:8px;background:var(--card);
-padding:12px 18px 16px;margin:22px 0}
-nav.toc h2{font-size:1.02rem;margin:4px 0 8px}
-nav.toc ol{margin:0;padding-left:22px}nav.toc li{margin:3px 0}
-nav.toc a{color:var(--fg);text-decoration:none;border-bottom:1px solid transparent}
-nav.toc a:hover{border-bottom-color:var(--muted)}
-
-.sidebar{display:none}
-@media(min-width:1080px){
-.sidebar{display:block;position:fixed;top:0;left:0;bottom:0;width:254px;
-padding:18px 12px 24px 18px;overflow-y:auto;background:var(--card);
-border-right:1px solid var(--rule);font-size:13.4px}
-.sidebar .brand{font-weight:700;font-size:13.5px;line-height:1.3;padding-bottom:8px;
-margin-bottom:8px;border-bottom:1px solid var(--rule)}
-.sidebar .brand em{display:block;font-weight:400;font-style:normal;font-size:11.5px;
-color:var(--muted);margin-top:3px}
-.sidebar ol{list-style:none;margin:0;padding:0;counter-reset:s}
-.sidebar li{margin:1px 0}
-.sidebar a{display:block;position:relative;padding:5px 8px 5px 30px;color:var(--muted);
-text-decoration:none;border-radius:5px;line-height:1.35;border-left:2px solid transparent}
-.sidebar a::before{counter-increment:s;content:counter(s) ".";position:absolute;left:9px;
-font-variant-numeric:tabular-nums}
-.sidebar a:hover{color:var(--fg);background:color-mix(in srgb,var(--fg) 7%,transparent)}
-.sidebar a.active{color:var(--fg);font-weight:600;
-background:color-mix(in srgb,var(--blue) 15%,transparent);border-left-color:var(--blue)}
-.sidebar .dsbai{margin-top:14px;padding-top:10px;border-top:1px solid var(--rule)}
-.sidebar .dsbai .lb{font-size:11.5px;color:var(--muted);text-transform:uppercase;
+.dsbai{margin-top:14px;padding-top:10px;border-top:1px solid var(--border)}
+.dsbai a{padding:3px 8px 3px 8px;font-size:12.6px}
+.dsbai a.here{color:var(--fg);font-weight:700}
+.dsbai .lb{font-size:11.5px;color:var(--muted);text-transform:uppercase;
 letter-spacing:.05em;margin-bottom:5px}
-.sidebar .dsbai a{padding:3px 8px 3px 8px;font-size:12.6px}
-.sidebar .dsbai a::before{content:none}
-.sidebar .dsbai a.here{color:var(--fg);font-weight:700}
-body{padding-left:270px}
-nav.toc{display:none}
-}
-@media print{.sidebar,#theme{display:none!important}nav.toc{display:block!important}body{padding-left:16px}}
-@media(max-width:620px){body{font-size:15px}header.top h1{font-size:1.35rem}
-.box .body{padding:4px 12px 12px}.copy{opacity:1}}
-footer{border-top:1px solid var(--rule);margin-top:40px;padding-top:14px;
-font-size:.85rem;color:var(--muted);text-align:center}
 </style>
-</head>
-<body>
-<button id="theme" type="button">Nền tối</button>
 
-<aside class="sidebar">
-	<div class="brand">Hướng dẫn giải<em>Tối ưu nhờ tiền tố — bài 3</em></div>
-	<nav class="muc"><ol>
-		<li><a href="#s1">Tóm tắt đề bài</a></li>
-		<li><a href="#s2">Kiến thức nền tảng: Đoạn con tốt nhất kết thúc tại một vị trí</a></li>
-		<li><a href="#s3">Mức 1 &mdash; Thử mọi đoạn và mọi vị trí bị xóa (Subtask 1: N &le; 103)</a></li>
-		<li><a href="#s4">Mức 2 &mdash; Nhìn theo vị trí bị xóa (Subtask 2)</a></li>
-		<li><a href="#s5">Kỹ thuật cần nhớ: quét hai lượt rồi ghép</a></li>
-		<li><a href="#s6">Tổ chức dữ liệu và ý nghĩa các biến</a></li>
-		<li><a href="#s7">Thuật toán từng bước</a></li>
-		<li><a href="#s8">Đánh giá độ phức tạp</a></li>
-		<li><a href="#s9">Tự cài đặt</a></li>
-	</ol></nav>
-	<div class="dsbai">
+<!--cv-head-->
+<link rel="stylesheet" href="../../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Xóa một phần tử để tổng lớn nhất.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Xóa một phần tử để tổng lớn nhất | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Xóa một phần tử để tổng lớn nhất.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Xóa một phần tử để tổng lớn nhất</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Kiến thức nền tảng: Đoạn con tốt nhất kết…</a>
+  <a href="#s3">3. Mức 1 — Thử mọi đoạn và mọi vị trí bị xóa…</a>
+  <a href="#s4">4. Mức 2 — Nhìn theo vị trí bị xóa (Subtask 2…</a>
+  <a href="#s5">5. Kỹ thuật cần nhớ: quét hai lượt rồi ghép</a>
+  <a href="#s6">6. Tổ chức dữ liệu và ý nghĩa các biến</a>
+  <a href="#s7">7. Thuật toán từng bước</a>
+  <a href="#s8">8. Đánh giá độ phức tạp</a>
+  <a href="#s9">9. Tự cài đặt</a>
+
+<div class="dsbai">
 		<div class="lb">10 bài của chương</div>
 		<a href="bai1-sol.html">1. Tổng lớn nhất</a>
 		<a href="bai2-sol.html">2. Độ dài tối thiểu</a>
@@ -175,31 +57,40 @@ font-size:.85rem;color:var(--muted);text-align:center}
 	</div>
 </aside>
 
+<div class="main">
 <div class="wrap">
-<header class="top">
-	<div class="kicker">Tài liệu bồi dưỡng học sinh giỏi Tin học</div>
-	<hr>
-	<h1>Bài 3 — Xóa một phần tử để tổng lớn nhất</h1>
-	<div class="ma">PREFIXSUM_OPTIMIZE_03</div>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../index.html">Tổng tiền tố</a><span class="cv-sep">/</span><span class="cv-here">Xóa một phần tử để tổng lớn nhất</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Xóa một phần tử để tổng lớn nhất</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
 </header>
 
 <nav class="toc">
-	<h2>Mục lục</h2>
-	<ol>
-		<li><a href="#s1">Tóm tắt đề bài</a></li>
-		<li><a href="#s2">Kiến thức nền tảng: Đoạn con tốt nhất kết thúc tại một vị trí</a></li>
-		<li><a href="#s3">Mức 1 &mdash; Thử mọi đoạn và mọi vị trí bị xóa (Subtask 1: <var>N &le; 10<sup>3</sup></var>)</a></li>
-		<li><a href="#s4">Mức 2 &mdash; Nhìn theo vị trí bị xóa (Subtask 2)</a></li>
-		<li><a href="#s5">Kỹ thuật cần nhớ: quét hai lượt rồi ghép</a></li>
-		<li><a href="#s6">Tổ chức dữ liệu và ý nghĩa các biến</a></li>
-		<li><a href="#s7">Thuật toán từng bước</a></li>
-		<li><a href="#s8">Đánh giá độ phức tạp</a></li>
-		<li><a href="#s9">Tự cài đặt</a></li>
-	</ol>
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Kiến thức nền tảng: Đoạn con tốt nhất kết…</a></li>
+    <li><a href="#s3">Mức 1 — Thử mọi đoạn và mọi vị trí bị xóa…</a></li>
+    <li><a href="#s4">Mức 2 — Nhìn theo vị trí bị xóa (Subtask 2…</a></li>
+    <li><a href="#s5">Kỹ thuật cần nhớ: quét hai lượt rồi ghép</a></li>
+    <li><a href="#s6">Tổ chức dữ liệu và ý nghĩa các biến</a></li>
+    <li><a href="#s7">Thuật toán từng bước</a></li>
+    <li><a href="#s8">Đánh giá độ phức tạp</a></li>
+    <li><a href="#s9">Tự cài đặt</a></li>
+  </ol>
 </nav>
 
-<section class="box summary" id="s1">
-<h2>Tóm tắt đề bài</h2>
+<h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
+<section class="box def">
 <div class="body">
 <p><b>Yêu cầu:</b> Chọn một đoạn con liên tiếp khác rỗng, được phép <b>xóa nhiều nhất một phần tử</b> khỏi đoạn đó (phần còn lại vẫn phải khác rỗng), sao cho tổng các phần tử còn lại là lớn nhất. <br>
 		<b>Giới hạn:</b></p>
@@ -209,8 +100,8 @@ font-size:.85rem;color:var(--muted);text-align:center}
 </div>
 </section>
 
-<section class="box practice" id="s2">
-<h2>Kiến thức nền tảng: Đoạn con tốt nhất kết thúc tại một vị trí</h2>
+<h2 id="s2"><span class="num">2.</span>Kiến thức nền tảng: Đoạn con tốt nhất kết thúc tại một vị trí</h2>
+<section class="box def">
 <div class="body">
 <p>Trước khi giải bài này, cần nắm một đại lượng quen thuộc từ bài &ldquo;Đoạn con tổng lớn nhất&rdquo;:
 		<div class="formula">fw<sub>i</sub> = tổng lớn nhất của một đoạn con kết thúc đúng tại i.</div></p>
@@ -219,15 +110,15 @@ font-size:.85rem;color:var(--muted);text-align:center}
 <p>Tương tự, quét từ phải sang cho ta
 		<div class="formula">bw<sub>i</sub> = tổng lớn nhất của một đoạn con bắt đầu đúng tại i, &nbsp;&nbsp;&nbsp;&nbsp; bw<sub>i</sub> = max(a<sub>i</sub>, bw<sub>i+1</sub> + a<sub>i</sub>).</div></p>
 <p><b>Code mẫu (một lượt quét từ trái):</b></p>
-<div class="code-block"><pre><code>fw[1] = a[1];
+<div class="codewrap noname"><pre><code>fw[1] = a[1];
 for (int i = 2; i &lt;= n; i++) {
 	fw[i] = max(a[i], fw[i - 1] + a[i]);
 }</code></pre></div>
 </div>
 </section>
 
-<section class="box tech" id="s3">
-<h2>Mức 1 &mdash; Thử mọi đoạn và mọi vị trí bị xóa (Subtask 1: <var>N &le; 10<sup>3</sup></var>)</h2>
+<h2 id="s3"><span class="num">3.</span>Mức 1 &mdash; Thử mọi đoạn và mọi vị trí bị xóa (Subtask 1: <var>N &le; 10<sup>3</sup></var>)</h2>
+<section class="box tech">
 <div class="body">
 <p>Cách nghĩ thẳng: duyệt mọi đoạn <var>[i, j]</var>, rồi với mỗi đoạn lại thử bỏ từng phần tử bên trong.</p>
 <p>Số đoạn con đã là <var>O(N<sup>2</sup>)</var>, nhân thêm việc thử vị trí xóa thành <var>O(N<sup>3</sup>)</var>. Khéo hơn một chút &mdash; tính sẵn tổng đoạn rồi trừ đi phần tử nhỏ nhất trong đoạn &mdash; vẫn còn <var>O(N<sup>2</sup>)</var>.</p>
@@ -235,8 +126,8 @@ for (int i = 2; i &lt;= n; i++) {
 </div>
 </section>
 
-<section class="box tech" id="s4">
-<h2>Mức 2 &mdash; Nhìn theo vị trí bị xóa (Subtask 2)</h2>
+<h2 id="s4"><span class="num">4.</span>Mức 2 &mdash; Nhìn theo vị trí bị xóa (Subtask 2)</h2>
+<section class="box tech">
 <div class="body">
 <p><b>Đổi góc nhìn.</b> Thay vì duyệt đoạn rồi mới nghĩ đến việc xóa, hãy hỏi ngược: <i>nếu ta đã quyết định xóa đúng phần tử <var>a<sub>k</sub></var> thì kết quả tốt nhất là bao nhiêu?</i></p>
 <p>Khi bỏ <var>a<sub>k</sub></var>, đoạn được chọn tách thành hai mảnh nằm hai bên <var>k</var>:</p>
@@ -268,8 +159,8 @@ for (int i = 2; i &lt;= n; i++) {
 </div>
 </section>
 
-<section class="box tech" id="s5">
-<h2>Kỹ thuật cần nhớ: quét hai lượt rồi ghép</h2>
+<h2 id="s5"><span class="num">5.</span>Kỹ thuật cần nhớ: quét hai lượt rồi ghép</h2>
+<section class="box tech">
 <div class="body">
 <p>Bài này là ví dụ đầu tiên của một khuôn mẫu dùng đi dùng lại:</p>
 <figure>
@@ -297,14 +188,14 @@ for (int i = 2; i &lt;= n; i++) {
 <p>Khi bài toán có dạng &ldquo;chọn một điểm rồi ghép kết quả hai bên&rdquo;, hãy nghĩ tới việc dựng sẵn hai mảng bằng hai lượt quét ngược chiều. Khuôn này còn dùng lại ở bài <i>Hai đoạn con rời nhau</i> và bài <i>Chia đường gấp khúc cân bằng</i>.</p>
 <p>
 		<b>Chạy tay ví dụ trong đề</b> với dãy <var>1, -2, 0, 3</var>:</p>
-<div class="table-wrap"><table><thead><tr><th><var>i</var></th><th><var>1</var></th><th><var>2</var></th><th><var>3</var></th><th><var>4</var></th></tr></thead><tbody><tr><td><var>a<sub>i</sub></var></td><td><var>1</var></td><td><var>-2</var></td><td><var>0</var></td><td><var>3</var></td></tr><tr><td><var>fw<sub>i</sub></var></td><td><var>1</var></td><td><var>-1</var></td><td><var>0</var></td><td><var>3</var></td></tr><tr><td><var>bw<sub>i</sub></var></td><td><var>2</var></td><td><var>1</var></td><td><var>3</var></td><td><var>3</var></td></tr></tbody></table></div>
+<div class="tablewrap"><table><thead><tr><th><var>i</var></th><th><var>1</var></th><th><var>2</var></th><th><var>3</var></th><th><var>4</var></th></tr></thead><tbody><tr><td><var>a<sub>i</sub></var></td><td><var>1</var></td><td><var>-2</var></td><td><var>0</var></td><td><var>3</var></td></tr><tr><td><var>fw<sub>i</sub></var></td><td><var>1</var></td><td><var>-1</var></td><td><var>0</var></td><td><var>3</var></td></tr><tr><td><var>bw<sub>i</sub></var></td><td><var>2</var></td><td><var>1</var></td><td><var>3</var></td><td><var>3</var></td></tr></tbody></table></div>
 <ul><li>Không xóa gì: <var>max fw<sub>i</sub> = 3</var> (đoạn chỉ gồm <var>a<sub>4</sub></var>).</li><li>Xóa <var>a<sub>2</sub></var>: <var>fw<sub>1</sub> + bw<sub>3</sub> = 1 + 3 = 4</var> &mdash; ứng với đoạn <var>[1, 4]</var> bỏ đi <var>-2</var>, còn <var>1 + 0 + 3</var>.</li><li>Xóa <var>a<sub>3</sub></var>: <var>fw<sub>2</sub> + bw<sub>4</sub> = -1 + 3 = 2</var>.</li></ul>
 <p>Đáp án là <var>4</var>, khớp đề.</p>
 </div>
 </section>
 
-<section class="box tech" id="s6">
-<h2>Tổ chức dữ liệu và ý nghĩa các biến</h2>
+<h2 id="s6"><span class="num">6.</span>Tổ chức dữ liệu và ý nghĩa các biến</h2>
+<section class="box tech">
 <div class="body">
 <ul><li><code class="inline">n</code>: số phần tử.</li><li><code class="inline">a</code>: mảng <code class="inline">long long</code> lưu dãy gốc. Bài này <b>bắt buộc lưu mảng</b> vì phải quét hai chiều.</li><li><code class="inline">fw</code>: mảng <code class="inline">long long</code>, <code class="inline">fw[i]</code> là tổng lớn nhất của đoạn kết thúc tại <var>i</var>.</li><li><code class="inline">bw</code>: mảng <code class="inline">long long</code>, <code class="inline">bw[i]</code> là tổng lớn nhất của đoạn bắt đầu tại <var>i</var>.</li><li><code class="inline">ans</code>: đáp án, khởi tạo <code class="inline">LLONG_MIN</code>.</li></ul>
 <p>Tổng có thể tới <var>2 &times; 10<sup>5</sup> &times; 10<sup>9</sup> = 2 &times; 10<sup>14</sup></var> nên cả bốn đại lượng trên đều phải là <code class="inline">long long</code>.</p>
@@ -312,8 +203,8 @@ for (int i = 2; i &lt;= n; i++) {
 </div>
 </section>
 
-<section class="box example" id="s7">
-<h2>Thuật toán từng bước</h2>
+<h2 id="s7"><span class="num">7.</span>Thuật toán từng bước</h2>
+<section class="box ex">
 <div class="body">
 <p><b>Bước 1: Đọc dữ liệu</b></p>
 <ul><li>Đọc <var>N</var> và toàn bộ dãy vào mảng <code class="inline">a</code>.</li></ul>
@@ -326,15 +217,15 @@ for (int i = 2; i &lt;= n; i++) {
 </div>
 </section>
 
-<section class="box complexity" id="s8">
-<h2>Đánh giá độ phức tạp</h2>
+<h2 id="s8"><span class="num">8.</span>Đánh giá độ phức tạp</h2>
+<section class="box cmplx">
 <div class="body">
 <ul><li><b>Thời gian:</b> ba lượt quét độc lập, mỗi lượt <var>O(N)</var> &mdash; tổng cộng <var>O(N)</var>, khoảng <var>6 &times; 10<sup>5</sup></var> phép tính. Chạy trong vài phần trăm giây.</li><li><b>Bộ nhớ:</b> ba mảng <code class="inline">long long</code> kích thước <var>N</var>, tốn khoảng <var>4,8</var> MB. Độ phức tạp <var>O(N)</var>.</li></ul>
 </div>
 </section>
 
-<section class="box example" id="s9">
-<h2>Tự cài đặt</h2>
+<h2 id="s9"><span class="num">9.</span>Tự cài đặt</h2>
+<section class="box ex">
 <div class="body">
 <p>Tài liệu này <b>không kèm mã nguồn hoàn chỉnh</b> &mdash; phần cài đặt dành cho bạn.</p>
 <p>Các bước đã mô tả đầy đủ ở mục <i>Thuật toán từng bước</i>; mục <i>Tổ chức dữ liệu</i> cho biết cần những biến nào, kiểu gì, khởi tạo ra sao. Chỉ cần dịch từng bước ấy sang C++ là xong.</p>
@@ -343,67 +234,17 @@ for (int i = 2; i &lt;= n; i++) {
 </div>
 </section>
 
-<footer>Chuyên đề Tổng tiền tố — Kỹ thuật 5: Tối ưu nhờ tiền tố</footer>
 </div>
-<script>
-(function(){
-"use strict";
-var root=document.documentElement,btn=document.getElementById("theme");
-function isDark(){return getComputedStyle(root).getPropertyValue("--is-dark").trim()==="1";}
-function paint(){btn.textContent=isDark()?"Nền sáng":"Nền tối";}
-btn.addEventListener("click",function(){root.setAttribute("data-theme",isDark()?"light":"dark");paint();});
-window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",paint);
-paint();
 
-var navLinks=[].slice.call(document.querySelectorAll(".sidebar nav.muc a"));
-var navT=navLinks.map(function(a){return document.querySelector(a.getAttribute("href"));});
-function spy(){
-  var idx=0;
-  for(var i=0;i<navT.length;i++){
-    if(navT[i]&&navT[i].getBoundingClientRect().top<=130) idx=i;
-  }
-  if(window.innerHeight+window.scrollY>=document.body.scrollHeight-4) idx=navLinks.length-1;
-  for(var j=0;j<navLinks.length;j++) navLinks[j].classList.toggle("active",j===idx);
-}
-var tick=false;
-function onScroll(){if(tick)return;tick=true;window.requestAnimationFrame(function(){spy();tick=false;});}
-if(navLinks.length){window.addEventListener("scroll",onScroll,{passive:true});
-window.addEventListener("resize",onScroll);spy();}
+</div>
 
-var KW=["int","long","const","unsigned","short","char","bool","void","double","float","auto",
-"for","while","do","if","else","return","break","continue","struct","class","using","namespace",
-"true","false","sizeof","unordered_map","map","vector","pair","string","max","min","swap","sort",
-"deque","llabs","sqrtl","mt19937_64","lower_bound","fixed","setprecision"];
-var RE=new RegExp("(\\/\\/[^\\n]*)"+"|(\"(?:[^\"\\\\\\n]|\\\\.)*\")"+"|(#[a-zA-Z]+)"+
-"|\\b(\\d+)\\b"+"|\\b("+KW.join("|")+")\\b","g");
-function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-function hl(raw){
-  return esc(raw).replace(RE,function(m,cmt,str,pp,num,kw){
-    if(cmt)return '<span class="c">'+cmt+"</span>";
-    if(str)return '<span class="s">'+str+"</span>";
-    if(pp)return '<span class="pp">'+pp+"</span>";
-    if(num)return '<span class="n">'+num+"</span>";
-    if(kw)return '<span class="k">'+kw+"</span>";
-    return m;});
-}
-Array.prototype.forEach.call(document.querySelectorAll(".code-block"),function(b){
-  var el=b.querySelector("code"),raw=el.textContent;
-  el.innerHTML=hl(raw);
-  var t=document.createElement("button");
-  t.className="copy";t.type="button";t.textContent="Sao chép";
-  t.addEventListener("click",function(){
-    function done(){t.textContent="Đã chép";t.classList.add("done");
-      setTimeout(function(){t.textContent="Sao chép";t.classList.remove("done");},1400);}
-    function fb(){var ta=document.createElement("textarea");ta.value=raw;
-      ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();
-      try{document.execCommand("copy");done();}catch(e){}document.body.removeChild(ta);}
-    if(navigator.clipboard&&navigator.clipboard.writeText)
-      navigator.clipboard.writeText(raw).then(done,fb);
-    else fb();
-  });
-  b.appendChild(t);
-});
-})();
-</script>
+<script src="../../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

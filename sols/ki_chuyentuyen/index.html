@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lời giải: Chi Phí Chuyển Tuyến</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
-            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
-            --text-main: #E2E8F0; --text-muted: #94A3B8;
-            --glow: 0 0 20px rgba(56,214,196,.4);
-            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
-            --border: 1px solid rgba(255,255,255,.1);
-        }
-        * { box-sizing: border-box; }
-        body {
-            margin: 0; padding: 0; background-color: var(--bg); color: var(--text-main);
-            font-family: "Inter", sans-serif; line-height: 1.6;
-        }
-        h1, h2, h3, h4 { font-family: "Space Grotesk", sans-serif; letter-spacing: -.03em; margin-top: 0; }
+    <title>Lời giải: Chi phí chuyển tuyến | Lý thuyết CP</title>
+    <script src="../../assets/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --text-main: var(--fg);
+  --text-muted: var(--muted);
+  --glow: none;
+  --shadow: none;
+  --border: var(--border);
+}
         code, .mono { font-family: "JetBrains Mono", monospace; }
         
         .topnav {
@@ -28,15 +28,9 @@
             padding: 12px 20px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px);
             border-bottom: var(--border);
         }
-        .nav-btn {
-            text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent));
-            padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease;
-        }
         .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
         .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
-        
-        .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px; display: flex; flex-direction: column; gap: 40px; }
         
         .card {
             background: linear-gradient(180deg, var(--panel), var(--bg2)); border: var(--border);
@@ -63,7 +57,7 @@
         .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
 
         .code-container {
-            background: #0A1220; border: var(--border); border-radius: 12px;
+            background: var(--code-bg); border: var(--border); border-radius: 12px;
             overflow-x: auto; padding: 20px 0; font-size: 0.9rem; margin-top: 15px;
         }
         .codeline { padding: 0 20px; white-space: pre-wrap; word-break: break-all; }
@@ -77,7 +71,7 @@
         .c-op { color: #C9D1D9; } /* Operator */
 
         .lab-area {
-            background: #0A1220; border: var(--border); border-radius: 12px;
+            background: var(--code-bg); border: var(--border); border-radius: 12px;
             padding: 20px; margin: 20px 0; text-align: center; overflow: hidden; position: relative;
         }
         canvas { max-width: 100%; border-radius: 8px; }
@@ -121,7 +115,7 @@
         }
         .quiz-opts { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
         .q-opt {
-            background: #0A1220; border: 1px solid rgba(255,255,255,.1); padding: 12px 16px;
+            background: var(--code-bg); border: 1px solid rgba(255,255,255,.1); padding: 12px 16px;
             border-radius: 8px; cursor: pointer; transition: all .2s; text-align: left; color: var(--text-main);
         }
         .q-opt:hover:not(.locked) { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.3); }
@@ -140,16 +134,71 @@
             .container { padding: 20px 16px; }
             .pitfalls { grid-template-columns: 1fr; }
         }
-    </style>
+    
+        /* Ép tiêu đề và khối mã theo bảng màu của chuẩn: vài trang còn màu gõ
+           cứng của bản nền tối (h2 màu trắng), sang nền sáng là chữ trắng trên
+           nền trắng — đo được tương phản đúng bằng 1. */
+        h1, h2, h3, h4{color:var(--fg)}
+        h2 .num{color:var(--blue)}
+        pre, .code-line{color:var(--code-fg)}
+        /* Vài trang có quy tắc riêng đặc hiệu hơn (ví dụ .container h2) nên
+           phải dùng !important mới thắng được màu gõ cứng của bản nền tối. */
+        h1, h2, h3, h4{color:var(--fg) !important}
+        h2 .num{color:var(--blue) !important}
+        p, li{color:var(--fg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Chi phí chuyển tuyến.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Chi phí chuyển tuyến | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Chi phí chuyển tuyến.">
+<!--/cv-head-->
 </head>
 <body>
-
-<nav class="topnav">
-    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
-    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../index.html">Kho lời giải</a><span class="cv-sep">/</span><span class="cv-here">Chi phí chuyển tuyến</span></span>
+  </div>
 </nav>
+<!--/cv-nav-->
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Chi Phí Chuyển Tuyến</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Phân tích ban đầu: Tại sao Dijkstra thông th…</a>
+  <a href="#s3">3. Mô-đun 1: Tách Trạm thành Trạng thái (Đồ thị…</a>
+  <a href="#s4">4. Mô-đun 2: Tối ưu Không Gian (Đồ thị phân tần…</a>
+  <a href="#s5">5. Cài đặt (C++)</a>
+  <a href="#s6">6. Đánh giá & Cạm bẫy</a>
+</aside>
+
+<div class="main">
 
 <div class="container">
+<div class="box tech">
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Phân tích ban đầu: Tại sao Dijkstra thông th…</a></li>
+    <li><a href="#s3">Mô-đun 1: Tách Trạm thành Trạng thái (Đồ thị…</a></li>
+    <li><a href="#s4">Mô-đun 2: Tối ưu Không Gian (Đồ thị phân tần…</a></li>
+    <li><a href="#s5">Cài đặt (C++)</a></li>
+    <li><a href="#s6">Đánh giá & Cạm bẫy</a></li>
+  </ol>
+</nav>
+
     
     <header class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
@@ -179,7 +228,7 @@
 
     <section class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Tóm tắt đề bài</h2>
+        <h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
         <p>Có n trạm và m đoạn đường. Mỗi đoạn đường thuộc đúng một trong k tuyến xe. Tuyến c có giá vé là p<sub>c</sub>.</p>
         <p>Hành khách chỉ bị trừ tiền (bằng p<sub>c</sub>) khi <strong>bắt đầu bước lên</strong> tuyến c. Nếu đi liên tiếp nhiều đoạn trên CÙNG tuyến c thì không mất thêm phí. Nếu đổi sang tuyến khác rồi quay lại tuyến c, phải trả lại p<sub>c</sub>.</p>
         <p><strong>Yêu cầu:</strong> Tìm chi phí nhỏ nhất đi từ trạm 1 đến trạm n.</p>
@@ -201,7 +250,7 @@
 
     <section class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Phân tích ban đầu: Tại sao Dijkstra thông thường thất bại?</h2>
+        <h2 id="s2"><span class="num">2.</span>Phân tích ban đầu: Tại sao Dijkstra thông th…</h2>
         <p>Nếu ta chạy thuật toán Dijkstra trên đồ thị n đỉnh (mỗi đỉnh là 1 trạm), trọng số cạnh là gì? Nếu gán cạnh (u, v) trên tuyến c có trọng số p<sub>c</sub>, ta sẽ cộng dồn sai chi phí khi đi liên tiếp trên cùng một tuyến. Nếu gán trọng số bằng 0, ta lại không tính được chi phí lúc mới lên xe.</p>
         <p><strong>Khó khăn then chốt:</strong> Chi phí đi qua một cạnh (u, v) thuộc tuyến c phụ thuộc vào <em>cạnh trước đó</em> bạn vừa đi thuộc tuyến nào. Đồ thị thiếu "ký ức".</p>
     </section>
@@ -209,7 +258,7 @@
     <section class="card">
         <div class="snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Mô-đun 1: Tách Trạm thành Trạng thái (Đồ thị Ký ức)</h2>
+            <h2 id="s3"><span class="num">3.</span>Mô-đun 1: Tách Trạm thành Trạng thái (Đồ thị…</h2>
             <p><strong>(a) Ta muốn gì?</strong> Ta muốn đồ thị có khả năng "nhớ" được hành khách đang ngồi trên tuyến xe nào, để quyết định có thu tiền hay không.</p>
             <p><strong>(b) Khó khăn:</strong> Một trạm u có thể là điểm giao của rất nhiều tuyến xe.</p>
             <p><strong>(c) Ý tưởng vượt qua:</strong> Thay vì chỉ có đỉnh <code>u</code> đại diện cho trạm, ta tạo ra các <strong>đỉnh ảo</strong> dạng <code>(u, c)</code>, mang ý nghĩa: "Đang ở trạm u, và ĐANG NGỒI trên xe của tuyến c".<br>
@@ -249,7 +298,7 @@
     <section class="card">
         <div class="snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Mô-đun 2: Tối ưu Không Gian (Đồ thị phân tầng)</h2>
+            <h2 id="s4"><span class="num">4.</span>Mô-đun 2: Tối ưu Không Gian (Đồ thị phân tần…</h2>
             <p><strong>(a) Ta muốn gì?</strong> Ta muốn biểu diễn trạng thái <code>(u, c)</code> vào một cấu trúc dữ liệu để chạy Dijkstra.</p>
             <p><strong>(b) Khó khăn:</strong> Nếu tạo trạng thái cho MỌI trạm kết hợp với MỌI tuyến, số đỉnh sẽ là N × K (có thể lên tới 200,000 × 200,000 = 40 tỉ đỉnh). Bị Tràn Bộ Nhớ (MLE).</p>
             <p><strong>(c) Ý tưởng vượt qua:</strong> Ta <strong>chỉ tạo</strong> trạng thái <code>(u, c)</code> NẾU có ít nhất một đoạn đường của tuyến c nối trực tiếp vào trạm u. Thay vì mảng 2 chiều, ta gán cho mỗi cặp <code>(u, c)</code> hợp lệ một số ID duy nhất bằng mảng 1 chiều liên tiếp.</p>
@@ -332,7 +381,7 @@
     <section class="card snapbox">
         <button class="copy-btn" onclick="copyCode(this)">Copy</button>
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Cài đặt (C++)</h2>
+        <h2 id="s5"><span class="num">5.</span>Cài đặt (C++)</h2>
         <div class="code-container codewrap">
             <div class="code">
 <div class="codeline" id="code-l1"><span class="c-cm"></span></div>
@@ -432,7 +481,7 @@
 
     <section class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Đánh giá & Cạm bẫy</h2>
+        <h2 id="s6"><span class="num">6.</span>Đánh giá & Cạm bẫy</h2>
         <p style="margin-bottom: 20px;">
             <strong>Độ phức tạp:</strong><br>
             - Khởi tạo ID mảng: Việc sắp xếp tập tuyến cho mỗi đỉnh mất O(M log(K)).<br>
@@ -440,7 +489,7 @@
             - Chạy Dijkstra tốn O(E log V). Tổng cộng thuật toán chạy cực nhanh, hoàn toàn vừa vặn với giới hạn thời gian 1-2 giây cho mảng ràng buộc 10<sup>5</sup>.
         </p>
         
-        <div class="pitfalls">
+        <div class="box warn">
             <div class="pit-col wrong-col">
                 <h4><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg> Cạm bẫy dễ sai</h4>
                 <p>Sử dụng <code>std::map&lt;pair&lt;int, int&gt;, int&gt;</code> để đánh số ID cho trạng thái. Dù tiện lợi nhưng map sử dụng cây đỏ đen, tốn rất nhiều bộ nhớ và hằng số thời gian cực lớn (gấp 5-10 lần mảng). Dễ bị Tràn Thời Gian hoặc Tràn Bộ Nhớ với M = 300,000.</p>
@@ -690,5 +739,15 @@
     })();
 </script>
 
+</div>
+
+<script src="../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

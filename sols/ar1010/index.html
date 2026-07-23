@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lời giải: Phần tử thủ lĩnh</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        :root {
-            --bg: #0B1220; --bg2: #0F1A2E; --panel: #111E36;
-            --accent: #38D6C4; --accent2: #5B8CFF; --mark: #FFB454; --red: #FF6B6B;
-            --text-main: #E2E8F0; --text-muted: #94A3B8;
-            --glow: 0 0 20px rgba(56,214,196,.4);
-            --shadow: 0 20px 60px -30px rgba(0,0,0,.9);
-            --border: 1px solid rgba(255,255,255,.1);
-        }
-        * { box-sizing: border-box; }
-        body {
-            margin: 0; padding: 0; background-color: var(--bg); color: var(--text-main);
-            font-family: "Inter", sans-serif; line-height: 1.6;
-        }
-        h1, h2, h3, h4 { font-family: "Space Grotesk", sans-serif; letter-spacing: -.03em; margin-top: 0; }
+    <title>Lời giải: Phần tử thủ lĩnh | Lý thuyết CP</title>
+    <script src="../../assets/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --text-main: var(--fg);
+  --text-muted: var(--muted);
+  --glow: none;
+  --shadow: none;
+  --border: var(--border);
+}
         code, .mono { font-family: "JetBrains Mono", monospace; }
         
         .topnav {
@@ -28,15 +28,9 @@
             padding: 12px 20px; background: rgba(11,18,32,.85); backdrop-filter: blur(10px);
             border-bottom: var(--border);
         }
-        .nav-btn {
-            text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent));
-            padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow); transition: all .3s ease;
-        }
         .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
         .nav-btn.outline:hover { background: rgba(56,214,196,.1); box-shadow: var(--glow); }
-        
-        .container { max-width: 1000px; margin: 0 auto; padding: 40px 24px; display: flex; flex-direction: column; gap: 40px; }
         
         .card {
             background: linear-gradient(180deg, var(--panel), var(--bg2)); border: var(--border);
@@ -63,7 +57,7 @@
         .snapping .snap-btn, .snapping .copy-btn { visibility: hidden; }
 
         .code-container {
-            background: #0A1220; border: var(--border); border-radius: 12px;
+            background: var(--code-bg); border: var(--border); border-radius: 12px;
             overflow-x: auto; padding: 20px 0; font-size: 0.9rem; margin-top: 15px;
             line-height: 1.6;
         }
@@ -78,7 +72,7 @@
         .c-op { color: #C9D1D9; } 
 
         .lab-area {
-            background: #0A1220; border: var(--border); border-radius: 12px;
+            background: var(--code-bg); border: var(--border); border-radius: 12px;
             padding: 20px; margin: 20px 0; text-align: center; overflow: hidden; position: relative;
         }
         .controls {
@@ -121,7 +115,7 @@
         }
         .quiz-opts { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
         .q-opt {
-            background: #0A1220; border: 1px solid rgba(255,255,255,.1); padding: 12px 16px;
+            background: var(--code-bg); border: 1px solid rgba(255,255,255,.1); padding: 12px 16px;
             border-radius: 8px; cursor: pointer; transition: all .2s; text-align: left; color: var(--text-main);
         }
         .q-opt:hover:not(.locked) { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.3); }
@@ -153,16 +147,69 @@
         .array-cell.leader { border-color: #38D6C4; background: rgba(56,214,196,.15); color: #38D6C4; }
         .cell-idx { position: absolute; bottom: -25px; font-size: 0.75rem; color: #94A3B8; font-family: "JetBrains Mono", monospace; }
         .cell-label { position: absolute; top: -25px; font-size: 0.7rem; color: #FFB454; font-weight: bold; white-space: nowrap;}
-    </style>
+    
+        /* Ép tiêu đề và khối mã theo bảng màu của chuẩn: vài trang còn màu gõ
+           cứng của bản nền tối (h2 màu trắng), sang nền sáng là chữ trắng trên
+           nền trắng — đo được tương phản đúng bằng 1. */
+        h1, h2, h3, h4{color:var(--fg)}
+        h2 .num{color:var(--blue)}
+        pre, .code-line{color:var(--code-fg)}
+        /* Vài trang có quy tắc riêng đặc hiệu hơn (ví dụ .container h2) nên
+           phải dùng !important mới thắng được màu gõ cứng của bản nền tối. */
+        h1, h2, h3, h4{color:var(--fg) !important}
+        h2 .num{color:var(--blue) !important}
+        p, li{color:var(--fg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Phần tử thủ lĩnh (AR1010).">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Phần tử thủ lĩnh | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Phần tử thủ lĩnh (AR1010).">
+<!--/cv-head-->
 </head>
 <body>
-
-<nav class="topnav">
-    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
-    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../array-1d/index.html">Mảng 1 chiều</a><span class="cv-sep">/</span><span class="cv-here">Phần tử thủ lĩnh</span></span>
+  </div>
 </nav>
+<!--/cv-nav-->
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Phần tử thủ lĩnh</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Phân tích ban đầu: Tại sao vòng lặp lồng nha…</a>
+  <a href="#s3">3. Mô-đun 1: Kỹ thuật duy trì "Kỷ lục" (Duyệt n…</a>
+  <a href="#s4">4. Cài đặt (C++)</a>
+  <a href="#s5">5. Đánh giá & Cạm bẫy</a>
+</aside>
+
+<div class="main">
 
 <div class="container">
+<div class="box tech">
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Phân tích ban đầu: Tại sao vòng lặp lồng nha…</a></li>
+    <li><a href="#s3">Mô-đun 1: Kỹ thuật duy trì "Kỷ lục" (Duyệt n…</a></li>
+    <li><a href="#s4">Cài đặt (C++)</a></li>
+    <li><a href="#s5">Đánh giá & Cạm bẫy</a></li>
+  </ol>
+</nav>
+
     
     <header class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
@@ -189,7 +236,7 @@
 
     <section class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Tóm tắt đề bài</h2>
+        <h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
         <p>Cho mảng gồm n phần tử nguyên a<sub>1</sub>, a<sub>2</sub>, ..., a<sub>n</sub>. Một phần tử được gọi là "thủ lĩnh" nếu nó <strong>lớn hơn mọi phần tử nằm bên phải nó</strong> trong mảng.</p>
         <p>Lưu ý đặc biệt: Phần tử cuối cùng (a<sub>n</sub>) <strong>KHÔNG</strong> được coi là thủ lĩnh vì không có phần tử nào ở bên phải nó.</p>
         <p><strong>Yêu cầu:</strong> Đếm số lượng phần tử thủ lĩnh trong mảng.</p>
@@ -210,7 +257,7 @@
 
     <section class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Phân tích ban đầu: Tại sao vòng lặp lồng nhau thất bại?</h2>
+        <h2 id="s2"><span class="num">2.</span>Phân tích ban đầu: Tại sao vòng lặp lồng nha…</h2>
         <p>Cách tiếp cận trực quan nhất (ngây thơ) là: Với mỗi phần tử a<sub>i</sub>, ta dùng một vòng lặp nữa duyệt tất cả các phần tử a<sub>j</sub> (với j &gt; i) để kiểm tra xem a<sub>i</sub> có thực sự lớn hơn tất cả hay không.</p>
         <p><strong>Khó khăn:</strong> Cách làm này có độ phức tạp là O(n<sup>2</sup>). Với n = 10<sup>5</sup>, số phép tính lên tới 10<sup>10</sup>, vượt qua giới hạn 1 giây của hệ thống chấm bài (thường cho phép khoảng 10<sup>8</sup> phép tính). Mã của bạn sẽ bị lỗi <strong>Time Limit Exceeded (TLE)</strong>.</p>
         <p>Chúng ta cần một giải pháp chỉ duyệt qua mảng đúng một lần (độ phức tạp O(n)).</p>
@@ -219,7 +266,7 @@
     <section class="card">
         <div class="snapbox">
             <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-            <h2>Mô-đun 1: Kỹ thuật duy trì "Kỷ lục" (Duyệt ngược)</h2>
+            <h2 id="s3"><span class="num">3.</span>Mô-đun 1: Kỹ thuật duy trì "Kỷ lục" (Duyệt n…</h2>
             <p><strong>(a) Ta muốn gì?</strong> Ta muốn biết một số có lớn hơn TẤT CẢ các số bên phải nó hay không, mà không cần phải nhìn lại từng số một.</p>
             <p><strong>(b) Khó khăn then chốt:</strong> Nếu đi từ trái sang phải, khi đứng ở một vị trí, ta mù tịt về tương lai (các số bên phải chưa xuất hiện). Muốn biết tương lai, ta phải đi trước thời gian.</p>
             <p><strong>(c) Ý tưởng vượt qua:</strong> Hãy <strong>duyệt mảng từ phải sang trái</strong>. Khi đi ngược như vậy, "tương lai" (các số bên phải) đã trở thành "quá khứ" (các số đã duyệt qua). Ta chỉ cần duy trì một biến <code>max_right</code> lưu lại <strong>giá trị lớn nhất</strong> trong số các phần tử đã đi qua.</p>
@@ -305,7 +352,7 @@
     <section class="card snapbox">
         <button class="copy-btn" onclick="copyCode(this)">Copy</button>
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Cài đặt (C++)</h2>
+        <h2 id="s4"><span class="num">4.</span>Cài đặt (C++)</h2>
         <div class="code-container codewrap">
             <div class="code">
 <div class="codeline" id="code-l1"><span class="c-kw">#include</span> <span class="c-str">&lt;iostream&gt;</span></div>
@@ -352,13 +399,13 @@
 
     <section class="card snapbox">
         <button class="snap-btn" onclick="snapBox(this)">Snap</button>
-        <h2>Đánh giá & Cạm bẫy</h2>
+        <h2 id="s5"><span class="num">5.</span>Đánh giá & Cạm bẫy</h2>
         <p style="margin-bottom: 20px;">
             <strong>Độ phức tạp Thời gian:</strong> O(n). Thuật toán chỉ duyệt qua mảng đúng một lần với một vòng lặp <code>for</code>. Bên trong vòng lặp chỉ thực hiện phép so sánh và gán O(1). Hoàn toàn vượt qua mốc n = 10<sup>5</sup> một cách dư dả.<br>
             <strong>Độ phức tạp Không gian:</strong> O(n) do dùng một `vector` lưu trữ nguyên trạng mảng để có thể duyệt ngược. Không sử dụng thêm mảng phụ nào khác.
         </p>
         
-        <div class="pitfalls">
+        <div class="box warn">
             <div class="pit-col wrong-col">
                 <h4><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg> Cạm bẫy dễ sai</h4>
                 <p>Khởi tạo <code>leaders = 1</code> rồi chạy vòng lặp lùi từ <code>n - 2</code> vì nghĩ rằng "số ngoài cùng bên phải nghiễm nhiên lớn hơn rỗng". Tuy nhiên, đề bài bài này có một quy định cực dị: phần tử cuối KHÔNG BAO GIỜ là thủ lĩnh. Nếu khởi tạo 1, đáp án sẽ luôn dư ra 1.</p>
@@ -619,5 +666,15 @@
     })();
 </script>
 
+</div>
+
+<script src="../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>

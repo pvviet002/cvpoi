@@ -3,53 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lời giải: Đếm số ước nguyên tố trên đường đi</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #0B1220;
-            --bg2: #0F1A2E;
-            --panel: #111E36;
-            --accent: #38D6C4;
-            --accent2: #5B8CFF;
-            --mark: #FFB454;
-            --red: #FF6B6B;
-            --green: #4ade80;
-            --text-main: #E2E8F0;
-            --text-muted: #94A3B8;
-            --glow: 0 0 20px rgba(56, 214, 196, .4);
-            --shadow: 0 20px 60px -30px rgba(0, 0, 0, .9);
-            --border: 1px solid rgba(255, 255, 255, .1);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background-color: var(--bg);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            padding-bottom: 60px;
-        }
-
-        h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.03em; }
+    <title>Lời giải: Đếm số ước nguyên tố trên đường đi | Lý thuyết CP</title>
+    <link rel="stylesheet" href="../../../assets/chuan.css">
+<style>
+                /* Ánh xạ biến cũ của trang sang biến của chuẩn, nhờ đó phần
+           CSS phòng mô phỏng bên dưới tự theo nền sáng/tối. */
+:root{
+  --bg2: var(--card);
+  --panel: var(--card);
+  --accent: var(--green);
+  --accent2: var(--blue);
+  --mark: var(--amber);
+  --text-main: var(--fg);
+  --text-muted: var(--muted);
+  --glow: none;
+  --shadow: none;
+  --border: var(--border);
+}
         
         .topnav {
             position: sticky; top: 0; z-index: 100; display: flex; gap: 12px; align-items: center;
             padding: 12px 20px; background: rgba(11, 18, 32, .85); backdrop-filter: blur(10px);
             border-bottom: var(--border);
         }
-        .nav-btn {
-            text-decoration: none; color: #000; background: linear-gradient(135deg, var(--accent2), var(--accent));
-            padding: 8px 18px; border-radius: 8px; font-weight: 600; box-shadow: var(--glow);
-            transition: all .3s ease; font-size: 14px;
-        }
         .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .nav-btn.outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); box-shadow: none; }
         .nav-btn.outline:hover { background: rgba(56, 214, 196, .1); box-shadow: var(--glow); }
-
-        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; display: flex; flex-direction: column; gap: 40px; }
         
         .hero { margin-top: 40px; text-align: center; }
         .hero h1 { font-size: 2.5rem; margin-bottom: 12px; background: linear-gradient(to right, var(--accent2), var(--accent)); -webkit-background-clip: text; color: transparent; }
@@ -70,7 +49,7 @@
         .algo-steps ul > li::before { content: "–"; position: absolute; left: 0; color: var(--accent); }
         .algo-steps code { background: rgba(91, 140, 255, .14); color: #A9C4FF; padding: .1em .4em; border-radius: 5px; font-family: "JetBrains Mono", monospace; font-size: .88em; }
 
-        .code-block { background: #0A1220; border: var(--border); border-radius: 12px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 14px; padding: 16px 0; }
+        .code-block { background: var(--code-bg); border: var(--border); border-radius: 12px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 14px; padding: 16px 0; }
         .codeline { padding: 0 16px; white-space: pre-wrap; display: block; border-left: 3px solid transparent; }
         .codeline.hot { background: rgba(255, 180, 84, .1); border-left: 3px solid var(--mark); }
         
@@ -90,7 +69,7 @@
         .right .p-title { color: var(--green); }
 
         /* Lab Components */
-        .lab-container { margin: 24px 0; border: var(--border); border-radius: 12px; background: #0A1220; overflow: hidden; }
+        .lab-container { margin: 24px 0; border: var(--border); border-radius: 12px; background: var(--code-bg); overflow: hidden; }
         .lab-header { padding: 12px 16px; background: rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; border-bottom: var(--border); }
         .lab-title { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--accent); }
         .lab-controls { display: flex; gap: 8px; }
@@ -135,16 +114,75 @@
         @media (max-width: 768px) {
             .pitfalls { grid-template-columns: 1fr; }
         }
-    </style>
+    
+        /* Ép tiêu đề và khối mã theo bảng màu của chuẩn: vài trang còn màu gõ
+           cứng của bản nền tối (h2 màu trắng), sang nền sáng là chữ trắng trên
+           nền trắng — đo được tương phản đúng bằng 1. */
+        h1, h2, h3, h4{color:var(--fg)}
+        h2 .num{color:var(--blue)}
+        pre, .code-line{color:var(--code-fg)}
+        /* Vài trang có quy tắc riêng đặc hiệu hơn (ví dụ .container h2) nên
+           phải dùng !important mới thắng được màu gõ cứng của bản nền tối. */
+        h1, h2, h3, h4{color:var(--fg) !important}
+        h2 .num{color:var(--blue) !important}
+        p, li{color:var(--fg)}
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn giải bài Đếm số ước nguyên tố trên đường đi (viet_lvl4_122).">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Lời giải: Đếm số ước nguyên tố trên đường đi | Lý thuyết CP">
+<meta property="og:description" content="Hướng dẫn giải bài Đếm số ước nguyên tố trên đường đi (viet_lvl4_122).">
+<!--/cv-head-->
 </head>
 <body>
-
-<nav class="topnav">
-    <a class="nav-btn" href="https://cvpoi.vercel.app/index.html">Home</a>
-    <a class="nav-btn outline" href="https://cvpoi.id.vn/">cvpoi.id.vn</a>
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../../index.html">Cây &amp; LCA</a><span class="cv-sep">/</span><span class="cv-here">Ước nguyên tố trên đường đi</span></span>
+  </div>
 </nav>
+<!--/cv-nav-->
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Đếm số ước nguyên tố trên đường đi</div>
+  <a href="#s1">1. Tóm tắt đề bài</a>
+  <a href="#s2">2. Phân tích ban đầu: Rào cản O(N)</a>
+  <a href="#s3">3. 1. Tăng tốc phân tích nguyên tố: Mảng SPF</a>
+  <a href="#s4">4. 2. Trải phẳng đồ thị: Euler Tour</a>
+  <a href="#s5">5. 3. Thuật toán Mo và Kỹ thuật "Chớp tắt" (Tog…</a>
+  <a href="#s6">6. Cài đặt (C++)</a>
+  <a href="#s7">7. Độ phức tạp</a>
+  <a href="#s8">8. Cạm bẫy khi cài đặt</a>
+</aside>
+
+<div class="main">
 
 <div class="container">
+<div class="box tech">
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tóm tắt đề bài</a></li>
+    <li><a href="#s2">Phân tích ban đầu: Rào cản O(N)</a></li>
+    <li><a href="#s3">1. Tăng tốc phân tích nguyên tố: Mảng SPF</a></li>
+    <li><a href="#s4">2. Trải phẳng đồ thị: Euler Tour</a></li>
+    <li><a href="#s5">3. Thuật toán Mo và Kỹ thuật "Chớp tắt" (Tog…</a></li>
+    <li><a href="#s6">Cài đặt (C++)</a></li>
+    <li><a href="#s7">Độ phức tạp</a></li>
+    <li><a href="#s8">Cạm bẫy khi cài đặt</a></li>
+  </ol>
+</nav>
+
     <div class="hero">
         <div class="badge">Đồ thị / Số học • Mức độ 4</div>
         <h1>Đếm số ước nguyên tố trên đường đi</h1>
@@ -152,8 +190,8 @@
     </div>
 
     <!-- 3.2. TÓM TẮT ĐỀ BÀI -->
-    <div class="card">
-        <h2>Tóm tắt đề bài</h2>
+    <div class="box tech">
+        <h2 id="s1"><span class="num">1.</span>Tóm tắt đề bài</h2>
         <p>Cho một cây gồm <code>n</code> đỉnh, đỉnh <code>i</code> có trọng số <code>a<sub>i</sub></code>. Ta cần trả lời <code>q</code> truy vấn, mỗi truy vấn là một cặp đỉnh <code>(u, v)</code>.</p>
         <p>Với mỗi truy vấn, xét đường đi từ <code>u</code> đến <code>v</code> trên cây. Thu thập tất cả các trọng số của các đỉnh nằm trên đường đi này. Yêu cầu: đếm xem có bao nhiêu <strong>ước số nguyên tố phân biệt</strong> xuất hiện trong tập các trọng số đó.</p>
         
@@ -174,8 +212,8 @@
     </div>
 
     <!-- 3.3. PHÂN TÍCH BAN ĐẦU -->
-    <div class="card">
-        <h2>Phân tích ban đầu: Rào cản O(N)</h2>
+    <div class="box tech">
+        <h2 id="s2"><span class="num">2.</span>Phân tích ban đầu: Rào cản O(N)</h2>
         <p>Nếu ta làm theo cách "ngây thơ" nhất:</p>
         <ol>
             <li>Với mỗi truy vấn, duyệt DFS/BFS để tìm đường đi từ <code>u</code> đến <code>v</code> (mất O(n) thời gian).</li>
@@ -189,8 +227,8 @@
     <!-- 3.4. CÁC MÔ-ĐUN LỜI GIẢI -->
     
     <!-- MÔ-ĐUN 1: SÀNG NGUYÊN TỐ -->
-    <div class="card">
-        <h2>1. Tăng tốc phân tích nguyên tố: Mảng SPF</h2>
+    <div class="box tech">
+        <h2 id="s3"><span class="num">3.</span>1. Tăng tốc phân tích nguyên tố: Mảng SPF</h2>
         <p><strong>Ta muốn gì?</strong> Ta muốn phân tích một số <code>x</code> (lên tới 10<sup>5</sup>) ra thừa số nguyên tố trong thời gian gần như O(1) thay vì O(√x).</p>
         <p><strong>Quan sát:</strong> Việc lặp từ 2 đến √x tốn thời gian vì ta phải thử cả những số không phải là ước. Nếu mỗi số <code>x</code>, ta luôn biết ngay <strong>Ước nguyên tố nhỏ nhất (Smallest Prime Factor - SPF)</strong> của nó, ta chỉ cần chia <code>x</code> cho SPF(x), rồi lặp lại quá trình với thương số mới.</p>
         <p><strong>Ý tưởng:</strong> Sử dụng Thuật toán Sàng Eratosthenes để tính trước mảng <code>spf[]</code> cho mọi số từ 1 đến 10<sup>5</sup> một lần duy nhất ở đầu chương trình.</p>
@@ -216,10 +254,10 @@
                 </div>
                 <div class="lab-msg" id="lab1-msg">Bắt đầu phân tích số 84.</div>
                 
-                <table class="state-table" style="width: auto;">
+                <div class="tablewrap"><table class="state-table" style="width: auto;">
                     <tr><th>x</th><th>1</th><th>...</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>...</th><th>21</th><th>...</th><th>42</th><th>...</th><th>84</th></tr>
                     <tr><td>spf[x]</td><td>1</td><td>...</td><td>3</td><td>2</td><td>5</td><td>2</td><td>7</td><td>...</td><td>3</td><td>...</td><td>2</td><td>...</td><td>2</td></tr>
-                </table>
+                </table></div>
             </div>
         </div>
 
@@ -235,8 +273,8 @@
     </div>
 
     <!-- MÔ-ĐUN 2: EULER TOUR & CÂY -->
-    <div class="card">
-        <h2>2. Trải phẳng đồ thị: Euler Tour</h2>
+    <div class="box tech">
+        <h2 id="s4"><span class="num">4.</span>2. Trải phẳng đồ thị: Euler Tour</h2>
         <p><strong>Ta muốn gì?</strong> Để tối ưu nhiều truy vấn, ta thường dùng các cấu trúc dữ liệu mảng 1D (như Segment Tree hoặc thuật toán Mo). Nhưng dữ liệu lại nằm trên một cây phân nhánh.</p>
         <p><strong>Khó khăn:</strong> Đường đi từ <code>u</code> đến <code>v</code> trên cây không tạo thành một đoạn liên tiếp trên một mảng thông thường.</p>
         <p><strong>Ý tưởng:</strong> Chuyến thám hiểm Euler (Euler Tour). Ta duyệt DFS qua cây. Khi <strong>bước vào</strong> một đỉnh <code>u</code>, ta ghi nó vào mảng và lưu thời gian vào <code>tin[u]</code>. Khi <strong>rời khỏi</strong> đỉnh <code>u</code>, ta lại ghi nó vào mảng và lưu thời gian ra <code>tout[u]</code>. Mảng này có độ dài <code>2n</code>.</p>
@@ -274,11 +312,11 @@
                         <div class="array-view" id="lab2-euler" style="flex-wrap: wrap;">
                             <!-- Cells generated by JS -->
                         </div>
-                        <table class="state-table" style="margin-top: 15px; width: 100%;">
+                        <div class="tablewrap"><table class="state-table" style="margin-top: 15px; width: 100%;">
                             <tr><th>Đỉnh</th><th>1</th><th>2</th><th>3</th><th>4</th></tr>
                             <tr><td>tin</td><td id="l2-tin1">-</td><td id="l2-tin2">-</td><td id="l2-tin3">-</td><td id="l2-tin4">-</td></tr>
                             <tr><td>tout</td><td id="l2-tou1">-</td><td id="l2-tou2">-</td><td id="l2-tou3">-</td><td id="l2-tou4">-</td></tr>
-                        </table>
+                        </table></div>
                     </div>
                 </div>
                 <div class="lab-msg" id="lab2-msg">Chạy DFS để xây dựng mảng Euler.</div>
@@ -297,8 +335,8 @@
     </div>
 
     <!-- MÔ-ĐUN 3: THUẬT TOÁN MO -->
-    <div class="card">
-        <h2>3. Thuật toán Mo và Kỹ thuật "Chớp tắt" (Toggle)</h2>
+    <div class="box tech">
+        <h2 id="s5"><span class="num">5.</span>3. Thuật toán Mo và Kỹ thuật "Chớp tắt" (Tog…</h2>
         <p><strong>Ta muốn gì?</strong> Ta có các truy vấn là các đoạn <code>[L, R]</code> trên mảng Euler. Ta cần đếm số lượng nguyên tố phân biệt.</p>
         <p><strong>Quan sát:</strong> Ta cho phép sắp xếp lại thứ tự truy vấn (Offline). Thay vì mỗi lần tính lại từ đầu, ta dùng hai con trỏ <code>L, R</code> chạy trên mảng. Chuyển từ truy vấn này sang truy vấn khác bằng cách kéo dãn/thu hẹp đoạn <code>[L, R]</code> từng bước một.</p>
         <p><strong>Ý tưởng (Toggle):</strong> Dựa vào đặc tính của mảng Euler (đỉnh không thuộc đường đi xuất hiện 2 lần). Ta duy trì mảng <code>is_active[]</code> cho mỗi đỉnh. 
@@ -329,10 +367,10 @@
                     </div>
                     <div style="flex: 1;">
                         <div style="margin-bottom: 10px; font-size: 0.9rem; color: var(--text-muted);">Đếm số lượng nguyên tố (cnt_prime):</div>
-                        <table class="state-table">
+                        <div class="tablewrap"><table class="state-table">
                             <tr><th>Prime</th><th>2</th><th>3</th><th>5</th></tr>
                             <tr><td>Count</td><td id="l3-p2">0</td><td id="l3-p3">0</td><td id="l3-p5">0</td></tr>
-                        </table>
+                        </table></div>
                         <div style="margin-top: 10px; font-weight: bold; color: var(--accent);">Tổng số nguyên tố phân biệt (ans): <span id="l3-ans">0</span></div>
                     </div>
                 </div>
@@ -401,8 +439,8 @@
     </div>
 
     <!-- 3.5. CÀI ĐẶT -->
-    <div class="card">
-        <h2>Cài đặt (C++)</h2>
+    <div class="box tech">
+        <h2 id="s6"><span class="num">6.</span>Cài đặt (C++)</h2>
         <div class="code-block">
 <div class="codeline"><span class="c-kw">#include</span> <span class="c-str">&lt;bits/stdc++.h&gt;</span></div>
 <div class="codeline"><span class="c-kw">using namespace</span> std;</div>
@@ -555,8 +593,8 @@
     </div>
 
     <!-- 3.6. ĐỘ PHỨC TẠP -->
-    <div class="card">
-        <h2>Độ phức tạp</h2>
+    <div class="box tech">
+        <h2 id="s7"><span class="num">7.</span>Độ phức tạp</h2>
         <p><strong>Thời gian (Time Complexity):</strong></p>
         <ul>
             <li>Tiền xử lý (Sàng + DFS LCA): Mất O(A log log A + N log N) với A = 10<sup>5</sup>, N = 50000. Rất nhỏ.</li>
@@ -573,9 +611,9 @@
     </div>
 
     <!-- 3.7. CẠM BẪY -->
-    <div class="card">
-        <h2>Cạm bẫy khi cài đặt</h2>
-        <div class="pitfalls">
+    <div class="box tech">
+        <h2 id="s8"><span class="num">8.</span>Cạm bẫy khi cài đặt</h2>
+        <div class="box warn">
             <div class="pitfall-col wrong">
                 <div class="p-title">✖ Sai lầm phổ biến</div>
                 <p><strong>1. Quên thêm/xoá LCA thủ công:</strong> Trong nhánh <code>tout[u]</code> đến <code>tin[v]</code>, LCA bị bỏ sót khỏi mảng Euler. Nếu chỉ query trên đoạn này mà không cộng thủ công LCA vào, đáp án sẽ thiếu nguyên tố từ đỉnh LCA.</p>
@@ -682,7 +720,6 @@
         setupMCQ('mcq1');
     })();
 
-
     // --- LAB 2: Euler Tour ---
     (function() {
         const steps = [];
@@ -775,7 +812,6 @@
         paint(0);
         setupMCQ('mcq2');
     })();
-
 
     // --- LAB 3: Mo's Algorithm ---
     (function() {
@@ -887,6 +923,16 @@
 
 </script>
 
+</div>
+
+<script src="../../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
 </body>
 </html>
 ```eof
