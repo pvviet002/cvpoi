@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chuyên đề: Thuật toán Huffman và mã tiền tố</title>
+<style>
+:root{
+  --is-dark:0;
+  --bg:#ffffff; --fg:#1f2328; --muted:#5b6570; --border:#e4e7eb; --card:#f7f8fa;
+  --blue:#1d4ed8;   --blue-bg:#eff6ff;
+  --purple:#6d28d9; --purple-bg:#f5f3ff;
+  --red:#b91c1c;    --red-bg:#fef2f2;
+  --green:#047857;  --green-bg:#ecfdf5;
+  --amber:#b45309;  --amber-bg:#fffbeb;
+  --code-bg:#f6f8fa; --code-fg:#24292f;
+  --c-kw:#0550ae; --c-str:#0a7d55; --c-cmt:#8b949e; --c-num:#953800; --c-fn:#6639ba; --c-pre:#a3364a;
+  --node:#dbeafe; --node-stroke:#2563eb; --edge:#64748b; --hl:#dc2626; --hl2:#059669;
+  --node2:#ede9fe; --node2-stroke:#7c3aed;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --is-dark:1;
+    --bg:#0f1319; --fg:#e6e9ee; --muted:#9aa4b2; --border:#252c37; --card:#161b23;
+    --blue:#7aa2ff;   --blue-bg:#131c2e;
+    --purple:#c4a2ff; --purple-bg:#1d1730;
+    --red:#ff8f8f;    --red-bg:#2a1618;
+    --green:#5fd3a1;  --green-bg:#0f2320;
+    --amber:#f3bf62;  --amber-bg:#251c0f;
+    --code-bg:#12171f; --code-fg:#dce3ec;
+    --c-kw:#79b8ff; --c-str:#7ee2b8; --c-cmt:#7d8794; --c-num:#ffab70; --c-fn:#d2a8ff; --c-pre:#ff9db8;
+    --node:#1e3a68; --node-stroke:#7aa2ff; --edge:#94a3b8; --hl:#ff6b6b; --hl2:#4ade80;
+    --node2:#2c2148; --node2-stroke:#c4a2ff;
+  }
+}
+:root[data-theme="light"]{
+  --is-dark:0;
+  --bg:#ffffff; --fg:#1f2328; --muted:#5b6570; --border:#e4e7eb; --card:#f7f8fa;
+  --blue:#1d4ed8; --blue-bg:#eff6ff; --purple:#6d28d9; --purple-bg:#f5f3ff;
+  --red:#b91c1c; --red-bg:#fef2f2; --green:#047857; --green-bg:#ecfdf5;
+  --amber:#b45309; --amber-bg:#fffbeb; --code-bg:#f6f8fa; --code-fg:#24292f;
+  --c-kw:#0550ae; --c-str:#0a7d55; --c-cmt:#8b949e; --c-num:#953800; --c-fn:#6639ba; --c-pre:#a3364a;
+  --node:#dbeafe; --node-stroke:#2563eb; --edge:#64748b; --hl:#dc2626; --hl2:#059669;
+  --node2:#ede9fe; --node2-stroke:#7c3aed;
+}
+:root[data-theme="dark"]{
+  --is-dark:1;
+  --bg:#0f1319; --fg:#e6e9ee; --muted:#9aa4b2; --border:#252c37; --card:#161b23;
+  --blue:#7aa2ff; --blue-bg:#131c2e; --purple:#c4a2ff; --purple-bg:#1d1730;
+  --red:#ff8f8f; --red-bg:#2a1618; --green:#5fd3a1; --green-bg:#0f2320;
+  --amber:#f3bf62; --amber-bg:#251c0f; --code-bg:#12171f; --code-fg:#dce3ec;
+  --c-kw:#79b8ff; --c-str:#7ee2b8; --c-cmt:#7d8794; --c-num:#ffab70; --c-fn:#d2a8ff; --c-pre:#ff9db8;
+  --node:#1e3a68; --node-stroke:#7aa2ff; --edge:#94a3b8; --hl:#ff6b6b; --hl2:#4ade80;
+  --node2:#2c2148; --node2-stroke:#c4a2ff;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:"Noto Sans","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  font-size:16.5px; line-height:1.68;
+}
+.wrap{max-width:860px; margin:0 auto; padding:0 20px 90px}
+@media (min-width:1280px){ .wrap{max-width:1000px} }
+@media (min-width:1560px){ .wrap{max-width:1130px} }
+
+/* ---- đầu trang ---- */
+header{border-bottom:1px solid var(--border); margin-bottom:26px; padding:34px 0 22px}
+header .kicker{font-size:.8rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); font-weight:600}
+header h1{font-size:2.15rem; line-height:1.2; margin:.28em 0 .18em; letter-spacing:-.015em}
+header .by{color:var(--muted); font-size:.94rem}
+.themebtn{
+  position:fixed; top:14px; right:14px; z-index:20;
+  background:var(--card); color:var(--fg); border:1px solid var(--border);
+  border-radius:999px; padding:7px 14px; font-size:.82rem; cursor:pointer; font-family:inherit;
+}
+.themebtn:hover{border-color:var(--blue)}
+
+/* ---- mục lục nội tuyến ---- */
+nav.toc{background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px 20px; margin-bottom:34px}
+nav.toc b{display:block; margin-bottom:8px; font-size:.9rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+nav.toc ol{margin:0; padding-left:1.3em; columns:2; column-gap:32px}
+nav.toc li{margin:3px 0; break-inside:avoid}
+nav.toc a{color:var(--fg); text-decoration:none; border-bottom:1px solid transparent}
+nav.toc a:hover{color:var(--blue); border-bottom-color:var(--blue)}
+@media (max-width:640px){ nav.toc ol{columns:1} }
+
+/* ---- thanh điều hướng bên trái (màn hình rộng) ---- */
+aside.side{display:none}
+@media (min-width:1080px){
+  .main{margin-left:254px}
+  nav.toc{display:none}
+  aside.side{
+    display:block; position:fixed; top:0; left:0; bottom:0; width:254px;
+    overflow-y:auto; background:var(--card); border-right:1px solid var(--border);
+    padding:20px 12px 30px; font-size:.88rem;
+  }
+  aside.side .hd{font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--muted); font-size:.75rem; margin:0 10px 12px}
+  aside.side a{display:block; color:var(--muted); text-decoration:none;
+    padding:5px 10px; border-left:3px solid transparent; border-radius:0 7px 7px 0;
+    margin:1px 0; line-height:1.45}
+  aside.side a:hover{color:var(--fg); background:var(--bg)}
+  aside.side a.on{color:var(--blue); background:var(--blue-bg); border-left-color:var(--blue); font-weight:600}
+}
+@media print{
+  aside.side{display:none}
+  .themebtn{display:none}
+  .main{margin-left:0}
+  nav.toc{display:block}
+}
+
+/* ---- tiêu đề mục ---- */
+h2{
+  font-size:1.42rem; margin:2.4em 0 .55em; padding-bottom:.28em;
+  border-bottom:2px solid var(--border); letter-spacing:-.01em; scroll-margin-top:16px;
+}
+h2 .num{color:var(--blue); font-variant-numeric:tabular-nums; margin-right:.45em}
+h3{font-size:1.1rem; margin:1.7em 0 .4em; color:var(--fg)}
+p{margin:.75em 0}
+ul,ol{margin:.65em 0; padding-left:1.5em}
+li{margin:.28em 0}
+strong{font-weight:700}
+em{color:var(--fg)}
+code.inl{
+  background:var(--code-bg); border:1px solid var(--border); border-radius:5px;
+  padding:1px 5px; font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.88em;
+}
+.mathv{font-family:"Cambria Math","Latin Modern Math",Georgia,serif; font-style:italic; padding-right:.09em}
+sub,sup{font-size:.7em; font-style:normal}
+
+/* ---- khung nội dung ---- */
+.box{border-radius:10px; border:1px solid; border-left-width:5px; padding:2px 18px 14px; margin:20px 0}
+.box .t{font-weight:700; margin:14px 0 6px; font-size:1rem; letter-spacing:.01em}
+.box.tech{background:var(--blue-bg);   border-color:var(--blue)}   .box.tech   .t{color:var(--blue)}
+.box.def{background:var(--purple-bg);  border-color:var(--purple)} .box.def    .t{color:var(--purple)}
+.box.warn{background:var(--red-bg);    border-color:var(--red)}    .box.warn   .t{color:var(--red)}
+.box.ex{background:var(--green-bg);    border-color:var(--green)}  .box.ex     .t{color:var(--green)}
+.box.cmplx{background:var(--amber-bg); border-color:var(--amber)}  .box.cmplx  .t{color:var(--amber)}
+
+/* ---- bảng ---- */
+.tablewrap{overflow-x:auto; margin:18px 0; border:1px solid var(--border); border-radius:10px}
+table{border-collapse:collapse; width:100%; min-width:560px; font-size:.94rem}
+th,td{border-bottom:1px solid var(--border); padding:9px 13px; text-align:left; vertical-align:top}
+th{background:var(--card); font-weight:700; color:var(--blue); white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+td.c,th.c{text-align:center; white-space:nowrap}
+
+/* ---- hình vẽ ---- */
+figure{margin:22px 0; text-align:center}
+figure svg{max-width:100%; height:auto}
+figcaption{color:var(--muted); font-size:.88rem; margin-top:8px}
+.figrow{display:flex; flex-wrap:wrap; gap:18px; justify-content:center; align-items:flex-start}
+.figrow > div{flex:1 1 260px; max-width:340px}
+.figrow p{font-size:.88rem; color:var(--muted); margin:4px 0 0}
+svg .nd{fill:var(--node); stroke:var(--node-stroke); stroke-width:2}
+svg .nd2{fill:var(--node2); stroke:var(--node2-stroke); stroke-width:2}
+svg .lb{fill:var(--fg); font-size:15px; font-weight:700; text-anchor:middle; dominant-baseline:central;
+        font-family:"Noto Sans",system-ui,sans-serif}
+svg .el{fill:var(--muted); font-size:12px; text-anchor:middle; dominant-baseline:central;
+        font-family:"Noto Sans",system-ui,sans-serif}
+svg .eg{stroke:var(--edge); stroke-width:2; fill:none}
+svg .eg.on{stroke:var(--hl); stroke-width:3}
+svg .grp{stroke:var(--hl2); stroke-width:2; fill:none; stroke-dasharray:7 5}
+svg .gl{fill:var(--hl2); font-size:12.5px; font-weight:600; text-anchor:middle;
+        font-family:"Noto Sans",system-ui,sans-serif}
+svg .cap{fill:var(--fg); font-size:13px; text-anchor:middle; font-weight:600;
+         font-family:"Noto Sans",system-ui,sans-serif}
+
+/* ---- code ---- */
+.codewrap{position:relative; margin:16px 0}
+.codewrap .name{
+  font-size:.82rem; color:var(--muted); padding:6px 12px; background:var(--card);
+  border:1px solid var(--border); border-bottom:none; border-radius:9px 9px 0 0;
+}
+pre{
+  margin:0; background:var(--code-bg); color:var(--code-fg);
+  border:1px solid var(--border); border-radius:0 0 9px 9px;
+  padding:13px 14px; overflow-x:auto; font-size:13.2px; line-height:1.5;
+  tab-size:2; -moz-tab-size:2;
+}
+.codewrap.noname pre{border-radius:9px}
+pre code{font-family:"Noto Sans Mono","Consolas",ui-monospace,"Courier New",monospace; white-space:pre}
+.cp{
+  position:absolute; top:5px; right:6px; z-index:2; cursor:pointer; font-family:inherit;
+  background:var(--bg); color:var(--muted); border:1px solid var(--border);
+  border-radius:6px; padding:3px 9px; font-size:.76rem; opacity:.75;
+}
+.cp:hover{opacity:1; color:var(--blue); border-color:var(--blue)}
+.k{color:var(--c-kw); font-weight:600}
+.s{color:var(--c-str)}
+.c{color:var(--c-cmt); font-style:italic}
+.n{color:var(--c-num)}
+.f{color:var(--c-fn)}
+.pp{color:var(--c-pre)}
+
+footer{margin-top:56px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted); font-size:.9rem}
+</style>
+</head>
+<body>
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Thuật toán Huffman và mã tiền tố</div>
+  <a href="#s1">1. Bài toán mở đầu</a>
+  <a href="#s2">2. Vì sao tham lam đúng</a>
+  <a href="#s3">3. Mã tiền tố</a>
+  <a href="#s4">4. Khuôn mẫu</a>
+  <a href="#s5">5. Ba biến thể</a>
+  <a href="#s6">6. Nhận dạng trong phòng thi</a>
+  <a href="#s7">7. Bài tập</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Thuật toán Huffman và mã tiền tố</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Bài toán mở đầu: hai cách nghĩ cho ra hai kết quả</a></li>
+    <li><a href="#s2">Vì sao “hai đống nhẹ nhất” là đúng</a></li>
+    <li><a href="#s3">Cùng bài toán, cách phát biểu thứ hai: mã tiền tố</a></li>
+    <li><a href="#s4">Khuôn mẫu</a></li>
+    <li><a href="#s5">Ba biến thể</a></li>
+    <li><a href="#s6">Nhận dạng trong phòng thi</a></li>
+    <li><a href="#s7">Bài tập theo lộ trình</a></li>
+  </ol>
+</nav>
+
+<!-- ============================ 1 ============================ -->
+<h2 id="s1"><span class="num">1</span>Bài toán mở đầu: hai cách nghĩ cho ra hai kết quả</h2>
+
+<p>Có <span class="mathv">n</span> đống hoa quả, đống thứ <span class="mathv">i</span> nặng <span class="mathv">w<sub>i</sub></span>. Mỗi lần ta được <strong>gộp hai đống bất kỳ</strong> thành một đống mới, tốn công bằng tổng khối lượng hai đống vừa gộp. Gộp tới khi chỉ còn một đống. Hãy tìm <strong>tổng công nhỏ nhất</strong>.</p>
+
+<p>Số lần gộp luôn là <span class="mathv">n − 1</span> dù làm cách nào, nên điều quyết định là <strong>gộp theo thứ tự nào</strong>. Thử với bốn đống 10, 1, 1, 10.</p>
+
+<div class="tablewrap">
+<table>
+  <tr><th>Vòng</th><th colspan="3">Cách 1: gộp theo thứ tự cho sẵn</th><th colspan="3">Cách 2: luôn gộp hai đống nhẹ nhất</th></tr>
+  <tr><th></th><th>Còn lại</th><th>Gộp</th><th>Cộng dồn</th><th>Còn lại</th><th>Gộp</th><th>Cộng dồn</th></tr>
+  <tr><td>1</td><td>10, 1, 1, 10</td><td>10 + 1 = 11</td><td>11</td><td>1, 1, 10, 10</td><td>1 + 1 = 2</td><td>2</td></tr>
+  <tr><td>2</td><td>11, 1, 10</td><td>11 + 1 = 12</td><td>23</td><td>2, 10, 10</td><td>2 + 10 = 12</td><td>14</td></tr>
+  <tr><td>3</td><td>12, 10</td><td>12 + 10 = 22</td><td><strong>45</strong></td><td>10, 12</td><td>10 + 12 = 22</td><td><strong>36</strong></td></tr>
+</table>
+</div>
+
+<p>Cùng một dữ liệu, hai thứ tự gộp chênh nhau 45 so với 36 — tức 25%. Trực giác đằng sau cách 2 rất dễ thấy: <strong>đống nào bị gộp sớm thì bị cộng lại nhiều lần</strong>, nên hãy để những đống nặng bị gộp muộn nhất có thể.</p>
+
+<p>Nhưng trực giác chưa phải chứng minh. Hai câu hỏi phải trả lời trước khi dám cài:</p>
+<ol>
+  <li>Có chắc “luôn gộp hai đống nhẹ nhất” cho kết quả <strong>tối ưu</strong> với mọi bộ dữ liệu không, hay chỉ tình cờ đúng ở ví dụ này?</li>
+  <li>Nếu không chắc, có thể vét cạn mọi thứ tự gộp để đối chiếu không?</li>
+</ol>
+
+<p>Câu thứ hai trả lời nhanh: số thứ tự gộp tăng cực nhanh theo <span class="mathv">n</span> — với <span class="mathv">n = 10</span> đã hàng chục triệu — nên vét cạn chỉ dùng được để <strong>kiểm chứng trên dữ liệu nhỏ</strong>, không phải để nộp bài. Vậy phải trả lời câu thứ nhất bằng lập luận. Mục sau làm đúng việc đó.</p>
+
+<!-- ============================ 2 ============================ -->
+<h2 id="s2"><span class="num">2</span>Vì sao “hai đống nhẹ nhất” là đúng</h2>
+
+<p><strong>Bước 1 — vẽ quá trình gộp thành một cây.</strong> Mỗi lần gộp sinh ra một đống mới; coi đống mới là <strong>nút cha</strong>, hai đống vừa gộp là <strong>hai con</strong>. Các đống ban đầu thành <strong>lá</strong>. Toàn bộ quá trình gộp trở thành một cây nhị phân.</p>
+
+<p><strong>Bước 2 — đẳng thức then chốt.</strong> Đống thứ <span class="mathv">i</span> bị cộng vào tổng công <em>đúng một lần cho mỗi lần nó tham gia gộp</em>, mà số lần ấy chính là số nút trong nằm trên đường từ lá <span class="mathv">i</span> lên gốc — tức <span class="mathv">depth<sub>i</sub></span>. Vậy</p>
+
+<p style="text-align:center"><span class="mathv">tổng công = Σ w<sub>i</sub> · depth<sub>i</sub></span></p>
+
+<p>Kiểm lại bằng cách 2 ở trên: cây có đống 10 thứ nhất ở độ sâu 1, đống 10 thứ hai ở độ sâu 2, hai đống 1 ở độ sâu 3, cho <span class="mathv">10·1 + 10·2 + 1·3 + 1·3 = 36</span> — đúng bằng kết quả cộng dồn.</p>
+
+<p><strong>Bước 3 — phát biểu lại bài toán.</strong> Nhờ đẳng thức ấy, bài toán không còn là “chọn thứ tự gộp” nữa, mà là: <em>xếp <span class="mathv">n</span> vật vào các lá của một cây nhị phân sao cho <span class="mathv">Σ w<sub>i</sub> · depth<sub>i</sub></span> nhỏ nhất</em>. Đây là dạng dễ lập luận hơn hẳn.</p>
+
+<div class="box tech">
+  <div class="t">Bước 4 — lập luận đổi chỗ: vật nhẹ phải nằm sâu</div>
+  <p>Giả sử trong một cây <strong>tối ưu</strong> có hai lá <span class="mathv">a</span> và <span class="mathv">b</span> với <span class="mathv">w<sub>a</sub> &lt; w<sub>b</sub></span> nhưng <span class="mathv">depth<sub>a</sub> &lt; depth<sub>b</sub></span> — tức vật <em>nhẹ hơn</em> lại nằm <em>nông hơn</em>. Đổi chỗ hai vật ấy cho nhau. Tổng thay đổi một lượng</p>
+  <p style="text-align:center"><span class="mathv">Δ = (w<sub>a</sub> depth<sub>b</sub> + w<sub>b</sub> depth<sub>a</sub>) − (w<sub>a</sub> depth<sub>a</sub> + w<sub>b</sub> depth<sub>b</sub>) = (w<sub>a</sub> − w<sub>b</sub>)(depth<sub>b</sub> − depth<sub>a</sub>)</span></p>
+  <p>Thừa số thứ nhất âm, thừa số thứ hai dương, nên <span class="mathv">Δ &lt; 0</span>: tổng <strong>giảm</strong>. Mâu thuẫn với giả thiết cây đã tối ưu.</p>
+  <p>Vậy trong mọi cây tối ưu, <strong>vật nhẹ hơn không bao giờ nằm nông hơn vật nặng hơn</strong>. Nói riêng: hai vật nhẹ nhất nằm ở <strong>tầng sâu nhất</strong>.</p>
+</div>
+
+<p><strong>Bước 5 — hai vật nhẹ nhất là anh em.</strong> Xét một nút trong ở tầng sâu nhất. Cả hai con của nó đều là lá (nếu nó chỉ có một con thì kéo con ấy lên thay chỗ nó, mọi độ sâu chỉ giảm — tổng lại giảm). Hai lá ấy nằm ở tầng sâu nhất, nên theo bước 4 ta được phép hoán vị để <strong>hai vật nhẹ nhất chính là hai lá đó</strong>. Tổng không đổi khi hoán vị hai vật cùng độ sâu.</p>
+
+<p><strong>Bước 6 — thu nhỏ bài toán.</strong> Đã biết hai vật nhẹ nhất là anh em, hãy gộp chúng thành một vật nặng bằng tổng. Bài toán còn <span class="mathv">n − 1</span> vật và <strong>vẫn đúng dạng cũ</strong>. Lặp lại lập luận cho tới khi còn một vật.</p>
+
+<div class="box eg">
+  <div class="t">Kết luận</div>
+  <p>Thuật toán <strong>Huffman</strong>: lặp lại việc lấy hai phần tử nhỏ nhất, gộp thành một phần tử bằng tổng, cộng tổng ấy vào kết quả, rồi đẩy phần tử mới trở lại — cho tới khi còn một phần tử.</p>
+  <p>Sáu bước trên là toàn bộ lý do nó đúng. Điều đáng nhớ nhất là <strong>bước 4</strong>: nếu vật nặng nằm sâu hơn vật nhẹ thì đổi chỗ làm tổng giảm.</p>
+</div>
+
+<!-- ============================ 3 ============================ -->
+<h2 id="s3"><span class="num">3</span>Cùng bài toán, cách phát biểu thứ hai: mã tiền tố</h2>
+
+<p>Huffman còn xuất hiện dưới một lớp áo khác, và nếu không nhận ra thì rất dễ tưởng là bài lạ.</p>
+
+<div class="box def">
+  <div class="t">Bài toán mã tiền tố</div>
+  <p>Có <span class="mathv">n</span> loại từ, loại thứ <span class="mathv">i</span> xuất hiện <span class="mathv">w<sub>i</sub></span> lần trong văn bản. Gán cho loại thứ <span class="mathv">i</span> một xâu mã <span class="mathv">s<sub>i</sub></span> sao cho <strong>không xâu nào là tiền tố của xâu khác</strong>. Hãy tối tiểu độ dài văn bản sau khi mã hoá, tức <span class="mathv">Σ w<sub>i</sub> · |s<sub>i</sub>|</span>.</p>
+</div>
+
+<p><strong>Vì sao phải cấm tiền tố.</strong> Nếu cho phép, chẳng hạn <span class="mathv">A → 0</span> và <span class="mathv">B → 01</span>, thì khi đọc chuỗi <code class="inl">01</code> máy không biết đó là <span class="mathv">B</span>, hay là <span class="mathv">A</span> rồi tới một từ bắt đầu bằng <code class="inl">1</code>. Giải mã trở nên không đơn nghĩa. Cấm tiền tố là điều kiện đủ để đọc từ trái sang phải, gặp mã nào khớp là cắt ngay.</p>
+
+<p><strong>Vì sao đây vẫn là bài toán cũ.</strong> Dựng cây mà mỗi cạnh mang một ký tự; đi từ gốc xuống một nút rồi ghép các ký tự đi qua sẽ được một xâu. Khi ấy xâu <span class="mathv">u</span> là tiền tố của xâu <span class="mathv">v</span> <em>khi và chỉ khi</em> nút <span class="mathv">u</span> là tổ tiên nút <span class="mathv">v</span>. Vậy điều kiện “không mã nào là tiền tố mã khác” đúng bằng “<strong>mọi từ đều nằm ở lá</strong>”. Và độ dài mã <span class="mathv">|s<sub>i</sub>|</span> chính là <span class="mathv">depth<sub>i</sub></span>.</p>
+
+<p>Thay vào, ta phải tối tiểu <span class="mathv">Σ w<sub>i</sub> · depth<sub>i</sub></span> — <strong>đúng bài toán ở mục 2</strong>. Một khuôn giải được cả hai.</p>
+
+<figure>
+<svg viewBox="0 0 720 300" width="720" role="img" aria-label="Cây mã tiền tố với bốn lá và mã trên từng cạnh">
+  <path class="eg" d="M330 42 L 200 108"/>
+  <path class="eg" d="M330 42 L 470 108"/>
+  <path class="eg" d="M200 108 L 90 174"/>
+  <path class="eg" d="M200 108 L 300 174"/>
+  <path class="eg" d="M90 174 L 40 240"/>
+  <path class="eg" d="M90 174 L 145 240"/>
+  <circle class="nd" cx="330" cy="42"  r="20"/>
+  <circle class="nd" cx="200" cy="108" r="20"/>
+  <circle class="nd" cx="90"  cy="174" r="20"/>
+  <circle class="nd2" cx="470" cy="108" r="20"/>
+  <circle class="nd2" cx="300" cy="174" r="20"/>
+  <circle class="nd2" cx="40"  cy="240" r="20"/>
+  <circle class="nd2" cx="145" cy="240" r="20"/>
+  <text class="lb" x="330" y="42">10</text>
+  <text class="lb" x="200" y="108">6</text>
+  <text class="lb" x="90"  y="174">3</text>
+  <text class="lb" x="470" y="108">4</text>
+  <text class="lb" x="300" y="174">3</text>
+  <text class="lb" x="40"  y="240">1</text>
+  <text class="lb" x="145" y="240">2</text>
+  <text class="gl" x="252" y="66">0</text>
+  <text class="gl" x="410" y="66">1</text>
+  <text class="gl" x="132" y="132">0</text>
+  <text class="gl" x="264" y="132">1</text>
+  <text class="gl" x="55"  y="198">0</text>
+  <text class="gl" x="128" y="198">1</text>
+  <text class="gl" x="560" y="160">4 → mã 1, sâu 1</text>
+  <text class="gl" x="560" y="185">3 → mã 01, sâu 2</text>
+  <text class="gl" x="560" y="210">2 → mã 001, sâu 3</text>
+  <text class="gl" x="560" y="235">1 → mã 000, sâu 3</text>
+</svg>
+<figcaption class="cap">Vật nặng nhất nằm nông nhất nên mã ngắn nhất; hai vật nhẹ nhất nằm sâu nhất.</figcaption>
+</figure>
+
+<p>Đọc hình theo đúng lập luận bước 4: vật nặng nhất (4) nằm nông nhất nên mã ngắn nhất; hai vật nhẹ nhất (1 và 2) nằm sâu nhất nên mã dài nhất. Không có lá nào nằm trên đường đi tới lá khác — đó chính là tính tiền tố.</p>
+
+<!-- ============================ 4 ============================ -->
+<h2 id="s4"><span class="num">4</span>Khuôn mẫu</h2>
+
+<p>Thuật toán cần một cấu trúc lấy ra được <strong>phần tử nhỏ nhất</strong> và <strong>thêm phần tử mới</strong> — đúng việc của hàng đợi ưu tiên. Lưu ý <code class="inl">priority_queue</code> của C++ mặc định lấy phần tử <em>lớn nhất</em>, nên phải khai đủ ba tham số kèm <code class="inl">greater</code>.</p>
+
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int n, i;
+long long w, a, b, total;
+
+// Hàng đợi ưu tiên lấy ra phần tử NHỎ NHẤT.
+// Mặc định priority_queue lấy phần tử lớn nhất, nên phải khai đủ ba tham số.
+priority_queue&lt;long long, vector&lt;long long&gt;, greater&lt;long long&gt; &gt; pq;
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	cin &gt;&gt; n;
+	for (i = 1; i &lt;= n; i++) {
+		cin &gt;&gt; w;
+		pq.push(w);
+	}
+
+	// Lặp tới khi chỉ còn một đống: mỗi vòng gộp hai đống nhẹ nhất
+	while ((int)pq.size() &gt; 1) {
+		a = pq.top();
+		pq.pop();
+		b = pq.top();
+		pq.pop();
+		total += a + b;      // chi phí lần gộp này
+		pq.push(a + b);      // đống mới quay lại hàng đợi
+	}
+
+	cout &lt;&lt; total &lt;&lt; '\n';
+	return 0;
+}</code></pre>
+
+<div class="box eg">
+  <div class="t">Chạy tay lại ví dụ mở đầu: <span class="mathv">w = 10, 1, 1, 10</span></div>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Vòng</th><th>Hàng đợi</th><th>Lấy ra và gộp</th><th><code class="inl">total</code></th></tr>
+    <tr><td>1</td><td>1, 1, 10, 10</td><td>1 + 1 = 2</td><td>2</td></tr>
+    <tr><td>2</td><td>2, 10, 10</td><td>2 + 10 = 12</td><td>14</td></tr>
+    <tr><td>3</td><td>10, 12</td><td>10 + 12 = 22</td><td><strong>36</strong></td></tr>
+  </table>
+  </div>
+  <p>Kết quả 36, khớp cả bảng ở mục 1 lẫn phép tính theo độ sâu ở mục 2.</p>
+</div>
+
+<div class="box cmplx">
+  <div class="t">Độ phức tạp</div>
+  <p>Mỗi vòng giảm số phần tử đi 1 nên có đúng <span class="mathv">n − 1</span> vòng; mỗi vòng hai phép lấy ra và một phép đẩy vào, mỗi phép <span class="mathv">O(log n)</span>. Tổng <strong><span class="mathv">O(n log n)</span></strong>, bộ nhớ <span class="mathv">O(n)</span>.</p>
+  <p>Với <span class="mathv">n = 10<sup>5</sup></span> là khoảng <span class="mathv">5 × 10<sup>6</sup></span> phép so sánh — rất nhẹ so với giới hạn thường gặp.</p>
+</div>
+
+<!-- ============================ 5 ============================ -->
+<h2 id="s5"><span class="num">5</span>Ba biến thể</h2>
+
+<p>Khuôn trên giải trọn dạng cơ bản. Ba tình huống dưới đây là những chỗ đề hay biến tấu.</p>
+
+<div class="tablewrap">
+<table>
+  <tr><th>Đề đòi thêm gì</th><th>Thêm gì vào khuôn</th></tr>
+  <tr><td>Gộp <span class="mathv">k</span> đống một lần</td><td>Đệm thêm <code class="inl">pad</code> lá trọng số 0, rồi mỗi vòng lấy <span class="mathv">k</span> phần tử</td></tr>
+  <tr><td>“Xâu mã dài nhất phải ngắn nhất”</td><td>Khoá phụ là chiều cao; hoà trọng số thì lấy cây <strong>thấp</strong> trước</td></tr>
+  <tr><td><span class="mathv">n</span> tới 10<sup>7</sup></td><td>Bỏ heap, đếm phân phối rồi dùng <strong>hai hàng đợi</strong></td></tr>
+</table>
+</div>
+
+<p><strong>Biến thể 1 — gộp <span class="mathv">k</span> đống một lần.</strong> Lập luận ở mục 2 vẫn nguyên giá trị, chỉ thay “hai” bằng “<span class="mathv">k</span>”. Nhưng xuất hiện một trục trặc đếm số.</p>
+
+<p>Mỗi lần gộp lấy đi <span class="mathv">k</span> phần tử và trả lại 1, tức <strong>giảm đi <span class="mathv">k − 1</span></strong>. Đi từ <span class="mathv">n</span> phần tử xuống còn 1 nghĩa là phải giảm tất cả <span class="mathv">n − 1</span>, nên số vòng gộp phải là <span class="mathv">(n − 1)/(k − 1)</span> — một số <em>nguyên</em>. Nếu <span class="mathv">n − 1</span> không chia hết cho <span class="mathv">k − 1</span> thì vòng cuối cùng <strong>hụt phần tử</strong>, thuật toán không chạy trọn.</p>
+
+<p>Cách chữa: thêm vào các lá <strong>trọng số 0</strong> cho đủ. Chúng không làm tăng tổng vì nhân với độ sâu nào cũng ra 0. Cần thêm bao nhiêu? Đúng bằng số nhỏ nhất <span class="mathv">pad ≥ 0</span> sao cho <span class="mathv">n + pad − 1</span> chia hết cho <span class="mathv">k − 1</span>:</p>
+
+<p style="text-align:center"><span class="mathv">pad = (k − 1 − (n − 1) mod (k − 1)) mod (k − 1)</span></p>
+
+<p>Phép <code class="inl">mod</code> ngoài cùng lo trường hợp <span class="mathv">n − 1</span> đã chia hết (khi ấy <span class="mathv">pad = 0</span>). Với <span class="mathv">k = 2</span> công thức tự trả về 0, nên viết chung một dòng cho mọi <span class="mathv">k</span> là đủ.</p>
+
+<p><strong>Đệm ngay từ đầu, đừng đợi tới lúc hụt.</strong> Lá trọng số 0 nhẹ nhất nên bị lấy ra ngay vòng gộp đầu tiên — tức nút thiếu con nằm <strong>sát gốc</strong>. Đó đúng là chỗ tối ưu: theo bước 4, càng gần gốc càng nên dành cho vật nặng, mà nút thiếu con lại là nút “lãng phí” nhất. Nếu đẩy nút thiếu con xuống sâu, một vật nặng sẽ bị đẩy xuống theo và tổng tăng lên.</p>
+
+<figure>
+<svg viewBox="0 0 720 290" width="720" role="img" aria-label="Cây ba phân với một lá đệm trọng số 0 nằm sát gốc">
+  <path class="eg" d="M300 42 L 160 116"/>
+  <path class="eg" d="M300 42 L 300 116"/>
+  <path class="eg" d="M300 42 L 430 116"/>
+  <path class="eg" d="M160 116 L 160 190"/>
+  <path class="eg" d="M160 116 L 245 190"/>
+  <path class="eg" style="stroke:var(--red); stroke-dasharray:5 4" d="M160 116 L 70 190"/>
+  <circle class="nd" cx="300" cy="42"  r="20"/>
+  <circle class="nd" cx="160" cy="116" r="20"/>
+  <circle class="nd2" cx="300" cy="116" r="20"/>
+  <circle class="nd2" cx="430" cy="116" r="20"/>
+  <circle cx="70" cy="190" r="20" style="fill:var(--red-bg); stroke:var(--red); stroke-width:2; stroke-dasharray:5 4"/>
+  <circle class="nd2" cx="160" cy="190" r="20"/>
+  <circle class="nd2" cx="245" cy="190" r="20"/>
+  <text class="lb" x="300" y="42">10</text>
+  <text class="lb" x="160" y="116">3</text>
+  <text class="lb" x="300" y="116">3</text>
+  <text class="lb" x="430" y="116">4</text>
+  <text class="lb" x="70"  y="190">0</text>
+  <text class="lb" x="160" y="190">1</text>
+  <text class="lb" x="245" y="190">2</text>
+  <text class="gl" x="70" y="228" style="fill:var(--red)">lá đệm</text>
+  <text class="gl" x="580" y="120">n = 4, k = 3</text>
+  <text class="gl" x="580" y="145">pad = 1</text>
+  <text class="gl" x="580" y="175">1·2 + 2·2 + 3·1 + 4·1 = 13</text>
+</svg>
+<figcaption class="cap">Lá đệm bị gộp ngay vòng đầu, nên nút thiếu con nằm sát gốc.</figcaption>
+</figure>
+
+<p><strong>Biến thể 2 — đòi thêm chiều cao nhỏ nhất.</strong> Có đề hỏi thêm: trong các phương án cùng đạt tổng nhỏ nhất, hãy chọn phương án có <em>xâu mã dài nhất</em> ngắn nhất. Cách xử lý gọn: cho mỗi phần tử mang thêm <strong>chiều cao</strong> của cây con nó đại diện, rồi khi hai phần tử <strong>cùng trọng số</strong> thì ưu tiên phần tử <strong>thấp hơn</strong>.</p>
+
+<p>Lý do: hai cây con cùng trọng số thì gộp cái nào trước cũng cho cùng một tổng, nhưng gộp cây <em>cao</em> trước sẽ đẩy nó xuống sâu thêm và làm chiều cao chung tăng vô ích. Dùng <code class="inl">pair</code> là xong — <code class="inl">pair</code> tự so khoá thứ nhất trước, hoà mới xét khoá thứ hai.</p>
+
+<p>Hai biến thể trên gộp lại thành khuôn thứ hai:</p>
+
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int n, k, i, j, pad, h;
+long long w, s, total;
+
+// Cặp (tổng trọng số, chiều cao cây con). Khoá phụ là chiều cao:
+// khi hai cây cùng trọng số thì lấy cây THẤP hơn trước.
+priority_queue&lt;pair&lt;long long, int&gt;, vector&lt;pair&lt;long long, int&gt; &gt;,
+               greater&lt;pair&lt;long long, int&gt; &gt; &gt; pq;
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	cin &gt;&gt; n &gt;&gt; k;
+	for (i = 1; i &lt;= n; i++) {
+		cin &gt;&gt; w;
+		pq.push(make_pair(w, 0));
+	}
+
+	// Thêm lá trọng số 0 để mỗi vòng đều gộp đủ đúng k phần tử.
+	// Với k = 2 công thức tự trả về 0 nên không cần viết riêng.
+	pad = (k - 1 - (n - 1) % (k - 1)) % (k - 1);
+	for (i = 1; i &lt;= pad; i++) pq.push(make_pair(0LL, 0));
+
+	while ((int)pq.size() &gt; 1) {
+		s = 0;
+		h = 0;
+		for (j = 1; j &lt;= k; j++) {
+			s += pq.top().first;
+			if (pq.top().second &gt; h) h = pq.top().second;
+			pq.pop();
+		}
+		total += s;
+		pq.push(make_pair(s, h + 1));
+	}
+
+	cout &lt;&lt; total &lt;&lt; '\n' &lt;&lt; pq.top().second &lt;&lt; '\n';
+	return 0;
+}</code></pre>
+
+<p><strong>Biến thể 3 — <span class="mathv">n</span> quá lớn cho heap.</strong> Khi <span class="mathv">n</span> tới 10<sup>7</sup>, riêng <span class="mathv">n log n</span> thao tác trên heap đã quá chậm. Nhận xét cứu bài: các tổng sinh ra khi gộp là một dãy <strong>không giảm</strong>. Vậy sắp xếp trọng số ban đầu bằng đếm phân phối rồi đổ vào hàng đợi thứ nhất; mọi tổng mới đẩy vào hàng đợi thứ hai. Phần tử nhỏ nhất luôn nằm ở đầu một trong hai hàng đợi, nên mỗi bước chỉ cần so hai giá trị — tổng <span class="mathv">O(n)</span> sau khi sắp xếp.</p>
+
+<!-- ============================ 6 ============================ -->
+<h2 id="s6"><span class="num">6</span>Nhận dạng trong phòng thi</h2>
+
+<div class="box tech">
+  <div class="t">Ba bước quyết định</div>
+  <ol>
+    <li><strong>Có phải dạng này không?</strong> Tìm một trong hai dấu hiệu: <em>(a)</em> gộp <span class="mathv">n</span> vật thành một, chi phí mỗi lần gộp bằng tổng các vật vừa gộp; hoặc <em>(b)</em> gán mã / gán độ dài cho <span class="mathv">n</span> vật, cấm tiền tố, tối tiểu <span class="mathv">Σ w<sub>i</sub> ℓ<sub>i</sub></span>.</li>
+    <li><strong>Được gộp hai vật nào?</strong> <strong>Bất kỳ</strong> ⇒ Huffman. Chỉ <strong>kề nhau</strong> ⇒ <em>không phải</em> Huffman, mà là quy hoạch động trên đoạn. Đây là chỗ sai nhiều nhất.</li>
+    <li><strong>Nhìn giới hạn <span class="mathv">n</span> để kiểm tra lại.</strong> <span class="mathv">n ≥ 10<sup>5</sup></span> thì gần như chắc chắn Huffman. <span class="mathv">n ≤ 500</span> thì phải nghi quy hoạch động trên đoạn và đọc lại đề tìm chữ “kề nhau” hay “liền kề”.</li>
+  </ol>
+</div>
+
+<div class="box warn">
+  <div class="t">Bài phản diện — đặt cạnh nhau để khỏi nhầm</div>
+  <div class="tablewrap">
+  <table>
+    <tr><th></th><th>Ghép hoa quả</th><th>Ghép đá</th></tr>
+    <tr><td>Được gộp</td><td>hai đống <strong>bất kỳ</strong></td><td>chỉ hai đống <strong>kề nhau</strong></td></tr>
+    <tr><td>Thuật toán</td><td>tham lam Huffman</td><td>quy hoạch động trên đoạn</td></tr>
+    <tr><td>Độ phức tạp</td><td><span class="mathv">O(n log n)</span></td><td><span class="mathv">O(n<sup>3</sup>)</span>, hoặc <span class="mathv">O(n<sup>2</sup>)</span> với Knuth</td></tr>
+    <tr><td><span class="mathv">n</span> chịu được</td><td>10<sup>5</sup> — 10<sup>7</sup></td><td>vài trăm</td></tr>
+  </table>
+  </div>
+  <p>Vì sao lập luận đổi chỗ <strong>hỏng</strong> khi chỉ được gộp kề nhau: bước 4 giả định ta có quyền hoán vị hai vật bất kỳ giữa hai lá. Khi thứ tự bị khoá cứng, phép hoán vị ấy không còn hợp lệ, và tham lam mất cơ sở.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">Danh sách kiểm trước khi nộp</div>
+  <ol>
+    <li><strong><code class="inl">long long</code> cho cả trọng số lẫn tổng.</strong> Chỗ mất điểm oan phổ biến nhất. Bài <em>Bộ mã tối ưu</em> có <span class="mathv">w<sub>i</sub> ≤ 10<sup>11</sup></span> — riêng <em>dữ liệu vào</em> đã vượt <code class="inl">int</code>; đáp án lên tới <span class="mathv">≈ 1,67 × 10<sup>17</sup></span>.</li>
+    <li><strong>Quên đệm.</strong> Với <span class="mathv">k ≥ 3</span>, không đệm là sai ngay từ <span class="mathv">n = 4</span>, <span class="mathv">k = 3</span>.</li>
+    <li><strong>Quên khoá phụ.</strong> Dòng thứ nhất vẫn đúng, dòng thứ hai sai — mất một nửa điểm mà rất khó nhận ra.</li>
+    <li><strong>Cộng dồn trọng số các nút trong</strong>, đừng đi tính độ sâu từng lá rồi nhân — dài hơn và dễ sai hơn.</li>
+    <li><strong><code class="inl">priority_queue</code> mặc định lấy phần tử LỚN NHẤT.</strong> Muốn lấy nhỏ nhất phải khai đủ ba tham số kèm <code class="inl">greater</code>.</li>
+    <li><strong>Chiều cao có thể lớn hơn nhiều so với <span class="mathv">log<sub>2</sub> n</span>.</strong> Với trọng số tăng kiểu Fibonacci, cây lệch hẳn — đã đo được chiều cao 68 khi <span class="mathv">n = 10<sup>5</sup></span>. Đừng cắt bớt vì tưởng cây cân.</li>
+  </ol>
+</div>
+
+<!-- ============================ 7 ============================ -->
+<h2 id="s7"><span class="num">7</span>Bài tập theo lộ trình</h2>
+
+<p>Làm đúng thứ tự dưới đây; mỗi bài thêm vào đúng một điều mới.</p>
+
+<div class="box eg">
+  <div class="t">Bước 1 — Ghép hoa quả <code class="inl">viet_lvl3_018</code> (mức L3)</div>
+  <p>Có <span class="mathv">n</span> đống hoa quả, mỗi lần gộp hai đống bất kỳ tốn công bằng tổng khối lượng hai đống. Tìm tổng công nhỏ nhất.</p>
+  <p>Chính là bài toán mở đầu. Dùng khuôn nhị phân nguyên xi, không sửa một dòng. <strong>Làm bài này trước tiên</strong> để chắc rằng khuôn đã nằm trong tay.</p>
+</div>
+
+<div class="box eg">
+  <div class="t">Bước 2 — Bộ mã tối ưu <code class="inl">viet_lvl5_055</code> (mức L5)</div>
+  <p>Có <span class="mathv">n</span> loại từ, loại thứ <span class="mathv">i</span> xuất hiện <span class="mathv">w<sub>i</sub></span> lần. Gán mã trên bảng chữ cái <span class="mathv">k</span> ký tự, cấm tiền tố. In ra tổng <span class="mathv">Σ w<sub>i</sub> |s<sub>i</sub>|</span> nhỏ nhất, và trong các phương án đạt tổng ấy thì <span class="mathv">max |s<sub>i</sub>|</span> nhỏ nhất là bao nhiêu.</p>
+  <p>Giới hạn <span class="mathv">3 ≤ n ≤ 10<sup>5</sup></span>, <span class="mathv">2 ≤ k ≤ 9</span>, <span class="mathv">1 ≤ w<sub>i</sub> ≤ 10<sup>11</sup></span>. Cần <strong>cả biến thể 1 lẫn biến thể 2</strong>, cộng bẫy <code class="inl">long long</code>. Đây chính là bài số 3 của Dự Tuyển 009 — kỳ ấy không em nào giải được.</p>
+</div>
+
+<p><strong>Bước 3 — tự luyện</strong></p>
+
+<div class="tablewrap">
+<table>
+  <tr><th>Bài</th><th>Mã</th><th>Mức</th><th>Gợi ý</th></tr>
+  <tr><td>Ghép hoa quả bản mạnh</td><td><code class="inl">viet_lvl4_039</code></td><td>L4</td><td><span class="mathv">n</span> rất lớn, heap không kịp — dùng biến thể 3</td></tr>
+  <tr><td>Ghép đá bản nhẹ</td><td><code class="inl">viet_lvl3_199</code></td><td>L3</td><td><strong>Bẫy:</strong> chỉ gộp <em>kề nhau</em> ⇒ quy hoạch động trên đoạn, không phải Huffman</td></tr>
+  <tr><td>Ghép đá</td><td><code class="inl">viet_lvl4_1680</code></td><td>L4</td><td>Như trên, thêm dạng vòng tròn; Knuth để hạ về <span class="mathv">O(n<sup>2</sup>)</span></td></tr>
+</table>
+</div>
+
+<p>Hai bài “ghép đá” cố ý đưa vào để em <strong>tự tay thấy sự khác nhau</strong>. Hãy thử nộp khuôn Huffman cho chúng, xem nó sai ở đâu, rồi đọc lại bước 4 ở mục 2 để hiểu vì sao lập luận đổi chỗ không còn dùng được. Đó là cách nhớ lâu nhất.</p>
+
+<footer>
+  Chuyên đề Lập trình thi đấu — Thuật toán Huffman và mã tiền tố · Phan Văn Việt, Trường THPT Chuyên Vĩnh Phúc.
+  Toàn bộ mã nguồn trong tài liệu đã được biên dịch bằng <code class="inl">g++ -std=c++14 -O2 -Wall</code> và chạy kiểm chứng.
+</footer>
+
+</div>
+</div>
+
+<script>
+(function(){
+  /* ---- nút đổi nền sáng / tối ---- */
+  /* Đọc --is-dark qua getComputedStyle, KHÔNG hỏi matchMedia: matchMedia có thể
+     lệch với CSS đang áp dụng ở lần tải đầu. */
+  var root = document.documentElement, btn = document.getElementById('tg');
+  function isDark(){
+    return getComputedStyle(root).getPropertyValue('--is-dark').trim() === '1';
+  }
+  btn.addEventListener('click', function(){
+    root.setAttribute('data-theme', isDark() ? 'light' : 'dark');
+  });
+
+  /* ---- tô màu cú pháp C++ (đơn giản, một lượt quét) ---- */
+  var KW = 'int|bool|void|char|long|double|float|unsigned|const|static|struct|class|return|for|while|do|if|else|break|continue|using|namespace|true|false|sizeof|new|delete|inline|auto';
+  var LIB = 'vector|pair|stack|queue|string|map|set|cin|cout|endl|make_pair|push_back|pop_back|reverse|sort|size|empty|top|front|push|pop|begin|end|first|second|swap|max|min|clear|main';
+  var RE = new RegExp(
+      '(\\/\\/[^\\n]*)'                       + '|' +   /* chú thích  */
+      '(&quot;(?:[^&]|&(?!quot;))*&quot;)'     + '|' +   /* xâu ""     */
+      '(&#39;(?:[^&]|&(?!#39;))*&#39;)'        + '|' +   /* ký tự ''   */
+      '("(?:[^"\\\\\\n]|\\\\.)*")'             + '|' +   /* xâu ""     */
+      "('(?:[^'\\\\\\n]|\\\\.)*')"             + '|' +   /* ký tự ''   */
+      '(#[a-z]+)'                              + '|' +   /* tiền xử lý */
+      '\\b(' + KW  + ')\\b'                    + '|' +
+      '\\b(' + LIB + ')\\b'                    + '|' +
+      '\\b(\\d+)\\b', 'g');
+  var CLS = ['c','s','s','s','s','pp','k','f','n'];
+
+  document.querySelectorAll('pre code').forEach(function(el){
+    el.innerHTML = el.innerHTML.replace(RE, function(){
+      for (var i = 1; i <= 9; i++)
+        if (arguments[i] !== undefined)
+          return '<span class="' + CLS[i-1] + '">' + arguments[i] + '</span>';
+      return arguments[0];
+    });
+  });
+
+  /* ---- nút sao chép mã nguồn ---- */
+  document.querySelectorAll('.codewrap').forEach(function(w){
+    var pre = w.querySelector('pre');
+    if(!pre) return;
+    var b = document.createElement('button');
+    b.className = 'cp';
+    b.textContent = 'Sao chép';
+    b.addEventListener('click', function(){
+      var txt = pre.innerText;
+      var done = function(){ b.textContent = 'Đã chép'; setTimeout(function(){ b.textContent = 'Sao chép'; }, 1400); };
+      if (navigator.clipboard && navigator.clipboard.writeText)
+        navigator.clipboard.writeText(txt).then(done, done);
+      else {
+        var ta = document.createElement('textarea');
+        ta.value = txt; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch(e){}
+        document.body.removeChild(ta); done();
+      }
+    });
+    w.appendChild(b);
+  });
+
+  /* ---- thanh bên: làm nổi mục đang đọc ---- */
+  /* Mốc: mục cuối cùng có mép trên đã trôi qua vạch 130px; chạm đáy trang thì
+     luôn sáng mục cuối. Cập nhật bọc trong requestAnimationFrame. */
+  var secs = Array.prototype.slice.call(document.querySelectorAll('h2[id]'));
+  var links = {};
+  Array.prototype.forEach.call(document.querySelectorAll('aside.side a'), function(a){
+    links[a.getAttribute('href').slice(1)] = a;
+  });
+  var curSec = null;
+  function highlight(){
+    if (!secs.length) return;
+    var id = secs[0].id;
+    for (var k = 0; k < secs.length; k++)
+      if (secs[k].getBoundingClientRect().top <= 130)
+        id = secs[k].id;
+    if (window.innerHeight + window.pageYOffset >= document.documentElement.scrollHeight - 2)
+      id = secs[secs.length - 1].id;
+    if (id === curSec) return;
+    if (curSec && links[curSec]) links[curSec].className = '';
+    if (links[id]) links[id].className = 'on';
+    curSec = id;
+  }
+  var pending = false;
+  function onScroll(){
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function(){ highlight(); pending = false; });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll, {passive:true});
+  highlight();
+})();
+</script>
+</body>
+</html>
