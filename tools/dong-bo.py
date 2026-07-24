@@ -38,6 +38,9 @@ TRANG = {
  'array-2d/index.html': dict(
     nhom='Cơ bản', nhan='Mảng 2 chiều', tieude='Mảng 2 chiều',
     mota='Lưới hàng nhân cột, cờ hiệu, lính canh hai giá trị lớn nhất.'),
+ 'string/index.html': dict(
+    nhom='Cơ bản', nhan='Xâu ký tự', tieude='Xử lý xâu ký tự trong C++',
+    mota='Ký tự là con số: đọc, duyệt, quét cụm số, đếm và biến đổi xâu — theo hướng HSG 9.'),
  'dsu/index.html': dict(
     nhom='Cấu trúc dữ liệu', nhan='Các tập rời rạc (DSU)', tieude='Các tập rời rạc (DSU)',
     mota='Hợp nhất hai tập, tìm gốc, nén đường đi và hợp theo hạng.'),
@@ -285,6 +288,7 @@ CO_THANH_BEN = {
     'prefix-sum/prefix-sum-1d/index.html',
     'sieve/index.html',
     'sqrt-decomposition/index.html',
+    'string/index.html',
     'tree/euler-tour/index.html',
     'tree/index.html',
 }

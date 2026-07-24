@@ -91,8 +91,10 @@ def main():
             if 'assets/chuan.css' not in t and '--is-dark' not in t:
                 continue
             goc = t
-            # gỡ khối cũ nếu chạy lại
-            t = re.sub(re.escape(MOC_DAU) + r'.*?' + re.escape(MOC_CUOI), '', t, flags=re.S)
+            # Gỡ khối cũ nếu chạy lại. Phải nuốt cả dòng trống hai bên, nếu
+            # không mỗi lần chạy lại dôi ra hai dòng trống, tích dần mãi.
+            t = re.sub(r'\n*' + re.escape(MOC_DAU) + r'.*?' + re.escape(MOC_CUOI) + r'\n*',
+                       '\n', t, flags=re.S)
             # chèn vào cuối <style> ĐẦU TIÊN của trang
             m = re.search(r'</style>', t)
             if not m:

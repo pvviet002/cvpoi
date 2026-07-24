@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xử lý xâu ký tự trong C++ | Lý thuyết CP</title>
+<style>
+:root{
+  --is-dark:0;
+  --bg:#ffffff; --fg:#1f2328; --muted:#5b6570; --border:#e4e7eb; --card:#f7f8fa;
+  --blue:#1d4ed8;   --blue-bg:#eff6ff;
+  --purple:#6d28d9; --purple-bg:#f5f3ff;
+  --red:#b91c1c;    --red-bg:#fef2f2;
+  --green:#047857;  --green-bg:#ecfdf5;
+  --amber:#b45309;  --amber-bg:#fffbeb;
+  --code-bg:#f6f8fa; --code-fg:#24292f;
+  --c-kw:#0550ae; --c-str:#0a7d55; --c-cmt:#8b949e; --c-num:#953800; --c-fn:#6639ba; --c-pre:#a3364a;
+  --node:#dbeafe; --node-stroke:#2563eb; --edge:#64748b; --hl:#dc2626; --hl2:#059669;
+  --node2:#ede9fe; --node2-stroke:#7c3aed;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --is-dark:1;
+    --bg:#0f1319; --fg:#e6e9ee; --muted:#9aa4b2; --border:#252c37; --card:#161b23;
+    --blue:#7aa2ff;   --blue-bg:#131c2e;
+    --purple:#c4a2ff; --purple-bg:#1d1730;
+    --red:#ff8f8f;    --red-bg:#2a1618;
+    --green:#5fd3a1;  --green-bg:#0f2320;
+    --amber:#f3bf62;  --amber-bg:#251c0f;
+    --code-bg:#12171f; --code-fg:#dce3ec;
+    --c-kw:#79b8ff; --c-str:#7ee2b8; --c-cmt:#7d8794; --c-num:#ffab70; --c-fn:#d2a8ff; --c-pre:#ff9db8;
+    --node:#1e3a68; --node-stroke:#7aa2ff; --edge:#94a3b8; --hl:#ff6b6b; --hl2:#4ade80;
+    --node2:#2c2148; --node2-stroke:#c4a2ff;
+  }
+}
+:root[data-theme="light"]{
+  --is-dark:0;
+  --bg:#ffffff; --fg:#1f2328; --muted:#5b6570; --border:#e4e7eb; --card:#f7f8fa;
+  --blue:#1d4ed8; --blue-bg:#eff6ff; --purple:#6d28d9; --purple-bg:#f5f3ff;
+  --red:#b91c1c; --red-bg:#fef2f2; --green:#047857; --green-bg:#ecfdf5;
+  --amber:#b45309; --amber-bg:#fffbeb; --code-bg:#f6f8fa; --code-fg:#24292f;
+  --c-kw:#0550ae; --c-str:#0a7d55; --c-cmt:#8b949e; --c-num:#953800; --c-fn:#6639ba; --c-pre:#a3364a;
+  --node:#dbeafe; --node-stroke:#2563eb; --edge:#64748b; --hl:#dc2626; --hl2:#059669;
+  --node2:#ede9fe; --node2-stroke:#7c3aed;
+}
+:root[data-theme="dark"]{
+  --is-dark:1;
+  --bg:#0f1319; --fg:#e6e9ee; --muted:#9aa4b2; --border:#252c37; --card:#161b23;
+  --blue:#7aa2ff; --blue-bg:#131c2e; --purple:#c4a2ff; --purple-bg:#1d1730;
+  --red:#ff8f8f; --red-bg:#2a1618; --green:#5fd3a1; --green-bg:#0f2320;
+  --amber:#f3bf62; --amber-bg:#251c0f; --code-bg:#12171f; --code-fg:#dce3ec;
+  --c-kw:#79b8ff; --c-str:#7ee2b8; --c-cmt:#7d8794; --c-num:#ffab70; --c-fn:#d2a8ff; --c-pre:#ff9db8;
+  --node:#1e3a68; --node-stroke:#7aa2ff; --edge:#94a3b8; --hl:#ff6b6b; --hl2:#4ade80;
+  --node2:#2c2148; --node2-stroke:#c4a2ff;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:"Noto Sans","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  font-size:16.5px; line-height:1.68;
+}
+.wrap{max-width:860px; margin:0 auto; padding:0 20px 90px}
+@media (min-width:1280px){ .wrap{max-width:1000px} }
+@media (min-width:1560px){ .wrap{max-width:1130px} }
+
+/* ---- đầu trang ---- */
+header{border-bottom:1px solid var(--border); margin-bottom:26px; padding:34px 0 22px}
+header .kicker{font-size:.8rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); font-weight:600}
+header h1{font-size:2.15rem; line-height:1.2; margin:.28em 0 .18em; letter-spacing:-.015em}
+header .by{color:var(--muted); font-size:.94rem}
+.themebtn{
+  position:fixed; top:14px; right:14px; z-index:20;
+  background:var(--card); color:var(--fg); border:1px solid var(--border);
+  border-radius:999px; padding:7px 14px; font-size:.82rem; cursor:pointer; font-family:inherit;
+}
+.themebtn:hover{border-color:var(--blue)}
+
+/* ---- mục lục nội tuyến ---- */
+nav.toc{background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px 20px; margin-bottom:34px}
+nav.toc b{display:block; margin-bottom:8px; font-size:.9rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+nav.toc ol{margin:0; padding-left:1.3em; columns:2; column-gap:32px}
+nav.toc li{margin:3px 0; break-inside:avoid}
+nav.toc a{color:var(--fg); text-decoration:none; border-bottom:1px solid transparent}
+nav.toc a:hover{color:var(--blue); border-bottom-color:var(--blue)}
+@media (max-width:640px){ nav.toc ol{columns:1} }
+
+/* ---- thanh điều hướng bên trái (màn hình rộng) ---- */
+aside.side{display:none}
+@media (min-width:1080px){
+  .main{margin-left:254px}
+  nav.toc{display:none}
+  aside.side{
+    display:block; position:fixed; top:0; left:0; bottom:0; width:254px;
+    overflow-y:auto; background:var(--card); border-right:1px solid var(--border);
+    padding:20px 12px 30px; font-size:.88rem;
+  }
+  aside.side .hd{font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--muted); font-size:.75rem; margin:0 10px 12px}
+  aside.side a{display:block; color:var(--muted); text-decoration:none;
+    padding:5px 10px; border-left:3px solid transparent; border-radius:0 7px 7px 0;
+    margin:1px 0; line-height:1.45}
+  aside.side a:hover{color:var(--fg); background:var(--bg)}
+  aside.side a.on{color:var(--blue); background:var(--blue-bg); border-left-color:var(--blue); font-weight:600}
+}
+@media print{
+  aside.side{display:none}
+  .themebtn{display:none}
+  .main{margin-left:0}
+  nav.toc{display:block}
+}
+
+/* ---- tiêu đề mục ---- */
+h2{
+  font-size:1.42rem; margin:2.4em 0 .55em; padding-bottom:.28em;
+  border-bottom:2px solid var(--border); letter-spacing:-.01em; scroll-margin-top:16px;
+}
+h2 .num{color:var(--blue); font-variant-numeric:tabular-nums; margin-right:.45em}
+h3{font-size:1.1rem; margin:1.7em 0 .4em; color:var(--fg)}
+p{margin:.75em 0}
+ul,ol{margin:.65em 0; padding-left:1.5em}
+li{margin:.28em 0}
+strong{font-weight:700}
+em{color:var(--fg)}
+code.inl{
+  background:var(--code-bg); border:1px solid var(--border); border-radius:5px;
+  padding:1px 5px; font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.88em;
+}
+.mathv{font-family:"Cambria Math","Latin Modern Math",Georgia,serif; font-style:italic; padding-right:.09em}
+sub,sup{font-size:.7em; font-style:normal}
+
+/* ---- khung nội dung ---- */
+.box{border-radius:10px; border:1px solid; border-left-width:5px; padding:2px 18px 14px; margin:20px 0}
+.box .t{font-weight:700; margin:14px 0 6px; font-size:1rem; letter-spacing:.01em}
+.box.tech{background:var(--blue-bg);   border-color:var(--blue)}   .box.tech   .t{color:var(--blue)}
+.box.def{background:var(--purple-bg);  border-color:var(--purple)} .box.def    .t{color:var(--purple)}
+.box.warn{background:var(--red-bg);    border-color:var(--red)}    .box.warn   .t{color:var(--red)}
+.box.ex{background:var(--green-bg);    border-color:var(--green)}  .box.ex     .t{color:var(--green)}
+.box.cmplx{background:var(--amber-bg); border-color:var(--amber)}  .box.cmplx  .t{color:var(--amber)}
+
+/* ---- bảng ---- */
+.tablewrap{overflow-x:auto; margin:18px 0; border:1px solid var(--border); border-radius:10px}
+table{border-collapse:collapse; width:100%; min-width:560px; font-size:.94rem}
+th,td{border-bottom:1px solid var(--border); padding:9px 13px; text-align:left; vertical-align:top}
+th{background:var(--card); font-weight:700; color:var(--blue); white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+td.c,th.c{text-align:center; white-space:nowrap}
+
+/* ---- hình vẽ ---- */
+figure{margin:22px 0; text-align:center}
+figure svg{max-width:100%; height:auto}
+figcaption{color:var(--muted); font-size:.88rem; margin-top:8px}
+.figrow{display:flex; flex-wrap:wrap; gap:18px; justify-content:center; align-items:flex-start}
+.figrow > div{flex:1 1 260px; max-width:340px}
+.figrow p{font-size:.88rem; color:var(--muted); margin:4px 0 0}
+svg .nd{fill:var(--node); stroke:var(--node-stroke); stroke-width:2}
+svg .nd2{fill:var(--node2); stroke:var(--node2-stroke); stroke-width:2}
+svg .lb{fill:var(--fg); font-size:15px; font-weight:700; text-anchor:middle; dominant-baseline:central;
+        font-family:"Noto Sans",system-ui,sans-serif}
+svg .el{fill:var(--muted); font-size:12px; text-anchor:middle; dominant-baseline:central;
+        font-family:"Noto Sans",system-ui,sans-serif}
+svg .eg{stroke:var(--edge); stroke-width:2; fill:none}
+svg .eg.on{stroke:var(--hl); stroke-width:3}
+svg .grp{stroke:var(--hl2); stroke-width:2; fill:none; stroke-dasharray:7 5}
+svg .gl{fill:var(--hl2); font-size:12.5px; font-weight:600; text-anchor:middle;
+        font-family:"Noto Sans",system-ui,sans-serif}
+svg .cap{fill:var(--fg); font-size:13px; text-anchor:middle; font-weight:600;
+         font-family:"Noto Sans",system-ui,sans-serif}
+
+/* ---- code ---- */
+.codewrap{position:relative; margin:16px 0}
+.codewrap .name{
+  font-size:.82rem; color:var(--muted); padding:6px 12px; background:var(--card);
+  border:1px solid var(--border); border-bottom:none; border-radius:9px 9px 0 0;
+}
+pre{
+  margin:0; background:var(--code-bg); color:var(--code-fg);
+  border:1px solid var(--border); border-radius:0 0 9px 9px;
+  padding:13px 14px; overflow-x:auto; font-size:13.2px; line-height:1.5;
+  tab-size:2; -moz-tab-size:2;
+}
+.codewrap.noname pre{border-radius:9px}
+pre code{font-family:"Noto Sans Mono","Consolas",ui-monospace,"Courier New",monospace; white-space:pre}
+.cp{
+  position:absolute; top:5px; right:6px; z-index:2; cursor:pointer; font-family:inherit;
+  background:var(--bg); color:var(--muted); border:1px solid var(--border);
+  border-radius:6px; padding:3px 9px; font-size:.76rem; opacity:.75;
+}
+.cp:hover{opacity:1; color:var(--blue); border-color:var(--blue)}
+.k{color:var(--c-kw); font-weight:600}
+.s{color:var(--c-str)}
+.c{color:var(--c-cmt); font-style:italic}
+.n{color:var(--c-num)}
+.f{color:var(--c-fn)}
+.pp{color:var(--c-pre)}
+
+footer{margin-top:56px; padding-top:18px; border-top:1px solid var(--border); color:var(--muted); font-size:.9rem}
+
+/*cv-fix-nen-sang*/
+/* Ép mọi màu gõ cứng của bản nền tối theo bảng màu của chuẩn (tự đổi theo
+   nền sáng/tối). Đặt cuối <style> nên thắng các quy tắc trước cùng độ đặc hiệu. */
+
+/* 0) Màu chú thích mã mặc định của chuẩn (#8b949e) quá nhạt trên nền sáng
+   (tương phản 2,89 < 4,5). Làm đậm hơn ở nền sáng, giữ nguyên ở nền tối.
+   Khối <style> này đứng SAU chuan.css nên đè được cả bốn trạng thái nền. */
+:root{--c-cmt:#5f6672}
+@media (prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+:root[data-theme="light"]{--c-cmt:#5f6672}
+:root[data-theme="dark"]{--c-cmt:#8b949e}
+
+/* 1) Khối mã tự tạo của trang: nền và chữ theo chuẩn, rồi token màu cú pháp
+      dùng bảng token của chuẩn (var --c-*) vốn tự đổi nền. */
+/* KHÔNG đụng .codeline: nó có biến thể .codeline.hot tô sáng dòng đang chạy,
+   ép nền sẽ xoá mất hiệu ứng đó. Chỉ ép khung chứa và màu chữ mặc định. */
+.code-block, .code-container, .code, .code-runner, pre.code-block{
+  background:var(--code-bg) !important;
+}
+.code-block, .code-container, .code, .code-runner, pre.code-block, .codeline{
+  color:var(--code-fg) !important;
+}
+.c-kw,.tk-keyword,.kw,.token-kw{color:var(--c-kw) !important}
+.c-str,.tk-string,.st,.token-str{color:var(--c-str) !important}
+.c-cm,.tk-comment,.cm,.token-com{color:var(--c-cmt) !important}
+.c-num,.tk-number,.nm,.token-num{color:var(--c-num) !important}
+.c-fn,.tk-func,.fn,.token-func{color:var(--c-fn) !important}
+.c-type,.c-ty,.tk-type,.token-type{color:var(--c-kw) !important}
+.c-op,.op,.cmp-op,.tk-ident,.tk-macro,.pp,.tk-punc,.tk-comment{color:var(--code-fg) !important}
+.tk-comment,.c-cm{color:var(--c-cmt) !important}
+
+/* 2) Hộp/khung nội dung có nền tối gõ cứng -> nền theo chuẩn (tự đổi). */
+.quiz-box,.explain,.q-card,.lab-container,.lab-visual,.grid-board,.grid-vis,
+.sim-controls,.score-box,.var-item,.var-box,.var-badge,.info-panel,.set-box,
+.map-entry,.hero-insight,.array-cell,.bucket-tube,.reg-item,.quiz,.quiz-opt,
+.quiz-exp,.quiz-expl,.pitfall-col,.pitfall-card,.lab-bar,.formula-box,
+.mini-interactive,.visual-area,.state-panel,.info-box,.io-table,.styled-table,
+.say,.lab-msg,.word-box,.block-label,.col,.pit-col,.cmp-lab,.formula-b,
+.bucket-text,.grid-vis,.hero-insight{
+  background:var(--card) !important;
+}
+
+/* 3) Chữ nội dung gõ cứng màu sáng -> màu chữ chuẩn. */
+.qt,.q-text,.math-display,.reg-val,.bucket-text,.quiz-q,.lab-msg,.explain,
+.explain *,.quiz-box p,.quiz-box h4,.q-card *,
+.say,.say *,.formula-box,.formula-box *,.fv,.word-box,.word-box *,.col,.pit-col,
+.lab-msg *,.quiz p,.quiz h4{
+  color:var(--fg) !important;
+}
+
+/* 4) Ô bảng: tiêu đề dùng màu nhấn, ô thường dùng màu chữ chuẩn. */
+.box th, .tablewrap th, table th{color:var(--blue) !important}
+.box td, .tablewrap td, table td{color:var(--fg)}
+/*/cv-fix-nen-sang*/
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Ký tự là con số: đọc, duyệt, quét cụm số, đếm và biến đổi xâu — theo hướng HSG 9.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Xử lý xâu ký tự trong C++ | Lý thuyết CP">
+<meta property="og:description" content="Ký tự là con số: đọc, duyệt, quét cụm số, đếm và biến đổi xâu — theo hướng HSG 9.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Xử lý xâu ký tự trong C++</div>
+  <a href="#s1">1. Bài toán mở đầu</a>
+  <a href="#s2">2. Nền tảng string C++</a>
+  <a href="#s3">3. Ký tự là một con số</a>
+  <a href="#s4">4. Khuôn mẫu quét cụm</a>
+  <a href="#s5">5. Bộ đồ nghề xâu</a>
+  <a href="#s6">6. Nhận dạng & bẫy</a>
+  <a href="#s7">7. Bài tập</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb">Cơ bản<span class="cv-sep">/</span><span class="cv-here">Xâu ký tự</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Xử lý xâu ký tự trong C++</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Bài toán mở đầu: hai cách nghĩ cho ra hai kết quả</a></li>
+    <li><a href="#s2">Nền tảng: string trong C++ (chỉ những gì chạy trên Themis)</a></li>
+    <li><a href="#s3">Ý tưởng cốt lõi: ký tự là một con số</a></li>
+    <li><a href="#s4">Khuôn mẫu: quét cụm số</a></li>
+    <li><a href="#s5">Bộ đồ nghề xâu</a></li>
+    <li><a href="#s6">Nhận dạng và những cái bẫy trên Themis</a></li>
+    <li><a href="#s7">Bài tập theo lộ trình</a></li>
+  </ol>
+</nav>
+
+<div class="box def">
+  <div class="t">Môi trường thi</div>
+  <p>Bài thi lập trình HSG 9 dùng vào ra <strong>chuẩn</strong>: đọc từ bàn phím, in ra màn hình. Mỗi test chạy xong trong <strong>1 giây</strong>, chấm bằng <strong>Themis</strong> với bộ dịch MinGW GCC 9.2 chuẩn <strong>C++14</strong> (32-bit). Ngôn ngữ được dùng: Pascal, C++, Python — tài liệu này viết bằng C++.</p>
+  <p>Bài về xâu thường gắn với xử lí số: <strong>tìm kiếm số, đếm số, kiểm tra số theo dạng, phân tích số, biến đổi số</strong>. Cả năm dạng ấy đều quy về vài kỹ thuật gọn trong tài liệu này.</p>
+</div>
+
+<!-- ============================ 1 ============================ -->
+<h2 id="s1"><span class="num">1</span>Bài toán mở đầu: hai cách nghĩ cho ra hai kết quả</h2>
+
+<p>Cho một xâu gồm chữ cái và chữ số xen kẽ. Hãy tính <strong>tổng các số nguyên</strong> nằm trong xâu. Ví dụ với xâu <code class="inl">abc12de3f45</code>, ba số nằm trong đó là <span class="mathv">12</span>, <span class="mathv">3</span> và <span class="mathv">45</span>.</p>
+
+<p>Người mới học thường viết ngay: duyệt từng ký tự, gặp ký tự nào là chữ số thì cộng giá trị của nó vào tổng. Một người khác lại gom các chữ số <em>đứng liền nhau</em> thành một số rồi mới cộng. Hai cách cho hai kết quả khác hẳn:</p>
+
+<div class="tablewrap">
+<table>
+  <tr><th></th><th>Cách A: cộng từng chữ số</th><th>Cách B: gom cụm chữ số</th></tr>
+  <tr><td>Các số được cộng</td><td>1, 2, 3, 4, 5</td><td>12, 3, 45</td></tr>
+  <tr><td>Tổng</td><td><strong>15</strong></td><td><strong>60</strong></td></tr>
+</table>
+</div>
+
+<p>Đề hỏi <strong>số nguyên</strong>, mà <code class="inl">12</code> là số <em>mười hai</em> chứ không phải hai số <span class="mathv">1</span> và <span class="mathv">2</span>, nên <strong>cách B (60) mới đúng</strong>. Nhưng vì sao gom cụm lại đúng, và làm thế nào để “biết mình đang ở giữa một cụm số” khi duyệt? Trước khi trả lời, ta cần hai thứ nền tảng:</p>
+<ul>
+  <li>Biết <strong>khai báo, đọc và duyệt</strong> một xâu trong C++ — Mục 2.</li>
+  <li>Hiểu <strong>vì sao</strong> gom cụm đúng, dựa trên một sự thật giản dị: mỗi ký tự thật ra là một con số — Mục 3.</li>
+</ul>
+
+<!-- ============================ 2 ============================ -->
+<h2 id="s2"><span class="num">2</span>Nền tảng: string trong C++ (chỉ những gì chạy trên Themis)</h2>
+
+<p>Trong C++, một xâu là kiểu <code class="inl">string</code> — hiểu đơn giản là <strong>một mảng các ký tự</strong> đánh chỉ số từ 0. Mọi hàm trong mục này đều <strong>dùng được trên Themis</strong> và có sẵn khi khai báo <code class="inl">#include &lt;bits/stdc++.h&gt;</code>.</p>
+
+<h3>Khai báo, kích thước, truy cập</h3>
+<div class="tablewrap">
+<table>
+  <tr><th>Cú pháp</th><th>Ý nghĩa</th></tr>
+  <tr><td><code class="inl">string s;</code></td><td>Khai báo một xâu rỗng</td></tr>
+  <tr><td><code class="inl">string s = "abc";</code></td><td>Khởi tạo từ một hằng xâu</td></tr>
+  <tr><td><code class="inl">string s(n, 'x');</code></td><td>Xâu gồm <span class="mathv">n</span> ký tự <code class="inl">'x'</code></td></tr>
+  <tr><td><code class="inl">s.size()</code> / <code class="inl">s.length()</code></td><td>Số ký tự của xâu</td></tr>
+  <tr><td><code class="inl">s.empty()</code></td><td>Xâu có rỗng hay không (<code class="inl">true</code>/<code class="inl">false</code>)</td></tr>
+  <tr><td><code class="inl">s[i]</code></td><td>Ký tự ở vị trí <span class="mathv">i</span>, <strong>đếm từ 0</strong></td></tr>
+  <tr><td><code class="inl">s.front()</code> / <code class="inl">s.back()</code></td><td>Ký tự đầu tiên / ký tự cuối cùng</td></tr>
+  <tr><td><code class="inl">for (char c : s)</code></td><td>Duyệt lần lượt từng ký tự của xâu</td></tr>
+</table>
+</div>
+
+<p>Một xâu chính là dãy ô nhớ liền nhau; <code class="inl">s[i]</code> là ô thứ <span class="mathv">i</span>, còn <code class="inl">s.size()</code> là số ô:</p>
+
+<figure>
+<svg viewBox="0 0 560 105" width="560" role="img" aria-label="Xâu HELLO là mảng ký tự, mỗi ô một chỉ số">
+  <g>
+    <rect x="20"  y="15" width="56" height="50" rx="5" style="fill:var(--blue-bg);stroke:var(--blue);stroke-width:2"/>
+    <rect x="90"  y="15" width="56" height="50" rx="5" style="fill:var(--blue-bg);stroke:var(--blue);stroke-width:2"/>
+    <rect x="160" y="15" width="56" height="50" rx="5" style="fill:var(--blue-bg);stroke:var(--blue);stroke-width:2"/>
+    <rect x="230" y="15" width="56" height="50" rx="5" style="fill:var(--blue-bg);stroke:var(--blue);stroke-width:2"/>
+    <rect x="300" y="15" width="56" height="50" rx="5" style="fill:var(--blue-bg);stroke:var(--blue);stroke-width:2"/>
+  </g>
+  <g style="font-family:'Noto Sans Mono',monospace;font-size:22px;font-weight:700;fill:var(--fg)" text-anchor="middle">
+    <text x="48" y="48">H</text><text x="118" y="48">e</text><text x="188" y="48">l</text><text x="258" y="48">l</text><text x="328" y="48">o</text>
+  </g>
+  <g style="font-size:14px;fill:var(--muted)" text-anchor="middle">
+    <text x="48" y="88">0</text><text x="118" y="88">1</text><text x="188" y="88">2</text><text x="258" y="88">3</text><text x="328" y="88">4</text>
+  </g>
+</svg>
+<figcaption class="cap"><span class="mathv">s[0]</span>='H', <span class="mathv">s.back()</span>='o', <span class="mathv">s.size()</span> = 5</figcaption>
+</figure>
+
+<h3>Ghép, cắt, tìm, so sánh</h3>
+<div class="tablewrap">
+<table>
+  <tr><th>Cú pháp</th><th>Ý nghĩa</th></tr>
+  <tr><td><code class="inl">s += c;</code> &nbsp; <code class="inl">s += "abc";</code></td><td>Nối thêm một ký tự hoặc một xâu vào cuối</td></tr>
+  <tr><td><code class="inl">s.push_back(c)</code> / <code class="inl">s.pop_back()</code></td><td>Thêm / bớt một ký tự ở cuối</td></tr>
+  <tr><td><code class="inl">s.substr(pos, len)</code></td><td>Lấy xâu con từ vị trí <code class="inl">pos</code>, dài <code class="inl">len</code></td></tr>
+  <tr><td><code class="inl">s.find(x)</code></td><td>Vị trí đầu tiên của <code class="inl">x</code>, hoặc <code class="inl">string::npos</code> nếu không thấy</td></tr>
+  <tr><td><code class="inl">s.insert(pos, x)</code> / <code class="inl">s.erase(pos, len)</code></td><td>Chèn <code class="inl">x</code> vào <code class="inl">pos</code> / xoá <code class="inl">len</code> ký tự</td></tr>
+  <tr><td><code class="inl">s == t</code>, &nbsp; <code class="inl">s &lt; t</code></td><td>So sánh bằng, so sánh theo thứ tự từ điển</td></tr>
+</table>
+</div>
+
+<h3>Từ thư viện đi kèm (đều nằm trong <code class="inl">bits/stdc++.h</code>)</h3>
+<div class="tablewrap">
+<table>
+  <tr><th>Cú pháp</th><th>Ý nghĩa</th></tr>
+  <tr><td><code class="inl">reverse(s.begin(), s.end())</code></td><td>Đảo ngược cả xâu</td></tr>
+  <tr><td><code class="inl">sort(s.begin(), s.end())</code></td><td>Sắp xếp các ký tự tăng dần</td></tr>
+  <tr><td><code class="inl">count(s.begin(), s.end(), c)</code></td><td>Đếm số lần ký tự <code class="inl">c</code> xuất hiện</td></tr>
+  <tr><td><code class="inl">isdigit(c)</code>, <code class="inl">isalpha(c)</code></td><td>Ký tự có phải chữ số / chữ cái</td></tr>
+  <tr><td><code class="inl">isupper(c)</code>, <code class="inl">islower(c)</code>, <code class="inl">isspace(c)</code></td><td>Chữ hoa / chữ thường / khoảng trắng</td></tr>
+  <tr><td><code class="inl">toupper(c)</code>, <code class="inl">tolower(c)</code></td><td>Đổi một ký tự sang chữ hoa / chữ thường</td></tr>
+  <tr><td><code class="inl">stoi(s)</code>, <code class="inl">stoll(s)</code>, <code class="inl">to_string(x)</code></td><td>Đổi xâu sang số, và số sang xâu</td></tr>
+</table>
+</div>
+
+<p>Nhóm hàm <code class="inl">isdigit</code>, <code class="inl">toupper</code>… nhận vào <em>mã</em> của ký tự; khi truyền nên ép <code class="inl">(unsigned char)c</code> để tránh ký tự có mã âm (xem Mục 6).</p>
+
+<h3>Đọc xâu — hai kiểu và một cái bẫy</h3>
+<p><code class="inl">cin &gt;&gt; s</code> đọc <strong>một “từ”</strong>: nó bỏ qua khoảng trắng đầu rồi đọc tới khi gặp khoảng trắng kế tiếp — nên không đọc được tên có dấu cách như “Nguyen Van An”. Muốn lấy <strong>cả dòng</strong> thì dùng <code class="inl">getline(cin, s)</code>. Cái bẫy hay gặp: sau khi <code class="inl">cin &gt;&gt; n</code> đọc một số, ký tự xuống dòng vẫn còn nằm lại trong bộ đệm, khiến <code class="inl">getline</code> ngay sau đó đọc phải một dòng rỗng. Phải gọi <code class="inl">cin.ignore()</code> để bỏ ký tự thừa ấy.</p>
+
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int n;
+string ten;
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	// Đọc một số nguyên, rồi đọc cả một dòng họ tên (có dấu cách)
+	cin &gt;&gt; n;
+	cin.ignore();   // bỏ ký tự xuống dòng còn sót lại sau khi đọc số
+	getline(cin, ten);
+	cout &lt;&lt; "So the: " &lt;&lt; n &lt;&lt; '\n';
+	cout &lt;&lt; "Ho ten: " &lt;&lt; ten &lt;&lt; " (" &lt;&lt; ten.size() &lt;&lt; " ky tu)\n";
+	return 0;
+}</code></pre></div>
+
+<div class="box warn">
+  <div class="t">Chạy thử</div>
+  <p>Với dữ liệu vào gồm dòng <code class="inl">7</code> rồi dòng <code class="inl">Nguyen Van An</code>, chương trình in:</p>
+  <div class="codewrap noname"><pre style="border-radius:9px">So the: 7
+Ho ten: Nguyen Van An (13 ky tu)</pre></div>
+  <p>Nếu quên <code class="inl">cin.ignore()</code>, <code class="inl">getline</code> sẽ đọc phải dòng rỗng và họ tên bị mất.</p>
+</div>
+
+<p>Đoạn chương trình dưới đây gọi thử một loạt hàm ở các bảng trên:</p>
+
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+string s = "Hello, HSG9!";
+string t;
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	// Kích thước và truy cập từng ký tự (chỉ số bắt đầu từ 0)
+	cout &lt;&lt; "do dai      : " &lt;&lt; s.size() &lt;&lt; '\n';
+	cout &lt;&lt; "ky tu [0]   : " &lt;&lt; s[0] &lt;&lt; '\n';
+	cout &lt;&lt; "ky tu cuoi  : " &lt;&lt; s.back() &lt;&lt; '\n';
+	// Cắt xâu con: bắt đầu ở vị trí 7, lấy 4 ký tự
+	cout &lt;&lt; "substr(7,4) : " &lt;&lt; s.substr(7, 4) &lt;&lt; '\n';
+	// Tìm kiếm: trả về vị trí, hoặc string::npos nếu không thấy
+	if (s.find("HSG") != string::npos)
+		cout &lt;&lt; "tim HSG     : vi tri " &lt;&lt; s.find("HSG") &lt;&lt; '\n';
+	// Duyệt bằng range-for, đổi mọi chữ hoa thành chữ thường
+	for (char c : s)
+		t += (char) tolower((unsigned char) c);
+	cout &lt;&lt; "chu thuong  : " &lt;&lt; t &lt;&lt; '\n';
+	// Đảo ngược cả xâu
+	reverse(t.begin(), t.end());
+	cout &lt;&lt; "dao nguoc   : " &lt;&lt; t &lt;&lt; '\n';
+	// Đổi số sang xâu và xâu sang số (dùng stoll cho số vượt int)
+	cout &lt;&lt; "to_string   : " &lt;&lt; to_string(2026) &lt;&lt; '\n';
+	cout &lt;&lt; "stoll + 1   : " &lt;&lt; stoll("12345678901") + 1 &lt;&lt; '\n';
+	return 0;
+}</code></pre></div>
+
+<div class="box ex">
+  <div class="t">Kết quả in ra của chương trình trên</div>
+  <div class="codewrap noname"><pre style="border-radius:9px">do dai      : 12
+ky tu [0]   : H
+ky tu cuoi  : !
+substr(7,4) : HSG9
+tim HSG     : vi tri 7
+chu thuong  : hello, hsg9!
+dao nguoc   : !9gsh ,olleh
+to_string   : 2026
+stoll + 1   : 12345678902</pre></div>
+</div>
+
+<div class="box warn">
+  <div class="t">Ba thứ KHÔNG dùng được trên Themis</div>
+  <ul>
+    <li><code class="inl">string_view</code> (C++17) — bộ dịch báo lỗi <em>was not declared</em>. Cứ dùng <code class="inl">string</code> thường.</li>
+    <li><code class="inl">stol("3000000000")</code> — <code class="inl">long</code> chỉ 4 byte nên số vượt 2,1 tỉ làm hàm <strong>ném lỗi</strong> <code class="inl">out_of_range</code>. Với số lớn phải dùng <code class="inl">stoll</code> (trả <code class="inl">long long</code> 8 byte).</li>
+    <li><code class="inl">__int128</code> — bị từ chối hẳn. Bài nào cần số quá <code class="inl">long long</code> thì không giải được ở đây.</li>
+  </ul>
+</div>
+
+<!-- ============================ 3 ============================ -->
+<h2 id="s3"><span class="num">3</span>Ý tưởng cốt lõi: ký tự là một con số</h2>
+
+<p>Bí mật giúp giải hầu hết bài xâu HSG 9 chỉ gồm một câu: <strong>mỗi ký tự thực chất là một con số</strong> — mã ASCII của nó. Ba dải ký tự thường gặp có mã <strong>liên tiếp</strong>:</p>
+
+<figure>
+<svg viewBox="0 0 620 110" width="620" role="img" aria-label="Ba dải mã ASCII liên tiếp và khoảng cách 32 giữa chữ hoa và chữ thường">
+  <line x1="20" y1="60" x2="150" y2="60" style="stroke:var(--blue);stroke-width:5"/>
+  <line x1="245" y1="60" x2="375" y2="60" style="stroke:var(--green);stroke-width:5"/>
+  <line x1="470" y1="60" x2="600" y2="60" style="stroke:var(--red);stroke-width:5"/>
+  <g style="font-family:'Noto Sans Mono',monospace;font-size:15px;font-weight:700" text-anchor="middle">
+    <text x="85"  y="45" style="fill:var(--blue)">'0'…'9'</text>
+    <text x="310" y="45" style="fill:var(--green)">'A'…'Z'</text>
+    <text x="535" y="45" style="fill:var(--red)">'a'…'z'</text>
+  </g>
+  <g style="font-size:13px;fill:var(--muted)" text-anchor="middle">
+    <text x="85"  y="82">mã 48…57</text>
+    <text x="310" y="82">mã 65…90</text>
+    <text x="535" y="82">mã 97…122</text>
+  </g>
+  <path d="M310 30 Q 422 2 535 30" style="fill:none;stroke:var(--purple);stroke-width:2"/>
+  <text x="422" y="16" text-anchor="middle" style="font-size:14px;font-weight:700;fill:var(--purple)">+32</text>
+</svg>
+</figure>
+
+<p>Từ đó suy ra ba công cụ dùng suốt:</p>
+<ul>
+  <li>Vì <code class="inl">'0'</code>…<code class="inl">'9'</code> liên tiếp nên <strong>giá trị</strong> của một ký tự chữ số là <code class="inl">c - '0'</code> (cho ra <span class="mathv">0…9</span>), và “<code class="inl">c</code> có phải chữ số” đúng bằng <code class="inl">c &gt;= '0' &amp;&amp; c &lt;= '9'</code>.</li>
+  <li>Vì <code class="inl">'A'</code> và <code class="inl">'a'</code> cách nhau đúng 32 nên đổi hoa sang thường là <code class="inl">c - 'A' + 'a'</code>, hoặc gọn hơn là <code class="inl">tolower(c)</code>.</li>
+  <li>Chữ cái thứ mấy trong bảng chữ: <code class="inl">c - 'a'</code> (cho ra <span class="mathv">0…25</span>).</li>
+</ul>
+
+<p><strong>Vì sao gom cụm mới đúng.</strong> Một số nhiều chữ số là giá trị theo <em>cơ số 10</em>: số <code class="inl">12</code> bằng <span class="mathv">1 × 10 + 2</span>, chứ không phải <span class="mathv">1 + 2</span>. Khi duyệt, ta dựng dần giá trị ấy bằng</p>
+<p style="text-align:center"><span class="mathv">cur = cur × 10 + (c − '0')</span></p>
+<p>Cách A ở Mục 1 sai vì nó cộng <em>tổng các chữ số</em> (<span class="mathv">1+2=3</span>) thay cho <em>giá trị</em> (<span class="mathv">12</span>).</p>
+
+<p><strong>Quy tắc chốt cụm.</strong> Đang dựng một cụm số mà gặp ký tự <em>không phải</em> chữ số thì cụm đã hết: cộng <code class="inl">cur</code> vào kết quả rồi đặt lại <code class="inl">cur</code> = 0. Đừng quên cụm số <strong>nằm ở cuối xâu</strong> — lúc ấy không có ký tự nào “đóng” cụm, nên phải chốt thêm một lần sau vòng lặp.</p>
+
+<div class="box ex">
+  <div class="t">Cùng một cỗ máy quét — tách từ chính là tách số</div>
+  <p>Đổi điều kiện “ký tự là chữ số” thành “ký tự <em>khác</em> khoảng trắng” thì đúng khuôn ấy <strong>tách được các từ</strong>. Trạng thái “đang ở trong một cụm” giữ nguyên vai trò.</p>
+  <figure>
+  <svg viewBox="0 0 560 110" width="560" role="img" aria-label="Xâu the cat: mỗi ký tự khác khoảng trắng mang bit 1, khoảng trắng mang bit 0">
+    <g>
+      <rect x="20"  y="12" width="46" height="46" rx="5" style="fill:var(--green-bg);stroke:var(--green);stroke-width:2"/>
+      <rect x="76"  y="12" width="46" height="46" rx="5" style="fill:var(--green-bg);stroke:var(--green);stroke-width:2"/>
+      <rect x="132" y="12" width="46" height="46" rx="5" style="fill:var(--green-bg);stroke:var(--green);stroke-width:2"/>
+      <rect x="188" y="12" width="46" height="46" rx="5" style="fill:var(--bg);stroke:var(--blue);stroke-width:2;stroke-dasharray:4 3"/>
+      <rect x="244" y="12" width="46" height="46" rx="5" style="fill:var(--green-bg);stroke:var(--green);stroke-width:2"/>
+      <rect x="300" y="12" width="46" height="46" rx="5" style="fill:var(--green-bg);stroke:var(--green);stroke-width:2"/>
+      <rect x="356" y="12" width="46" height="46" rx="5" style="fill:var(--green-bg);stroke:var(--green);stroke-width:2"/>
+    </g>
+    <g style="font-family:'Noto Sans Mono',monospace;font-size:20px;font-weight:700;fill:var(--fg)" text-anchor="middle">
+      <text x="43" y="42">t</text><text x="99" y="42">h</text><text x="155" y="42">e</text>
+      <text x="267" y="42">c</text><text x="323" y="42">a</text><text x="379" y="42">t</text>
+    </g>
+    <g style="font-size:14px;fill:var(--muted)" text-anchor="middle">
+      <text x="43" y="82">1</text><text x="99" y="82">1</text><text x="155" y="82">1</text>
+      <text x="211" y="82">0</text><text x="267" y="82">1</text><text x="323" y="82">1</text><text x="379" y="82">1</text>
+    </g>
+    <text x="430" y="42" style="font-size:14px;fill:var(--muted)">ô = 1: đang trong từ</text>
+  </svg>
+  </figure>
+  <p>Hai cụm “1” liền nhau là hai từ <code class="inl">the</code> và <code class="inl">cat</code>. Đếm tần suất ký tự cũng là cỗ máy này, chỉ khác trạng thái là một <strong>mảng đếm</strong>.</p>
+</div>
+
+<div class="box tech">
+  <div class="t">Điều đáng nhớ nhất của cả chuyên đề</div>
+  <p>Xử lý xâu = <strong>một vòng <code class="inl">for</code> chạy qua các vị trí</strong> + <strong>số học / trạng thái</strong> trên mã ký tự. Gần như mọi bài xâu HSG 9 đều là một biến tấu của câu này.</p>
+</div>
+
+<!-- ============================ 4 ============================ -->
+<h2 id="s4"><span class="num">4</span>Khuôn mẫu: quét cụm số</h2>
+
+<p>Ghép ba điều ở Mục 3 — kiểm tra chữ số, dựng giá trị cơ số 10, và chốt cụm — ta được khuôn giải trọn bài toán mở đầu. Lưu ý dùng <code class="inl">long long</code> cho <code class="inl">cur</code> và <code class="inl">tong</code> vì tổng có thể vượt <code class="inl">int</code>.</p>
+
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+string s;
+long long cur, tong;
+int i;
+bool trongCum;
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	getline(cin, s);
+	// Quét từng ký tự, gom các chữ số đứng liền nhau thành MỘT số
+	for (i = 0; i &lt; (int) s.size(); i++)
+		if (s[i] &gt;= '0' &amp;&amp; s[i] &lt;= '9') {
+			cur = cur * 10 + (s[i] - '0');   // xây số theo cơ số 10
+			trongCum = true;
+		} else if (trongCum) {
+			tong += cur;   // chốt cụm số vừa kết thúc
+			cur = 0;
+			trongCum = false;
+		}
+	if (trongCum) tong += cur;   // cụm số nằm ở cuối xâu
+	cout &lt;&lt; tong &lt;&lt; '\n';
+	return 0;
+}</code></pre></div>
+
+<div class="box ex">
+  <div class="t">Chạy tay trên <code class="inl">abc12de3f45</code></div>
+  <div class="tablewrap">
+  <table>
+    <tr><th class="c">i</th><th class="c">s[i]</th><th>Là chữ số?</th><th class="c">cur</th><th>tong</th></tr>
+    <tr><td class="c">0</td><td class="c">a</td><td>Không</td><td class="c">0</td><td>0</td></tr>
+    <tr><td class="c">1</td><td class="c">b</td><td>Không</td><td class="c">0</td><td>0</td></tr>
+    <tr><td class="c">2</td><td class="c">c</td><td>Không</td><td class="c">0</td><td>0</td></tr>
+    <tr><td class="c">3</td><td class="c">1</td><td>Có</td><td class="c">1</td><td>0</td></tr>
+    <tr><td class="c">4</td><td class="c">2</td><td>Có</td><td class="c">12</td><td>0</td></tr>
+    <tr><td class="c">5</td><td class="c">d</td><td>Không</td><td class="c">0</td><td>12 <em>(chốt 12)</em></td></tr>
+    <tr><td class="c">6</td><td class="c">e</td><td>Không</td><td class="c">0</td><td>12</td></tr>
+    <tr><td class="c">7</td><td class="c">3</td><td>Có</td><td class="c">3</td><td>12</td></tr>
+    <tr><td class="c">8</td><td class="c">f</td><td>Không</td><td class="c">0</td><td>15 <em>(chốt 3)</em></td></tr>
+    <tr><td class="c">9</td><td class="c">4</td><td>Có</td><td class="c">4</td><td>15</td></tr>
+    <tr><td class="c">10</td><td class="c">5</td><td>Có</td><td class="c">45</td><td>15</td></tr>
+    <tr><td colspan="4"><em>hết xâu, chốt cụm cuối</em></td><td><strong>60</strong></td></tr>
+  </table>
+  </div>
+  <p>Kết quả 60, khớp cách B ở Mục 1.</p>
+</div>
+
+<div class="box cmplx">
+  <div class="t">Độ phức tạp</div>
+  <p>Chỉ một vòng <code class="inl">for</code> duyệt qua mỗi ký tự đúng một lần: thời gian <strong><span class="mathv">O(n)</span></strong>, bộ nhớ <span class="mathv">O(n)</span> (chính là xâu). Với xâu dài tới <span class="mathv">10<sup>6</sup></span> ký tự cũng chỉ vài phần trăm giây — dư sức cho giới hạn 1 giây của HSG 9.</p>
+</div>
+
+<!-- ============================ 5 ============================ -->
+<h2 id="s5"><span class="num">5</span>Bộ đồ nghề xâu</h2>
+
+<p>Khuôn quét và các hàm ở Mục 2 đủ để dựng lời giải cho năm dạng bài thường gặp. Bảng dưới là “đề đòi gì thì thêm gì”.</p>
+
+<div class="tablewrap">
+<table>
+  <tr><th>Dạng bài</th><th>Công cụ</th></tr>
+  <tr><td><strong>Phân tích số</strong></td><td>Tổng các chữ số: cộng <code class="inl">c - '0'</code>. Số chữ số: đếm ký tự thoả <code class="inl">isdigit</code>. Tách từng số: khuôn quét cụm.</td></tr>
+  <tr><td><strong>Kiểm tra số theo dạng</strong></td><td>Toàn chữ số? kiểm mọi ký tự bằng <code class="inl">isdigit</code>. Đối xứng (palindrome)? so <code class="inl">s[i]</code> với <code class="inl">s[n-1-i]</code> bằng hai con trỏ.</td></tr>
+  <tr><td><strong>Biến đổi số / xâu</strong></td><td>Đổi hoa↔thường bằng <code class="inl">toupper</code>/<code class="inl">tolower</code>; bỏ ký tự lạ bằng cách chỉ <code class="inl">+=</code> ký tự hợp lệ; đảo xâu bằng <code class="inl">reverse</code>.</td></tr>
+  <tr><td><strong>Đếm số / ký tự</strong></td><td>Mảng đếm <code class="inl">cnt[256]</code>, lấy mã ký tự làm chỉ số. Tìm ký tự trội, đếm nguyên âm, thống kê chữ cái.</td></tr>
+  <tr><td><strong>Tìm kiếm</strong></td><td>Vị trí một mẫu: <code class="inl">s.find</code>. Đếm số lần mẫu xuất hiện: gọi <code class="inl">find</code> lặp. Mẫu rất lớn / nhiều truy vấn thì cần thuật toán riêng (KMP, băm xâu) — ngoài phạm vi chuyên đề này.</td></tr>
+</table>
+</div>
+
+<p>Dạng <strong>đếm</strong> có một khuôn nhỏ đáng thuộc lòng: dùng mảng <code class="inl">cnt</code> kích thước 256 (đủ cho mọi mã ký tự 1 byte), gộp chữ hoa vào chữ thường rồi tìm chữ cái xuất hiện nhiều nhất.</p>
+
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+string s;
+int cnt[256];
+int i, best;
+char c, kytu;
+
+int main() {
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	getline(cin, s);
+	// Đếm tần suất: mã ký tự làm chỉ số mảng, ép unsigned để không bị âm
+	for (i = 0; i &lt; (int) s.size(); i++) {
+		c = s[i];
+		if (c &gt;= 'A' &amp;&amp; c &lt;= 'Z') c = c - 'A' + 'a';   // gộp hoa vào thường
+		cnt[(unsigned char) c]++;
+	}
+	// Tìm chữ cái thường xuất hiện nhiều nhất (hoà thì lấy chữ đứng trước)
+	best = -1;
+	kytu = '?';
+	for (c = 'a'; c &lt;= 'z'; c++)
+		if (cnt[(unsigned char) c] &gt; best) {
+			best = cnt[(unsigned char) c];
+			kytu = c;
+		}
+	cout &lt;&lt; kytu &lt;&lt; ' ' &lt;&lt; best &lt;&lt; '\n';
+	return 0;
+}</code></pre></div>
+
+<p>Với xâu <code class="inl">Hello, HSG9!</code> chương trình in <code class="inl">h 2</code> — chữ <code class="inl">h</code> (gộp cả <code class="inl">H</code>) xuất hiện 2 lần, nhiều nhất.</p>
+
+<!-- ============================ 6 ============================ -->
+<h2 id="s6"><span class="num">6</span>Nhận dạng và những cái bẫy trên Themis</h2>
+
+<div class="box tech">
+  <div class="t">Đọc đề thấy gì thì nghĩ tới công cụ nào</div>
+  <ul>
+    <li>“<em>tổng / đếm các số trong xâu</em>”, “<em>mã có lẫn chữ và số</em>” ⇒ khuôn <strong>quét cụm</strong>.</li>
+    <li>“<em>đối xứng</em>”, “<em>đọc xuôi bằng đọc ngược</em>” ⇒ <strong>hai con trỏ</strong> hoặc so với <code class="inl">reverse</code>.</li>
+    <li>“<em>đổi hoa thường</em>”, “<em>chuẩn hoá</em>”, “<em>lọc ký tự</em>” ⇒ duyệt một vòng, biến đổi từng ký tự.</li>
+    <li>“<em>đếm số lần xuất hiện</em>”, “<em>ký tự nhiều nhất</em>” ⇒ <strong>mảng đếm</strong> <code class="inl">cnt[256]</code>.</li>
+    <li>“<em>tách từ</em>”, “<em>độ dài mỗi từ</em>” ⇒ cũng là quét cụm, đổi “chữ số” thành “khác khoảng trắng”.</li>
+  </ul>
+</div>
+
+<div class="box warn">
+  <div class="t">Bài phản diện — cùng dữ liệu, khác thuật toán</div>
+  <p>Hai đề dưới đây đọc gần giống nhau nhưng làm khác hẳn:</p>
+  <div class="tablewrap">
+  <table>
+    <tr><th>“Tổng các chữ số”</th><th>“Tổng các số trong xâu”</th></tr>
+    <tr><td>1+2+3+4+5 = 15</td><td>12 + 3 + 45 = 60</td></tr>
+    <tr><td>Cộng <code class="inl">c - '0'</code> mỗi lần</td><td>Gom cụm rồi mới cộng</td></tr>
+    <tr><td>Không cần trạng thái</td><td>Cần biến “đang trong cụm”</td></tr>
+  </table>
+  </div>
+  <p>Chỉ khác một chữ trong đề mà đổi cả cách làm. Luôn đọc kỹ: đề muốn <strong>từng chữ số</strong> hay <strong>cả số</strong>.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">Danh sách kiểm trước khi nộp</div>
+  <ol>
+    <li><strong><code class="inl">cin &gt;&gt; s</code> chỉ đọc một từ.</strong> Tên “Nguyen Van An” bị mất phần sau dấu cách. Cần cả dòng thì dùng <code class="inl">getline</code>.</li>
+    <li><strong>Trộn <code class="inl">cin &gt;&gt; n</code> rồi <code class="inl">getline</code> thì phải <code class="inl">cin.ignore()</code></strong>, nếu không <code class="inl">getline</code> đọc phải dòng rỗng.</li>
+    <li><strong><code class="inl">char</code> có thể mang mã âm</strong> với ký tự ngoài bảng ASCII chuẩn. Khi dùng làm chỉ số mảng đếm phải ép <code class="inl">(unsigned char)c</code>, kẻo tràn ra ngoài mảng.</li>
+    <li><strong><code class="inl">long</code> chỉ 4 byte trên Themis</strong> — tổng lớn phải khai <code class="inl">long long</code>, và đổi xâu sang số lớn phải dùng <code class="inl">stoll</code> chứ không phải <code class="inl">stol</code>.</li>
+    <li><strong>Chỉ số đếm từ 0</strong>: ký tự cuối là <code class="inl">s[s.size()-1]</code>, không phải <code class="inl">s[s.size()]</code>.</li>
+    <li><strong>Cụm số cuối xâu</strong> dễ bị quên chốt — luôn xử lý thêm một lần sau vòng lặp.</li>
+  </ol>
+</div>
+
+<!-- ============================ 7 ============================ -->
+<h2 id="s7"><span class="num">7</span>Bài tập theo lộ trình</h2>
+
+<p>Làm đúng thứ tự dưới đây; mỗi bài thêm vào đúng một điều mới. Mã bài (dạng <code class="inl">viet_lvl…</code>) là mã trên judge của lớp.</p>
+
+<div class="box ex">
+  <div class="t">Bước 1 — Đếm ký tự chữ số <code class="inl">viet_lvl1_155</code> (mức L1)</div>
+  <p>Đọc một dòng ký tự, đếm xem có bao nhiêu ký tự là chữ số. Ví dụ dòng <code class="inl">Today is 2021-03-27</code> có 8 chữ số.</p>
+  <p>Chỉ cần một vòng <code class="inl">for</code> và <code class="inl">isdigit</code> — làm bài này để quen nhịp “duyệt qua từng ký tự”.</p>
+</div>
+
+<div class="box ex">
+  <div class="t">Bước 2 — Mã sản phẩm <code class="inl">viet_lvl2_1386</code> (mức L2, bài đích)</div>
+  <p>Mỗi mã cũ gồm chữ hoa, chữ thường và các số nguyên (có thể âm). Mã mới: xoá chữ thường, giữ chữ hoa theo thứ tự, rồi ghi <strong>tổng các số nguyên</strong> vào cuối. Ví dụ <code class="inl">cG23mH-9s</code> → <code class="inl">GH14</code> vì <span class="mathv">23 + (−9) = 14</span>.</p>
+  <p>Đây là bài toán mở đầu “mặc thêm áo”: cần <strong>phân loại ký tự</strong> (giữ chữ hoa), <strong>quét cụm số</strong> có cả dấu âm, và <code class="inl">long long</code> cho tổng. Cụm <code class="inl">23</code> là số <em>hai mươi ba</em>, đúng cái bẫy ở Mục 6. Các subtask dễ chỉ có số một chữ số — làm trước để lấy đà.</p>
+</div>
+
+<p><strong>Bước 3 — tự luyện.</strong> Ngoài các bài dưới đây, trên judge còn cả nhóm tag <em>“Xâu ký tự (nhập môn)”</em> (hơn 40 bài mức L1) để luyện thêm.</p>
+
+<div class="tablewrap">
+<table>
+  <tr><th>Bài</th><th>Mã</th><th>Thêm điều gì mới</th></tr>
+  <tr><td>Kiểm tra palindrome</td><td><code class="inl">viet_lvl1_186</code></td><td>Dạng <em>kiểm tra theo dạng</em>: so <code class="inl">s[i]</code> với <code class="inl">s[n-1-i]</code> bằng hai con trỏ. In <code class="inl">yes</code>/<code class="inl">no</code>.</td></tr>
+  <tr><td>Độ dài các từ</td><td><code class="inl">viet_lvl1_285</code></td><td>Dạng <em>tách từ</em>: quét cụm với dấu cách làm ranh giới; cẩn thận nhiều dấu cách liền nhau.</td></tr>
+  <tr><td>Dãy con thưa</td><td><code class="inl">viet_lvl2_1373</code></td><td>Xâu gặp <em>tư duy</em>: giá trị mỗi chữ là <code class="inl">s[i] - 'a' + 1</code>; phần chọn dãy con là một bài quy hoạch động.</td></tr>
+</table>
+</div>
+
+<p>Bài <em>Độ dài các từ</em> đáng làm ngay sau khuôn quét: nó cho thấy “tách từ” và “tách số” đúng là một cỗ máy. Bài <em>Dãy con thưa</em> thì mở cửa sang dạng khó hơn — xâu chỉ là lớp vỏ, lõi là một bài quy hoạch động.</p>
+
+</div>
+</div>
+
+<script>
+(function(){
+  /* ---- nút đổi nền sáng / tối ---- */
+  /* Đọc --is-dark qua getComputedStyle, KHÔNG hỏi matchMedia: matchMedia có thể
+     lệch với CSS đang áp dụng ở lần tải đầu. */
+  var root = document.documentElement, btn = document.getElementById('tg');
+  function isDark(){
+    return getComputedStyle(root).getPropertyValue('--is-dark').trim() === '1';
+  }
+  btn.addEventListener('click', function(){
+    root.setAttribute('data-theme', isDark() ? 'light' : 'dark');
+  });
+
+  /* ---- tô màu cú pháp C++ (đơn giản, một lượt quét) ---- */
+  var KW = 'int|bool|void|char|long|double|float|unsigned|const|static|struct|class|return|for|while|do|if|else|break|continue|using|namespace|true|false|sizeof|new|delete|inline|auto';
+  var LIB = 'vector|pair|stack|queue|string|map|set|cin|cout|endl|make_pair|push_back|pop_back|reverse|sort|size|empty|top|front|push|pop|begin|end|first|second|swap|max|min|clear|main';
+  var RE = new RegExp(
+      '(\\/\\/[^\\n]*)'                       + '|' +   /* chú thích  */
+      '(&quot;(?:[^&]|&(?!quot;))*&quot;)'     + '|' +   /* xâu ""     */
+      '(&#39;(?:[^&]|&(?!#39;))*&#39;)'        + '|' +   /* ký tự ''   */
+      '("(?:[^"\\\\\\n]|\\\\.)*")'             + '|' +   /* xâu ""     */
+      "('(?:[^'\\\\\\n]|\\\\.)*')"             + '|' +   /* ký tự ''   */
+      '(#[a-z]+)'                              + '|' +   /* tiền xử lý */
+      '\\b(' + KW  + ')\\b'                    + '|' +
+      '\\b(' + LIB + ')\\b'                    + '|' +
+      '\\b(\\d+)\\b', 'g');
+  var CLS = ['c','s','s','s','s','pp','k','f','n'];
+
+  document.querySelectorAll('pre code').forEach(function(el){
+    el.innerHTML = el.innerHTML.replace(RE, function(){
+      for (var i = 1; i <= 9; i++)
+        if (arguments[i] !== undefined)
+          return '<span class="' + CLS[i-1] + '">' + arguments[i] + '</span>';
+      return arguments[0];
+    });
+  });
+
+  /* ---- nút sao chép mã nguồn ---- */
+  document.querySelectorAll('.codewrap').forEach(function(w){
+    var pre = w.querySelector('pre');
+    if(!pre) return;
+    var b = document.createElement('button');
+    b.className = 'cp';
+    b.textContent = 'Sao chép';
+    b.addEventListener('click', function(){
+      var txt = pre.innerText;
+      var done = function(){ b.textContent = 'Đã chép'; setTimeout(function(){ b.textContent = 'Sao chép'; }, 1400); };
+      if (navigator.clipboard && navigator.clipboard.writeText)
+        navigator.clipboard.writeText(txt).then(done, done);
+      else {
+        var ta = document.createElement('textarea');
+        ta.value = txt; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch(e){}
+        document.body.removeChild(ta); done();
+      }
+    });
+    w.appendChild(b);
+  });
+
+  /* ---- thanh bên: làm nổi mục đang đọc ---- */
+  /* Mốc: mục cuối cùng có mép trên đã trôi qua vạch 130px; chạm đáy trang thì
+     luôn sáng mục cuối. Cập nhật bọc trong requestAnimationFrame. */
+  var secs = Array.prototype.slice.call(document.querySelectorAll('h2[id]'));
+  var links = {};
+  Array.prototype.forEach.call(document.querySelectorAll('aside.side a'), function(a){
+    links[a.getAttribute('href').slice(1)] = a;
+  });
+  var curSec = null;
+  function highlight(){
+    if (!secs.length) return;
+    var id = secs[0].id;
+    for (var k = 0; k < secs.length; k++)
+      if (secs[k].getBoundingClientRect().top <= 130)
+        id = secs[k].id;
+    if (window.innerHeight + window.pageYOffset >= document.documentElement.scrollHeight - 2)
+      id = secs[secs.length - 1].id;
+    if (id === curSec) return;
+    if (curSec && links[curSec]) links[curSec].className = '';
+    if (links[id]) links[id].className = 'on';
+    curSec = id;
+  }
+  var pending = false;
+  function onScroll(){
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function(){ highlight(); pending = false; });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll, {passive:true});
+  highlight();
+})();
+</script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>
