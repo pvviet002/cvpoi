@@ -424,7 +424,7 @@ footer{margin-top:56px; padding-top:18px; border-top:1px solid var(--border); co
 
 <p>Thuật toán cần một cấu trúc lấy ra được <strong>phần tử nhỏ nhất</strong> và <strong>thêm phần tử mới</strong> — đúng việc của hàng đợi ưu tiên. Lưu ý <code class="inl">priority_queue</code> của C++ mặc định lấy phần tử <em>lớn nhất</em>, nên phải khai đủ ba tham số kèm <code class="inl">greater</code>.</p>
 
-<pre><code>#include &lt;bits/stdc++.h&gt;
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
 using namespace std;
 
 int n, i;
@@ -455,7 +455,7 @@ int main() {
 
 	cout &lt;&lt; total &lt;&lt; '\n';
 	return 0;
-}</code></pre>
+}</code></pre></div>
 
 <div class="box eg">
   <div class="t">Chạy tay lại ví dụ mở đầu: <span class="mathv">w = 10, 1, 1, 10</span></div>
@@ -538,7 +538,7 @@ int main() {
 
 <p>Hai biến thể trên gộp lại thành khuôn thứ hai:</p>
 
-<pre><code>#include &lt;bits/stdc++.h&gt;
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
 using namespace std;
 
 int n, k, i, j, pad, h;
@@ -577,7 +577,7 @@ int main() {
 
 	cout &lt;&lt; total &lt;&lt; '\n' &lt;&lt; pq.top().second &lt;&lt; '\n';
 	return 0;
-}</code></pre>
+}</code></pre></div>
 
 <p><strong>Biến thể 3 — <span class="mathv">n</span> quá lớn cho heap.</strong> Khi <span class="mathv">n</span> tới 10<sup>7</sup>, riêng <span class="mathv">n log n</span> thao tác trên heap đã quá chậm. Nhận xét cứu bài: các tổng sinh ra khi gộp là một dãy <strong>không giảm</strong>. Vậy sắp xếp trọng số ban đầu bằng đếm phân phối rồi đổ vào hàng đợi thứ nhất; mọi tổng mới đẩy vào hàng đợi thứ hai. Phần tử nhỏ nhất luôn nằm ở đầu một trong hai hàng đợi, nên mỗi bước chỉ cần so hai giá trị — tổng <span class="mathv">O(n)</span> sau khi sắp xếp.</p>
 
