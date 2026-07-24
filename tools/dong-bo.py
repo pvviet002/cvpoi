@@ -32,6 +32,9 @@ TRANG = {
     mota='Tuyển tập chuyên đề lập trình thi đấu: lý thuyết, mô phỏng từng bước và bài luyện có lời giải.'),
 
  # ---------- Chuyên đề ----------
+ 'io/index.html': dict(
+    nhom='Cơ bản', nhan='Nhập xuất dữ liệu', tieude='Nhập xuất dữ liệu trong C++',
+    mota='Luật in số thực của cout, fixed và setprecision, chia nguyên và lấy dư, ký tự thoát.'),
  'array-1d/index.html': dict(
     nhom='Cơ bản', nhan='Mảng 1 chiều', tieude='Mảng 1 chiều',
     mota='Duyệt mảng, tìm kiếm tuyến tính, kỹ thuật lính canh và hai con trỏ.'),
@@ -272,6 +275,7 @@ CO_THANH_BEN = {
     'euler-circuit/index.html',
     'huffman/index.html',
     'in-exclusive/index.html',
+    'io/index.html',
     'prefix-sum/1d/index.html',
     'prefix-sum/1d/pre-hash/index.html',
     'prefix-sum/1d/prefixsum_optimize/bai1-sol.html',

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nhập xuất dữ liệu trong C++ | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<style>
+  /* Chỉ CSS của phòng mô phỏng "máy in số thực".
+     Mọi màu lấy từ biến của chuan.css nên tự đổi theo nền sáng/tối. */
+  .may{background:var(--card); border:1px solid var(--border); border-radius:10px;
+       padding:16px 18px; margin:20px 0}
+  .may-hang{display:flex; flex-wrap:wrap; gap:14px 22px; align-items:center; margin-bottom:12px}
+  .may-o{display:flex; align-items:center; gap:8px; font-size:.92rem}
+  .may-o label{color:var(--muted)}
+  .may input[type=text]{width:150px; padding:5px 9px; border-radius:6px;
+       border:1px solid var(--border); background:var(--bg); color:var(--fg);
+       font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.9rem}
+  .may input[type=range]{width:170px; accent-color:var(--blue)}
+  .may-so{display:inline-block; min-width:1.6em; text-align:center; font-weight:700; color:var(--blue)}
+  .may-ket{margin-top:6px}
+  .may-nhan{font-size:.8rem; color:var(--muted); margin-bottom:4px}
+  .may-ma, .may-ra{font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;
+       background:var(--code-bg); color:var(--code-fg); border:1px solid var(--border);
+       border-radius:8px; padding:10px 13px; overflow-x:auto; white-space:pre}
+  .may-ra{margin-top:10px; border-left:4px solid var(--green)}
+  .may-canh{margin-top:10px; font-size:.88rem; color:var(--amber)}
+  .may-nut{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+  .may-nut button{background:var(--bg); color:var(--fg); border:1px solid var(--border);
+       border-radius:7px; padding:5px 11px; font-size:.84rem; cursor:pointer; font-family:inherit}
+  .may-nut button:hover{border-color:var(--blue); color:var(--blue)}
+
+/*cv-fix-nen-sang*/
+/* Ép mọi màu gõ cứng của bản nền tối theo bảng màu của chuẩn (tự đổi theo
+   nền sáng/tối). Đặt cuối <style> nên thắng các quy tắc trước cùng độ đặc hiệu. */
+
+/* 0) Màu chú thích mã mặc định của chuẩn (#8b949e) quá nhạt trên nền sáng
+   (tương phản 2,89 < 4,5). Làm đậm hơn ở nền sáng, giữ nguyên ở nền tối.
+   Khối <style> này đứng SAU chuan.css nên đè được cả bốn trạng thái nền. */
+:root{--c-cmt:#5f6672}
+@media (prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+:root[data-theme="light"]{--c-cmt:#5f6672}
+:root[data-theme="dark"]{--c-cmt:#8b949e}
+
+/* 1) Khối mã tự tạo của trang: nền và chữ theo chuẩn, rồi token màu cú pháp
+      dùng bảng token của chuẩn (var --c-*) vốn tự đổi nền. */
+/* KHÔNG đụng .codeline: nó có biến thể .codeline.hot tô sáng dòng đang chạy,
+   ép nền sẽ xoá mất hiệu ứng đó. Chỉ ép khung chứa và màu chữ mặc định. */
+.code-block, .code-container, .code, .code-runner, pre.code-block{
+  background:var(--code-bg) !important;
+}
+.code-block, .code-container, .code, .code-runner, pre.code-block, .codeline{
+  color:var(--code-fg) !important;
+}
+.c-kw,.tk-keyword,.kw,.token-kw{color:var(--c-kw) !important}
+.c-str,.tk-string,.st,.token-str{color:var(--c-str) !important}
+.c-cm,.tk-comment,.cm,.token-com{color:var(--c-cmt) !important}
+.c-num,.tk-number,.nm,.token-num{color:var(--c-num) !important}
+.c-fn,.tk-func,.fn,.token-func{color:var(--c-fn) !important}
+.c-type,.c-ty,.tk-type,.token-type{color:var(--c-kw) !important}
+.c-op,.op,.cmp-op,.tk-ident,.tk-macro,.pp,.tk-punc,.tk-comment{color:var(--code-fg) !important}
+.tk-comment,.c-cm{color:var(--c-cmt) !important}
+
+/* 2) Hộp/khung nội dung có nền tối gõ cứng -> nền theo chuẩn (tự đổi). */
+.quiz-box,.explain,.q-card,.lab-container,.lab-visual,.grid-board,.grid-vis,
+.sim-controls,.score-box,.var-item,.var-box,.var-badge,.info-panel,.set-box,
+.map-entry,.hero-insight,.array-cell,.bucket-tube,.reg-item,.quiz,.quiz-opt,
+.quiz-exp,.quiz-expl,.pitfall-col,.pitfall-card,.lab-bar,.formula-box,
+.mini-interactive,.visual-area,.state-panel,.info-box,.io-table,.styled-table,
+.say,.lab-msg,.word-box,.block-label,.col,.pit-col,.cmp-lab,.formula-b,
+.bucket-text,.grid-vis,.hero-insight{
+  background:var(--card) !important;
+}
+
+/* 3) Chữ nội dung gõ cứng màu sáng -> màu chữ chuẩn. */
+.qt,.q-text,.math-display,.reg-val,.bucket-text,.quiz-q,.lab-msg,.explain,
+.explain *,.quiz-box p,.quiz-box h4,.q-card *,
+.say,.say *,.formula-box,.formula-box *,.fv,.word-box,.word-box *,.col,.pit-col,
+.lab-msg *,.quiz p,.quiz h4{
+  color:var(--fg) !important;
+}
+
+/* 4) Ô bảng: tiêu đề dùng màu nhấn, ô thường dùng màu chữ chuẩn. */
+.box th, .tablewrap th, table th{color:var(--blue) !important}
+.box td, .tablewrap td, table td{color:var(--fg)}
+/*/cv-fix-nen-sang*/
+</style>
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Luật in số thực của cout, fixed và setprecision, chia nguyên và lấy dư, ký tự thoát.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Nhập xuất dữ liệu trong C++ | Lý thuyết CP">
+<meta property="og:description" content="Luật in số thực của cout, fixed và setprecision, chia nguyên và lấy dư, ký tự thoát.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Nhập xuất dữ liệu</div>
+  <a href="#s1">1. Hai cách in, hai kết quả</a>
+  <a href="#s2">2. Luật của cout với số thực</a>
+  <a href="#s3">3. Dấu / giữa hai số nguyên</a>
+  <a href="#s4">4. Khuôn mẫu nhập – tính – xuất</a>
+  <a href="#s5">5. Bộ đồ nghề xuất</a>
+  <a href="#s6">6. Nhận dạng và bốn cái bẫy</a>
+  <a href="#s7">7. Lộ trình 33 bài</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb">Cơ bản<span class="cv-sep">/</span><span class="cv-here">Nhập xuất dữ liệu</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Nhập xuất dữ liệu trong C++</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p>Bài dễ nhất vẫn trượt được, và phần lớn là trượt ở khâu in kết quả chứ không phải
+ở thuật toán. Chuyên đề này đi tới cùng một câu hỏi: <b>máy in ra dòng chữ nào, khi
+ta viết <code class="inl">cout</code></b> — và vì sao cùng một giá trị lại cho hai
+dòng khác nhau.</p>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Hai cách in, hai kết quả</a></li>
+    <li><a href="#s2">Luật của cout với số thực</a></li>
+    <li><a href="#s3">Dấu / giữa hai số nguyên không phải phép chia</a></li>
+    <li><a href="#s4">Khuôn mẫu nhập – tính – xuất</a></li>
+    <li><a href="#s5">Bộ đồ nghề xuất</a></li>
+    <li><a href="#s6">Nhận dạng và bốn cái bẫy</a></li>
+    <li><a href="#s7">Lộ trình 33 bài</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Hai cách in, hai kết quả</h2>
+
+<p>Bài <b>Diện tích tam giác</b> cho ba cạnh, yêu cầu in diện tích. Với bộ dữ liệu mẫu
+<code class="inl">3 4 5</code>, công thức Heron cho kết quả tròn trịa:</p>
+
+<p>Nửa chu vi <span class="mathv">p</span> = (3 + 4 + 5) / 2 = 6, nên
+<span class="mathv">S</span> = √(6 · 3 · 2 · 1) = √36 = <b>6</b>.</p>
+
+<p>Hai bạn cùng tính ra số 6 ấy. Chỉ khác nhau ở dòng lệnh in:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Bạn viết</th><th>Máy in ra</th><th class="c">Judge</th></tr></thead>
+<tbody>
+<tr><td><code class="inl">cout &lt;&lt; S &lt;&lt; "\n";</code></td>
+    <td><code class="inl">6</code></td><td class="c">Sai</td></tr>
+<tr><td><code class="inl">cout &lt;&lt; fixed &lt;&lt; setprecision(15) &lt;&lt; S &lt;&lt; "\n";</code></td>
+    <td><code class="inl">6.000000000000000</code></td><td class="c">Đúng</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box warn">
+<div class="t">Điều cần thấy</div>
+<p>Biến <code class="inl">S</code> trong hai chương trình chứa <b>đúng cùng một giá trị</b>.
+Không phép tính nào sai. Cái khác nhau nằm hoàn toàn ở chỗ <code class="inl">cout</code>
+quyết định viết giá trị đó ra thành dòng chữ nào.</p>
+<p>Vậy <code class="inl">cout</code> quyết định theo luật gì? Trả lời được câu này là
+gỡ được cả nhóm bài về sau.</p>
+</div>
+
+<h2 id="s2"><span class="num">2.</span>Luật của cout với số thực</h2>
+
+<p>Mặc định, <code class="inl">cout</code> in số thực với <b>6 chữ số có nghĩa</b> —
+đếm từ chữ số khác 0 đầu tiên, <em>không phải</em> 6 chữ số sau dấu chấm. Đây là chỗ
+hiểu nhầm số một.</p>
+
+<p>Bảng dưới lấy từ chương trình chạy thật, không phải suy đoán:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Giá trị trong biến</th><th>cout mặc định in ra</th><th>Vì sao</th></tr></thead>
+<tbody>
+<tr><td>6.0</td><td><code class="inl">6</code></td><td>phần thập phân toàn số 0, bị bỏ hết</td></tr>
+<tr><td>6.5</td><td><code class="inl">6.5</code></td><td>2 chữ số có nghĩa, chưa chạm ngưỡng 6</td></tr>
+<tr><td>2.14</td><td><code class="inl">2.14</code></td><td>3 chữ số có nghĩa</td></tr>
+<tr><td>1.0 / 3</td><td><code class="inl">0.333333</code></td><td>đủ 6 chữ số có nghĩa thì dừng</td></tr>
+<tr><td>123456.789</td><td><code class="inl">123457</code></td><td>6 chữ số đã dùng hết cho phần nguyên, phần lẻ bị làm tròn mất</td></tr>
+<tr><td>1234567.89</td><td><code class="inl">1.23457e+06</code></td><td>quá 6 chữ số ở phần nguyên, chuyển sang dạng khoa học</td></tr>
+<tr><td>0.000123456789</td><td><code class="inl">0.000123457</code></td><td>số 0 dẫn đầu không tính là chữ số có nghĩa</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Hai dòng cuối là chỗ nguy hiểm nhất: kết quả vẫn đúng về mặt toán học nhưng dòng chữ
+in ra đã lệch hẳn khỏi thứ đề yêu cầu.</p>
+
+<div class="box warn">
+<div class="t">Một khác biệt giữa máy thi và judge</div>
+<p>Dạng khoa học in ra <b>không giống nhau ở hai nơi</b>. Judge chạy Linux nên in
+<code class="inl">1.23457e+06</code>, còn trình dịch đi kèm Themis trên Windows in
+<code class="inl">1.23457e+006</code> — ba chữ số ở phần mũ. Cùng một chương trình,
+hai dòng chữ khác nhau.</p>
+<p>Đây là thêm một lý do để không bao giờ thả cho <code class="inl">cout</code> tự
+chọn định dạng khi bài đòi số thực: cứ bật <code class="inl">fixed</code> thì cả hai
+nơi in giống hệt nhau.</p>
+</div>
+
+<div class="box tech">
+<div class="t">fixed đổi nghĩa của setprecision</div>
+<p>Khi bật <code class="inl">fixed</code>, con số trong <code class="inl">setprecision(k)</code>
+thôi mang nghĩa "chữ số có nghĩa" và chuyển thành <b>số chữ số sau dấu chấm</b>.
+Với <span class="mathv">x</span> = 1.0/3:</p>
+<div class="tablewrap">
+<table>
+<thead><tr><th class="c">k</th><th class="c">0</th><th class="c">1</th><th class="c">2</th><th class="c">3</th><th class="c">4</th><th class="c">5</th><th class="c">6</th></tr></thead>
+<tbody><tr><td class="c">in ra</td><td class="c">0</td><td class="c">0.3</td><td class="c">0.33</td><td class="c">0.333</td><td class="c">0.3333</td><td class="c">0.33333</td><td class="c">0.333333</td></tr></tbody>
+</table>
+</div>
+<p>Đặt một lần ở đầu chương trình là có hiệu lực cho mọi lần in về sau.</p>
+</div>
+
+<h3>Thử tay: máy in số thực</h3>
+
+<p>Đổi giá trị, kéo <code class="inl">setprecision</code>, bật tắt
+<code class="inl">fixed</code> — xem ngay dòng chữ máy in ra.</p>
+
+<div class="may">
+  <div class="may-hang">
+    <div class="may-o">
+      <label for="mGt">Giá trị</label>
+      <input type="text" id="mGt" value="0.3333333333333333">
+    </div>
+    <div class="may-o">
+      <input type="checkbox" id="mFixed">
+      <label for="mFixed"><code class="inl">fixed</code></label>
+    </div>
+    <div class="may-o">
+      <label for="mPrec">setprecision</label>
+      <input type="range" id="mPrec" min="0" max="15" value="6">
+      <span class="may-so" id="mPrecSo">6</span>
+    </div>
+  </div>
+
+  <div class="may-ket">
+    <div class="may-nhan">Dòng lệnh</div>
+    <div class="may-ma" id="mMa">cout &lt;&lt; x;</div>
+    <div class="may-nhan" style="margin-top:10px">Máy in ra</div>
+    <div class="may-ra" id="mRa">0.333333</div>
+    <div class="may-canh" id="mCanh"></div>
+  </div>
+
+  <div class="may-nut">
+    <button data-gt="0.3333333333333333" data-fixed="0" data-prec="6">1/3 · mặc định</button>
+    <button data-gt="6" data-fixed="1" data-prec="15">Diện tích 6 · như bài AREA</button>
+    <button data-gt="2.14" data-fixed="1" data-prec="2">2.14 · như bài WPRESSURE</button>
+    <button data-gt="1234567.89" data-fixed="0" data-prec="6">1234567.89 · bẫy khoa học</button>
+  </div>
+</div>
+
+<div class="box ex">
+<div class="t">Rút ra</div>
+<p>Đề nói <b>"in với <span class="mathv">k</span> chữ số thập phân"</b> thì luôn viết
+<code class="inl">cout &lt;&lt; fixed &lt;&lt; setprecision(k)</code>. Chỉ
+<code class="inl">setprecision</code> một mình là chưa đủ, và bỏ trắng thì gần như
+chắc chắn sai định dạng.</p>
+</div>
+
+<h2 id="s3"><span class="num">3.</span>Dấu / giữa hai số nguyên không phải phép chia</h2>
+
+<p>Vẫn một sợi chỉ đỏ như mục 2: <b>kiểu của toán hạng quyết định kết quả</b>, chứ không
+phải giá trị toán học.</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Biểu thức</th><th class="c">Kết quả</th><th>Vì sao</th></tr></thead>
+<tbody>
+<tr><td><code class="inl">5 / 2</code></td><td class="c">2</td><td>hai số nguyên ⇒ chia nguyên, phần lẻ bị cắt</td></tr>
+<tr><td><code class="inl">5 % 2</code></td><td class="c">1</td><td>phần dư của phép chia nguyên</td></tr>
+<tr><td><code class="inl">5 / 2.0</code></td><td class="c">2.5</td><td>một bên là số thực ⇒ chia thực</td></tr>
+<tr><td><code class="inl">130 / 60</code></td><td class="c">2</td><td>130 phút được 2 giờ trọn</td></tr>
+<tr><td><code class="inl">130 % 60</code></td><td class="c">10</td><td>còn dư 10 phút</td></tr>
+<tr><td><code class="inl">-7 / 2</code></td><td class="c">-3</td><td>C++ cắt về phía số 0, không làm tròn xuống</td></tr>
+<tr><td><code class="inl">-7 % 2</code></td><td class="c">-1</td><td>phần dư mang dấu của số bị chia</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Hai dòng giữa bảng chính là trọn vẹn lời giải bài <b>Đổi phút ra giờ:phút</b>. Không
+cần vòng lặp, không cần trừ dần — một phép chia và một phép lấy dư là xong.</p>
+
+<div class="box tech">
+<div class="t">Bóc từng chữ số bằng % và /</div>
+<p>Cặp <code class="inl">% 10</code> và <code class="inl">/ 10</code> lấy ra chữ số cuối
+rồi bỏ nó đi. Lặp lại là duyệt hết các chữ số từ phải sang trái — đó là bài
+<b>Đảo chữ số</b>:</p>
+<div class="codewrap noname"><pre><code>int n, kq = 0;
+cin &gt;&gt; n;
+while (n &gt; 0) {
+    kq = kq * 10 + n % 10;   // dán chữ số cuối vào kết quả
+    n /= 10;                 // bỏ chữ số vừa lấy
+}
+cout &lt;&lt; kq &lt;&lt; "\n";</code></pre></div>
+<p>Với <code class="inl">n = 12345</code>, chương trình in ra <code class="inl">54321</code>.</p>
+</div>
+
+<h2 id="s4"><span class="num">4.</span>Khuôn mẫu nhập – tính – xuất</h2>
+
+<p>Mọi bài trong nhóm này đều rơi vào cùng một khung ba đoạn. Đây là bài
+<b>Diện tích tam giác</b> ở mục 1, viết đầy đủ:</p>
+
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+double a, b, c, p, S;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cin &gt;&gt; a &gt;&gt; b &gt;&gt; c;              // 1. nhập
+    p = (a + b + c) / 2;              // 2. tính
+    S = sqrt(p * (p - a) * (p - b) * (p - c));
+    cout &lt;&lt; fixed &lt;&lt; setprecision(15) &lt;&lt; S &lt;&lt; "\n";   // 3. xuất
+    return 0;
+}</code></pre></div>
+
+<p>Ba điểm đáng để ý, đều là quy ước dùng chung cho mọi bài về sau:</p>
+
+<ul>
+<li>Biến khai báo <b>ngoài</b> <code class="inl">main</code> — tự khởi tạo bằng 0 và
+không tốn chỗ trên ngăn xếp.</li>
+<li>Hai dòng <code class="inl">ios_base::sync_with_stdio(false)</code> và
+<code class="inl">cin.tie(NULL)</code> đặt ngay đầu <code class="inl">main</code>.
+Mục 5 đo cụ thể chúng đáng giá bao nhiêu.</li>
+<li>Khai báo <code class="inl">double</code> ngay cả cho cạnh tam giác, để phép chia
+<code class="inl">/ 2</code> không rơi vào bẫy chia nguyên ở mục 3.</li>
+</ul>
+
+<div class="box ex">
+<div class="t">Chạy tay với dữ liệu 3 4 5</div>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Bước</th><th>Biểu thức</th><th class="c">Giá trị</th></tr></thead>
+<tbody>
+<tr><td>nhập</td><td>a, b, c</td><td class="c">3, 4, 5</td></tr>
+<tr><td>tính</td><td>p = (3 + 4 + 5) / 2</td><td class="c">6</td></tr>
+<tr><td>tính</td><td>p(p−a)(p−b)(p−c) = 6 · 3 · 2 · 1</td><td class="c">36</td></tr>
+<tr><td>tính</td><td>S = √36</td><td class="c">6</td></tr>
+<tr><td>xuất</td><td>fixed, setprecision(15)</td><td class="c">6.000000000000000</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<h2 id="s5"><span class="num">5.</span>Bộ đồ nghề xuất</h2>
+
+<h3>Xuống dòng: "\n" hay endl</h3>
+
+<p>Cả hai đều xuống dòng. Khác nhau ở chỗ <code class="inl">endl</code> còn <b>xả đệm</b>
+sau mỗi lần gọi — mỗi lần xả là một lần chờ hệ điều hành. Đo trên máy soạn chuyên đề
+này, chương trình đọc rồi in lại 200 000 số:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Cách viết</th><th class="c">Thời gian</th><th class="c">So với dòng đầu</th></tr></thead>
+<tbody>
+<tr><td>có hai dòng tối ưu, in bằng <code class="inl">"\n"</code></td><td class="c">0,5 s</td><td class="c">—</td></tr>
+<tr><td>có hai dòng tối ưu, in bằng <code class="inl">endl</code></td><td class="c">0,95 s</td><td class="c">chậm gần gấp đôi</td></tr>
+<tr><td>không có hai dòng tối ưu</td><td class="c">2,1 s</td><td class="c">chậm hơn 4 lần</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Nghĩa là: luôn viết <code class="inl">"\n"</code>, và đừng bao giờ quên hai dòng tối ưu
+ở đầu <code class="inl">main</code>. Với bài giới hạn 1 giây, riêng khoản này đủ để lời
+giải đúng thuật toán vẫn trượt.</p>
+
+<h3>Ký tự thoát</h3>
+
+<p>Trong xâu, dấu <code class="inl">"</code> và <code class="inl">\</code> không thể viết
+thẳng vì chúng có nghĩa riêng với trình dịch. Phải viết kèm dấu gạch chéo ngược:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Muốn in ra</th><th>Viết trong mã</th></tr></thead>
+<tbody>
+<tr><td>dấu nháy kép <code class="inl">"</code></td><td><code class="inl">\"</code></td></tr>
+<tr><td>gạch chéo ngược <code class="inl">\</code></td><td><code class="inl">\\</code></td></tr>
+<tr><td>xuống dòng</td><td><code class="inl">\n</code></td></tr>
+<tr><td>dấu tab</td><td><code class="inl">\t</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="codewrap noname"><pre><code>cout &lt;&lt; "He said: \"It's C++ time!\"\n";
+cout &lt;&lt; "Path: C:\\Test\\main.cpp\n";</code></pre></div>
+
+<p>Hai dòng trên in ra đúng hai dòng của bài <b>Dấu ngoặc kép và gạch chéo ngược</b>.
+Dấu nháy đơn <code class="inl">'</code> nằm trong xâu thì viết thẳng, không cần thoát.</p>
+
+<h3>Căn cột: setw và setfill</h3>
+
+<p><code class="inl">setw(k)</code> ép ô in ra rộng ít nhất <span class="mathv">k</span>
+ký tự, thiếu thì chèn thêm ký tự đệm do <code class="inl">setfill</code> quy định.
+Dùng để in giờ phút có số 0 dẫn đầu:</p>
+
+<div class="codewrap noname"><pre><code>cout &lt;&lt; setfill('0') &lt;&lt; setw(2) &lt;&lt; 7 &lt;&lt; ":" &lt;&lt; setw(2) &lt;&lt; 5 &lt;&lt; "\n";
+// in ra: 07:05</code></pre></div>
+
+<div class="box warn">
+<div class="t">Một điểm dễ nhầm</div>
+<p><code class="inl">setw</code> chỉ có tác dụng cho <b>đúng một lần in kế tiếp</b>, nên
+phải lặp lại trước mỗi ô. Ngược lại, <code class="inl">setfill</code>,
+<code class="inl">fixed</code> và <code class="inl">setprecision</code> đặt một lần là
+giữ nguyên đến hết chương trình.</p>
+</div>
+
+<h2 id="s6"><span class="num">6.</span>Nhận dạng và bốn cái bẫy</h2>
+
+<p>Đọc đề thấy chữ nào thì viết gì:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Đề viết</th><th>Mình viết</th></tr></thead>
+<tbody>
+<tr><td>"in với 2 chữ số thập phân"</td><td><code class="inl">cout &lt;&lt; fixed &lt;&lt; setprecision(2)</code></td></tr>
+<tr><td>"sai số không quá 10⁻⁶"</td><td><code class="inl">fixed &lt;&lt; setprecision(9)</code> cho chắc</td></tr>
+<tr><td>kết quả mẫu là <code class="inl">6.000000000000000</code></td><td>đếm số chữ số sau dấu chấm rồi đặt đúng bằng đó</td></tr>
+<tr><td>"in số nguyên"</td><td>để biến kiểu <code class="inl">long long</code>, không đụng tới <code class="inl">fixed</code></td></tr>
+<tr><td>"mỗi số cách nhau một dấu cách"</td><td><code class="inl">cout &lt;&lt; x &lt;&lt; " "</code>, dấu cách thừa ở cuối dòng thường vẫn được chấp nhận</td></tr>
+<tr><td>"giờ:phút dạng hai chữ số"</td><td><code class="inl">setfill('0') &lt;&lt; setw(2)</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box warn">
+<div class="t">Bốn cái bẫy khiến bài đúng vẫn trượt</div>
+<p><b>1. Quên fixed.</b> Kết quả đúng nhưng in ra <code class="inl">6</code> thay vì
+<code class="inl">6.000000000000000</code>. Judge so từng ký tự nên báo sai.</p>
+<p><b>2. Dùng endl trong vòng lặp lớn.</b> Chậm gần gấp đôi, xem bảng đo ở mục 5.</p>
+<p><b>3. Tràn kiểu int.</b> Cộng hai số hai tỉ:</p>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Kiểu biến</th><th>2000000000 + 2000000000 in ra</th></tr></thead>
+<tbody>
+<tr><td><code class="inl">int</code></td><td><code class="inl">-294967296</code> — số âm, hoàn toàn vô nghĩa</td></tr>
+<tr><td><code class="inl">long long</code></td><td><code class="inl">4000000000</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Thấy đề cho giới hạn vượt quá khoảng hai tỉ là dùng
+<code class="inl">long long</code>. Lưu ý kiểu <code class="inl">long</code> trên máy thi
+chỉ có 4 byte, hệt như <code class="inl">int</code>, nên phải viết đủ hai chữ
+<code class="inl">long long</code>.</p>
+<p><b>4. Thiếu dấu xuống dòng cuối cùng.</b> Kết thúc mỗi dòng kết quả bằng
+<code class="inl">"\n"</code> là xong, không phải nghĩ thêm.</p>
+</div>
+
+<h2 id="s7"><span class="num">7.</span>Lộ trình 33 bài</h2>
+
+<p>Nhóm bài <b>[NNLT] Nhập xuất dữ liệu</b> trên judge được xếp sẵn theo bốn chặng. Làm
+đúng thứ tự thì mỗi chặng chỉ thêm một điều mới.</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th class="c">Chặng</th><th>Bài</th><th>Thêm điều gì mới</th><th>Đọc mục nào</th></tr></thead>
+<tbody>
+<tr><td class="c">1</td><td>1 – 10: từ <i>In câu chào</i> đến <i>In hình ngôi nhà ASCII</i></td>
+    <td>Chỉ có <code class="inl">cout</code>, không nhập gì. Luyện in đúng từng ký tự, ký tự thoát, xuống dòng.</td><td>5</td></tr>
+<tr><td class="c">2</td><td>11 – 14: <i>Tổng và tích</i>, <i>Chu vi và diện tích</i>, <i>Đổi phút ra giờ:phút</i>, <i>Đổi Celsius sang Fahrenheit</i></td>
+    <td>Thêm <code class="inl">cin</code>. Gặp bẫy chia nguyên lần đầu.</td><td>3, 4</td></tr>
+<tr><td class="c">3</td><td>15 – 21: <i>AREA</i>, <i>RECT</i>, <i>FRACSUM</i>, <i>OFFTIME</i>, <i>AVER</i>, <i>BRICKLOAD</i>, <i>WPRESSURE</i></td>
+    <td>Số thực và định dạng. Đây là chặng rụng nhiều nhất.</td><td>1, 2</td></tr>
+<tr><td class="c">4</td><td>22 – 33: từ <i>Campuchia</i> đến <i>Đảo chữ số</i></td>
+    <td>Đề dài hơn, phải tự rút ra công thức trước khi viết. Kỹ thuật in không đổi.</td><td>6</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box def">
+<div class="t">Ba câu tự hỏi trước khi bấm nộp</div>
+<ul>
+<li>Kết quả là số thực hay số nguyên? Nếu là số thực, đề đòi mấy chữ số sau dấu chấm và
+mình đã đặt <code class="inl">fixed</code> chưa?</li>
+<li>Giới hạn của đề có vượt hai tỉ không? Nếu có, đã đổi sang
+<code class="inl">long long</code> chưa?</li>
+<li>Dòng kết quả cuối cùng đã có <code class="inl">"\n"</code> chưa?</li>
+</ul>
+</div>
+
+</div>
+</div>
+
+<script>
+(function () {
+  /* Máy in số thực — mô phỏng đúng cách cout dựng dòng chữ từ một giá trị.
+     Không fixed: setprecision là số chữ số CÓ NGHĨA, phần đuôi số 0 bị bỏ,
+     số quá lớn chuyển sang dạng khoa học. Có fixed: là số chữ số sau dấu chấm. */
+  var oGt = document.getElementById('mGt'),
+      oFixed = document.getElementById('mFixed'),
+      oPrec = document.getElementById('mPrec'),
+      oPrecSo = document.getElementById('mPrecSo'),
+      oMa = document.getElementById('mMa'),
+      oRa = document.getElementById('mRa'),
+      oCanh = document.getElementById('mCanh');
+
+  function dangKhoaHoc(s) {
+    /* JS viết e+6, C++ viết e+06 — chỉnh cho khớp với thứ máy in ra. */
+    return s.replace(/e([+-])(\d+)$/, function (_, dau, so) {
+      return 'e' + dau + (so.length < 2 ? '0' + so : so);
+    });
+  }
+
+  function coutIn(x, prec, fixedBat) {
+    if (fixedBat) return x.toFixed(prec);
+    if (prec === 0) prec = 1;                 /* C++ coi precision 0 như 1 */
+    var s = x.toPrecision(prec);
+    if (s.indexOf('e') >= 0) return dangKhoaHoc(s);
+    if (s.indexOf('.') >= 0) s = s.replace(/0+$/, '').replace(/\.$/, '');
+    return s;
+  }
+
+  function veLai() {
+    var x = parseFloat(oGt.value);
+    var prec = parseInt(oPrec.value, 10);
+    var fx = oFixed.checked;
+    oPrecSo.textContent = prec;
+
+    var ma = 'cout << ';
+    if (fx) ma += 'fixed << ';
+    ma += 'setprecision(' + prec + ') << x;';
+    if (!fx && prec === 6) ma = 'cout << x;   // mặc định: 6 chữ số có nghĩa';
+    oMa.textContent = ma;
+
+    if (isNaN(x)) {
+      oRa.textContent = '(giá trị không hợp lệ)';
+      oCanh.textContent = '';
+      return;
+    }
+    var ra = coutIn(x, prec, fx);
+    oRa.textContent = ra;
+
+    var canh = '';
+    if (ra.indexOf('e') >= 0)
+      canh = 'Đã chuyển sang dạng khoa học — gần như chắc chắn không phải thứ đề muốn.';
+    else if (!fx && ra.indexOf('.') < 0 && Math.floor(x) !== x)
+      canh = 'Phần thập phân đã biến mất khỏi dòng in, dù biến vẫn giữ nguyên giá trị.';
+    else if (!fx && x === Math.floor(x))
+      canh = 'Số nguyên tròn nên không có dấu chấm nào. Đề đòi chữ số thập phân thì phải bật fixed.';
+    oCanh.textContent = canh;
+  }
+
+  oGt.addEventListener('input', veLai);
+  oFixed.addEventListener('change', veLai);
+  oPrec.addEventListener('input', veLai);
+
+  Array.prototype.forEach.call(document.querySelectorAll('.may-nut button'), function (b) {
+    b.addEventListener('click', function () {
+      oGt.value = b.getAttribute('data-gt');
+      oFixed.checked = b.getAttribute('data-fixed') === '1';
+      oPrec.value = b.getAttribute('data-prec');
+      veLai();
+    });
+  });
+
+  veLai();
+})();
+</script>
+<script src="../assets/chuan.js"></script>
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>
