@@ -35,6 +35,9 @@ TRANG = {
  'io/index.html': dict(
     nhom='Cơ bản', nhan='Nhập xuất dữ liệu', tieude='Nhập xuất dữ liệu trong C++',
     mota='Luật in số thực của cout, fixed và setprecision, chia nguyên và lấy dư, ký tự thoát.'),
+ 'ifelse/index.html': dict(
+    nhom='Cơ bản', nhan='Rẽ nhánh', tieude='Rẽ nhánh trong C++',
+    mota='Dãy if/else là một phép chia tập: phủ kín, không chồng, đúng thứ tự. Kèm ba phòng mô phỏng và lộ trình 31 bài.'),
  'array-1d/index.html': dict(
     nhom='Cơ bản', nhan='Mảng 1 chiều', tieude='Mảng 1 chiều',
     mota='Duyệt mảng, tìm kiếm tuyến tính, kỹ thuật lính canh và hai con trỏ.'),
@@ -277,6 +280,7 @@ CO_THANH_BEN = {
     'dsu/index.html',
     'euler-circuit/index.html',
     'huffman/index.html',
+    'ifelse/index.html',
     'in-exclusive/index.html',
     'io/index.html',
     'number-theory/index.html',

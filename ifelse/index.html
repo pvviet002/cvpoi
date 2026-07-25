@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rẽ nhánh trong C++ | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<style>
+  /* CSS của ba phòng mô phỏng. Mọi màu lấy từ biến của chuan.css nên tự đổi
+     theo nền sáng/tối. */
+  .sim{background:var(--card); border:1px solid var(--border); border-radius:10px;
+       padding:16px 18px; margin:20px 0}
+  .sim-hang{display:flex; flex-wrap:wrap; gap:12px 22px; align-items:center; margin-bottom:12px}
+  .sim-o{display:flex; align-items:center; gap:8px; font-size:.92rem}
+  .sim-o label{color:var(--muted)}
+  .sim input[type=number]{width:88px; padding:5px 9px; border-radius:6px;
+       border:1px solid var(--border); background:var(--bg); color:var(--fg);
+       font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.9rem}
+  .sim input[type=range]{width:210px; accent-color:var(--blue)}
+  .sim-so{display:inline-block; min-width:2.4em; text-align:center; font-weight:700; color:var(--blue);
+       font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace}
+  .sim-nhan{font-size:.8rem; color:var(--muted); margin:10px 0 4px}
+  .sim-nut{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+  .sim-nut button{background:var(--bg); color:var(--fg); border:1px solid var(--border);
+       border-radius:7px; padding:5px 11px; font-size:.84rem; cursor:pointer; font-family:inherit}
+  .sim-nut button:hover{border-color:var(--blue); color:var(--blue)}
+
+  /* dãy dòng lệnh, tô dòng đang cháy */
+  .dong{font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.86rem;
+       background:var(--code-bg); color:var(--code-fg); border:1px solid var(--border);
+       border-radius:8px; overflow-x:auto}
+  .dong div{padding:4px 12px; white-space:pre; border-left:4px solid transparent}
+  .dong div.chay{background:var(--green-bg); border-left-color:var(--green); color:var(--green)}
+  .dong div.bo{opacity:.42}
+  .sim-ra{margin-top:10px; font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;
+       background:var(--code-bg); color:var(--code-fg); border:1px solid var(--border);
+       border-left:4px solid var(--green); border-radius:8px; padding:9px 13px; white-space:pre}
+  .sim-ra.trong{border-left-color:var(--red); color:var(--red)}
+  .sim-canh{margin-top:10px; font-size:.88rem; color:var(--amber); min-height:1.2em}
+
+  /* hai cột so thứ tự nhánh */
+  .haicot{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  @media (max-width:700px){.haicot{grid-template-columns:1fr}}
+  .cot-ten{font-size:.84rem; color:var(--muted); margin-bottom:5px}
+  .lech{margin-top:12px; padding:9px 13px; border-radius:8px; font-size:.9rem;
+       background:var(--red-bg); color:var(--red); border:1px solid var(--red)}
+  .khop{margin-top:12px; padding:9px 13px; border-radius:8px; font-size:.9rem;
+       background:var(--green-bg); color:var(--green); border:1px solid var(--green)}
+
+  /* bảng chân trị */
+  .ct{width:100%; border-collapse:collapse; margin-top:10px; font-size:.9rem}
+  .ct th,.ct td{border:1px solid var(--border); padding:6px 10px; text-align:center}
+  .ct th{background:var(--bg); color:var(--blue); font-weight:600}
+  .ct td.v{font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-weight:700}
+  .ct td.v1{color:var(--green)}
+  .ct td.v0{color:var(--muted)}
+  .ct td.ai{text-align:left}
+
+/*cv-fix-nen-sang*/
+/* Ép mọi màu gõ cứng của bản nền tối theo bảng màu của chuẩn (tự đổi theo
+   nền sáng/tối). Đặt cuối <style> nên thắng các quy tắc trước cùng độ đặc hiệu. */
+
+/* 0) Màu chú thích mã mặc định của chuẩn (#8b949e) quá nhạt trên nền sáng
+   (tương phản 2,89 < 4,5). Làm đậm hơn ở nền sáng, giữ nguyên ở nền tối. */
+:root{--c-cmt:#5f6672}
+@media (prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+:root[data-theme="light"]{--c-cmt:#5f6672}
+:root[data-theme="dark"]{--c-cmt:#8b949e}
+
+/* 1) Ô bảng: tiêu đề dùng màu nhấn, ô thường dùng màu chữ chuẩn. */
+.box th, .tablewrap th, table th{color:var(--blue) !important}
+.box td, .tablewrap td, table td{color:var(--fg)}
+.ct th{color:var(--blue) !important}
+.ct td.v1{color:var(--green) !important}
+.ct td.v0{color:var(--muted) !important}
+/*/cv-fix-nen-sang*/
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Dãy if/else là một phép chia tập: phủ kín, không chồng, đúng thứ tự. Kèm ba phòng mô phỏng và lộ trình 31 bài.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Rẽ nhánh trong C++ | Lý thuyết CP">
+<meta property="og:description" content="Dãy if/else là một phép chia tập: phủ kín, không chồng, đúng thứ tự. Kèm ba phòng mô phỏng và lộ trình 31 bài.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Rẽ nhánh</div>
+  <a href="#s1">1. Hai thứ tự, hai kết quả</a>
+  <a href="#s2">2. if/else là phép chia tập</a>
+  <a href="#s3">3. Chỗ C++ không nghĩ như toán</a>
+  <a href="#s4">4. Bốn khuôn mẫu</a>
+  <a href="#s5">5. Bỏ bớt if</a>
+  <a href="#s6">6. Nhận dạng và bẫy</a>
+  <a href="#s7">7. Lộ trình 31 bài</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb">Cơ bản<span class="cv-sep">/</span><span class="cv-here">Rẽ nhánh</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Rẽ nhánh trong C++</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p>Viết <code class="inl">if</code> thì ai cũng viết được. Nhưng một dãy
+<code class="inl">if/else</code> dài năm nhánh thì rất hay sai, mà sai theo kiểu khó chịu:
+chương trình vẫn chạy, vẫn in ra một đáp án trông có lý, chỉ là <b>sai với vài bộ dữ liệu
+mà mình không nghĩ tới</b>. Chuyên đề này đi tới cùng một ý:</p>
+
+<div class="box def">
+<div class="t">Sợi chỉ đỏ</div>
+<p>Một dãy <code class="inl">if/else</code> là <b>một phép chia tập</b>: nó cắt tập mọi dữ
+liệu vào thành các mảnh, mỗi mảnh ứng với một nhánh. Gần như mọi lỗi rẽ nhánh đều là
+<b>chia sai tập</b> — sót một mảnh, để hai mảnh chồng lên nhau, hoặc xếp sai thứ tự các
+mảnh.</p>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Hai thứ tự nhánh, hai kết quả</a></li>
+    <li><a href="#s2">Một dãy if/else là phép chia tập</a></li>
+    <li><a href="#s3">Chỗ C++ không nghĩ như toán</a></li>
+    <li><a href="#s4">Bốn khuôn mẫu</a></li>
+    <li><a href="#s5">Bỏ bớt if</a></li>
+    <li><a href="#s6">Nhận dạng và bẫy</a></li>
+    <li><a href="#s7">Lộ trình 31 bài</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Hai thứ tự nhánh, hai kết quả</h2>
+
+<p>Bài <b>2.14 Tam giác</b> cho ba cạnh và bắt phân loại: <code class="inl">khong</code>,
+<code class="inl">deu</code>, <code class="inl">can</code>, <code class="inl">vuong</code>
+hay <code class="inl">thuong</code>. Hai bạn viết cùng những điều kiện <em>giống hệt nhau</em>,
+chỉ khác chỗ đặt nhánh nào trước:</p>
+
+<div class="haicot">
+<div>
+<div class="cot-ten">Bạn thứ nhất — xét <b>cân</b> trước</div>
+<div class="codewrap noname"><pre><code>if (a == b || b == c || a == c)
+    cout &lt;&lt; "can";
+else if (a == b &amp;&amp; b == c)
+    cout &lt;&lt; "deu";</code></pre></div>
+</div>
+<div>
+<div class="cot-ten">Bạn thứ hai — xét <b>đều</b> trước</div>
+<div class="codewrap noname"><pre><code>if (a == b &amp;&amp; b == c)
+    cout &lt;&lt; "deu";
+else if (a == b || b == c || a == c)
+    cout &lt;&lt; "can";</code></pre></div>
+</div>
+</div>
+
+<p>Cho cùng một bộ dữ liệu <code class="inl">5 5 5</code>:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Cách viết</th><th class="c">Máy in ra</th><th class="c">Judge</th></tr></thead>
+<tbody>
+<tr><td>Xét <b>cân</b> trước</td><td class="c"><code class="inl">can</code></td><td class="c">Sai</td></tr>
+<tr><td>Xét <b>đều</b> trước</td><td class="c"><code class="inl">deu</code></td><td class="c">Đúng</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box warn">
+<div class="t">Điều cần thấy</div>
+<p>Không điều kiện nào sai. <code class="inl">5 5 5</code> <b>thật sự</b> là tam giác cân —
+nó có hai cạnh bằng nhau, thậm chí có ba. Câu lệnh <code class="inl">if</code> đầu tiên
+không hề nói dối.</p>
+<p>Vấn đề là <b>tập các tam giác đều nằm gọn bên trong tập các tam giác cân</b>. Khi hai
+mảnh lồng nhau như vậy, nhánh nào đứng trước sẽ nuốt trọn phần chung. Vậy quy tắc nào
+quyết định thứ tự đúng?</p>
+</div>
+
+<h2 id="s2"><span class="num">2.</span>Một dãy if/else là phép chia tập</h2>
+
+<p>Điều đầu tiên phải nắm: trong một dãy <code class="inl">else if</code>, điều kiện bạn
+gõ ra <b>không phải</b> điều kiện thật sự để nhánh đó chạy. Nhánh thứ <span class="mathv">k</span>
+chạy khi:</p>
+
+<p style="text-align:center"><span class="mathv">điều kiện thứ k</span> <b>và</b>
+<span class="mathv">không</span> (điều kiện 1) <b>và</b> <span class="mathv">không</span>
+(điều kiện 2) <b>và</b> … <b>và</b> <span class="mathv">không</span>
+(điều kiện <span class="mathv">k−1</span>).</p>
+
+<p>Cái đuôi "và không phải mấy nhánh trên" ấy là thứ vô hình — bạn không gõ nó, nhưng máy
+luôn thêm vào. Nó chính là thứ biến một dãy <code class="inl">else if</code> thành phép
+chia tập: các mảnh <b>không bao giờ chồng nhau</b>, vì mảnh sau đã bị trừ đi hết mảnh
+trước.</p>
+
+<p>Hình dưới là bài <b>Xếp loại học tập</b>: điểm <span class="mathv">s</span> chạy trên
+đoạn từ 0 đến 10, bốn nhánh cắt đoạn ấy thành bốn mảnh liền nhau, không hở, không đè.</p>
+
+<div style="margin:18px 0; overflow-x:auto">
+<svg viewBox="0 0 720 130" width="100%" style="max-width:720px; display:block; margin:0 auto"
+     xmlns="http://www.w3.org/2000/svg" role="img"
+     aria-label="Trục điểm từ 0 đến 10 chia thành bốn mảnh: YEU, TRUNG BINH, KHA, GIOI">
+  <rect x="40"  y="34" width="272" height="34" fill="var(--red-bg)"   stroke="var(--red)"   stroke-width="1.5"/>
+  <rect x="312" y="34" width="204" height="34" fill="var(--amber-bg)" stroke="var(--amber)" stroke-width="1.5"/>
+  <rect x="516" y="34" width="68"  height="34" fill="var(--blue-bg)"  stroke="var(--blue)"  stroke-width="1.5"/>
+  <rect x="584" y="34" width="68"  height="34" fill="var(--green-bg)" stroke="var(--green)" stroke-width="1.5"/>
+
+  <text x="176" y="56" text-anchor="middle" font-size="14" fill="var(--red)">YEU</text>
+  <text x="414" y="56" text-anchor="middle" font-size="14" fill="var(--amber)">TRUNG BINH</text>
+  <text x="550" y="56" text-anchor="middle" font-size="14" fill="var(--blue)">KHA</text>
+  <text x="618" y="56" text-anchor="middle" font-size="14" fill="var(--green)">GIOI</text>
+
+  <line x1="40" y1="82" x2="652" y2="82" stroke="var(--edge)" stroke-width="1.5"/>
+  <g font-size="12" fill="var(--muted)" text-anchor="middle">
+    <line x1="40"  y1="76" x2="40"  y2="88" stroke="var(--edge)" stroke-width="1.5"/>
+    <line x1="312" y1="76" x2="312" y2="88" stroke="var(--edge)" stroke-width="1.5"/>
+    <line x1="516" y1="76" x2="516" y2="88" stroke="var(--edge)" stroke-width="1.5"/>
+    <line x1="584" y1="76" x2="584" y2="88" stroke="var(--edge)" stroke-width="1.5"/>
+    <line x1="652" y1="76" x2="652" y2="88" stroke="var(--edge)" stroke-width="1.5"/>
+    <text x="40"  y="104">0</text>
+    <text x="312" y="104">5</text>
+    <text x="516" y="104">8</text>
+    <text x="584" y="104">9</text>
+    <text x="652" y="104">10</text>
+  </g>
+  <text x="346" y="24" text-anchor="middle" font-size="12" fill="var(--muted)">mỗi mốc thuộc về mảnh bên phải nó</text>
+</svg>
+</div>
+
+<div class="box def">
+<div class="t">Ba luật của một phép chia tập</div>
+<ul>
+<li><b>Phủ kín.</b> Mọi dữ liệu vào hợp lệ phải rơi vào <em>ít nhất</em> một mảnh. Sót
+một mảnh thì chương trình không in gì cả — mà "không in gì" luôn bị chấm sai.</li>
+<li><b>Không chồng.</b> Trong một dãy <code class="inl">else if</code>, điều này được
+bảo đảm sẵn. Nhưng nếu bạn dùng các <code class="inl">if</code> rời nhau thì
+<em>không</em> — và đó là chuyện của mục kế tiếp.</li>
+<li><b>Hẹp trước, rộng sau.</b> Khi mảnh này nằm trong mảnh kia, mảnh <b>hẹp hơn</b> phải
+đứng trước. Tam giác đều nằm trong tam giác cân, nên
+<code class="inl">deu</code> đứng trước <code class="inl">can</code>.</li>
+</ul>
+</div>
+
+<p>Luật thứ ba trả lời trọn vẹn câu hỏi của mục 1. Và cách kiểm nhanh: <b>tìm một dữ liệu
+thoả nhiều nhánh cùng lúc</b> rồi hỏi xem đề muốn nhánh nào thắng.
+<code class="inl">5 5 5</code> thoả cả <code class="inl">deu</code> lẫn
+<code class="inl">can</code>; đề muốn <code class="inl">deu</code>; vậy
+<code class="inl">deu</code> lên trước.</p>
+
+<h3>Thử tay: bốn mảnh và cái lỗ hổng</h3>
+
+<p>Kéo điểm <span class="mathv">s</span> để xem nhánh nào cháy. Rồi bật ô
+<b>viết hụt biên</b> — nó đổi ba dấu <code class="inl">&gt;=</code> thành
+<code class="inl">&gt;</code>, đúng kiểu gõ vội hay gặp — và thử đặt
+<span class="mathv">s</span> vào chính các mốc 5, 8, 9.</p>
+
+<div class="sim">
+  <div class="sim-hang">
+    <div class="sim-o">
+      <label for="xlS">Điểm s</label>
+      <input type="range" id="xlS" min="0" max="10" step="0.1" value="7.2">
+      <span class="sim-so" id="xlSo">7.2</span>
+    </div>
+    <div class="sim-o">
+      <input type="checkbox" id="xlHut">
+      <label for="xlHut">viết hụt biên</label>
+    </div>
+  </div>
+  <div class="sim-nhan">Dãy lệnh</div>
+  <div class="dong" id="xlDong"></div>
+  <div class="sim-nhan">Máy in ra</div>
+  <div class="sim-ra" id="xlRa"></div>
+  <div class="sim-canh" id="xlCanh"></div>
+  <div class="sim-nut">
+    <button data-s="4.9">4.9</button>
+    <button data-s="5">5 · đúng mốc</button>
+    <button data-s="8">8 · đúng mốc</button>
+    <button data-s="9">9 · đúng mốc</button>
+    <button data-s="10">10 · biên trên</button>
+  </div>
+</div>
+
+<h3>Khi các mảnh được phép chồng nhau</h3>
+
+<p>Bài <b>Phân loại robot</b> cho số ăng ten <span class="mathv">a</span> và số camera
+<span class="mathv">c</span>, rồi hỏi con robot đó <em>có thể</em> thuộc những loại nào:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th class="c">Loại</th><th>Điều kiện</th></tr></thead>
+<tbody>
+<tr><td class="c">1</td><td>tối thiểu 3 ăng ten và tối đa 4 camera</td></tr>
+<tr><td class="c">2</td><td>tối đa 6 ăng ten và tối thiểu 2 camera</td></tr>
+<tr><td class="c">3</td><td>tối đa 2 ăng ten và tối đa 3 camera</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Với <code class="inl">a = 2</code>, <code class="inl">c = 3</code> thì loại 2 đúng
+<em>và</em> loại 3 cũng đúng. Đề yêu cầu in <code class="inl">2 3</code> — cả hai. Đây
+không còn là phép chia tập nữa: <b>một dữ liệu vào mang được nhiều nhãn cùng lúc</b>.</p>
+
+<div class="haicot">
+<div>
+<div class="cot-ten">Dùng <code class="inl">else if</code> — <b>mất nhãn</b></div>
+<div class="codewrap noname"><pre><code>if (l1) cout &lt;&lt; 1;
+else if (l2) cout &lt;&lt; 2;
+else if (l3) cout &lt;&lt; 3;
+else cout &lt;&lt; 0;
+// a=2, c=3  ->  in "2"</code></pre></div>
+</div>
+<div>
+<div class="cot-ten">Dùng <code class="inl">if</code> rời — <b>đúng</b></div>
+<div class="codewrap noname"><pre><code>if (l1) cout &lt;&lt; 1;
+if (l2) cout &lt;&lt; " " &lt;&lt; 2;
+if (l3) cout &lt;&lt; " " &lt;&lt; 3;
+if (!l1 &amp;&amp; !l2 &amp;&amp; !l3) cout &lt;&lt; 0;
+// a=2, c=3  ->  in "2 3"</code></pre></div>
+</div>
+</div>
+
+<div class="box tech">
+<div class="t">Câu hỏi để chọn giữa hai kiểu</div>
+<p><b>"Một dữ liệu vào có thể mang mấy nhãn?"</b></p>
+<ul>
+<li>Đúng một nhãn — xếp loại, phân loại tam giác, oẳn tù tì → dùng
+<code class="inl">else if</code>, và nhớ luật hẹp trước rộng sau.</li>
+<li>Có thể nhiều nhãn — phân loại robot, liệt kê tính chất → dùng các
+<code class="inl">if</code> <b>rời nhau</b>, mỗi cái hỏi độc lập.</li>
+</ul>
+<p>Chọn nhầm kiểu thì không cách gì sửa được bằng cách chỉnh thứ tự nhánh.</p>
+</div>
+
+<h2 id="s3"><span class="num">3.</span>Chỗ C++ không nghĩ như toán</h2>
+
+<p>Mục 2 lo phần <em>bố cục</em> các nhánh. Mục này lo phần <em>viết ra điều kiện</em> —
+nơi ký hiệu quen thuộc của toán mang nghĩa khác hẳn khi gõ vào C++.</p>
+
+<h3>a &lt; b &lt; c không phải là "a nhỏ hơn b nhỏ hơn c"</h3>
+
+<p>Bài <b>Kiểm tra điều kiện</b> hỏi ba số có tăng dần hoặc giảm dần hay không. Viết thẳng
+theo lối toán:</p>
+
+<div class="codewrap noname"><pre><code>if (a &lt; b &lt; c) cout &lt;&lt; "YES";   // SAI</code></pre></div>
+
+<p>C++ đọc từ trái sang phải: nó tính <code class="inl">a &lt; b</code> trước, ra
+<code class="inl">true</code> hoặc <code class="inl">false</code>, rồi <b>đổi kết quả đó
+thành số 1 hoặc 0</b> và đem so với <code class="inl">c</code>. Nên câu lệnh trên thật ra
+đang hỏi <code class="inl">(a &lt; b ? 1 : 0) &lt; c</code>:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th class="c">a b c</th><th class="c">a &lt; b</th><th>máy tính tiếp</th><th class="c">được</th><th class="c">đáp án đúng</th></tr></thead>
+<tbody>
+<tr><td class="c">1 2 3</td><td class="c">1</td><td><code class="inl">1 &lt; 3</code></td><td class="c">YES</td><td class="c">YES</td></tr>
+<tr><td class="c">3 2 1</td><td class="c">0</td><td><code class="inl">0 &lt; 1</code></td><td class="c">YES</td><td class="c">YES</td></tr>
+<tr><td class="c">5 1 2</td><td class="c">0</td><td><code class="inl">0 &lt; 2</code></td><td class="c"><b>YES</b></td><td class="c"><b>NO</b></td></tr>
+<tr><td class="c">0 0 1</td><td class="c">0</td><td><code class="inl">0 &lt; 1</code></td><td class="c"><b>YES</b></td><td class="c"><b>NO</b></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Hai dòng đầu vô tình đúng, nên chạy thử vài ví dụ mẫu là thấy êm. Chỉ tới khi chấm
+mới lộ. Cách viết đúng là tách ra và nối bằng <code class="inl">&amp;&amp;</code>:</p>
+
+<div class="codewrap noname"><pre><code>if ((a &lt; b &amp;&amp; b &lt; c) || (a &gt; b &amp;&amp; b &gt; c)) cout &lt;&lt; "YES";
+else cout &lt;&lt; "NO";</code></pre></div>
+
+<div class="box tech">
+<div class="t">Trình dịch đã báo trước rồi</div>
+<p>Dịch với cờ <code class="inl">-Wall</code>, GCC in ra:</p>
+<div class="codewrap noname"><pre><code>warning: comparisons like 'X&lt;=Y&lt;=Z' do not have their
+mathematical meaning [-Wparentheses]</code></pre></div>
+<p>Dòng lệnh dịch của Themis <b>không</b> có <code class="inl">-Wall</code>, nên lúc thi
+bạn sẽ không thấy cảnh báo này. Tập thói quen bật nó khi luyện ở nhà.</p>
+</div>
+
+<h3>Ba phép nối điều kiện, và phép thứ tư phải tự ghép</h3>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Muốn nói</th><th>Viết</th><th>Đúng khi</th></tr></thead>
+<tbody>
+<tr><td>cả hai</td><td><code class="inl">p &amp;&amp; q</code></td><td>cả <span class="mathv">p</span> và <span class="mathv">q</span> cùng đúng</td></tr>
+<tr><td>ít nhất một</td><td><code class="inl">p || q</code></td><td>một trong hai đúng, hoặc cả hai</td></tr>
+<tr><td>không</td><td><code class="inl">!p</code></td><td><span class="mathv">p</span> sai</td></tr>
+<tr><td><b>đúng một trong hai</b></td><td><code class="inl">p != q</code></td><td>một đúng một sai — C++ không có toán tử XOR luận lý riêng</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Dòng cuối là mẹo đáng nhớ: <code class="inl">p</code> và <code class="inl">q</code> là
+hai giá trị <code class="inl">bool</code>, nên "khác nhau" nghĩa đúng bằng "đúng một cái".
+Không cần viết <code class="inl">(p &amp;&amp; !q) || (!p &amp;&amp; q)</code>.</p>
+
+<h3>Thử tay: bảng chân trị</h3>
+
+<p>Bài <b>Tính chất của số</b> gói cả bốn phép vào một đề. Đặt
+<span class="mathv">p</span> = "<span class="mathv">x</span> chẵn" và
+<span class="mathv">q</span> = "5 ≤ <span class="mathv">x</span> ≤ 12", rồi bốn người mỗi
+người thích một phép khác nhau.</p>
+
+<div class="sim">
+  <div class="sim-hang">
+    <div class="sim-o">
+      <label for="ctX">x =</label>
+      <input type="number" id="ctX" value="6" min="0" max="1000">
+    </div>
+    <div class="sim-o" id="ctPQ"></div>
+  </div>
+  <table class="ct">
+    <thead><tr><th>Người</th><th>Thích số</th><th>Viết trong C++</th><th class="c">Kết quả</th></tr></thead>
+    <tbody id="ctBody"></tbody>
+  </table>
+  <div class="sim-nut">
+    <button data-x="6">6</button>
+    <button data-x="3">3</button>
+    <button data-x="20">20</button>
+    <button data-x="7">7</button>
+  </div>
+</div>
+
+<h3>Ba cái sảy chân còn lại</h3>
+
+<div class="box warn">
+<div class="t">Dấu = và dấu ==</div>
+<p><code class="inl">if (x = 5)</code> không so sánh gì cả — nó <b>gán</b> 5 cho
+<code class="inl">x</code> rồi coi kết quả 5 là "khác 0" nên luôn đúng. Điều kiện thành
+đúng vĩnh viễn, và giá trị <code class="inl">x</code> bị phá hỏng luôn.</p>
+</div>
+
+<div class="box tech">
+<div class="t">Chập mạch — và cách lợi dụng nó</div>
+<p>Với <code class="inl">p &amp;&amp; q</code>, nếu <code class="inl">p</code> đã sai thì
+C++ <b>không thèm tính</b> <code class="inl">q</code>. Tương tự
+<code class="inl">p || q</code> bỏ qua <code class="inl">q</code> khi
+<code class="inl">p</code> đã đúng.</p>
+<p>Nhờ vậy viết được cái chốt an toàn — vế trái canh cho vế phải:</p>
+<div class="codewrap noname"><pre><code>if (b != 0 &amp;&amp; a % b == 0) cout &lt;&lt; "chia het";</code></pre></div>
+<p>Đảo hai vế lại là chương trình chết vì chia cho 0.</p>
+</div>
+
+<div class="box warn">
+<div class="t">So sánh số thực</div>
+<p>Số thực lưu trong máy gần như không bao giờ tròn trịa:
+<code class="inl">0.1 + 0.2</code> cho ra <code class="inl">0.30000000000000004</code>,
+nên <code class="inl">0.1 + 0.2 == 0.3</code> là <b>sai</b>.</p>
+<p>Nhưng đừng vì thế mà sợ mọi dấu <code class="inl">&lt;</code> với số thực. Ở bài
+<i>Xếp loại học tập</i>, viết thẳng <code class="inl">s &lt; 5</code> là <b>đúng</b>: số
+<code class="inl">s</code> đọc thẳng từ dữ liệu chứ không qua phép tính nào, nên không có
+sai số tích luỹ. Nguy hiểm chỉ đến khi bạn <em>so sánh bằng</em> hai giá trị đã qua tính
+toán — khi ấy hãy so hiệu số với một ngưỡng nhỏ, hoặc tốt hơn là tìm cách ở lại với số
+nguyên.</p>
+</div>
+
+<h2 id="s4"><span class="num">4.</span>Bốn khuôn mẫu</h2>
+
+<h3>Khuôn A — chia tập bằng else if</h3>
+
+<p>Dùng khi mỗi dữ liệu vào mang <b>đúng một nhãn</b>. Xếp các nhánh từ hẹp tới rộng,
+và luôn đóng dãy bằng một <code class="inl">else</code> trần để bảo đảm luật phủ kín.</p>
+
+<div class="codewrap noname"><pre><code>if (s &lt; 5) cout &lt;&lt; "YEU";
+else if (s &lt; 8) cout &lt;&lt; "TRUNG BINH";
+else if (s &lt; 9) cout &lt;&lt; "KHA";
+else cout &lt;&lt; "GIOI";</code></pre></div>
+
+<p>Để ý: từ nhánh thứ hai trở đi <b>không cần viết cận dưới</b>. Đã lọt tới đó thì chắc
+chắn <code class="inl">s &gt;= 5</code> rồi — cái đuôi vô hình ở mục 2 lo hộ. Viết thêm
+<code class="inl">s &gt;= 5 &amp;&amp; s &lt; 8</code> không sai, chỉ thừa; mà càng dài
+thì càng dễ gõ hụt một dấu bằng.</p>
+
+<h3>Khuôn B — kiểm tra rời bằng if</h3>
+
+<p>Dùng khi một dữ liệu vào có thể mang <b>nhiều nhãn</b>. Thêm một biến cờ để biết đã in
+được gì chưa.</p>
+
+<div class="codewrap noname"><pre><code>bool co = false;
+if (a &gt;= 3 &amp;&amp; c &lt;= 4) { cout &lt;&lt; 1; co = true; }
+if (a &lt;= 6 &amp;&amp; c &gt;= 2) { cout &lt;&lt; (co ? " " : "") &lt;&lt; 2; co = true; }
+if (a &lt;= 2 &amp;&amp; c &lt;= 3) { cout &lt;&lt; (co ? " " : "") &lt;&lt; 3; co = true; }
+if (!co) cout &lt;&lt; 0;</code></pre></div>
+
+<h3>Khuôn C — bậc thang, tính bằng cách trừ dần</h3>
+
+<p>Bài <b>Hoá đơn tiền điện</b>: 100 số đầu giá 2000, 100 số tiếp giá 3000, 100 số tiếp
+giá 5000, từ số thứ 301 trở đi giá 10000. Người mới học hay viết bốn nhánh
+<code class="inl">else if</code> với bốn công thức cộng sẵn, rất dễ nhầm.</p>
+
+<p>Cách gọn hơn: đi từng bậc, mỗi bậc <b>ăn bớt</b> phần đã dùng.</p>
+
+<div class="codewrap noname"><pre><code>long long x, tien = 0, dung;
+cin &gt;&gt; x;
+dung = min(x, 100LL);   tien += dung * 2000;  x -= dung;   // bậc 1
+dung = min(x, 100LL);   tien += dung * 3000;  x -= dung;   // bậc 2
+dung = min(x, 100LL);   tien += dung * 5000;  x -= dung;   // bậc 3
+tien += x * 10000;                                          // phần còn lại
+cout &lt;&lt; tien &lt;&lt; "\n";</code></pre></div>
+
+<p>Chạy tay với <code class="inl">x = 250</code>, đúng bằng ví dụ trong đề:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th class="c">Bậc</th><th class="c">Dùng</th><th class="c">Đơn giá</th><th class="c">Cộng thêm</th><th class="c">Còn lại</th><th class="c">Tổng</th></tr></thead>
+<tbody>
+<tr><td class="c">1</td><td class="c">100</td><td class="c">2000</td><td class="c">200 000</td><td class="c">150</td><td class="c">200 000</td></tr>
+<tr><td class="c">2</td><td class="c">100</td><td class="c">3000</td><td class="c">300 000</td><td class="c">50</td><td class="c">500 000</td></tr>
+<tr><td class="c">3</td><td class="c">50</td><td class="c">5000</td><td class="c">250 000</td><td class="c">0</td><td class="c">750 000</td></tr>
+<tr><td class="c">4</td><td class="c">0</td><td class="c">10000</td><td class="c">0</td><td class="c">0</td><td class="c"><b>750 000</b></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Khớp con số <code class="inl">750000</code> của đề. Ưu điểm thật sự của lối viết này
+là <b>không có nhánh nào để xếp sai thứ tự</b> — luật hẹp trước rộng sau không còn chỗ
+mà vi phạm.</p>
+
+<h3>Khuôn D — sắp xếp ba số bằng ba lần đổi chỗ</h3>
+
+<p>Rất nhiều bài dễ đi hẳn một bậc sau khi ba số đã có thứ tự: kiểm tam giác chỉ còn một
+bất đẳng thức, tìm min và max thành lấy hai đầu.</p>
+
+<div class="codewrap noname"><pre><code>if (a &gt; b) swap(a, b);
+if (b &gt; c) swap(b, c);
+if (a &gt; b) swap(a, b);
+// giờ chắc chắn a &lt;= b &lt;= c</code></pre></div>
+
+<p>Vì sao đúng ba lần là đủ? Lần một và lần hai đẩy số lớn nhất về cuối — sau chúng,
+<code class="inl">c</code> chắc chắn là lớn nhất. Còn lại hai phần tử đầu, một lần đổi chỗ
+nữa là xong.</p>
+
+<div class="box ex">
+<div class="t">Khuôn chung của cả 31 bài</div>
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+long long a, b, c;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cin &gt;&gt; a &gt;&gt; b &gt;&gt; c;              // 1. nhập
+    if (a + b &lt;= c || b + c &lt;= a || a + c &lt;= b)   // 2. loại trước
+        cout &lt;&lt; "khong" &lt;&lt; "\n";
+    else if (a == b &amp;&amp; b == c)      // 3. hẹp trước
+        cout &lt;&lt; "deu" &lt;&lt; "\n";
+    else if (a == b || b == c || a == c)
+        cout &lt;&lt; "can" &lt;&lt; "\n";
+    else if (a * a + b * b == c * c || a * a + c * c == b * b
+             || b * b + c * c == a * a)
+        cout &lt;&lt; "vuong" &lt;&lt; "\n";
+    else
+        cout &lt;&lt; "thuong" &lt;&lt; "\n";   // 4. else trần đóng dãy
+    return 0;
+}</code></pre></div>
+<p>Nhánh "không phải tam giác" đứng đầu vì nó loại bỏ dữ liệu <em>không hợp lệ</em> —
+mọi nhánh sau đó được quyền giả định đã có một tam giác thật.</p>
+</div>
+
+<h3>Thử tay: hai thứ tự nhánh</h3>
+
+<p>Nhập ba cạnh và xem hai cách xếp nhánh chạy song song. Chúng chỉ lệch nhau ở đúng một
+loại dữ liệu — thử tìm ra loại nào.</p>
+
+<div class="sim">
+  <div class="sim-hang">
+    <div class="sim-o"><label for="tgA">a</label><input type="number" id="tgA" value="5"></div>
+    <div class="sim-o"><label for="tgB">b</label><input type="number" id="tgB" value="5"></div>
+    <div class="sim-o"><label for="tgC">c</label><input type="number" id="tgC" value="5"></div>
+  </div>
+  <div class="haicot">
+    <div>
+      <div class="cot-ten">Thứ tự A — cân trước đều</div>
+      <div class="dong" id="tgDongA"></div>
+      <div class="sim-ra" id="tgRaA"></div>
+    </div>
+    <div>
+      <div class="cot-ten">Thứ tự B — đều trước cân</div>
+      <div class="dong" id="tgDongB"></div>
+      <div class="sim-ra" id="tgRaB"></div>
+    </div>
+  </div>
+  <div id="tgKq"></div>
+  <div class="sim-nut">
+    <button data-t="5,5,5">5 5 5</button>
+    <button data-t="3,4,5">3 4 5</button>
+    <button data-t="5,5,8">5 5 8</button>
+    <button data-t="6,7,8">6 7 8</button>
+    <button data-t="2,3,9">2 3 9</button>
+  </div>
+</div>
+
+<h2 id="s5"><span class="num">5.</span>Bỏ bớt if</h2>
+
+<p>Ít nhánh thì ít chỗ xếp sai thứ tự. Nhiều bài trong nhóm này viết được <b>không cần
+một câu <code class="inl">if</code> nào</b>.</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Thay vì</th><th>Viết gọn</th><th>Dùng ở bài</th></tr></thead>
+<tbody>
+<tr><td><code class="inl">if (a &lt; b) m = a; else m = b;</code></td>
+    <td><code class="inl">m = min(a, b);</code></td><td>2.2, 2.3 Tìm min max</td></tr>
+<tr><td>bốn nhánh tìm nhỏ nhất</td>
+    <td><code class="inl">min({a, b, c, d})</code></td><td>2.3 Tìm min max</td></tr>
+<tr><td>dãy <code class="inl">if</code> đổi chỗ</td>
+    <td><code class="inl">swap(a, b)</code></td><td>2.15 Sắp xếp</td></tr>
+<tr><td><code class="inl">if (p) x = 1; else x = 0;</code></td>
+    <td><code class="inl">x = p;</code></td><td>Kiểm tra năm nhuận</td></tr>
+<tr><td>chín nhánh oẳn tù tì</td>
+    <td><code class="inl">(a + 1) % 3 == b</code></td><td>2.4 Oẳn tù tì</td></tr>
+<tr><td>mười hai nhánh số ngày</td>
+    <td>mảng tra cứu</td><td>Ngày tiếp theo</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Kết quả so sánh vốn đã là số</h3>
+
+<p>Bài <b>Kiểm tra năm nhuận</b> đòi in 1 hoặc 0. Không cần rẽ nhánh, vì một biểu thức
+so sánh <em>đã</em> mang giá trị 1 hoặc 0:</p>
+
+<div class="codewrap noname"><pre><code>cout &lt;&lt; ((n % 400 == 0) || (n % 4 == 0 &amp;&amp; n % 100 != 0)) &lt;&lt; "\n";</code></pre></div>
+
+<p>Thứ tự hai vế ở đây <b>không</b> quan trọng — <code class="inl">||</code> có tính giao
+hoán. Đây là chỗ khác biệt đáng chú ý so với dãy <code class="inl">else if</code>: gộp
+điều kiện bằng toán tử luận lý thì thoát hẳn được câu chuyện thứ tự nhánh.</p>
+
+<h3>Công thức thay cho bảng chín ô</h3>
+
+<p>Bài <b>2.4 Oẳn tù tì</b> mã hoá búa = 0, kéo = 1, bao = 2. Luật thắng đi vòng tròn:
+búa thắng kéo, kéo thắng bao, bao thắng búa. Tức là <span class="mathv">a</span> thắng
+<span class="mathv">b</span> đúng khi <span class="mathv">b</span> là số liền sau
+<span class="mathv">a</span> trên vòng tròn ba phần tử:</p>
+
+<div class="codewrap noname"><pre><code>if (a == b) cout &lt;&lt; "HOA";
+else if ((a + 1) % 3 == b) cout &lt;&lt; "BAC";
+else cout &lt;&lt; "NAM";</code></pre></div>
+
+<p>Ba nhánh thay cho chín. Công thức này đã được đối chiếu với bảng liệt kê tay trên
+<b>cả 9 cặp</b> và khớp hoàn toàn.</p>
+
+<h3>Mảng tra cứu thay cho dãy nhánh</h3>
+
+<p>Bài <b>Ngày tiếp theo</b> cần biết mỗi tháng có bao nhiêu ngày. Mười hai nhánh
+<code class="inl">else if</code> là cách dài nhất; một mảng là cách ngắn nhất:</p>
+
+<div class="codewrap noname"><pre><code>int sn[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+// chỉ còn đúng một ngoại lệ phải xử bằng if
+if (t == 2 &amp;&amp; ((n % 400 == 0) || (n % 4 == 0 &amp;&amp; n % 100 != 0))) sn[2] = 29;</code></pre></div>
+
+<p>Cùng lối ấy, bài <b>Kiểm tra cạnh</b> cho sẵn một đồ thị 10 đỉnh cố định: chép danh
+sách cạnh vào một mảng hai chiều rồi tra, gọn hơn hẳn việc gõ mấy chục điều kiện
+<code class="inl">||</code>.</p>
+
+<div class="box tech">
+<div class="t">Còn switch thì sao?</div>
+<p><code class="inl">switch</code> chỉ rẽ theo <b>giá trị bằng nhau</b> của một biểu thức
+nguyên, không rẽ theo khoảng như <code class="inl">s &lt; 5</code>. Trong cả 31 bài ở
+đây không bài nào thật sự cần tới nó, nên chuyên đề này không dùng. Nếu có dùng, nhớ
+<code class="inl">break</code> ở cuối mỗi nhánh — thiếu nó là các nhánh chạy tràn xuống
+nhau.</p>
+</div>
+
+<h2 id="s6"><span class="num">6.</span>Nhận dạng và bẫy</h2>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Đề nói</th><th>Nghĩ ngay tới</th></tr></thead>
+<tbody>
+<tr><td>"xếp loại", "phân loại", "thuộc loại nào"</td><td>chia tập bằng <code class="inl">else if</code>, xếp hẹp trước rộng sau</td></tr>
+<tr><td>"thuộc <b>những</b> loại nào", "liệt kê các tính chất"</td><td>các <code class="inl">if</code> rời nhau, thêm biến cờ</td></tr>
+<tr><td>"đúng một trong hai", "chính xác một"</td><td><code class="inl">p != q</code></td></tr>
+<tr><td>bảng giá theo mức, cước theo bậc</td><td>khuôn C — trừ dần từng bậc</td></tr>
+<tr><td>ba số và hỏi về thứ tự, tam giác</td><td>sắp xếp trước bằng ba <code class="inl">swap</code></td></tr>
+<tr><td>in <code class="inl">1</code> / <code class="inl">0</code>, <code class="inl">YES</code> / <code class="inl">NO</code></td><td>in thẳng biểu thức luận lý, khỏi rẽ nhánh</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Năm cái bẫy</h3>
+
+<div class="box warn">
+<div class="t">1. Bình phương cạnh làm tràn int</div>
+<p>Bài <b>2.11 Tam giác vuông</b> cho cạnh tới <span class="mathv">10<sup>9</sup></span>.
+Với <code class="inl">int</code>, phép <code class="inl">a * a + b * b</code> cho ra
+<code class="inl">1321730048</code> — một số vô nghĩa. Đáp số thật là
+<span class="mathv">2 × 10<sup>18</sup></span>, vẫn nằm gọn trong
+<code class="inl">long long</code> (trần khoảng
+<span class="mathv">9,22 × 10<sup>18</sup></span>).</p>
+<p>Đổi biến sang <code class="inl">long long</code> ngay từ lúc khai báo là xong.</p>
+</div>
+
+<div class="box warn">
+<div class="t">2. Trên Themis, long chỉ có 4 byte</div>
+<p>Trình dịch đi kèm Themis là bản 32-bit, nên <code class="inl">long</code> hệt như
+<code class="inl">int</code>. Viết <code class="inl">long a = 1000000000L;</code> rồi
+tính <code class="inl">a * a</code> vẫn tràn y như cũ. Luôn viết <b>đủ hai chữ</b>
+<code class="inl">long long</code> — quen tay ở judge Linux rồi vào phòng thi là mất
+điểm oan.</p>
+</div>
+
+<div class="box warn">
+<div class="t">3. Chữ hoa, chữ thường, số nhiều</div>
+<p>Judge so từng ký tự. <code class="inl">Yes</code> khác
+<code class="inl">YES</code> khác <code class="inl">yes</code> — trong 31 bài này có đủ
+cả ba kiểu, mỗi bài một kiểu riêng, nên phải đọc kỹ mục Kết quả từng bài.</p>
+<p>Bài <b>Học tiếng Anh</b> còn bẫy thêm một tầng: <code class="inl">1 apple</code>
+nhưng <code class="inl">0 apples</code> và <code class="inl">2 apples</code>. Số nhiều
+là mặc định, số ít chỉ đúng khi bằng 1 — dễ viết nhầm thành
+<code class="inl">x &lt;= 1</code>.</p>
+</div>
+
+<div class="box warn">
+<div class="t">4. Biên: dấu &lt; hay dấu &lt;=</div>
+<p>Đây là nguồn lỗi âm thầm nhất, vì test ngẫu nhiên hiếm khi rơi đúng vào biên. Cách
+chống: với mỗi mốc trong đề, <b>tự thử ba giá trị</b> — ngay dưới mốc, đúng mốc, ngay
+trên mốc. Phòng mô phỏng ở mục 2 có sẵn các nút cho việc này.</p>
+</div>
+
+<div class="box warn">
+<div class="t">5. else dính nhầm nhánh</div>
+<p>Không có ngoặc nhọn, <code class="inl">else</code> luôn ghép với
+<code class="inl">if</code> <b>gần nhất</b> phía trên, bất kể bạn thụt lề thế nào:</p>
+<div class="codewrap noname"><pre><code>if (a &gt; 0)
+    if (b &gt; 0) cout &lt;&lt; "ca hai duong";
+else cout &lt;&lt; "a khong duong";   // thật ra thuộc về if (b &gt; 0)</code></pre></div>
+<p>Có <code class="inl">if</code> lồng trong <code class="inl">if</code> thì đóng ngoặc
+nhọn cho nhánh ngoài, đừng tin vào thụt lề. Đoạn trên dịch với
+<code class="inl">-Wall</code> cũng bị GCC nhắc — <code class="inl">suggest explicit
+braces to avoid ambiguous 'else'</code> — thêm một lý do để bật cờ ấy khi luyện.</p>
+</div>
+
+<div class="box def">
+<div class="t">Hai chỗ trông như bẫy mà không phải</div>
+<p>Cả hai điều dưới đây đều đã đo bằng chương trình chạy thật, không phải suy đoán.</p>
+<p><b>Sai số của <code class="inl">sqrt</code>.</b> Bài <b>2.5 Số chính phương</b> có
+<span class="mathv">n</span> tới <span class="mathv">10<sup>9</sup></span>. Quét toàn bộ
+khoảng ấy, cách viết <code class="inl">r = (long long)sqrt(n); r * r == n</code> phân
+loại <b>đúng tất cả</b> — không một trường hợp sai. Lời đồn "phải cộng trừ epsilon quanh
+căn" là chuyện của phạm vi lớn hơn nhiều; ở giới hạn của bài này thì không cần.</p>
+<p><b>Số âm ở bài kiểm tra tam giác.</b> Bài <b>2.10</b> cho cạnh xuống tới
+<span class="mathv">−10<sup>9</sup></span>, nên phản xạ tự nhiên là chặn thêm
+<code class="inl">a &gt; 0 &amp;&amp; b &gt; 0 &amp;&amp; c &gt; 0</code>. Thật ra không
+cần: ba bất đẳng thức tam giác <b>tự ép cả ba cạnh phải dương</b>. Duyệt toàn bộ 531 441
+bộ ba trong khoảng từ −40 đến 40, không có lấy một bộ nào thoả cả ba bất đẳng thức mà
+lại chứa số không dương.</p>
+</div>
+
+<h2 id="s7"><span class="num">7.</span>Lộ trình 31 bài</h2>
+
+<p>Nhóm bài <b>[NNLT] Cấu trúc rẽ nhánh</b> trên judge xếp sẵn theo năm chặng. Làm đúng
+thứ tự thì mỗi chặng chỉ thêm một điều mới.</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th class="c">Chặng</th><th>Bài</th><th>Thêm điều gì mới</th><th class="c">Đọc mục</th></tr></thead>
+<tbody>
+<tr><td class="c">1</td>
+    <td><a href="https://cvpoi.id.vn/problem/ifelse01" target="_blank" rel="noopener">Kiểm tra điều kiện</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse02" target="_blank" rel="noopener">Xếp loại học tập</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse03" target="_blank" rel="noopener">Kiểm tra tam giác</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse04" target="_blank" rel="noopener">Ăn táo</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse05" target="_blank" rel="noopener">Tính chất của số</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse06" target="_blank" rel="noopener">Kiểm tra năm nhuận</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse07" target="_blank" rel="noopener">Học tiếng Anh</a></td>
+    <td>Điều kiện đơn và dãy <code class="inl">else if</code> đầu tiên. Gặp ngay bẫy
+        <code class="inl">a &lt; b &lt; c</code> và bẫy số nhiều.</td>
+    <td class="c">1, 2, 3</td></tr>
+<tr><td class="c">2</td>
+    <td><a href="https://cvpoi.id.vn/problem/ifelse08" target="_blank" rel="noopener">2.1 Chia quà</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse09" target="_blank" rel="noopener">2.2 Min max</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse10" target="_blank" rel="noopener">2.3 Min max bốn số</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse11" target="_blank" rel="noopener">2.4 Oẳn tù tì</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse12" target="_blank" rel="noopener">2.5 Số chính phương</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse13" target="_blank" rel="noopener">2.6 Tổng 4 số</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse14" target="_blank" rel="noopener">2.7 Kiểm tra số</a></td>
+    <td>Bỏ bớt nhánh: <code class="inl">min</code>, <code class="inl">max</code>, công
+        thức thay bảng liệt kê.</td>
+    <td class="c">5</td></tr>
+<tr><td class="c">3</td>
+    <td><a href="https://cvpoi.id.vn/problem/ifelse15" target="_blank" rel="noopener">2.8 Hoá đơn tiền điện</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse16" target="_blank" rel="noopener">2.9 Đôi giày</a></td>
+    <td>Bậc thang và chia phần. Đây là chặng ngắn nhưng rụng nhiều.</td>
+    <td class="c">4</td></tr>
+<tr><td class="c">4</td>
+    <td><a href="https://cvpoi.id.vn/problem/ifelse17" target="_blank" rel="noopener">2.10 Tam giác</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse18" target="_blank" rel="noopener">2.11 Tam giác vuông</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse19" target="_blank" rel="noopener">2.12 Tam giác cân</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse20" target="_blank" rel="noopener">2.13 Tam giác đều</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse21" target="_blank" rel="noopener">2.14 Tam giác tổng hợp</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse22" target="_blank" rel="noopener">2.15 Sắp xếp</a></td>
+    <td>Cùng một họ bài, khó dần. Bài 2.14 là chỗ luật hẹp trước rộng sau ra mặt; bài
+        2.11 là chỗ <code class="inl">long long</code> ra mặt.</td>
+    <td class="c">2, 4, 6</td></tr>
+<tr><td class="c">5</td>
+    <td><a href="https://cvpoi.id.vn/problem/ifelse23" target="_blank" rel="noopener">2.16 Trò chơi trên trục số</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse24" target="_blank" rel="noopener">Đưa gạch qua lỗ</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse25" target="_blank" rel="noopener">Phân loại robot</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse26" target="_blank" rel="noopener">Cấp số cộng 4 số</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse27" target="_blank" rel="noopener">Ngày tiếp theo</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse28" target="_blank" rel="noopener">Tung xúc xắc</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse29" target="_blank" rel="noopener">Kiểm tra cạnh</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse30" target="_blank" rel="noopener">Bữa sáng kì cục</a>,
+        <a href="https://cvpoi.id.vn/problem/ifelse31" target="_blank" rel="noopener">Gán giá trị 0</a></td>
+    <td>Đề dài hơn, phải tự rút ra điều kiện trước khi viết. <i>Phân loại robot</i> là bài
+        duy nhất bắt dùng <code class="inl">if</code> rời.</td>
+    <td class="c">2, 5</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box def">
+<div class="t">Bốn câu tự hỏi trước khi bấm nộp</div>
+<ul>
+<li>Có dữ liệu nào thoả <b>nhiều nhánh</b> cùng lúc không? Nếu có, nhánh đứng trước đã
+đúng là nhánh đề muốn chưa?</li>
+<li>Có dữ liệu nào <b>không rơi vào nhánh nào</b> không? Dãy đã kết bằng một
+<code class="inl">else</code> trần chưa?</li>
+<li>Mỗi mốc trong đề đã thử đủ <b>ba giá trị</b> dưới, đúng, trên chưa?</li>
+<li>Có phép nhân nào chạm <span class="mathv">10<sup>9</sup></span> không? Đã đổi sang
+<code class="inl">long long</code> chưa?</li>
+</ul>
+</div>
+
+</div>
+</div>
+
+<script>
+(function () {
+  /* ---------- Mô phỏng 1: Xếp loại học tập, bốn mảnh trên trục điểm ---------- */
+  var xS = document.getElementById('xlS'),
+      xSo = document.getElementById('xlSo'),
+      xHut = document.getElementById('xlHut'),
+      xDong = document.getElementById('xlDong'),
+      xRa = document.getElementById('xlRa'),
+      xCanh = document.getElementById('xlCanh');
+
+  function xlVe() {
+    var s = parseFloat(xS.value), hut = xHut.checked;
+    xSo.textContent = s.toFixed(1);
+
+    /* Bản đúng dùng else if nên không cần cận dưới. Bản "hụt biên" mô phỏng lối
+       viết bốn if rời với cận dưới gõ nhầm dấu > thay vì >=. */
+    var dk, ma;
+    if (!hut) {
+      dk = [s < 5, s < 8, s < 9, true];
+      ma = ['if (s < 5)                 cout << "YEU";',
+            'else if (s < 8)            cout << "TRUNG BINH";',
+            'else if (s < 9)            cout << "KHA";',
+            'else                       cout << "GIOI";'];
+    } else {
+      dk = [s < 5, s > 5 && s < 8, s > 8 && s < 9, s > 9];
+      ma = ['if (s < 5)                 cout << "YEU";',
+            'if (s > 5 && s < 8)        cout << "TRUNG BINH";',
+            'if (s > 8 && s < 9)        cout << "KHA";',
+            'if (s > 9)                 cout << "GIOI";'];
+    }
+    var nhan = ['YEU', 'TRUNG BINH', 'KHA', 'GIOI'];
+
+    /* Với else if chỉ nhánh đầu tiên đúng được chạy; với if rời thì mọi nhánh
+       đúng đều chạy. Ở bản hụt biên các điều kiện vẫn rời nhau nên tối đa một
+       nhánh cháy — cái đáng thấy là trường hợp KHÔNG nhánh nào cháy. */
+    var chay = -1, i;
+    for (i = 0; i < 4; i++) if (dk[i]) { chay = i; break; }
+
+    var html = '';
+    for (i = 0; i < 4; i++)
+      html += '<div class="' + (i === chay ? 'chay' : 'bo') + '">' + ma[i] + '</div>';
+    xDong.innerHTML = html;
+
+    if (chay < 0) {
+      xRa.textContent = '(không in gì)';
+      xRa.className = 'sim-ra trong';
+      xCanh.textContent = 'Điểm ' + s.toFixed(1) + ' lọt qua cả bốn nhánh. '
+        + 'Luật phủ kín bị vi phạm — judge chấm sai vì thiếu hẳn dòng kết quả.';
+    } else {
+      xRa.textContent = nhan[chay];
+      xRa.className = 'sim-ra';
+      xCanh.textContent = hut
+        ? 'Nhánh này vẫn cháy, nhưng hãy thử kéo đúng vào mốc 5, 8 hoặc 9.'
+        : '';
+    }
+  }
+  xS.addEventListener('input', xlVe);
+  xHut.addEventListener('change', xlVe);
+  Array.prototype.forEach.call(document.querySelectorAll('.sim-nut button[data-s]'), function (b) {
+    b.addEventListener('click', function () { xS.value = b.getAttribute('data-s'); xlVe(); });
+  });
+  xlVe();
+
+  /* ---------- Mô phỏng 2: bảng chân trị bài Tính chất của số ---------- */
+  var cX = document.getElementById('ctX'),
+      cPQ = document.getElementById('ctPQ'),
+      cBody = document.getElementById('ctBody');
+
+  var nguoi = [
+    ['Bạn A', 'thoả cả hai tính chất', 'p &amp;&amp; q', function (p, q) { return p && q; }],
+    ['Uim', 'thoả ít nhất một', 'p || q', function (p, q) { return p || q; }],
+    ['Bạn B', 'thoả đúng một trong hai', 'p != q', function (p, q) { return p !== q; }],
+    ['Bạn G', 'không thoả tính chất nào', '!p &amp;&amp; !q', function (p, q) { return !p && !q; }]
+  ];
+
+  function ctVe() {
+    var x = parseInt(cX.value, 10);
+    if (isNaN(x)) { cPQ.textContent = '(x không hợp lệ)'; cBody.innerHTML = ''; return; }
+    var p = (x % 2 === 0), q = (x >= 5 && x <= 12);
+    cPQ.innerHTML = '<span style="font-family:\'Noto Sans Mono\',Consolas,ui-monospace,monospace">'
+      + 'p = (x chẵn) = <b>' + (p ? 1 : 0) + '</b> &nbsp;·&nbsp; '
+      + 'q = (5 ≤ x ≤ 12) = <b>' + (q ? 1 : 0) + '</b></span>';
+    var html = '';
+    for (var i = 0; i < 4; i++) {
+      var v = nguoi[i][3](p, q) ? 1 : 0;
+      html += '<tr><td class="ai">' + nguoi[i][0] + '</td>'
+            + '<td class="ai">' + nguoi[i][1] + '</td>'
+            + '<td><code class="inl">' + nguoi[i][2] + '</code></td>'
+            + '<td class="v ' + (v ? 'v1' : 'v0') + '">' + v + '</td></tr>';
+    }
+    cBody.innerHTML = html;
+  }
+  cX.addEventListener('input', ctVe);
+  Array.prototype.forEach.call(document.querySelectorAll('.sim-nut button[data-x]'), function (b) {
+    b.addEventListener('click', function () { cX.value = b.getAttribute('data-x'); ctVe(); });
+  });
+  ctVe();
+
+  /* ---------- Mô phỏng 3: hai thứ tự nhánh phân loại tam giác ---------- */
+  var tA = document.getElementById('tgA'), tB = document.getElementById('tgB'),
+      tC = document.getElementById('tgC'),
+      tDA = document.getElementById('tgDongA'), tDB = document.getElementById('tgDongB'),
+      tRA = document.getElementById('tgRaA'), tRB = document.getElementById('tgRaB'),
+      tKq = document.getElementById('tgKq');
+
+  function tgVe() {
+    var a = parseInt(tA.value, 10), b = parseInt(tB.value, 10), c = parseInt(tC.value, 10);
+    if (isNaN(a) || isNaN(b) || isNaN(c)) {
+      tDA.innerHTML = tDB.innerHTML = '';
+      tRA.textContent = tRB.textContent = '(thiếu dữ liệu)';
+      tKq.innerHTML = ''; return;
+    }
+    var khong = (a + b <= c) || (b + c <= a) || (a + c <= b);
+    var deu = (a === b && b === c);
+    var can = (a === b || b === c || a === c);
+    var vuong = (a * a + b * b === c * c) || (a * a + c * c === b * b) || (b * b + c * c === a * a);
+
+    /* Hai thứ tự chỉ khác nhau ở chỗ đặt "deu" trước hay sau "can". */
+    var mauA = ['if  khong            -> "khong"', 'eif can              -> "can"',
+                'eif deu              -> "deu"', 'eif vuong            -> "vuong"',
+                'else                 -> "thuong"'];
+    var mauB = ['if  khong            -> "khong"', 'eif deu              -> "deu"',
+                'eif can              -> "can"', 'eif vuong            -> "vuong"',
+                'else                 -> "thuong"'];
+    var dkA = [khong, can, deu, vuong, true], raA = ['khong', 'can', 'deu', 'vuong', 'thuong'];
+    var dkB = [khong, deu, can, vuong, true], raB = ['khong', 'deu', 'can', 'vuong', 'thuong'];
+
+    function ve(o, mau, dk) {
+      var k = -1, i;
+      for (i = 0; i < 5; i++) if (dk[i]) { k = i; break; }
+      var h = '';
+      for (i = 0; i < 5; i++)
+        h += '<div class="' + (i === k ? 'chay' : 'bo') + '">' + mau[i] + '</div>';
+      o.innerHTML = h;
+      return k;
+    }
+    var kA = ve(tDA, mauA, dkA), kB = ve(tDB, mauB, dkB);
+    tRA.textContent = raA[kA];
+    tRB.textContent = raB[kB];
+
+    if (raA[kA] !== raB[kB])
+      tKq.innerHTML = '<div class="lech">Hai thứ tự cho <b>hai kết quả khác nhau</b>: '
+        + raA[kA] + ' và ' + raB[kB] + '. Tập tam giác đều nằm trong tập tam giác cân, '
+        + 'nên nhánh nào đứng trước sẽ nuốt phần chung. Đề muốn <b>' + raB[kB] + '</b>.</div>';
+    else
+      tKq.innerHTML = '<div class="khop">Hai thứ tự cho cùng kết quả <b>' + raA[kA]
+        + '</b>. Bộ dữ liệu này không thoả nhiều nhánh cùng lúc nên thứ tự chưa lộ ra.</div>';
+  }
+  tA.addEventListener('input', tgVe);
+  tB.addEventListener('input', tgVe);
+  tC.addEventListener('input', tgVe);
+  Array.prototype.forEach.call(document.querySelectorAll('.sim-nut button[data-t]'), function (b) {
+    b.addEventListener('click', function () {
+      var t = b.getAttribute('data-t').split(',');
+      tA.value = t[0]; tB.value = t[1]; tC.value = t[2]; tgVe();
+    });
+  });
+  tgVe();
+})();
+</script>
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>
