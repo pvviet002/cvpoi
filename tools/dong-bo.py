@@ -81,6 +81,9 @@ TRANG = {
  'huffman/index.html': dict(
     nhom='Kỹ thuật', nhan='Thuật toán Huffman', tieude='Thuật toán Huffman và mã tiền tố',
     mota='Gộp hai đống nhẹ nhất để dựng mã tiền tố có tổng độ dài nhỏ nhất.'),
+ 'number-theory/index.html': dict(
+    nhom='Toán', nhan='Số học cơ bản', tieude='Số học cơ bản',
+    mota='Số học cho thi đấu: ước và chia hết, số nguyên tố, ƯCLN Euclid, đồng dư, luỹ thừa nhanh, nghịch đảo modulo, hệ cơ số.'),
  'sieve/index.html': dict(
     nhom='Toán', nhan='Sàng nguyên tố', tieude='Sàng nguyên tố',
     mota='Sàng Eratosthenes và mảng ước nguyên tố nhỏ nhất.'),
@@ -276,6 +279,7 @@ CO_THANH_BEN = {
     'huffman/index.html',
     'in-exclusive/index.html',
     'io/index.html',
+    'number-theory/index.html',
     'prefix-sum/1d/index.html',
     'prefix-sum/1d/pre-hash/index.html',
     'prefix-sum/1d/prefixsum_optimize/bai1-sol.html',

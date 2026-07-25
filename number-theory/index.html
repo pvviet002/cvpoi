@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Số học cơ bản | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<style>
+  /* CSS riêng của ba phòng mô phỏng và khối trắc nghiệm.
+     Mọi màu lấy từ biến của chuan.css nên tự đổi theo nền sáng/tối. */
+  .sim{background:var(--card); border:1px solid var(--border); border-radius:10px;
+       padding:16px 18px; margin:20px 0}
+  .sim-row{display:flex; flex-wrap:wrap; gap:12px 20px; align-items:center; margin-bottom:10px}
+  .sim-o{display:flex; align-items:center; gap:8px; font-size:.92rem}
+  .sim-o label{color:var(--muted)}
+  .sim input[type=number]{width:130px; padding:5px 9px; border-radius:6px;
+       border:1px solid var(--border); background:var(--bg); color:var(--fg);
+       font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.9rem}
+  .sim button{background:var(--bg); color:var(--fg); border:1px solid var(--border);
+       border-radius:7px; padding:5px 12px; font-size:.86rem; cursor:pointer; font-family:inherit}
+  .sim button:hover{border-color:var(--blue); color:var(--blue)}
+  .sim-kq{margin-top:8px; font-size:.95rem; line-height:1.9}
+  .sim-kq b{color:var(--blue)}
+  .sim-note{margin-top:8px; font-size:.86rem; color:var(--muted)}
+  .pair{display:inline-block; margin:3px 6px 3px 0; padding:3px 9px; border-radius:6px;
+        background:var(--blue-bg); color:var(--blue); border:1px solid var(--blue);
+        font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.85rem}
+  .pair.sq{background:var(--green-bg); color:var(--green); border-color:var(--green)}
+  .steptab{width:100%; border-collapse:collapse; margin-top:10px; font-size:.9rem;
+        font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace}
+  .steptab th,.steptab td{border:1px solid var(--border); padding:5px 10px; text-align:center}
+  .steptab th{background:var(--bg); color:var(--blue)}
+  /* trắc nghiệm */
+  .quiz{background:var(--card); border:1px solid var(--border); border-radius:10px;
+        padding:4px 18px 14px; margin:20px 0}
+  .quiz .q{font-weight:600; margin:16px 0 8px}
+  .quiz .opt{display:block; padding:8px 12px; margin:6px 0; border:1px solid var(--border);
+        border-radius:8px; background:var(--bg); cursor:pointer; font-size:.94rem}
+  .quiz .opt:hover{border-color:var(--blue)}
+  .quiz .opt.ok{background:var(--green-bg); border-color:var(--green); color:var(--green)}
+  .quiz .opt.no{background:var(--red-bg); border-color:var(--red); color:var(--red)}
+  .quiz .exp{display:none; margin:8px 0 2px; padding:8px 12px; border-left:4px solid var(--blue);
+        background:var(--blue-bg); border-radius:6px; font-size:.9rem}
+  .quiz .exp.show{display:block}
+
+/*cv-fix-nen-sang*/
+/* Ép mọi màu gõ cứng của bản nền tối theo bảng màu của chuẩn (tự đổi theo
+   nền sáng/tối). Đặt cuối <style> nên thắng các quy tắc trước cùng độ đặc hiệu. */
+
+/* 0) Màu chú thích mã mặc định của chuẩn (#8b949e) quá nhạt trên nền sáng
+   (tương phản 2,89 < 4,5). Làm đậm hơn ở nền sáng, giữ nguyên ở nền tối.
+   Khối <style> này đứng SAU chuan.css nên đè được cả bốn trạng thái nền. */
+:root{--c-cmt:#5f6672}
+@media (prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+:root[data-theme="light"]{--c-cmt:#5f6672}
+:root[data-theme="dark"]{--c-cmt:#8b949e}
+
+/* 1) Khối mã tự tạo của trang: nền và chữ theo chuẩn, rồi token màu cú pháp
+      dùng bảng token của chuẩn (var --c-*) vốn tự đổi nền. */
+/* KHÔNG đụng .codeline: nó có biến thể .codeline.hot tô sáng dòng đang chạy,
+   ép nền sẽ xoá mất hiệu ứng đó. Chỉ ép khung chứa và màu chữ mặc định. */
+.code-block, .code-container, .code, .code-runner, pre.code-block{
+  background:var(--code-bg) !important;
+}
+.code-block, .code-container, .code, .code-runner, pre.code-block, .codeline{
+  color:var(--code-fg) !important;
+}
+.c-kw,.tk-keyword,.kw,.token-kw{color:var(--c-kw) !important}
+.c-str,.tk-string,.st,.token-str{color:var(--c-str) !important}
+.c-cm,.tk-comment,.cm,.token-com{color:var(--c-cmt) !important}
+.c-num,.tk-number,.nm,.token-num{color:var(--c-num) !important}
+.c-fn,.tk-func,.fn,.token-func{color:var(--c-fn) !important}
+.c-type,.c-ty,.tk-type,.token-type{color:var(--c-kw) !important}
+.c-op,.op,.cmp-op,.tk-ident,.tk-macro,.pp,.tk-punc,.tk-comment{color:var(--code-fg) !important}
+.tk-comment,.c-cm{color:var(--c-cmt) !important}
+
+/* 2) Hộp/khung nội dung có nền tối gõ cứng -> nền theo chuẩn (tự đổi). */
+.quiz-box,.explain,.q-card,.lab-container,.lab-visual,.grid-board,.grid-vis,
+.sim-controls,.score-box,.var-item,.var-box,.var-badge,.info-panel,.set-box,
+.map-entry,.hero-insight,.array-cell,.bucket-tube,.reg-item,.quiz,.quiz-opt,
+.quiz-exp,.quiz-expl,.pitfall-col,.pitfall-card,.lab-bar,.formula-box,
+.mini-interactive,.visual-area,.state-panel,.info-box,.io-table,.styled-table,
+.say,.lab-msg,.word-box,.block-label,.col,.pit-col,.cmp-lab,.formula-b,
+.bucket-text,.grid-vis,.hero-insight{
+  background:var(--card) !important;
+}
+
+/* 3) Chữ nội dung gõ cứng màu sáng -> màu chữ chuẩn. */
+.qt,.q-text,.math-display,.reg-val,.bucket-text,.quiz-q,.lab-msg,.explain,
+.explain *,.quiz-box p,.quiz-box h4,.q-card *,
+.say,.say *,.formula-box,.formula-box *,.fv,.word-box,.word-box *,.col,.pit-col,
+.lab-msg *,.quiz p,.quiz h4{
+  color:var(--fg) !important;
+}
+
+/* 4) Ô bảng: tiêu đề dùng màu nhấn, ô thường dùng màu chữ chuẩn. */
+.box th, .tablewrap th, table th{color:var(--blue) !important}
+.box td, .tablewrap td, table td{color:var(--fg)}
+/*/cv-fix-nen-sang*/
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Số học cho thi đấu: ước và chia hết, số nguyên tố, ƯCLN Euclid, đồng dư, luỹ thừa nhanh, nghịch đảo modulo, hệ cơ số.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Số học cơ bản | Lý thuyết CP">
+<meta property="og:description" content="Số học cho thi đấu: ước và chia hết, số nguyên tố, ƯCLN Euclid, đồng dư, luỹ thừa nhanh, nghịch đảo modulo, hệ cơ số.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Số học cơ bản</div>
+  <a href="#s1">1. Vòng lặp tới n là cái bẫy</a>
+  <a href="#s2">2. Chia hết, ước và bội</a>
+  <a href="#s3">3. Ước đi theo cặp — duyệt tới √n</a>
+  <a href="#s4">4. Số nguyên tố và phân tích thừa số</a>
+  <a href="#s5">5. ƯCLN, BCNN và thuật toán Euclid</a>
+  <a href="#s6">6. Số học đồng dư</a>
+  <a href="#s7">7. Luỹ thừa nhanh</a>
+  <a href="#s8">8. Nghịch đảo modulo</a>
+  <a href="#s9">9. Hệ cơ số</a>
+  <a href="#s10">10. Nhận dạng, bẫy và trắc nghiệm</a>
+  <a href="#s11">11. Lộ trình bài luyện</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb">Toán<span class="cv-sep">/</span><span class="cv-here">Số học cơ bản</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Số học cơ bản</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p>Phần lớn bài số học trong đề tuyển sinh 10 không khó ở ý tưởng, mà khó ở chỗ <b>vòng lặp
+ngây thơ chạy quá lâu</b>. Chuyên đề này đi theo đúng một sợi chỉ: bài toán số học nào cũng có
+một <b>cấu trúc</b> giúp ta thay vòng lặp tới <span class="mathv">n</span> bằng một vòng ngắn hơn
+hẳn — tới <span class="mathv">√n</span> khi tìm ước, tới <span class="mathv">log n</span> khi tính
+ước chung hay luỹ thừa. Nhìn ra cấu trúc ấy là giải được cả nhóm bài.</p>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Vòng lặp tới n là cái bẫy</a></li>
+    <li><a href="#s2">Chia hết, ước và bội</a></li>
+    <li><a href="#s3">Ước đi theo cặp — duyệt tới √n</a></li>
+    <li><a href="#s4">Số nguyên tố và phân tích thừa số</a></li>
+    <li><a href="#s5">ƯCLN, BCNN và thuật toán Euclid</a></li>
+    <li><a href="#s6">Số học đồng dư</a></li>
+    <li><a href="#s7">Luỹ thừa nhanh</a></li>
+    <li><a href="#s8">Nghịch đảo modulo</a></li>
+    <li><a href="#s9">Hệ cơ số</a></li>
+    <li><a href="#s10">Nhận dạng, bẫy và trắc nghiệm</a></li>
+    <li><a href="#s11">Lộ trình bài luyện</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Vòng lặp tới n là cái bẫy</h2>
+
+<p>Bài mở đầu rất quen: <b>cho số nguyên dương <span class="mathv">n</span>, đếm xem
+<span class="mathv">n</span> có bao nhiêu ước</b>. Cách nghĩ đầu tiên ai cũng viết được — thử
+mọi số từ <span class="mathv">1</span> đến <span class="mathv">n</span>:</p>
+
+<div class="codewrap noname"><pre><code>long long n, dem = 0;
+cin &gt;&gt; n;
+for (long long i = 1; i &lt;= n; i++)
+    if (n % i == 0) dem++;
+cout &lt;&lt; dem &lt;&lt; "\n";</code></pre></div>
+
+<p>Đúng, nhưng chỉ chạy nổi khi <span class="mathv">n</span> nhỏ. Đề thường cho
+<span class="mathv">n</span> tới <span class="mathv">10<sup>12</sup></span>; vòng lặp khi ấy quay
+đủ <span class="mathv">10<sup>12</sup></span> lần — máy chấm cho một giây thì làm được khoảng
+<span class="mathv">10<sup>8</sup></span>–<span class="mathv">10<sup>9</sup></span> phép, nên lời
+giải này chậm gấp hàng nghìn lần giới hạn.</p>
+
+<div class="box warn">
+<div class="t">Điều cần thấy</div>
+<p>Thuật toán không sai — nó cho <b>đúng đáp số</b>. Cái hỏng là <b>số vòng lặp</b>. Toàn bộ
+chuyên đề xoay quanh một câu hỏi: dựa vào tính chất gì của con số để cắt số vòng lặp ấy xuống?
+Trả lời được là gỡ được cả nhóm bài đếm ước, xét nguyên tố, ước chung, luỹ thừa.</p>
+</div>
+
+<h2 id="s2"><span class="num">2.</span>Chia hết, ước và bội</h2>
+
+<p>Trước khi tăng tốc, cần gọi đúng tên các khái niệm. Với hai số nguyên
+<span class="mathv">a</span>, <span class="mathv">b</span> (<span class="mathv">b</span> ≠ 0):
+ta nói <b><span class="mathv">a</span> chia hết cho <span class="mathv">b</span></b> khi phép chia
+không dư, tức <code class="inl">a % b == 0</code>. Khi đó <span class="mathv">b</span> là
+<b>ước</b> của <span class="mathv">a</span>, còn <span class="mathv">a</span> là <b>bội</b> của
+<span class="mathv">b</span>.</p>
+
+<p>Trong C++, hai phép toán làm việc này là <code class="inl">/</code> (thương nguyên) và
+<code class="inl">%</code> (số dư). Vài tính chất được dùng đi dùng lại:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Tính chất</th><th>Phát biểu</th><th>Dùng để</th></tr></thead>
+<tbody>
+<tr><td>Chia hết của tổng</td><td>nếu <span class="mathv">d</span> | <span class="mathv">a</span> và <span class="mathv">d</span> | <span class="mathv">b</span> thì <span class="mathv">d</span> | (<span class="mathv">a</span> ± <span class="mathv">b</span>)</td><td>xét ước chung</td></tr>
+<tr><td>Chia hết của tích</td><td>nếu <span class="mathv">d</span> | <span class="mathv">a</span> thì <span class="mathv">d</span> | <span class="mathv">a·k</span> với mọi <span class="mathv">k</span></td><td>sinh bội</td></tr>
+<tr><td>Cùng số dư</td><td><span class="mathv">a</span> và <span class="mathv">b</span> cùng số dư khi chia <span class="mathv">m</span> ⇔ <span class="mathv">m</span> | (<span class="mathv">a</span> − <span class="mathv">b</span>)</td><td>bài "cùng số dư"</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box warn">
+<div class="t">Một điểm C++ dễ vấp: dấu của số dư</div>
+<p>Với số âm, <code class="inl">%</code> trong C++ lấy dấu theo <b>số bị chia</b>:
+<code class="inl">-7 % 3</code> cho <code class="inl">-1</code> chứ không phải
+<code class="inl">2</code>. Khi cần số dư luôn không âm (ví dụ dùng làm chỉ số mảng), viết
+<code class="inl">((a % m) + m) % m</code>.</p>
+</div>
+
+<h2 id="s3"><span class="num">3.</span>Ước đi theo cặp — duyệt tới √n</h2>
+
+<p>Đây là quan sát mở khóa cả mục 1. Nếu <span class="mathv">i</span> là một ước của
+<span class="mathv">n</span> thì <span class="mathv">n / i</span> cũng là ước — hai ước này đi thành
+<b>một cặp</b>. Trong mỗi cặp, luôn có một số không vượt quá
+<span class="mathv">√n</span> và một số không nhỏ hơn <span class="mathv">√n</span>. Vậy chỉ cần dò
+<span class="mathv">i</span> từ <span class="mathv">1</span> đến <span class="mathv">√n</span>, mỗi
+lần gặp ước thì nhận về <b>cả cặp</b>.</p>
+
+<p>Với <span class="mathv">n</span> = 12, chỉ cần xét tới <span class="mathv">√12</span> ≈ 3,46,
+tức <span class="mathv">i</span> = 1, 2, 3:</p>
+
+<p>
+<span class="pair">i=1 → (1, 12)</span>
+<span class="pair">i=2 → (2, 6)</span>
+<span class="pair">i=3 → (3, 4)</span>
+</p>
+
+<p>Ba lần lặp cho ra đủ 6 ước 1, 2, 3, 4, 6, 12 (tổng 28). So với vòng lặp cũ quay 12 lần —
+và với <span class="mathv">n</span> = <span class="mathv">10<sup>12</sup></span> thì
+<span class="mathv">√n</span> chỉ là <span class="mathv">10<sup>6</sup></span>, vừa sức một giây.</p>
+
+<div class="box tech">
+<div class="t">Bẫy số chính phương</div>
+<p>Khi <span class="mathv">n</span> là số chính phương, cặp ở giữa có hai số trùng nhau
+(<span class="mathv">i</span> = <span class="mathv">n / i</span>) nên chỉ được tính <b>một</b> ước,
+không phải hai. Với <span class="mathv">n</span> = 36, tại <span class="mathv">i</span> = 6 ta có
+cặp <span class="pair sq">(6, 6)</span> — đếm một lần. Kết quả 9 ước: 1, 2, 3, 4, 6, 9, 12, 18, 36.</p>
+</div>
+
+<p>Gộp lại thành đoạn đếm số ước và tính tổng ước trong <span class="mathv">O(√n)</span>:</p>
+
+<div class="codewrap noname"><pre><code>long long n, dem = 0, tong = 0;
+cin &gt;&gt; n;
+for (long long i = 1; i * i &lt;= n; i++)   // chỉ tới căn của n
+    if (n % i == 0) {
+        dem += 2;                        // i và n/i là hai ước
+        tong += i + n / i;
+        if (i == n / i) {                // n chính phương: đếm một lần
+            dem--;
+            tong -= i;
+        }
+    }
+cout &lt;&lt; dem &lt;&lt; " " &lt;&lt; tong &lt;&lt; "\n";</code></pre></div>
+
+<h3>Thử tay: vòng √n bắt cặp ước</h3>
+<p>Nhập một số, xem vòng lặp chỉ chạy tới <span class="mathv">√n</span> mà vẫn nhặt đủ ước.</p>
+
+<div class="sim">
+  <div class="sim-row">
+    <div class="sim-o"><label for="dvN">n =</label>
+      <input type="number" id="dvN" value="360" min="1" max="1000000000000"></div>
+    <button id="dvBtn">Chạy</button>
+    <button data-n="12">12</button>
+    <button data-n="36">36 · chính phương</button>
+    <button data-n="97">97 · nguyên tố</button>
+    <button data-n="360">360</button>
+  </div>
+  <div id="dvPairs"></div>
+  <div class="sim-kq" id="dvKq"></div>
+  <div class="sim-note" id="dvNote"></div>
+</div>
+
+<div class="box tech">
+<div class="t">Mở rộng: đếm ước cho <em>mọi</em> số từ 1 đến n cùng lúc — chuỗi điều hòa</div>
+<p>Khi đề hỏi số ước của <b>tất cả</b> các số trong đoạn, làm riêng từng số tốn
+<span class="mathv">n·√n</span>. Nhanh hơn: với mỗi <span class="mathv">d</span>, chạy qua các
+<b>bội</b> của nó và cộng thêm một ước cho từng bội.</p>
+<div class="codewrap noname"><pre><code>int n;
+cin &gt;&gt; n;
+vector&lt;int&gt; soUoc(n + 1, 0);
+for (int d = 1; d &lt;= n; d++)
+    for (int k = d; k &lt;= n; k += d)   // duyệt bội của d
+        soUoc[k]++;                    // d là một ước của k</code></pre></div>
+<p>Tổng số phép là <span class="mathv">n/1 + n/2 + … + n/n</span> ≈ <span class="mathv">n·ln n</span>
+(gọi là <b>chuỗi điều hòa</b>). Với <span class="mathv">n</span> = 10 chỉ tốn 27 phép, và cho ra
+số ước của 1…10 lần lượt là 1, 2, 2, 3, 2, 4, 2, 4, 3, 4.</p>
+</div>
+
+<h2 id="s4"><span class="num">4.</span>Số nguyên tố và phân tích thừa số</h2>
+
+<p>Số nguyên tố là số có <b>đúng hai ước</b>: 1 và chính nó. Đây chính là ca riêng của mục 3:
+<span class="mathv">n</span> nguyên tố khi và chỉ khi không có ước nào trong khoảng
+<span class="mathv">[2, √n]</span>. Gặp một ước là dừng ngay.</p>
+
+<div class="codewrap noname"><pre><code>bool nguyenTo(long long n) {
+    if (n &lt; 2) return false;             // 0 và 1 không nguyên tố
+    for (long long i = 2; i * i &lt;= n; i++)
+        if (n % i == 0) return false;     // có ước &rarr; hợp số
+    return true;
+}</code></pre></div>
+
+<div class="box warn">
+<div class="t">Cái bẫy "trông giống nguyên tố"</div>
+<p>Số 97 nguyên tố vì không chia hết cho số nào tới <span class="mathv">√97</span> ≈ 9,8. Nhưng
+91 <b>không</b> nguyên tố: 91 = 7 × 13. Nhiều bài cố ý cho những số kiểu 91, 143, 187… để bẫy
+lời giải chỉ thử vài ước đầu. Cứ dò hết tới <span class="mathv">√n</span> là an toàn.</p>
+</div>
+
+<p><b>Phân tích thừa số nguyên tố</b> cũng chỉ cần tới <span class="mathv">√n</span>: bóc dần từng
+thừa số nhỏ; nếu sau vòng lặp còn lại một số lớn hơn 1 thì đó là thừa số nguyên tố lớn hơn căn:</p>
+
+<div class="codewrap noname"><pre><code>long long n;
+cin &gt;&gt; n;
+for (long long p = 2; p * p &lt;= n; p++)
+    while (n % p == 0) {
+        cout &lt;&lt; p &lt;&lt; " ";
+        n /= p;
+    }
+if (n &gt; 1) cout &lt;&lt; n;   // thừa số nguyên tố lớn hơn √n còn sót lại
+cout &lt;&lt; "\n";</code></pre></div>
+
+<div class="box def">
+<div class="t">Khi cần xét nhiều số một lúc</div>
+<p>Nếu đề đòi liệt kê mọi số nguyên tố tới <span class="mathv">n</span>, hay hỏi tính nguyên tố
+của rất nhiều số, thì dò <span class="mathv">√n</span> cho từng số vẫn chậm — hãy dùng
+<b>Sàng Eratosthenes</b>, một kỹ thuật riêng: xem chuyên đề
+<a href="../sieve/index.html">Sàng nguyên tố</a>.</p>
+</div>
+
+<h2 id="s5"><span class="num">5.</span>ƯCLN, BCNN và thuật toán Euclid</h2>
+
+<p>Ước chung lớn nhất <span class="mathv">gcd(a, b)</span> là số lớn nhất chia hết cả
+<span class="mathv">a</span> và <span class="mathv">b</span>. Thuật toán Euclid dựa trên một đẳng
+thức đẹp: <b><span class="mathv">gcd(a, b) = gcd(b, a % b)</span></b> — thay số lớn bằng số dư,
+lặp lại đến khi số thứ hai bằng 0.</p>
+
+<p>Với <span class="mathv">a</span> = 48, <span class="mathv">b</span> = 18:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th class="c">a</th><th class="c">b</th><th class="c">a % b</th></tr></thead>
+<tbody>
+<tr><td class="c">48</td><td class="c">18</td><td class="c">12</td></tr>
+<tr><td class="c">18</td><td class="c">12</td><td class="c">6</td></tr>
+<tr><td class="c">12</td><td class="c">6</td><td class="c">0</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Khi <span class="mathv">b</span> về 0, số còn lại là <span class="mathv">gcd</span> = <b>6</b>.
+Số dư giảm rất nhanh (sau mỗi hai bước ít nhất giảm một nửa) nên thuật toán chỉ chạy
+<span class="mathv">O(log n)</span> vòng.</p>
+
+<div class="codewrap noname"><pre><code>long long gcd(long long a, long long b) {
+    while (b &gt; 0) {
+        long long r = a % b;
+        a = b;
+        b = r;
+    }
+    return a;
+}
+// C++ có sẵn __gcd(a, b), dùng ngay không cần tự viết.</code></pre></div>
+
+<div class="box tech">
+<div class="t">BCNN và cách nhân chống tràn</div>
+<p>Bội chung nhỏ nhất tính từ <span class="mathv">gcd</span>:
+<span class="mathv">lcm(a, b) = a / gcd(a, b) × b</span>. Phải <b>chia trước rồi mới nhân</b>: viết
+<code class="inl">a / gcd(a,b) * b</code> chứ đừng <code class="inl">a * b / gcd(a,b)</code>, vì
+<code class="inl">a * b</code> có thể tràn <code class="inl">long long</code> trước khi kịp chia.
+Với 48 và 18: <span class="mathv">lcm</span> = 48 / 6 × 18 = <b>144</b>.</p>
+</div>
+
+<h3>Thử tay: các bước Euclid</h3>
+<div class="sim">
+  <div class="sim-row">
+    <div class="sim-o"><label for="euA">a =</label>
+      <input type="number" id="euA" value="48" min="0"></div>
+    <div class="sim-o"><label for="euB">b =</label>
+      <input type="number" id="euB" value="18" min="0"></div>
+    <button id="euBtn">Chạy</button>
+    <button data-a="48" data-b="18">48, 18</button>
+    <button data-a="1071" data-b="462">1071, 462</button>
+    <button data-a="17" data-b="5">17, 5 · nguyên tố cùng nhau</button>
+  </div>
+  <div id="euOut"></div>
+  <div class="sim-kq" id="euKq"></div>
+</div>
+
+<h2 id="s6"><span class="num">6.</span>Số học đồng dư</h2>
+
+<p>Rất nhiều bài không cần con số cuối cùng mà chỉ cần <b>số dư</b> của nó khi chia cho
+<span class="mathv">m</span> — ví dụ "hai chữ số tận cùng" chính là số dư khi chia 100. Phép
+<code class="inl">%</code> phân phối được qua cộng và nhân:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Đẳng thức</th><th>Ý nghĩa</th></tr></thead>
+<tbody>
+<tr><td><code class="inl">(a + b) % m == ((a % m) + (b % m)) % m</code></td><td>lấy dư được trước khi cộng</td></tr>
+<tr><td><code class="inl">(a * b) % m == ((a % m) * (b % m)) % m</code></td><td>lấy dư được trước khi nhân</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Nhờ vậy, để lấy hai chữ số cuối của một tích lớn, cứ nhân rồi
+<code class="inl">% 100</code> sau mỗi bước, không bao giờ để số phình to. Ví dụ
+<code class="inl">(123 * 456) % 100</code> = 56088 % 100 = <b>88</b>.</p>
+
+<div class="box warn">
+<div class="t">Bẫy tràn số — chỗ mất điểm nhiều nhất</div>
+<p>Đây là nơi lời giải đúng thuật toán vẫn cho số rác. Cộng hai số hai tỉ trong kiểu
+<code class="inl">int</code>:</p>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Kiểu biến</th><th>2000000000 + 2000000000 in ra</th></tr></thead>
+<tbody>
+<tr><td><code class="inl">int</code></td><td><code class="inl">-294967296</code> — tràn, số âm vô nghĩa</td></tr>
+<tr><td><code class="inl">long long</code></td><td><code class="inl">4000000000</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Với phép nhân còn nguy hơn: <code class="inl">a * b</code> khi
+<span class="mathv">a</span>, <span class="mathv">b</span> cỡ <span class="mathv">10<sup>9</sup></span>
+cho tích cỡ <span class="mathv">10<sup>18</sup></span> — vẫn vừa <code class="inl">long long</code>,
+nhưng nhân thêm một số nữa là tràn. Khi tính tích nhiều thừa số dưới modulo, phải
+<code class="inl">% m</code> <b>sau mỗi phép nhân</b>. Nhớ luôn: trên máy thi Themis,
+<code class="inl">long</code> chỉ 4 byte (như <code class="inl">int</code>), phải viết đủ hai chữ
+<code class="inl">long long</code>.</p>
+</div>
+
+<div class="box ex">
+<div class="t">Nhận ra bài đồng dư</div>
+<p>Đề nói "in kết quả theo modulo <span class="mathv">10<sup>9</sup>+7</span>", "hai chữ số tận
+cùng", "chữ số hàng đơn vị", hay "cùng số dư khi chia <span class="mathv">k</span>" — đó đều là
+tín hiệu làm việc trong thế giới số dư, không cần con số đầy đủ.</p>
+</div>
+
+<h2 id="s7"><span class="num">7.</span>Luỹ thừa nhanh</h2>
+
+<p>Tính <span class="mathv">a<sup>n</sup></span> bằng cách nhân <span class="mathv">a</span> với
+chính nó <span class="mathv">n</span> lần tốn <span class="mathv">O(n)</span> — quá chậm khi
+<span class="mathv">n</span> tới hàng tỉ. Mẹo <b>bình phương liên tiếp</b> đưa về
+<span class="mathv">O(log n)</span>: đọc <span class="mathv">n</span> theo nhị phân, mỗi bước bình
+phương cơ số, gặp bit 1 thì nhân cơ số hiện tại vào kết quả.</p>
+
+<p>Ví dụ <span class="mathv">3<sup>13</sup></span> mod 1000, với 13 = 1101 ở hệ nhị phân:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th class="c">n còn lại</th><th class="c">bit</th><th class="c">kết quả trước bước</th><th class="c">cơ số a</th></tr></thead>
+<tbody>
+<tr><td class="c">13</td><td class="c">1</td><td class="c">1</td><td class="c">3</td></tr>
+<tr><td class="c">6</td><td class="c">0</td><td class="c">3</td><td class="c">9</td></tr>
+<tr><td class="c">3</td><td class="c">1</td><td class="c">3</td><td class="c">81</td></tr>
+<tr><td class="c">1</td><td class="c">1</td><td class="c">243</td><td class="c">561</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Kết quả cuối là 243 × 561 mod 1000 = <b>323</b> — khớp với
+<span class="mathv">3<sup>13</sup></span> = 1594323, tận cùng 323.</p>
+
+<div class="codewrap noname"><pre><code>long long luyThua(long long a, long long n, long long m) {
+    long long kq = 1 % m;
+    a %= m;
+    while (n &gt; 0) {
+        if (n &amp; 1) kq = kq * a % m;   // bit hiện tại là 1
+        a = a * a % m;                // bình phương cơ số
+        n &gt;&gt;= 1;                       // xét bit kế tiếp
+    }
+    return kq;
+}</code></pre></div>
+
+<div class="box tech">
+<div class="t">Vì sao luôn kèm modulo</div>
+<p><span class="mathv">a<sup>n</sup></span> phình rất nhanh (chỉ
+<span class="mathv">2<sup>63</sup></span> đã tràn <code class="inl">long long</code>), nên gần như
+bài nào cũng hỏi kết quả dưới modulo. Trong hàm trên, <code class="inl">kq</code> và
+<code class="inl">a</code> luôn nhỏ hơn <span class="mathv">m</span>, nên tích của chúng vừa
+<code class="inl">long long</code> khi <span class="mathv">m</span> không vượt khoảng
+<span class="mathv">3·10<sup>9</sup></span>.</p>
+</div>
+
+<h3>Thử tay: bình phương liên tiếp</h3>
+<div class="sim">
+  <div class="sim-row">
+    <div class="sim-o"><label for="lpA">a =</label><input type="number" id="lpA" value="3" min="0"></div>
+    <div class="sim-o"><label for="lpN">n =</label><input type="number" id="lpN" value="13" min="0"></div>
+    <div class="sim-o"><label for="lpM">m =</label><input type="number" id="lpM" value="1000" min="1"></div>
+    <button id="lpBtn">Chạy</button>
+  </div>
+  <div id="lpOut"></div>
+  <div class="sim-kq" id="lpKq"></div>
+</div>
+
+<h2 id="s8"><span class="num">8.</span>Nghịch đảo modulo</h2>
+
+<p>Dưới modulo không có phép chia thẳng: để "chia cho <span class="mathv">a</span>" ta nhân với
+<b>nghịch đảo</b> của nó — số <span class="mathv">a<sup>−1</sup></span> sao cho
+<span class="mathv">a · a<sup>−1</sup> ≡ 1 (mod m)</span>. Khi <span class="mathv">m</span> là số
+nguyên tố <span class="mathv">p</span> và <span class="mathv">a</span> không chia hết cho
+<span class="mathv">p</span>, định lý Fermat nhỏ cho ngay công thức:</p>
+
+<p style="text-align:center"><span class="mathv">a<sup>−1</sup> ≡ a<sup>p−2</sup> (mod p)</span></p>
+
+<p>Nghĩa là chỉ cần một lần <b>luỹ thừa nhanh</b> của mục 7:</p>
+
+<div class="codewrap noname"><pre><code>// p nguyên tố, a không chia hết cho p
+long long nghichDao = luyThua(a, p - 2, p);   // a^(p-2) mod p</code></pre></div>
+
+<p>Ví dụ nghịch đảo của 3 theo modulo 7 là
+<span class="mathv">3<sup>5</sup></span> mod 7 = 243 mod 7 = <b>5</b>, kiểm lại 3 × 5 = 15 ≡ 1 (mod 7).</p>
+
+<div class="box def">
+<div class="t">Khi nào cần tới</div>
+<p>Chỉ khi bài <b>có phép chia</b> mà kết quả lại lấy theo modulo (thường gặp ở tổ hợp
+<span class="mathv">C(n, k)</span> mod <span class="mathv">p</span>). Đây là nấc hơi nâng cao so với
+phần còn lại của chuyên đề — bài số học tuyển sinh 10 thường dừng trước mức này, nhưng biết thì
+không bị bất ngờ.</p>
+</div>
+
+<h2 id="s9"><span class="num">9.</span>Hệ cơ số</h2>
+
+<p>Cách đổi một số sang hệ cơ số <span class="mathv">b</span> dùng đúng cặp phép
+<code class="inl">% b</code> và <code class="inl">/ b</code> — giống hệt lối bóc từng chữ số ở
+chuyên đề <a href="../io/index.html">Nhập xuất</a>, chỉ thay 10 bằng
+<span class="mathv">b</span>: lấy dư cho ra chữ số cuối, rồi chia lấy phần còn lại.</p>
+
+<div class="codewrap noname"><pre><code>long long n; int b;
+cin &gt;&gt; n &gt;&gt; b;
+string s;
+if (n == 0) s = "0";
+while (n &gt; 0) {
+    int d = n % b;
+    s += (d &lt; 10 ? char('0' + d) : char('A' + d - 10));   // chữ số &gt; 9 dùng A, B, ...
+    n /= b;
+}
+reverse(s.begin(), s.end());   // chữ số hiện ra từ hàng thấp nên phải đảo lại
+cout &lt;&lt; s &lt;&lt; "\n";</code></pre></div>
+
+<p>Vài kết quả để đối chiếu: 13 sang nhị phân là <code class="inl">1101</code>, 255 sang hệ
+mười sáu là <code class="inl">FF</code>, 45 sang hệ mười sáu là <code class="inl">2D</code>.
+Chiều ngược lại — đọc một xâu ở cơ số <span class="mathv">b</span> về số thập phân — thì nhân dồn:
+<code class="inl">gt = gt * b + chuSo</code> cho từng ký tự từ trái sang phải.</p>
+
+<h2 id="s10"><span class="num">10.</span>Nhận dạng, bẫy và trắc nghiệm</h2>
+
+<p>Đọc đề thấy dấu hiệu nào thì với tay kỹ thuật nào:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Đề nói</th><th>Kỹ thuật</th></tr></thead>
+<tbody>
+<tr><td>"đếm/liệt kê ước", "tổng các ước", <span class="mathv">n</span> lớn</td><td>duyệt tới <span class="mathv">√n</span> (mục 3)</td></tr>
+<tr><td>"có phải số nguyên tố", "phân tích thừa số"</td><td>thử chia tới <span class="mathv">√n</span> (mục 4)</td></tr>
+<tr><td>"liệt kê mọi số nguyên tố ≤ <span class="mathv">n</span>"</td><td>Sàng Eratosthenes (chuyên đề riêng)</td></tr>
+<tr><td>"ước chung", "rút gọn phân số", "cùng chia hết"</td><td>ƯCLN Euclid (mục 5)</td></tr>
+<tr><td>"hai chữ số tận cùng", "theo modulo", "chữ số hàng đơn vị"</td><td>số học đồng dư (mục 6)</td></tr>
+<tr><td><span class="mathv">a<sup>n</sup></span> với <span class="mathv">n</span> rất lớn</td><td>luỹ thừa nhanh (mục 7)</td></tr>
+<tr><td>"đổi cơ số", "biểu diễn nhị phân"</td><td>lặp <code class="inl">% b</code>, <code class="inl">/ b</code> (mục 9)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box warn">
+<div class="t">Bốn cái bẫy quen mặt</div>
+<p><b>1. Tràn số.</b> Giới hạn vượt hai tỉ, hoặc có phép nhân, là dùng
+<code class="inl">long long</code> ngay; nhớ <code class="inl">long</code> trên Themis chỉ 4 byte.</p>
+<p><b>2. <code class="inl">i * i</code> cũng tràn.</b> Khi <span class="mathv">n</span> tới
+<span class="mathv">10<sup>18</sup></span>, điều kiện <code class="inl">i * i &lt;= n</code> làm
+<code class="inl">i * i</code> tràn trước khi so sánh. Khi ấy viết
+<code class="inl">i &lt;= n / i</code> cho an toàn.</p>
+<p><b>3. <code class="inl">gcd</code> với số 0.</b> <code class="inl">gcd(0, x)</code> bằng
+<span class="mathv">x</span>, không phải 0 — công thức Euclid vẫn đúng, đừng chặn nhầm.</p>
+<p><b>4. Lấy căn bằng <code class="inl">sqrt</code>.</b> <code class="inl">sqrt</code> trả số thực
+có sai số, dễ lệch một đơn vị. Cứ so bằng số nguyên <code class="inl">i * i &lt;= n</code> là
+tránh được hẳn.</p>
+</div>
+
+<div class="quiz" id="quiz">
+  <div class="q">Câu 1. Để đếm số ước của <span class="mathv">n</span> = <span class="mathv">10<sup>12</sup></span> trong một giây, nên duyệt <span class="mathv">i</span> tới đâu?</div>
+  <div class="opt" data-q="0" data-ok="0">Tới <span class="mathv">n</span> — cho chắc chắn không sót</div>
+  <div class="opt" data-q="0" data-ok="1">Tới <span class="mathv">√n</span>, mỗi ước nhặt cả cặp <span class="mathv">i</span> và <span class="mathv">n/i</span></div>
+  <div class="opt" data-q="0" data-ok="0">Tới <span class="mathv">n/2</span> vì ước lớn nhất khác <span class="mathv">n</span> không quá <span class="mathv">n/2</span></div>
+  <div class="exp" data-exp="0">Ước đi theo cặp quanh <span class="mathv">√n</span>, nên chỉ cần duyệt tới <span class="mathv">√n</span> ≈ <span class="mathv">10<sup>6</sup></span>. Tới <span class="mathv">n/2</span> vẫn là <span class="mathv">5·10<sup>11</sup></span> phép — quá chậm.</div>
+
+  <div class="q">Câu 2. <code class="inl">gcd(1071, 462)</code> bằng bao nhiêu?</div>
+  <div class="opt" data-q="1" data-ok="0">3</div>
+  <div class="opt" data-q="1" data-ok="1">21</div>
+  <div class="opt" data-q="1" data-ok="0">42</div>
+  <div class="exp" data-exp="1">1071 % 462 = 147; 462 % 147 = 21; 147 % 21 = 0 → gcd = 21.</div>
+
+  <div class="q">Câu 3. Tính tổng tích lớn dưới modulo, vì sao phải <code class="inl">% m</code> sau mỗi phép nhân?</div>
+  <div class="opt" data-q="2" data-ok="1">Để tích không phình quá <code class="inl">long long</code> rồi tràn thành số rác</div>
+  <div class="opt" data-q="2" data-ok="0">Để kết quả chạy nhanh hơn</div>
+  <div class="opt" data-q="2" data-ok="0">Vì <code class="inl">%</code> không phân phối qua phép nhân</div>
+  <div class="exp" data-exp="2"><code class="inl">%</code> phân phối được qua phép nhân, nên ta có quyền lấy dư sớm — và phải lấy sớm để mỗi thừa số luôn nhỏ hơn <span class="mathv">m</span>, giữ tích không tràn.</div>
+
+  <div class="q">Câu 4. 91 có phải số nguyên tố không?</div>
+  <div class="opt" data-q="3" data-ok="0">Có, vì 91 lẻ và không chia hết cho 2, 3, 5</div>
+  <div class="opt" data-q="3" data-ok="1">Không, vì 91 = 7 × 13</div>
+  <div class="opt" data-q="3" data-ok="0">Không, vì 91 chia hết cho 3</div>
+  <div class="exp" data-exp="3">Phải dò hết tới <span class="mathv">√91</span> ≈ 9,5. Bỏ sót 7 là kết luận nhầm 91 nguyên tố — đúng cái bẫy của mục 4.</div>
+</div>
+
+<h2 id="s11"><span class="num">11.</span>Lộ trình bài luyện</h2>
+
+<p>Các kỹ thuật trên phủ gần như toàn bộ nhóm bài số học trong đề tuyển sinh 10. Dưới đây là
+một lộ trình theo từng nấc, ví dụ lấy từ đề tuyển sinh thật vài tỉnh gần đây:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th class="c">Nấc</th><th>Kỹ thuật</th><th>Bài mẫu (đề thật)</th></tr></thead>
+<tbody>
+<tr><td class="c">1</td><td>Chia hết, chữ số, số dư cơ bản</td><td><i>Đếm ước</i> (Vũng Tàu 2025); <i>Đếm số chính phương</i> (Đắk Lắk 2026)</td></tr>
+<tr><td class="c">2</td><td>Duyệt <span class="mathv">√n</span>: ước và nguyên tố</td><td><i>Số dạng i!±1 nguyên tố</i> (An Giang 2026); <i>Số đảo nguyên tố</i> (An Giang 2026)</td></tr>
+<tr><td class="c">3</td><td>Đồng dư, chữ số tận cùng</td><td><i>Hai chữ số cuối của tổng bình phương</i> (Đắk Nông 2026); <i>Cùng số dư khi chia k</i> (Đắk Lắk 2026)</td></tr>
+<tr><td class="c">4</td><td>ƯCLN, tổng dãy, rút gọn</td><td><i>Tổng dãy T<sub>k</sub> = (k+1)² − k²</i> (Hà Tĩnh 2026)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box def">
+<div class="t">Ba câu tự hỏi trước khi bấm nộp</div>
+<ul>
+<li>Vòng lặp của mình chạy tới <span class="mathv">n</span> hay tới <span class="mathv">√n</span>?
+Giới hạn của đề có cho phép chạy tới <span class="mathv">n</span> không?</li>
+<li>Có phép nhân hay giới hạn vượt hai tỉ không? Nếu có, đã để
+<code class="inl">long long</code> chưa?</li>
+<li>Bài có hỏi kết quả theo modulo hay hai chữ số cuối không? Nếu có, đã lấy dư sau mỗi phép
+nhân để tránh tràn chưa?</li>
+</ul>
+</div>
+
+</div>
+</div>
+
+<script>
+(function () {
+  /* ---------- Sim 1: ước theo cặp, duyệt tới √n ---------- */
+  var dvN = document.getElementById('dvN'),
+      dvPairs = document.getElementById('dvPairs'),
+      dvKq = document.getElementById('dvKq'),
+      dvNote = document.getElementById('dvNote');
+
+  function chayUoc() {
+    var n = Math.floor(Number(dvN.value));
+    if (!(n >= 1)) { dvPairs.innerHTML = ''; dvKq.textContent = 'Nhập số nguyên dương.'; dvNote.textContent = ''; return; }
+    var html = '', dem = 0, tong = 0, buoc = 0, laChinhPhuong = false;
+    for (var i = 1; i * i <= n; i++) {
+      buoc++;
+      if (n % i === 0) {
+        var j = n / i;
+        if (i === j) { html += '<span class="pair sq">(' + i + ', ' + j + ')</span>'; dem += 1; tong += i; laChinhPhuong = true; }
+        else { html += '<span class="pair">(' + i + ', ' + j + ')</span>'; dem += 2; tong += i + j; }
+      }
+    }
+    dvPairs.innerHTML = html;
+    var nguyenTo = (n >= 2 && dem === 2);
+    dvKq.innerHTML = 'Số ước: <b>' + dem + '</b> &nbsp;·&nbsp; Tổng ước: <b>' + tong + '</b>' +
+      (nguyenTo ? ' &nbsp;·&nbsp; <b>là số nguyên tố</b>' : '') +
+      (laChinhPhuong ? ' &nbsp;·&nbsp; <b>là số chính phương</b>' : '');
+    dvNote.textContent = 'Vòng lặp chỉ chạy ' + buoc + ' bước (tới √n ≈ ' + Math.floor(Math.sqrt(n)) +
+      '), thay vì ' + n + ' bước của cách ngây thơ.';
+  }
+  document.getElementById('dvBtn').addEventListener('click', chayUoc);
+  dvN.addEventListener('keydown', function (e) { if (e.key === 'Enter') chayUoc(); });
+
+  /* ---------- Sim 2: thuật toán Euclid ---------- */
+  var euA = document.getElementById('euA'), euB = document.getElementById('euB'),
+      euOut = document.getElementById('euOut'), euKq = document.getElementById('euKq');
+
+  function chayEuclid() {
+    var a = Math.floor(Number(euA.value)), b = Math.floor(Number(euB.value));
+    if (!(a >= 0) || !(b >= 0) || (a === 0 && b === 0)) { euOut.innerHTML = ''; euKq.textContent = 'Nhập hai số không âm, không cùng bằng 0.'; return; }
+    var A = a, B = b, rows = '', dem = 0;
+    while (B > 0 && dem < 200) {
+      var r = A % B;
+      rows += '<tr><td>' + A + '</td><td>' + B + '</td><td>' + r + '</td></tr>';
+      A = B; B = r; dem++;
+    }
+    euOut.innerHTML = '<table class="steptab"><thead><tr><th>a</th><th>b</th><th>a % b</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    var g = A;
+    var kq = 'ƯCLN = <b>' + g + '</b>';
+    if (g > 0 && a > 0 && b > 0) kq += ' &nbsp;·&nbsp; BCNN = a / g × b = <b>' + (a / g * b) + '</b>';
+    euKq.innerHTML = kq;
+  }
+  document.getElementById('euBtn').addEventListener('click', chayEuclid);
+
+  /* ---------- Sim 3: luỹ thừa nhanh ---------- */
+  var lpA = document.getElementById('lpA'), lpN = document.getElementById('lpN'),
+      lpM = document.getElementById('lpM'), lpOut = document.getElementById('lpOut'),
+      lpKq = document.getElementById('lpKq');
+
+  function chayLuyThua() {
+    var a = Math.floor(Number(lpA.value)), n = Math.floor(Number(lpN.value)), m = Math.floor(Number(lpM.value));
+    if (!(a >= 0) || !(n >= 0) || !(m >= 1)) { lpOut.innerHTML = ''; lpKq.textContent = 'Nhập a ≥ 0, n ≥ 0, m ≥ 1.'; return; }
+    var kq = 1 % m, base = a % m, rows = '', dem = 0;
+    while (n > 0 && dem < 64) {
+      var bit = n & 1;
+      rows += '<tr><td>' + n + '</td><td>' + bit + '</td><td>' + kq + '</td><td>' + base + '</td></tr>';
+      if (bit) kq = (kq * base) % m;
+      base = (base * base) % m;
+      n = Math.floor(n / 2); dem++;
+    }
+    lpOut.innerHTML = '<table class="steptab"><thead><tr><th>n còn lại</th><th>bit</th><th>kết quả trước</th><th>cơ số</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    lpKq.innerHTML = 'Kết quả: <b>' + kq + '</b>';
+  }
+  document.getElementById('lpBtn').addEventListener('click', chayLuyThua);
+
+  /* ---------- nút nạp sẵn cho các sim ---------- */
+  Array.prototype.forEach.call(document.querySelectorAll('.sim button[data-n]'), function (b) {
+    b.addEventListener('click', function () { dvN.value = b.getAttribute('data-n'); chayUoc(); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.sim button[data-a]'), function (b) {
+    b.addEventListener('click', function () { euA.value = b.getAttribute('data-a'); euB.value = b.getAttribute('data-b'); chayEuclid(); });
+  });
+
+  /* ---------- trắc nghiệm ---------- */
+  Array.prototype.forEach.call(document.querySelectorAll('#quiz .opt'), function (o) {
+    o.addEventListener('click', function () {
+      var q = o.getAttribute('data-q');
+      Array.prototype.forEach.call(document.querySelectorAll('#quiz .opt[data-q="' + q + '"]'), function (x) {
+        x.className = 'opt';
+      });
+      o.className = 'opt ' + (o.getAttribute('data-ok') === '1' ? 'ok' : 'no');
+      var exp = document.querySelector('#quiz .exp[data-exp="' + q + '"]');
+      if (exp) exp.className = 'exp show';
+    });
+  });
+
+  chayUoc(); chayEuclid(); chayLuyThua();
+})();
+</script>
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>
