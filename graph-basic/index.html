@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đồ thị cơ bản: Biểu diễn, BFS, DFS, liên thông | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<style>
+  /* Ba phòng mô phỏng. Màu lấy từ chuan.css để tự đổi theo nền sáng/tối. */
+  .sim{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin:20px 0}
+  .sim-hang{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;margin-bottom:12px}
+  .sim-o{display:flex;align-items:center;gap:8px;font-size:.92rem}
+  .sim-o label{color:var(--muted)}
+  .sim input[type=number],.sim input[type=text],.sim textarea,.sim select{padding:6px 9px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--fg);font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;font-size:.9rem}
+  .sim input[type=number]{width:78px}.sim input[type=text]{width:250px}.sim textarea{width:min(100%,560px);min-height:84px;resize:vertical}
+  .sim-nhan{font-size:.8rem;color:var(--muted);margin:10px 0 4px}
+  .sim-nut{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .sim-nut button{background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:7px;padding:5px 11px;font-size:.84rem;cursor:pointer;font-family:inherit}
+  .sim-nut button:hover{border-color:var(--blue);color:var(--blue)}
+  .sim-nut button:disabled{opacity:.45;cursor:not-allowed}
+  .sim-ra{margin-top:10px;font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;background:var(--code-bg);color:var(--code-fg);border:1px solid var(--border);border-left:4px solid var(--green);border-radius:8px;padding:9px 13px;white-space:pre-wrap;overflow-x:auto}
+  .sim-ra.trong{border-left-color:var(--red);color:var(--red)}
+  .sim-canh{margin-top:10px;font-size:.88rem;color:var(--amber);min-height:1.2em}
+  .dong{font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;font-size:.86rem;background:var(--code-bg);color:var(--code-fg);border:1px solid var(--border);border-radius:8px;overflow-x:auto}
+  .dong div{padding:4px 12px;white-space:pre;border-left:4px solid transparent}
+  .dong div.chay{background:var(--green-bg);border-left-color:var(--green);color:var(--green)}
+  .dong div.bo{opacity:.42}
+  .haicot{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.haicot{grid-template-columns:1fr}.sim input[type=text]{width:100%}}
+  .cot-ten{font-size:.84rem;color:var(--muted);margin-bottom:5px}
+  .statebar{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+  .state{padding:7px 10px;border-radius:7px;border:1px solid var(--border);background:var(--bg);font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;font-size:.86rem}
+  .state b{color:var(--blue)}
+  .graphbox{border:1px solid var(--border);border-radius:9px;background:var(--bg);padding:8px;overflow-x:auto}
+  .graphbox svg{display:block;margin:auto;min-width:520px}
+  .g-edge{stroke:var(--edge);stroke-width:2}
+  .g-edge.on{stroke:var(--blue);stroke-width:3}
+  .g-node{fill:var(--card);stroke:var(--edge);stroke-width:2}
+  .g-node.seen{fill:var(--blue-bg);stroke:var(--blue)}
+  .g-node.active{fill:var(--green-bg);stroke:var(--green);stroke-width:3}
+  .g-node.done{fill:var(--green-bg);stroke:var(--green)}
+  .g-node.comp1{fill:var(--blue-bg);stroke:var(--blue)}
+  .g-node.comp2{fill:var(--green-bg);stroke:var(--green)}
+  .g-node.comp3{fill:var(--amber-bg);stroke:var(--amber)}
+  .g-node.comp4{fill:var(--red-bg);stroke:var(--red)}
+  .g-label{fill:var(--fg);font-size:14px;font-weight:700;text-anchor:middle;dominant-baseline:middle}
+  .mini{font-size:.84rem;color:var(--muted)}
+  .matrix{border-collapse:collapse;font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;font-size:.82rem}
+  .matrix th,.matrix td{border:1px solid var(--border);padding:4px 7px;text-align:center;min-width:28px}
+  .matrix th{background:var(--bg);color:var(--blue)}
+  .matrix td.one{background:var(--green-bg);color:var(--green);font-weight:700}
+  .queue{display:flex;gap:5px;flex-wrap:wrap;min-height:34px;align-items:center}
+  .queue span{display:inline-block;padding:5px 9px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace}
+  .queue span:first-child{border-color:var(--green);color:var(--green)}
+  .badge{display:inline-block;padding:2px 7px;border-radius:999px;font-size:.78rem;border:1px solid var(--border);background:var(--bg);color:var(--muted)}
+  .khop{margin-top:12px;padding:9px 13px;border-radius:8px;font-size:.9rem;background:var(--green-bg);color:var(--green);border:1px solid var(--green)}
+  .lech{margin-top:12px;padding:9px 13px;border-radius:8px;font-size:.9rem;background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+
+/*cv-fix-nen-sang*/
+:root{--c-cmt:#5f6672}
+@media(prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+:root[data-theme="light"]{--c-cmt:#5f6672}
+:root[data-theme="dark"]{--c-cmt:#8b949e}
+.box th,.tablewrap th,table th{color:var(--blue)!important}
+.box td,.tablewrap td,table td{color:var(--fg)}
+/*/cv-fix-nen-sang*/
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Đồ thị cơ bản trong C++: danh sách kề, ma trận kề, BFS, DFS, khoảng cách trên đồ thị không trọng số và thành phần liên thông. Kèm ba mô phỏng tương tác.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Đồ thị cơ bản: Biểu diễn, BFS, DFS, liên thông | Lý thuyết CP">
+<meta property="og:description" content="Học đồ thị từ cách lưu cạnh đến hai phép duyệt BFS, DFS và cách đếm thành phần liên thông. Kèm ba phòng mô phỏng.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Đồ thị cơ bản</div>
+  <a href="#s1">1. Đỉnh, cạnh và đường đi</a>
+  <a href="#s2">2. Biểu diễn đồ thị</a>
+  <a href="#s3">3. BFS: lan theo lớp</a>
+  <a href="#s4">4. DFS: đi sâu rồi lui</a>
+  <a href="#s5">5. Thành phần liên thông</a>
+  <a href="#s6">6. Đúng, nhanh và các bẫy</a>
+  <a href="#s7">7. Khuôn code và lộ trình</a>
+</aside>
+
+<div class="main"><div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav"><div class="cv-nav-in">
+  <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+  <span class="cv-crumb">Cấu trúc dữ liệu<span class="cv-sep">/</span><span class="cv-here">Đồ thị cơ bản</span></span>
+</div></nav>
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Đồ thị cơ bản: Biểu diễn đồ thị, BFS, DFS, liên thông</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p>Một mạng đường, nhóm bạn, hệ thống máy tính, bản đồ mê cung hay các ô đất liền trên lưới
+đều có thể nhìn dưới cùng một hình thức: <b>các đối tượng</b> và <b>các mối nối</b> giữa
+chúng. Đồ thị là ngôn ngữ dùng để mô tả cấu trúc ấy. Khi đã lưu đúng các mối nối, hai phép
+duyệt <code class="inl">BFS</code> và <code class="inl">DFS</code> sẽ trở thành chiếc
+búa dùng được cho hàng loạt bài toán.</p>
+
+<div class="box def"><div class="t">Sợi chỉ đỏ</div>
+<p>Duyệt đồ thị là quá trình bắt đầu từ một đỉnh, đi qua các cạnh và đánh dấu những đỉnh đã
+thấy. <b>BFS</b> mở rộng theo từng lớp khoảng cách; <b>DFS</b> đi sâu hết một nhánh rồi mới
+quay lại. Dù thứ tự khác nhau, cả hai đều trả lời chung một câu hỏi nền tảng:
+<b>từ đây ta có thể tới được những đỉnh nào?</b></p></div>
+
+<nav class="toc"><b>Nội dung</b><ol>
+<li><a href="#s1">Đỉnh, cạnh, đường đi và các loại đồ thị</a></li>
+<li><a href="#s2">Ba cách biểu diễn đồ thị</a></li>
+<li><a href="#s3">BFS — lan theo từng lớp</a></li>
+<li><a href="#s4">DFS — đi sâu rồi quay lui</a></li>
+<li><a href="#s5">Thành phần liên thông</a></li>
+<li><a href="#s6">Chứng minh, độ phức tạp và các bẫy</a></li>
+<li><a href="#s7">Khuôn code và lộ trình luyện tập</a></li>
+</ol></nav>
+
+<h2 id="s1"><span class="num">1.</span>Đỉnh, cạnh và đường đi</h2>
+
+<p>Một đồ thị <span class="mathv">G = (V, E)</span> gồm tập đỉnh <span class="mathv">V</span>
+và tập cạnh <span class="mathv">E</span>. Trong code, các đỉnh thường được đánh số từ
+<code class="inl">1</code> tới <code class="inl">n</code>; mỗi cạnh nối hai đỉnh
+<code class="inl">u</code> và <code class="inl">v</code>.</p>
+
+<div style="margin:18px 0;overflow-x:auto">
+<svg viewBox="0 0 720 270" width="100%" style="max-width:720px;display:block;margin:0 auto" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Một đồ thị vô hướng gồm bảy đỉnh và hai thành phần liên thông">
+  <g stroke="var(--edge)" stroke-width="2">
+    <line x1="100" y1="70" x2="220" y2="55"/><line x1="100" y1="70" x2="160" y2="170"/>
+    <line x1="220" y1="55" x2="300" y2="150"/><line x1="160" y1="170" x2="300" y2="150"/>
+    <line x1="300" y1="150" x2="390" y2="80"/><line x1="520" y1="75" x2="620" y2="165"/>
+  </g>
+  <g fill="var(--blue-bg)" stroke="var(--blue)" stroke-width="2">
+    <circle cx="100" cy="70" r="25"/><circle cx="220" cy="55" r="25"/><circle cx="160" cy="170" r="25"/><circle cx="300" cy="150" r="25"/><circle cx="390" cy="80" r="25"/>
+  </g>
+  <g fill="var(--green-bg)" stroke="var(--green)" stroke-width="2"><circle cx="520" cy="75" r="25"/><circle cx="620" cy="165" r="25"/></g>
+  <g fill="var(--fg)" font-size="15" font-weight="700" text-anchor="middle" dominant-baseline="middle">
+    <text x="100" y="70">1</text><text x="220" y="55">2</text><text x="160" y="170">3</text><text x="300" y="150">4</text><text x="390" y="80">5</text><text x="520" y="75">6</text><text x="620" y="165">7</text>
+  </g>
+  <text x="245" y="230" fill="var(--blue)" font-size="14" text-anchor="middle">thành phần liên thông thứ nhất</text>
+  <text x="570" y="230" fill="var(--green)" font-size="14" text-anchor="middle">thành phần thứ hai</text>
+</svg>
+</div>
+
+<div class="tablewrap"><table><thead><tr><th>Khái niệm</th><th>Ý nghĩa</th><th>Ví dụ</th></tr></thead><tbody>
+<tr><td><b>Đỉnh</b></td><td>Một đối tượng trong mạng</td><td>Thành phố, người, ô trống</td></tr>
+<tr><td><b>Cạnh</b></td><td>Một mối nối giữa hai đối tượng</td><td>Con đường, tình bạn, bước đi hợp lệ</td></tr>
+<tr><td><b>Đường đi</b></td><td>Dãy đỉnh liên tiếp, hai đỉnh kế nhau có cạnh</td><td><code class="inl">1 → 3 → 4 → 5</code></td></tr>
+<tr><td><b>Chu trình</b></td><td>Đường đi quay trở về đỉnh bắt đầu</td><td><code class="inl">1 → 2 → 4 → 3 → 1</code></td></tr>
+<tr><td><b>Bậc</b></td><td>Số cạnh kề với một đỉnh trong đồ thị vô hướng</td><td>Đỉnh 4 ở hình trên có bậc 3</td></tr>
+</tbody></table></div>
+
+<h3>Vô hướng, có hướng và có trọng số</h3>
+
+<div class="haicot"><div>
+<div class="cot-ten">Đồ thị vô hướng</div>
+<div class="codewrap noname"><pre><code>// Cạnh u -- v đi được cả hai chiều
+adj[u].push_back(v);
+adj[v].push_back(u);</code></pre></div>
+<p>Một cạnh biểu diễn quan hệ hai chiều: đường hai chiều, tình bạn.</p>
+</div><div>
+<div class="cot-ten">Đồ thị có hướng</div>
+<div class="codewrap noname"><pre><code>// Cung u -> v chỉ đi từ u sang v
+adj[u].push_back(v);</code></pre></div>
+<p>Một cung biểu diễn quan hệ một chiều: theo dõi, đường một chiều, phụ thuộc.</p>
+</div></div>
+
+<div class="box warn"><div class="t">Liên thông trong chuyên đề này là liên thông vô hướng</div>
+<p>Với đồ thị có hướng, “đi được từ <span class="mathv">u</span> tới <span class="mathv">v</span>”
+không bảo đảm đi ngược lại được. Khái niệm liên thông mạnh, liên thông yếu cần thuật toán khác.
+Các phần BFS, DFS vẫn dùng được trên đồ thị có hướng, nhưng mục đếm thành phần bên dưới giả sử
+đồ thị <b>vô hướng</b>.</p></div>
+
+<h2 id="s2"><span class="num">2.</span>Biểu diễn đồ thị</h2>
+
+<p>Máy tính không nhìn thấy hình vẽ; ta phải lưu các cạnh. Ba cách quen thuộc là danh sách
+cạnh, ma trận kề và danh sách kề. Chọn sai cách lưu có thể biến một thuật toán tuyến tính
+thành thuật toán quá chậm hoặc làm tốn bộ nhớ.</p>
+
+<div class="tablewrap"><table><thead><tr><th>Cách lưu</th><th>Bộ nhớ</th><th>Duyệt hàng xóm của u</th><th>Kiểm tra có cạnh u-v</th><th>Phù hợp</th></tr></thead><tbody>
+<tr><td>Danh sách cạnh</td><td><span class="mathv">O(m)</span></td><td><span class="mathv">O(m)</span></td><td><span class="mathv">O(m)</span></td><td>Kruskal, đọc/ghi toàn bộ cạnh</td></tr>
+<tr><td>Ma trận kề</td><td><span class="mathv">O(n²)</span></td><td><span class="mathv">O(n)</span></td><td><span class="mathv">O(1)</span></td><td><span class="mathv">n</span> nhỏ, đồ thị dày</td></tr>
+<tr><td><b>Danh sách kề</b></td><td><span class="mathv">O(n+m)</span></td><td><span class="mathv">O(deg(u))</span></td><td>thường <span class="mathv">O(deg(u))</span></td><td>BFS, DFS, đồ thị thưa</td></tr>
+</tbody></table></div>
+
+<h3>Danh sách kề — lựa chọn mặc định</h3>
+
+<div class="codewrap noname"><pre><code>int n, m;
+cin &gt;&gt; n &gt;&gt; m;
+vector&lt;vector&lt;int&gt;&gt; adj(n + 1);
+
+for (int i = 0; i &lt; m; i++) {
+    int u, v;
+    cin &gt;&gt; u &gt;&gt; v;
+    adj[u].push_back(v);
+    adj[v].push_back(u);        // bỏ dòng này nếu đồ thị có hướng
+}</code></pre></div>
+
+<p>Trong đồ thị vô hướng, mỗi cạnh được cất <b>hai lần</b>: <span class="mathv">v</span>
+nằm trong danh sách của <span class="mathv">u</span>, và <span class="mathv">u</span>
+nằm trong danh sách của <span class="mathv">v</span>. Vì vậy tổng số phần tử trong mọi
+danh sách kề bằng <span class="mathv">2m</span>, vẫn là <span class="mathv">O(m)</span>.</p>
+
+<div class="box tech"><div class="t">Có cần sắp xếp danh sách kề không?</div>
+<p>Không cần nếu đề chỉ hỏi khả năng tới được, khoảng cách hoặc số thành phần. Chỉ sắp xếp khi
+đề yêu cầu thứ tự thăm nhỏ nhất, đường đi từ điển nhỏ nhất, hoặc output phụ thuộc thứ tự. Khi
+đó dùng <code class="inl">sort(adj[u].begin(), adj[u].end())</code> cho từng đỉnh.</p></div>
+
+<h3>Thử tay: từ danh sách cạnh sang hai cách lưu</h3>
+
+<p>Nhập <span class="mathv">n</span> và các cạnh theo dạng <code class="inl">u-v</code>.
+Phòng mô phỏng sẽ tạo danh sách kề và ma trận kề. Hãy bật/tắt “có hướng” để thấy vì sao đồ
+thị vô hướng phải thêm cạnh ngược.</p>
+
+<div class="sim">
+  <div class="sim-hang">
+    <div class="sim-o"><label for="repN">Số đỉnh n</label><input type="number" id="repN" min="1" max="9" value="6"></div>
+    <div class="sim-o"><input type="checkbox" id="repDir"><label for="repDir">đồ thị có hướng</label></div>
+  </div>
+  <div class="sim-o" style="align-items:flex-start"><label for="repEdges">Các cạnh</label><textarea id="repEdges">1-2 1-3 2-4 3-4 4-5 5-6</textarea></div>
+  <div class="sim-nut"><button id="repBuild">Dựng biểu diễn</button><button data-rep="5|1-2 1-3 2-4 3-4">hình thoi</button><button data-rep="6|1-2 2-3 4-5">ba nhóm</button><button data-rep="4|1-2 2-3 3-4 4-1">chu trình</button></div>
+  <div class="haicot" style="margin-top:14px">
+    <div><div class="sim-nhan">Danh sách kề</div><div class="sim-ra" id="repList"></div></div>
+    <div><div class="sim-nhan">Ma trận kề</div><div class="graphbox" id="repMatrix"></div></div>
+  </div>
+  <div class="sim-canh" id="repWarn"></div>
+</div>
+
+<h2 id="s3"><span class="num">3.</span>BFS — lan theo từng lớp</h2>
+
+<p><b>Breadth-First Search</b> bắt đầu từ đỉnh nguồn <span class="mathv">s</span>, thăm
+các đỉnh cách <span class="mathv">s</span> một cạnh trước, rồi hai cạnh, rồi ba cạnh.
+Để giữ đúng thứ tự lớp, BFS dùng <b>hàng đợi</b> <code class="inl">queue</code>: đỉnh
+vào trước được xử lý trước.</p>
+
+<div class="codewrap noname"><pre><code>vector&lt;int&gt; dist(n + 1, -1);
+queue&lt;int&gt; q;
+
+dist[s] = 0;
+q.push(s);
+
+while (!q.empty()) {
+    int u = q.front();
+    q.pop();
+
+    for (int v : adj[u]) {
+        if (dist[v] == -1) {
+            dist[v] = dist[u] + 1;
+            q.push(v);
+        }
+    }
+}</code></pre></div>
+
+<div class="box def"><div class="t">Bất biến của BFS</div>
+<p>Khi một đỉnh <span class="mathv">u</span> được lấy khỏi hàng đợi, mọi đỉnh có khoảng
+cách nhỏ hơn <code class="inl">dist[u]</code> đã được xử lý. Lần đầu nhìn thấy
+<span class="mathv">v</span> qua cạnh <span class="mathv">u-v</span>, đường đi có độ dài
+<code class="inl">dist[u] + 1</code> là ngắn nhất có thể.</p></div>
+
+<h3>Vì sao phải đánh dấu khi đưa vào hàng đợi?</h3>
+
+<div class="haicot"><div>
+<div class="cot-ten">Đúng — đánh dấu lúc phát hiện</div>
+<div class="codewrap noname"><pre><code>if (!visited[v]) {
+    visited[v] = true;
+    q.push(v);
+}</code></pre></div>
+<p>Mỗi đỉnh chỉ được đưa vào hàng đợi một lần.</p>
+</div><div>
+<div class="cot-ten">Dễ chậm — đánh dấu lúc lấy ra</div>
+<div class="codewrap noname"><pre><code>q.push(v);       // v có thể bị nhiều u cùng đẩy
+...
+visited[u] = true;</code></pre></div>
+<p>Một đỉnh có thể xuất hiện nhiều lần trong hàng đợi trước khi được xử lý.</p>
+</div></div>
+
+<div class="box tech"><div class="t">BFS tìm đường đi ngắn nhất khi nào?</div>
+<p>Khi mọi cạnh có cùng “giá” — thường coi mỗi cạnh dài 1. Nếu cạnh có trọng số tùy ý,
+BFS thường không đúng; cần Dijkstra hoặc thuật toán khác. Với trọng số chỉ gồm 0 và 1,
+dùng 0–1 BFS với <code class="inl">deque</code>.</p></div>
+
+<h3>Thử tay: hàng đợi và các lớp khoảng cách</h3>
+
+<div class="sim">
+  <div class="sim-hang"><div class="sim-o"><label for="bfsStart">Đỉnh bắt đầu</label><select id="bfsStart"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></div><span class="badge">đồ thị cố định 8 đỉnh</span></div>
+  <div class="graphbox"><svg id="bfsSvg" viewBox="0 0 720 300" width="100%" aria-label="Mô phỏng BFS trên đồ thị tám đỉnh"></svg></div>
+  <div class="sim-nhan">Hàng đợi — phần tử bên trái sẽ được lấy ra trước</div><div class="queue" id="bfsQueue"></div>
+  <div class="statebar"><div class="state">u hiện tại: <b id="bfsU">—</b></div><div class="state">thứ tự đã lấy ra: <b id="bfsOrder">∅</b></div><div class="state">số bước: <b id="bfsStep">0</b></div></div>
+  <div class="sim-nhan">Khoảng cách</div><div class="sim-ra" id="bfsDist"></div>
+  <div class="sim-canh" id="bfsMsg"></div>
+  <div class="sim-nut"><button id="bfsNext">Bước tiếp</button><button id="bfsRun">Chạy hết</button><button id="bfsReset">Làm lại</button></div>
+</div>
+
+<h2 id="s4"><span class="num">4.</span>DFS — đi sâu rồi quay lui</h2>
+
+<p><b>Depth-First Search</b> chọn một hàng xóm chưa thăm, đi tiếp từ hàng xóm đó, rồi cứ
+thế đi sâu cho tới khi không còn đường mới. Khi bị chặn, DFS quay lui về đỉnh trước để thử
+nhánh khác. Bản đệ quy diễn đạt đúng cấu trúc ấy:</p>
+
+<div class="codewrap noname"><pre><code>vector&lt;bool&gt; visited(n + 1, false);
+
+void dfs(int u) {
+    visited[u] = true;
+
+    for (int v : adj[u]) {
+        if (!visited[v])
+            dfs(v);
+    }
+}</code></pre></div>
+
+<p>Ngăn xếp lời gọi của chương trình tự ghi nhớ “đang đứng ở đâu để lát nữa quay lại”. Ta
+cũng có thể viết DFS lặp bằng <code class="inl">stack</code>:</p>
+
+<div class="codewrap noname"><pre><code>stack&lt;int&gt; st;
+st.push(s);
+visited[s] = true;
+
+while (!st.empty()) {
+    int u = st.top();
+    st.pop();
+
+    for (int v : adj[u]) {
+        if (!visited[v]) {
+            visited[v] = true;
+            st.push(v);
+        }
+    }
+}</code></pre></div>
+
+<div class="tablewrap"><table><thead><tr><th>Tiêu chí</th><th>BFS</th><th>DFS</th></tr></thead><tbody>
+<tr><td>Cấu trúc phụ</td><td><code class="inl">queue</code></td><td>Đệ quy hoặc <code class="inl">stack</code></td></tr>
+<tr><td>Thứ tự</td><td>Theo lớp khoảng cách</td><td>Đi hết một nhánh trước</td></tr>
+<tr><td>Đường đi ngắn nhất không trọng số</td><td><b>Có</b></td><td>Không bảo đảm</td></tr>
+<tr><td>Kiểm tra tới được, đếm thành phần</td><td>Có</td><td>Có</td></tr>
+<tr><td>Cây DFS, thời điểm vào/ra, chu trình</td><td>Không tự nhiên</td><td><b>Rất tự nhiên</b></td></tr>
+</tbody></table></div>
+
+<div class="box warn"><div class="t">Đệ quy sâu có thể tràn ngăn xếp</div>
+<p>Đồ thị dạng đường thẳng với vài trăm nghìn đỉnh có thể tạo độ sâu đệ quy tương ứng. Tùy
+môi trường chấm, DFS đệ quy có thể gặp runtime error. Khi <span class="mathv">n</span> lớn,
+hãy cân nhắc DFS dùng <code class="inl">stack</code>, hoặc dùng BFS nếu bài không cần đặc
+tính riêng của DFS.</p></div>
+
+<h3>DFS không có một thứ tự duy nhất</h3>
+
+<p>Thứ tự duyệt phụ thuộc thứ tự các phần tử trong <code class="inl">adj[u]</code>. Cùng một
+đồ thị, nếu nhập cạnh theo thứ tự khác hoặc sắp xếp danh sách kề, thứ tự DFS có thể đổi nhưng
+tập đỉnh tới được vẫn giống nhau. Vì vậy đừng dùng một thứ tự DFS cụ thể làm kết luận nếu đề
+không ép thứ tự.</p>
+
+<h2 id="s5"><span class="num">5.</span>Thành phần liên thông</h2>
+
+<p>Một thành phần liên thông là một nhóm đỉnh mà từ bất kỳ đỉnh nào trong nhóm cũng đi tới
+được mọi đỉnh khác trong nhóm. Một lần BFS hoặc DFS từ <span class="mathv">s</span> chỉ đánh
+dấu thành phần chứa <span class="mathv">s</span>. Muốn quét cả đồ thị, ta thử bắt đầu lại từ
+mọi đỉnh chưa thăm:</p>
+
+<div class="codewrap noname"><pre><code>int components = 0;
+vector&lt;int&gt; comp(n + 1, 0);
+
+for (int s = 1; s &lt;= n; s++) {
+    if (comp[s] != 0) continue;
+
+    components++;
+    queue&lt;int&gt; q;
+    q.push(s);
+    comp[s] = components;
+
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+        for (int v : adj[u]) {
+            if (comp[v] == 0) {
+                comp[v] = components;
+                q.push(v);
+            }
+        }
+    }
+}</code></pre></div>
+
+<div class="box def"><div class="t">Vì sao mỗi lần bắt đầu mới là một thành phần mới?</div>
+<p>Khi vòng <code class="inl">for</code> gặp đỉnh <span class="mathv">s</span> chưa thăm,
+không có đường đi từ bất kỳ thành phần đã duyệt nào tới <span class="mathv">s</span>; nếu có,
+BFS/DFS trước đó đã đánh dấu nó. Duyệt từ <span class="mathv">s</span> sẽ lấy đúng toàn bộ
+nhóm còn lại nối được với <span class="mathv">s</span>.</p></div>
+
+<h3>Thử tay: quét nhiều thành phần</h3>
+
+<p>Đồ thị dưới đây có đỉnh cô lập và nhiều cụm. Bấm từng bước để thấy vòng ngoài tìm một gốc
+mới, còn DFS bên trong tô hết thành phần trước khi vòng ngoài đi tiếp.</p>
+
+<div class="sim">
+  <div class="graphbox"><svg id="ccSvg" viewBox="0 0 760 300" width="100%" aria-label="Mô phỏng đếm thành phần liên thông"></svg></div>
+  <div class="statebar"><div class="state">đỉnh vòng ngoài: <b id="ccScan">1</b></div><div class="state">stack: <b id="ccStack">∅</b></div><div class="state">số thành phần: <b id="ccCount">0</b></div></div>
+  <div class="sim-nhan">Nhãn thành phần của các đỉnh</div><div class="sim-ra" id="ccLabels"></div>
+  <div class="sim-canh" id="ccMsg"></div>
+  <div class="sim-nut"><button id="ccNext">Bước tiếp</button><button id="ccRun">Chạy hết</button><button id="ccReset">Làm lại</button></div>
+</div>
+
+<h3>Từ đồ thị sang lưới</h3>
+
+<p>Bài đếm đảo trên ma trận chỉ là bài thành phần liên thông được giấu dưới dạng lưới. Mỗi ô
+đất là một đỉnh; hai ô là hàng xóm nếu chung cạnh. Ta không cần dựng danh sách kề thật sự,
+chỉ sinh bốn hàng xóm khi duyệt:</p>
+
+<div class="codewrap noname"><pre><code>int dx[4] = {-1, 1, 0, 0};
+int dy[4] = {0, 0, -1, 1};
+
+for (int k = 0; k &lt; 4; k++) {
+    int nx = x + dx[k];
+    int ny = y + dy[k];
+    if (0 &lt;= nx &amp;&amp; nx &lt; n &amp;&amp; 0 &lt;= ny &amp;&amp; ny &lt; m
+        &amp;&amp; a[nx][ny] == 1 &amp;&amp; !visited[nx][ny]) {
+        // đưa (nx, ny) vào queue hoặc gọi DFS
+    }
+}</code></pre></div>
+
+<h2 id="s6"><span class="num">6.</span>Đúng, nhanh và các bẫy</h2>
+
+<h3>Độ phức tạp O(n + m)</h3>
+
+<p>Với danh sách kề, mỗi đỉnh được đánh dấu một lần. Mỗi cạnh vô hướng xuất hiện trong hai
+danh sách và được nhìn tối đa hai lần. Do đó BFS và DFS đều chạy trong
+<span class="mathv">O(n + m)</span>, dùng thêm <span class="mathv">O(n)</span> cho mảng
+đánh dấu và queue/stack.</p>
+
+<div class="box tech"><div class="t">Không phải vòng lặp lồng nhau nào cũng là O(nm)</div>
+<p>Ta có một vòng lấy đỉnh và bên trong là vòng duyệt danh sách kề, nhưng tổng độ dài của mọi
+danh sách kề chỉ là <span class="mathv">2m</span>. Phải cộng tổng số lần chạy thực sự, không
+nhìn hình thức hai vòng rồi kết luận máy móc là <span class="mathv">O(n²)</span>.</p></div>
+
+<h3>Tám cái bẫy</h3>
+
+<div class="box warn"><div class="t">1. Quên thêm cạnh ngược</div>
+<p>Đề cho đồ thị vô hướng mà chỉ viết <code class="inl">adj[u].push_back(v)</code> thì chương
+trình đã biến nó thành đồ thị có hướng. BFS từ <span class="mathv">v</span> có thể không quay
+lại được <span class="mathv">u</span>.</p></div>
+
+<div class="box warn"><div class="t">2. Chỉ duyệt từ đỉnh 1</div>
+<p>Một BFS/DFS từ 1 chỉ thăm thành phần chứa 1. Nếu đề hỏi cả đồ thị — số thành phần, mọi đỉnh,
+kiểm tra toàn bộ — phải có vòng <code class="inl">for (s = 1..n)</code> bên ngoài.</p></div>
+
+<div class="box warn"><div class="t">3. Đánh dấu quá muộn</div>
+<p>Trong BFS và DFS lặp, hãy đánh dấu ngay lúc đưa đỉnh vào queue/stack. Nếu chờ tới lúc lấy ra,
+một đỉnh có thể được nhiều hàng xóm đưa vào nhiều lần.</p></div>
+
+<div class="box warn"><div class="t">4. Không khởi tạo dist bằng -1</div>
+<p>Nếu mọi phần tử mặc định bằng 0, ta không phân biệt được đỉnh nguồn có khoảng cách 0 với
+đỉnh chưa tới được. Quy ước <code class="inl">dist[v] = -1</code> là rõ ràng nhất.</p></div>
+
+<div class="box warn"><div class="t">5. Quên xóa dữ liệu giữa các test</div>
+<p>Với nhiều test, danh sách kề và mảng visited của test trước phải được tạo lại hoặc xóa đúng
+phạm vi. Cách an toàn là khai báo <code class="inl">vector</code> bên trong vòng xử lý test.</p></div>
+
+<div class="box warn"><div class="t">6. Nhầm số đỉnh với số cạnh</div>
+<p>Mảng và vòng qua đỉnh dùng <span class="mathv">n</span>; vòng đọc cạnh dùng
+<span class="mathv">m</span>. Lỗi <code class="inl">for (i=0; i&lt;n; i++) cin&gt;&gt;u&gt;&gt;v;</code>
+là một trong những lỗi nhập liệu phổ biến nhất.</p></div>
+
+<div class="box warn"><div class="t">7. Dùng BFS thường cho cạnh có trọng số</div>
+<p>BFS tối ưu số cạnh, không tối ưu tổng trọng số. Một đường đi hai cạnh có thể đắt hơn đường
+đi năm cạnh. Hãy đọc kỹ đề đang hỏi “ít cạnh nhất” hay “tổng chi phí nhỏ nhất”.</p></div>
+
+<div class="box warn"><div class="t">8. DFS đệ quy quá sâu</div>
+<p>Đồ thị đường thẳng dài có thể làm ngăn xếp lời gọi bị tràn. Khi giới hạn lớn, chuyển sang
+stack tường minh hoặc BFS.</p></div>
+
+<h3>Kiểm tra nhanh bằng các trường hợp biên</h3>
+
+<div class="tablewrap"><table><thead><tr><th>Dữ liệu thử</th><th>Điều muốn kiểm</th></tr></thead><tbody>
+<tr><td><code class="inl">n=1, m=0</code></td><td>Đỉnh cô lập vẫn là một thành phần</td></tr>
+<tr><td>Không có cạnh</td><td>Số thành phần bằng <span class="mathv">n</span></td></tr>
+<tr><td>Đồ thị là một đường thẳng</td><td>Độ sâu DFS lớn, khoảng cách BFS tăng dần</td></tr>
+<tr><td>Đồ thị đầy chu trình</td><td><code class="inl">visited</code> ngăn lặp vô hạn</td></tr>
+<tr><td>Nhiều thành phần, đỉnh 1 ở cụm nhỏ</td><td>Phát hiện lỗi chỉ duyệt từ đỉnh 1</td></tr>
+<tr><td>Cạnh song song hoặc khuyên u-u</td><td>Thuật toán vẫn đúng nếu đánh dấu đúng lúc</td></tr>
+</tbody></table></div>
+
+<h2 id="s7"><span class="num">7.</span>Khuôn code và lộ trình luyện tập</h2>
+
+<h3>Khuôn đầy đủ: đọc đồ thị, BFS, dựng đường đi</h3>
+
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m, s;
+    cin &gt;&gt; n &gt;&gt; m &gt;&gt; s;
+
+    vector&lt;vector&lt;int&gt;&gt; adj(n + 1);
+    for (int i = 0; i &lt; m; i++) {
+        int u, v;
+        cin &gt;&gt; u &gt;&gt; v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+
+    vector&lt;int&gt; dist(n + 1, -1);
+    vector&lt;int&gt; parent(n + 1, -1);
+    queue&lt;int&gt; q;
+
+    dist[s] = 0;
+    q.push(s);
+
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+        for (int v : adj[u]) {
+            if (dist[v] == -1) {
+                dist[v] = dist[u] + 1;
+                parent[v] = u;
+                q.push(v);
+            }
+        }
+    }
+
+    for (int v = 1; v &lt;= n; v++)
+        cout &lt;&lt; dist[v] &lt;&lt; " \n"[v == n];
+}</code></pre></div>
+
+<h3>Khuôn DFS đệ quy và đếm kích thước thành phần</h3>
+
+<div class="codewrap noname"><pre><code>vector&lt;vector&lt;int&gt;&gt; adj;
+vector&lt;bool&gt; visited;
+
+int dfs(int u) {
+    visited[u] = true;
+    int size = 1;
+    for (int v : adj[u])
+        if (!visited[v])
+            size += dfs(v);
+    return size;
+}
+
+int main() {
+    // đọc n, m và dựng adj
+    visited.assign(n + 1, false);
+    vector&lt;int&gt; sizes;
+
+    for (int u = 1; u &lt;= n; u++)
+        if (!visited[u])
+            sizes.push_back(dfs(u));
+}</code></pre></div>
+
+<h3>Nhận dạng đề</h3>
+
+<div class="tablewrap"><table><thead><tr><th>Đề hỏi</th><th>Nghĩ tới</th></tr></thead><tbody>
+<tr><td>“Có đi từ u tới v được không?”</td><td>Một BFS hoặc DFS</td></tr>
+<tr><td>“Ít nhất bao nhiêu cạnh?”</td><td>BFS và mảng <code class="inl">dist</code></td></tr>
+<tr><td>“In một đường đi ngắn nhất”</td><td>BFS + mảng <code class="inl">parent</code></td></tr>
+<tr><td>“Có bao nhiêu nhóm/cụm/đảo?”</td><td>Vòng ngoài + BFS/DFS cho từng thành phần</td></tr>
+<tr><td>“Kích thước mỗi nhóm”</td><td>Đếm số đỉnh trong mỗi lần duyệt</td></tr>
+<tr><td>“Mê cung, ô lưới, số bước ngắn nhất”</td><td>BFS trên trạng thái ô</td></tr>
+<tr><td>“Cạnh có chi phí khác nhau”</td><td>Không dùng BFS thường; xem Dijkstra/0–1 BFS</td></tr>
+</tbody></table></div>
+
+<h3>Lộ trình 12 bài</h3>
+
+<div class="tablewrap"><table><thead><tr><th class="c">Chặng</th><th>Bài nên luyện</th><th>Mục tiêu</th></tr></thead><tbody>
+<tr><td class="c">1</td><td>In bậc các đỉnh; đổi danh sách cạnh sang danh sách kề</td><td>Thuần thục cách lưu</td></tr>
+<tr><td class="c">2</td><td>In thứ tự BFS; in thứ tự DFS</td><td>Hiểu queue, stack và visited</td></tr>
+<tr><td class="c">3</td><td>Kiểm tra u-v có liên thông; đếm số đỉnh tới được</td><td>Một lần duyệt</td></tr>
+<tr><td class="c">4</td><td>Khoảng cách từ s; dựng đường đi ngắn nhất s-t</td><td>BFS theo lớp</td></tr>
+<tr><td class="c">5</td><td>Đếm thành phần; kích thước lớn nhất; số cặp cùng thành phần</td><td>Vòng ngoài + duyệt</td></tr>
+<tr><td class="c">6</td><td>Đếm đảo; mê cung; vùng màu lớn nhất trên lưới</td><td>Đồ thị ẩn trên ma trận</td></tr>
+</tbody></table></div>
+
+<div class="box def"><div class="t">Năm câu tự hỏi trước khi nộp</div><ul>
+<li>Đồ thị vô hướng hay có hướng? Đã thêm đúng số chiều của cạnh chưa?</li>
+<li>Mảng <code class="inl">visited</code>/<code class="inl">dist</code> được cập nhật ngay khi phát hiện đỉnh chưa?</li>
+<li>Đề hỏi một thành phần hay toàn bộ đồ thị? Có cần vòng ngoài qua mọi đỉnh không?</li>
+<li>Đồ thị có trọng số không? BFS có thật sự cho đáp án tối ưu không?</li>
+<li>Giới hạn có làm DFS đệ quy quá sâu hoặc ma trận kề quá tốn bộ nhớ không?</li>
+</ul></div>
+
+</div></div>
+
+<script>
+(function(){
+  /* ---------- Mô phỏng 1: biểu diễn đồ thị ---------- */
+  var repN=document.getElementById('repN'),repDir=document.getElementById('repDir'),repEdges=document.getElementById('repEdges'),repList=document.getElementById('repList'),repMatrix=document.getElementById('repMatrix'),repWarn=document.getElementById('repWarn');
+  function parseEdges(text,n){
+    var toks=text.trim()?text.trim().split(/[\s,;]+/):[],out=[],bad=[];
+    for(var i=0;i<toks.length;i++){
+      var m=toks[i].match(/^(\d+)\s*[-:]\s*(\d+)$/);
+      if(!m){bad.push(toks[i]);continue;}
+      var u=+m[1],v=+m[2];
+      if(u<1||u>n||v<1||v>n)bad.push(toks[i]);else out.push([u,v]);
+    }
+    return {edges:out,bad:bad};
+  }
+  function buildRep(){
+    var n=Math.max(1,Math.min(9,parseInt(repN.value,10)||1)),dir=repDir.checked,p=parseEdges(repEdges.value,n),adj=[],mat=[];
+    repN.value=n;
+    for(var i=0;i<=n;i++){adj[i]=[];mat[i]=[];for(var j=0;j<=n;j++)mat[i][j]=0;}
+    p.edges.forEach(function(e){var u=e[0],v=e[1];adj[u].push(v);mat[u][v]=1;if(!dir){adj[v].push(u);mat[v][u]=1;}});
+    var lines=[];for(i=1;i<=n;i++)lines.push(i+': '+(adj[i].length?adj[i].join(' '):'∅'));repList.textContent=lines.join('\n');
+    var h='<table class="matrix"><thead><tr><th></th>';for(i=1;i<=n;i++)h+='<th>'+i+'</th>';h+='</tr></thead><tbody>';
+    for(i=1;i<=n;i++){h+='<tr><th>'+i+'</th>';for(j=1;j<=n;j++)h+='<td class="'+(mat[i][j]?'one':'')+'">'+mat[i][j]+'</td>';h+='</tr>';}h+='</tbody></table>';repMatrix.innerHTML=h;
+    repWarn.textContent=p.bad.length?'Bỏ qua token không hợp lệ hoặc đỉnh ngoài 1..n: '+p.bad.join(', '):(!dir?'Mỗi cạnh vô hướng xuất hiện ở hai danh sách kề và hai ô đối xứng của ma trận.':'Mỗi cung chỉ được lưu theo chiều đã nhập.');
+  }
+  document.getElementById('repBuild').addEventListener('click',buildRep);repDir.addEventListener('change',buildRep);
+  Array.prototype.forEach.call(document.querySelectorAll('[data-rep]'),function(b){b.addEventListener('click',function(){var x=b.getAttribute('data-rep').split('|');repN.value=x[0];repEdges.value=x[1];buildRep();});});buildRep();
+
+  /* ---------- Dữ liệu và hàm vẽ đồ thị ---------- */
+  var pos={1:[90,80],2:[230,55],3:[170,180],4:[330,135],5:[465,65],6:[470,220],7:[610,145],8:[650,245]};
+  var edges=[[1,2],[1,3],[2,4],[3,4],[4,5],[4,6],[5,7],[6,7],[7,8]];
+  var adj={};for(var z=1;z<=8;z++)adj[z]=[];edges.forEach(function(e){adj[e[0]].push(e[1]);adj[e[1]].push(e[0]);});
+  function svgGraph(svg,nodeClass,activeEdge){
+    var h='';edges.forEach(function(e){var a=pos[e[0]],b=pos[e[1]],on=activeEdge&&((activeEdge[0]===e[0]&&activeEdge[1]===e[1])||(activeEdge[0]===e[1]&&activeEdge[1]===e[0]));h+='<line class="g-edge'+(on?' on':'')+'" x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'"/>';});
+    for(var i=1;i<=8;i++){var p=pos[i],cl=nodeClass(i)||'';h+='<circle class="g-node '+cl+'" cx="'+p[0]+'" cy="'+p[1]+'" r="24"/><text class="g-label" x="'+p[0]+'" y="'+p[1]+'">'+i+'</text>';}
+    svg.innerHTML=h;
+  }
+
+  /* ---------- Mô phỏng 2: BFS ---------- */
+  var bfsSvg=document.getElementById('bfsSvg'),bfsStart=document.getElementById('bfsStart'),bfsQueue=document.getElementById('bfsQueue'),bfsU=document.getElementById('bfsU'),bfsOrder=document.getElementById('bfsOrder'),bfsStep=document.getElementById('bfsStep'),bfsDist=document.getElementById('bfsDist'),bfsMsg=document.getElementById('bfsMsg');
+  var bs;
+  function bfsReset(){var s=+bfsStart.value;bs={q:[s],dist:Array(9).fill(-1),order:[],u:null,step:0,done:false,phase:'pop',neighbors:[],ni:0,edge:null};bs.dist[s]=0;bfsRender('Đã đưa đỉnh nguồn '+s+' vào hàng đợi và đặt khoảng cách bằng 0.');}
+  function bfsRender(msg){svgGraph(bfsSvg,function(i){if(i===bs.u)return'active';if(bs.order.indexOf(i)>=0)return'done';if(bs.dist[i]!==-1)return'seen';return'';},bs.edge);bfsQueue.innerHTML=bs.q.length?bs.q.map(function(x){return'<span>'+x+'</span>';}).join(''):'<span>∅</span>';bfsU.textContent=bs.u===null?'—':bs.u;bfsOrder.textContent=bs.order.length?bs.order.join(' → '):'∅';bfsStep.textContent=bs.step;var a=[];for(var i=1;i<=8;i++)a.push('d['+i+']='+bs.dist[i]);bfsDist.textContent=a.join('   ');bfsMsg.textContent=msg||'';document.getElementById('bfsNext').disabled=bs.done;}
+  function bfsOne(){if(bs.done)return;
+    if(bs.phase==='pop'){
+      if(!bs.q.length){bs.done=true;bs.u=null;bs.edge=null;bfsRender('Hàng đợi rỗng: BFS kết thúc.');return;}
+      bs.u=bs.q.shift();bs.order.push(bs.u);bs.neighbors=adj[bs.u].slice();bs.ni=0;bs.phase='scan';bs.edge=null;bs.step++;bfsRender('Lấy '+bs.u+' khỏi đầu hàng đợi; bắt đầu xét các hàng xóm.');return;
+    }
+    if(bs.ni<bs.neighbors.length){var v=bs.neighbors[bs.ni++];bs.edge=[bs.u,v];bs.step++;if(bs.dist[v]===-1){bs.dist[v]=bs.dist[bs.u]+1;bs.q.push(v);bfsRender('Gặp đỉnh mới '+v+': đặt d['+v+'] = d['+bs.u+'] + 1 và đưa vào hàng đợi.');}else bfsRender('Đỉnh '+v+' đã được phát hiện trước đó nên bỏ qua.');return;}
+    bs.phase='pop';bs.edge=null;bs.step++;bfsRender('Đã xét hết hàng xóm của '+bs.u+'. Chuyển sang đỉnh đầu hàng đợi tiếp theo.');
+  }
+  document.getElementById('bfsNext').addEventListener('click',bfsOne);document.getElementById('bfsRun').addEventListener('click',function(){var guard=200;while(!bs.done&&guard--)bfsOne();});document.getElementById('bfsReset').addEventListener('click',bfsReset);bfsStart.addEventListener('change',bfsReset);bfsReset();
+
+  /* ---------- Mô phỏng 3: thành phần liên thông bằng DFS stack ---------- */
+  var ccPos={1:[80,80],2:[180,55],3:[130,175],4:[320,90],5:[420,170],6:[560,65],7:[660,80],8:[610,185],9:[710,220]};
+  var ccEdges=[[1,2],[2,3],[3,1],[4,5],[6,7],[7,8],[8,6]];var ccAdj={};for(z=1;z<=9;z++)ccAdj[z]=[];ccEdges.forEach(function(e){ccAdj[e[0]].push(e[1]);ccAdj[e[1]].push(e[0]);});
+  var ccSvg=document.getElementById('ccSvg'),ccScan=document.getElementById('ccScan'),ccStack=document.getElementById('ccStack'),ccCount=document.getElementById('ccCount'),ccLabels=document.getElementById('ccLabels'),ccMsg=document.getElementById('ccMsg'),cs;
+  function ccDraw(){var h='';ccEdges.forEach(function(e){var a=ccPos[e[0]],b=ccPos[e[1]];h+='<line class="g-edge" x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'"/>';});for(var i=1;i<=9;i++){var p=ccPos[i],cl=cs.comp[i]?'comp'+Math.min(cs.comp[i],4):'';if(cs.active===i)cl+=' active';h+='<circle class="g-node '+cl+'" cx="'+p[0]+'" cy="'+p[1]+'" r="24"/><text class="g-label" x="'+p[0]+'" y="'+p[1]+'">'+i+'</text>';}ccSvg.innerHTML=h;}
+  function ccReset(){cs={scan:1,stack:[],comp:Array(10).fill(0),count:0,mode:'scan',active:null,done:false};ccRender('Bắt đầu vòng ngoài tại đỉnh 1.');}
+  function ccRender(msg){ccDraw();ccScan.textContent=cs.scan<=9?cs.scan:'xong';ccStack.textContent=cs.stack.length?cs.stack.slice().reverse().join(' ← '):'∅';ccCount.textContent=cs.count;var a=[];for(var i=1;i<=9;i++)a.push(i+':'+(cs.comp[i]||'—'));ccLabels.textContent=a.join('   ');ccMsg.textContent=msg||'';document.getElementById('ccNext').disabled=cs.done;}
+  function ccOne(){if(cs.done)return;
+    if(cs.mode==='scan'){
+      while(cs.scan<=9&&cs.comp[cs.scan]!==0)cs.scan++;
+      if(cs.scan>9){cs.done=true;cs.active=null;ccRender('Đã quét hết 9 đỉnh. Tổng cộng '+cs.count+' thành phần liên thông.');return;}
+      cs.count++;cs.comp[cs.scan]=cs.count;cs.stack.push(cs.scan);cs.active=cs.scan;cs.mode='dfs';ccRender('Đỉnh '+cs.scan+' chưa có nhãn: mở thành phần '+cs.count+' và đưa nó vào stack.');return;
+    }
+    if(cs.stack.length){var u=cs.stack.pop();cs.active=u;var added=[];ccAdj[u].forEach(function(v){if(cs.comp[v]===0){cs.comp[v]=cs.count;cs.stack.push(v);added.push(v);}});ccRender(added.length?'Lấy '+u+' ra; phát hiện và gán cùng thành phần cho: '+added.join(', ')+'.':'Lấy '+u+' ra; mọi hàng xóm đã có nhãn.');return;}
+    cs.scan++;cs.active=null;cs.mode='scan';ccRender('Stack rỗng: thành phần '+cs.count+' đã được duyệt hết. Vòng ngoài tiếp tục.');
+  }
+  document.getElementById('ccNext').addEventListener('click',ccOne);document.getElementById('ccRun').addEventListener('click',function(){var guard=200;while(!cs.done&&guard--)ccOne();});document.getElementById('ccReset').addEventListener('click',ccReset);ccReset();
+})();
+</script>
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>
