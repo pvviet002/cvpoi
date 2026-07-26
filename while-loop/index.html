@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vòng lặp while trong C++ | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<style>
+  /* CSS của ba phòng mô phỏng. Mọi màu lấy từ biến của chuan.css nên tự đổi
+     theo nền sáng/tối. */
+  .sim{background:var(--card); border:1px solid var(--border); border-radius:10px;
+       padding:16px 18px; margin:20px 0}
+  .sim-hang{display:flex; flex-wrap:wrap; gap:12px 22px; align-items:center; margin-bottom:12px}
+  .sim-o{display:flex; align-items:center; gap:8px; font-size:.92rem}
+  .sim-o label{color:var(--muted)}
+  .sim input[type=number],.sim input[type=text]{width:110px; padding:5px 9px; border-radius:6px;
+       border:1px solid var(--border); background:var(--bg); color:var(--fg);
+       font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.9rem}
+  .sim input[type=range]{width:210px; accent-color:var(--blue)}
+  .sim-so{display:inline-block; min-width:2.4em; text-align:center; font-weight:700; color:var(--blue);
+       font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace}
+  .sim-nhan{font-size:.8rem; color:var(--muted); margin:10px 0 4px}
+  .sim-nut{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+  .sim-nut button{background:var(--bg); color:var(--fg); border:1px solid var(--border);
+       border-radius:7px; padding:5px 11px; font-size:.84rem; cursor:pointer; font-family:inherit}
+  .sim-nut button:hover{border-color:var(--blue); color:var(--blue)}
+
+  /* dãy dòng lệnh, tô dòng đang chạy */
+  .dong{font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.86rem;
+       background:var(--code-bg); color:var(--code-fg); border:1px solid var(--border);
+       border-radius:8px; overflow-x:auto}
+  .dong div{padding:4px 12px; white-space:pre; border-left:4px solid transparent}
+  .dong div.chay{background:var(--green-bg); border-left-color:var(--green); color:var(--green)}
+  .dong div.bo{opacity:.42}
+  .sim-ra{margin-top:10px; font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;
+       background:var(--code-bg); color:var(--code-fg); border:1px solid var(--border);
+       border-left:4px solid var(--green); border-radius:8px; padding:9px 13px; white-space:pre-wrap}
+  .sim-ra.trong{border-left-color:var(--red); color:var(--red)}
+  .sim-canh{margin-top:10px; font-size:.88rem; color:var(--amber); min-height:1.2em}
+
+  .haicot{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  @media (max-width:700px){.haicot{grid-template-columns:1fr}}
+  .cot-ten{font-size:.84rem; color:var(--muted); margin-bottom:5px}
+  .lech{margin-top:12px; padding:9px 13px; border-radius:8px; font-size:.9rem;
+       background:var(--red-bg); color:var(--red); border:1px solid var(--red)}
+  .khop{margin-top:12px; padding:9px 13px; border-radius:8px; font-size:.9rem;
+       background:var(--green-bg); color:var(--green); border:1px solid var(--green)}
+
+  .ct{width:100%; border-collapse:collapse; margin-top:10px; font-size:.9rem}
+  .ct th,.ct td{border:1px solid var(--border); padding:6px 10px; text-align:center}
+  .ct th{background:var(--bg); color:var(--blue); font-weight:600}
+  .ct td.ai{text-align:left}
+  .badge{display:inline-block; padding:2px 7px; border-radius:999px; font-size:.78rem;
+       border:1px solid var(--border); background:var(--bg); color:var(--muted)}
+  .statebar{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}
+  .state{padding:7px 10px; border-radius:7px; border:1px solid var(--border); background:var(--bg);
+       font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.86rem}
+  .state b{color:var(--blue)}
+
+/*cv-fix-nen-sang*/
+:root{--c-cmt:#5f6672}
+@media (prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+:root[data-theme="light"]{--c-cmt:#5f6672}
+:root[data-theme="dark"]{--c-cmt:#8b949e}
+.box th, .tablewrap th, table th{color:var(--blue) !important}
+.box td, .tablewrap td, table td{color:var(--fg)}
+.ct th{color:var(--blue) !important}
+/*/cv-fix-nen-sang*/
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Vòng lặp while trong C++: điều kiện duy trì, biến trạng thái, vòng lặp theo lính canh, xử lý chữ số, Euclid và các lỗi lặp vô hạn. Kèm ba mô phỏng tương tác.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Vòng lặp while trong C++ | Lý thuyết CP">
+<meta property="og:description" content="Hiểu while như một quá trình biến đổi trạng thái cho tới khi điều kiện dừng xuất hiện. Kèm ba phòng mô phỏng tương tác.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Vòng lặp while</div>
+  <a href="#s1">1. Khi chưa biết số lượt</a>
+  <a href="#s2">2. Điều kiện và trạng thái</a>
+  <a href="#s3">3. Lính canh và EOF</a>
+  <a href="#s4">4. Bốn khuôn mẫu</a>
+  <a href="#s5">5. do-while, break, continue</a>
+  <a href="#s6">6. Độ phức tạp và bẫy</a>
+  <a href="#s7">7. Lộ trình luyện tập</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb">Cơ bản<span class="cv-sep">/</span><span class="cv-here">Vòng lặp while</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Vòng lặp <code class="inl">while</code> trong C++</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p>Vòng <code class="inl">for</code> thường trả lời câu hỏi “lặp bao nhiêu lần?”. Vòng
+<code class="inl">while</code> trả lời một câu khác: <b>“còn đúng điều kiện này thì tiếp tục”</b>.
+Đó là công cụ tự nhiên cho những quá trình chưa biết trước số bước: đọc tới khi gặp số 0,
+tách chữ số cho tới khi số hết, chạy Euclid tới khi số dư bằng 0, hoặc thu hẹp một đoạn cho
+tới khi hai đầu gặp nhau.</p>
+
+<div class="box def">
+<div class="t">Sợi chỉ đỏ</div>
+<p>Một vòng <code class="inl">while</code> là <b>một quá trình biến đổi trạng thái</b>.
+Trước mỗi lượt, máy hỏi điều kiện còn đúng không. Nếu đúng, thân vòng phải làm hai việc:
+<b>tiến công việc</b> và <b>đưa trạng thái gần điều kiện dừng hơn</b>. Nếu trạng thái không
+thay đổi đúng hướng, vòng lặp sẽ không bao giờ kết thúc.</p>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Khi chưa biết trước số lượt lặp</a></li>
+    <li><a href="#s2">Điều kiện duy trì và biến trạng thái</a></li>
+    <li><a href="#s3">Vòng lặp lính canh và đọc đến EOF</a></li>
+    <li><a href="#s4">Bốn khuôn mẫu quan trọng</a></li>
+    <li><a href="#s5">do-while, break và continue</a></li>
+    <li><a href="#s6">Độ phức tạp và những cái bẫy</a></li>
+    <li><a href="#s7">Lộ trình luyện tập</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Khi chưa biết trước số lượt lặp</h2>
+
+<p>Xét bài toán: bắt đầu từ số nguyên dương <span class="mathv">n</span>, liên tục chia
+<span class="mathv">n</span> cho 2 bằng phép chia nguyên cho tới khi nó bằng 0. Với
+<code class="inl">n = 100</code>, ta cần 7 lượt; với <code class="inl">n = 10<sup>9</sup></code>,
+ta cần 30 lượt. Số lượt không xuất hiện trực tiếp trong dữ liệu, nên viết bằng
+<code class="inl">while</code> tự nhiên hơn:</p>
+
+<div class="codewrap noname"><pre><code>while (n &gt; 0) {
+    cout &lt;&lt; n &lt;&lt; " ";
+    n /= 2;
+}</code></pre></div>
+
+<div class="haicot">
+<div>
+<div class="cot-ten"><code class="inl">for</code> — biết trước miền duyệt</div>
+<div class="codewrap noname"><pre><code>for (int i = 1; i &lt;= n; i++)
+    cout &lt;&lt; i &lt;&lt; " ";</code></pre></div>
+<p>Biến <code class="inl">i</code> đi qua một dãy đều đặn, số lượt xác định từ đầu.</p>
+</div>
+<div>
+<div class="cot-ten"><code class="inl">while</code> — biết điều kiện dừng</div>
+<div class="codewrap noname"><pre><code>while (n &gt; 0) {
+    cout &lt;&lt; n &lt;&lt; " ";
+    n /= 2;
+}</code></pre></div>
+<p>Ta không đếm lượt; ta chỉ biết quá trình kết thúc khi <code class="inl">n == 0</code>.</p>
+</div>
+</div>
+
+<div class="box tech">
+<div class="t">Hai cấu trúc có sức mạnh như nhau</div>
+<p>Mọi vòng <code class="inl">for</code> đều có thể viết lại bằng <code class="inl">while</code>,
+và ngược lại. Khác biệt nằm ở <b>cách diễn đạt ý tưởng</b>. Nếu đề cho một đoạn chỉ số rõ
+ràng, <code class="inl">for</code> thường gọn hơn. Nếu đề cho một điều kiện kết thúc hoặc
+một trạng thái thay đổi không đều, <code class="inl">while</code> thường dễ đọc hơn.</p>
+</div>
+
+<h3>Thử tay: máy kiểm tra trước rồi mới chạy</h3>
+
+<p>Đặt giá trị ban đầu của <span class="mathv">i</span> và cận <span class="mathv">n</span>,
+rồi bấm từng bước. Chú ý trường hợp <code class="inl">i &gt; n</code> ngay từ đầu: thân vòng
+không chạy lần nào.</p>
+
+<div class="sim">
+  <div class="sim-hang">
+    <div class="sim-o"><label for="traceI">i ban đầu</label><input type="number" id="traceI" value="1" min="-20" max="20"></div>
+    <div class="sim-o"><label for="traceN">n</label><input type="number" id="traceN" value="4" min="-20" max="20"></div>
+    <div class="sim-o"><span id="traceState">Chưa bắt đầu</span></div>
+  </div>
+  <div class="sim-nhan">Dãy lệnh</div>
+  <div class="dong" id="traceDong"></div>
+  <div class="sim-nhan">Trạng thái và kết quả</div>
+  <div class="sim-ra" id="traceRa"></div>
+  <div class="sim-canh" id="traceCanh"></div>
+  <div class="sim-nut">
+    <button id="traceNext">Bước tiếp</button>
+    <button id="traceRun">Chạy hết</button>
+    <button id="traceReset">Làm lại</button>
+    <button data-trace="1,1">i=1, n=1</button>
+    <button data-trace="3,2">sai ngay đầu</button>
+    <button data-trace="-2,2">i=-2, n=2</button>
+  </div>
+</div>
+
+<h2 id="s2"><span class="num">2.</span>Điều kiện duy trì và biến trạng thái</h2>
+
+<p>Cú pháp tổng quát:</p>
+
+<div class="codewrap noname"><pre><code>khởi_tạo_trạng_thái;
+while (điều_kiện_còn_đúng) {
+    công_việc;
+    cập_nhật_trạng_thái;
+}</code></pre></div>
+
+<p>Máy thực hiện đúng ba bước lặp đi lặp lại:</p>
+
+<div style="margin:18px 0; overflow-x:auto">
+<svg viewBox="0 0 760 210" width="100%" style="max-width:760px; display:block; margin:0 auto"
+     xmlns="http://www.w3.org/2000/svg" role="img"
+     aria-label="Sơ đồ vòng while: kiểm tra điều kiện, chạy thân, cập nhật trạng thái và quay lại kiểm tra">
+  <defs>
+    <marker id="wa" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="var(--edge)"/>
+    </marker>
+  </defs>
+  <rect x="65" y="72" width="175" height="54" rx="9" fill="var(--amber-bg)" stroke="var(--amber)" stroke-width="1.5"/>
+  <rect x="292" y="72" width="175" height="54" rx="9" fill="var(--green-bg)" stroke="var(--green)" stroke-width="1.5"/>
+  <rect x="519" y="72" width="175" height="54" rx="9" fill="var(--blue-bg)" stroke="var(--blue)" stroke-width="1.5"/>
+  <g font-size="14" text-anchor="middle">
+    <text x="152" y="94" fill="var(--amber)">Kiểm tra</text><text x="152" y="113" fill="var(--fg)">điều kiện?</text>
+    <text x="379" y="94" fill="var(--green)">Thực hiện</text><text x="379" y="113" fill="var(--fg)">công việc</text>
+    <text x="606" y="94" fill="var(--blue)">Cập nhật</text><text x="606" y="113" fill="var(--fg)">trạng thái</text>
+  </g>
+  <line x1="240" y1="99" x2="292" y2="99" stroke="var(--edge)" stroke-width="1.5" marker-end="url(#wa)"/>
+  <line x1="467" y1="99" x2="519" y2="99" stroke="var(--edge)" stroke-width="1.5" marker-end="url(#wa)"/>
+  <path d="M606 126 C606 180,152 180,152 127" fill="none" stroke="var(--edge)" stroke-width="1.5" marker-end="url(#wa)"/>
+  <path d="M152 72 C152 25,706 25,706 72" fill="none" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="5 5" marker-end="url(#wa)"/>
+  <text x="425" y="20" text-anchor="middle" font-size="12" fill="var(--muted)">điều kiện sai → thoát vòng lặp</text>
+  <text x="380" y="201" text-anchor="middle" font-size="12" fill="var(--muted)">cập nhật phải làm trạng thái tiến gần điểm dừng</text>
+</svg>
+</div>
+
+<div class="box def">
+<div class="t">Ba câu hỏi bắt buộc</div>
+<ul>
+<li><b>Trạng thái là gì?</b> Có thể là <code class="inl">i</code>, số đang xử lý
+<code class="inl">n</code>, hai số <code class="inl">a, b</code>, hoặc hai con trỏ
+<code class="inl">l, r</code>.</li>
+<li><b>Điều kiện nào cho phép tiếp tục?</b> Viết điều kiện theo nghĩa “còn việc thì làm”,
+không phải theo nghĩa “đã xong”.</li>
+<li><b>Mỗi lượt tiến gần điểm dừng thế nào?</b> Phải chỉ ra một đại lượng tăng có giới hạn,
+giảm có giới hạn, hoặc một đoạn bị thu hẹp.</li>
+</ul>
+</div>
+
+<h3>Vòng lặp hữu hạn nhờ một đại lượng tiến triển</h3>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Bài toán</th><th>Trạng thái</th><th>Cập nhật</th><th>Lý do chắc chắn dừng</th></tr></thead>
+<tbody>
+<tr><td>In từ 1 tới n</td><td><code class="inl">i</code></td><td><code class="inl">i++</code></td><td><code class="inl">i</code> tăng và cuối cùng vượt <code class="inl">n</code></td></tr>
+<tr><td>Tách chữ số</td><td><code class="inl">n</code></td><td><code class="inl">n /= 10</code></td><td>Số chữ số giảm một sau mỗi lượt</td></tr>
+<tr><td>Euclid</td><td><code class="inl">a, b</code></td><td><code class="inl">a=b; b=r</code></td><td>Số dư mới nhỏ hơn số chia cũ</td></tr>
+<tr><td>Hai con trỏ</td><td><code class="inl">l, r</code></td><td>tăng <code class="inl">l</code> hoặc giảm <code class="inl">r</code></td><td>Độ dài đoạn <code class="inl">r-l+1</code> giảm</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box warn">
+<div class="t">Vòng lặp vô hạn thường không nằm ở điều kiện</div>
+<p>Đoạn <code class="inl">while (i &lt;= n)</code> hoàn toàn đúng. Lỗi thường nằm trong thân:
+quên <code class="inl">i++</code>, cập nhật nhầm biến, hoặc có một nhánh
+<code class="inl">continue</code> đi qua trước khi cập nhật. Khi gỡ lỗi, hãy nhìn biến trạng
+thái sau từng lượt, không chỉ nhìn điều kiện.</p>
+</div>
+
+<h2 id="s3"><span class="num">3.</span>Vòng lặp lính canh và đọc đến EOF</h2>
+
+<h3>Lính canh: một giá trị báo “hết dữ liệu”</h3>
+
+<p>Đề có thể cho một dãy số không biết dài bao nhiêu, kết thúc bởi số 0. Số 0 không thuộc
+dữ liệu thật; nó là <b>lính canh</b>:</p>
+
+<div class="codewrap noname"><pre><code>long long x, sum = 0;
+cin &gt;&gt; x;
+while (x != 0) {
+    sum += x;
+    cin &gt;&gt; x;
+}
+cout &lt;&lt; sum;</code></pre></div>
+
+<p>Ở đây có hai lần nhập cùng một biến: một lần trước vòng để có điều kiện đầu tiên, một
+lần cuối thân để chuẩn bị cho lượt kế tiếp. Khuôn này gọi là <b>đọc mồi — xử lý — đọc lại</b>.</p>
+
+<div class="box tech">
+<div class="t">Cách viết gọn khi toán tử nhập nằm trong điều kiện</div>
+<div class="codewrap noname"><pre><code>long long x, sum = 0;
+while (cin &gt;&gt; x &amp;&amp; x != 0)
+    sum += x;</code></pre></div>
+<p>Biểu thức <code class="inl">cin &gt;&gt; x</code> có thể được dùng như một điều kiện: đúng nếu
+đọc thành công, sai nếu hết tệp hoặc dữ liệu lỗi. Nhờ chập mạch, nếu đọc thất bại thì
+<code class="inl">x != 0</code> không được tính.</p>
+</div>
+
+<h3>Đọc tới cuối tệp — EOF</h3>
+
+<p>Một số đề không cho <span class="mathv">n</span> và cũng không có lính canh; dữ liệu kết
+thúc khi tệp hết. Khi ấy viết:</p>
+
+<div class="codewrap noname"><pre><code>long long x;
+while (cin &gt;&gt; x) {
+    // xử lý x
+}</code></pre></div>
+
+<div class="box warn">
+<div class="t">Không viết while (!cin.eof())</div>
+<p>Cờ EOF chỉ bật <b>sau khi</b> một lần đọc thất bại. Vì vậy khuôn
+<code class="inl">while (!cin.eof())</code> thường khiến thân vòng chạy thêm một lượt với
+giá trị cũ. Hãy đặt chính phép đọc vào điều kiện: <code class="inl">while (cin &gt;&gt; x)</code>.</p>
+</div>
+
+<h2 id="s4"><span class="num">4.</span>Bốn khuôn mẫu quan trọng</h2>
+
+<h3>Khuôn A — lặp bằng biến đếm</h3>
+
+<p>Dùng được khi số lượt đã biết, dù trong trường hợp đó <code class="inl">for</code> thường
+gọn hơn. Viết khuôn này giúp thấy rõ ba phần của vòng <code class="inl">while</code> nằm ở
+ba vị trí khác nhau:</p>
+
+<div class="codewrap noname"><pre><code>int i = 1;                  // khởi tạo
+while (i &lt;= n) {            // kiểm tra
+    cout &lt;&lt; i &lt;&lt; " ";     // công việc
+    i++;                    // cập nhật
+}</code></pre></div>
+
+<h3>Khuôn B — tách chữ số của một số nguyên</h3>
+
+<p>Với số dương <span class="mathv">n</span>, chữ số cuối là <code class="inl">n % 10</code>;
+bỏ chữ số cuối bằng <code class="inl">n /= 10</code>. Hai phép này tạo nên cả một họ bài:</p>
+
+<div class="codewrap noname"><pre><code>long long n;
+cin &gt;&gt; n;
+long long sum = 0;
+while (n &gt; 0) {
+    int digit = n % 10;
+    sum += digit;
+    n /= 10;
+}
+cout &lt;&lt; sum;</code></pre></div>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Yêu cầu</th><th>Biến tích lũy / thao tác trong vòng</th></tr></thead>
+<tbody>
+<tr><td>Đếm chữ số</td><td><code class="inl">cnt++</code></td></tr>
+<tr><td>Tổng chữ số</td><td><code class="inl">sum += digit</code></td></tr>
+<tr><td>Chữ số lớn nhất</td><td><code class="inl">mx = max(mx, digit)</code></td></tr>
+<tr><td>Đảo số</td><td><code class="inl">rev = rev * 10 + digit</code></td></tr>
+<tr><td>Kiểm tra đối xứng</td><td>đảo số rồi so với bản gốc</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box warn">
+<div class="t">Trường hợp n = 0</div>
+<p>Vòng <code class="inl">while (n &gt; 0)</code> không chạy với <code class="inl">n = 0</code>,
+nhưng số 0 có <b>một chữ số</b>. Nếu bài đếm chữ số và cho phép 0, phải xử lý riêng hoặc dùng
+<code class="inl">do-while</code>.</p>
+</div>
+
+<h3>Thử tay: bóc từng chữ số</h3>
+
+<p>Mỗi lần bấm, máy lấy chữ số cuối rồi xóa nó khỏi số. Chữ số xuất hiện theo thứ tự từ
+phải sang trái, đúng với cách phép chia dư hoạt động.</p>
+
+<div class="sim">
+  <div class="sim-hang">
+    <div class="sim-o"><label for="digitN">n =</label><input type="number" id="digitN" value="50724" min="0" max="999999999"></div>
+    <div class="sim-o"><span id="digitState">Chưa bắt đầu</span></div>
+  </div>
+  <div class="sim-nhan">Dãy lệnh</div>
+  <div class="dong" id="digitDong"></div>
+  <div class="statebar" id="digitBars"></div>
+  <div class="sim-nhan">Các chữ số đã lấy</div>
+  <div class="sim-ra" id="digitRa"></div>
+  <div class="sim-canh" id="digitCanh"></div>
+  <div class="sim-nut">
+    <button id="digitNext">Bước tiếp</button>
+    <button id="digitRun">Chạy hết</button>
+    <button id="digitReset">Làm lại</button>
+    <button data-digit="0">0</button>
+    <button data-digit="7">7</button>
+    <button data-digit="12030">12030</button>
+  </div>
+</div>
+
+<h3>Khuôn C — thuật toán Euclid tìm UCLN</h3>
+
+<p>Đẳng thức nền tảng là
+<span class="mathv">gcd(a,b) = gcd(b,a mod b)</span>. Ta liên tục thay cặp số bằng cặp
+nhỏ hơn cho tới khi số thứ hai bằng 0:</p>
+
+<div class="codewrap noname"><pre><code>long long a, b;
+cin &gt;&gt; a &gt;&gt; b;
+while (b != 0) {
+    long long r = a % b;
+    a = b;
+    b = r;
+}
+cout &lt;&lt; a;</code></pre></div>
+
+<p>Đây là ví dụ điển hình của <code class="inl">while</code>: số lượt không biết trước,
+nhưng mỗi lượt số dư <code class="inl">r</code> thỏa <span class="mathv">0 ≤ r &lt; b</span>,
+nên trạng thái tiến chắc chắn về <code class="inl">b = 0</code>.</p>
+
+<h3>Thử tay: Euclid chạy từng phép chia</h3>
+
+<div class="sim">
+  <div class="sim-hang">
+    <div class="sim-o"><label for="gcdA">a</label><input type="number" id="gcdA" value="252" min="1" max="1000000"></div>
+    <div class="sim-o"><label for="gcdB">b</label><input type="number" id="gcdB" value="105" min="0" max="1000000"></div>
+    <div class="sim-o"><span id="gcdState">Chưa bắt đầu</span></div>
+  </div>
+  <div class="sim-nhan">Dãy lệnh</div>
+  <div class="dong" id="gcdDong"></div>
+  <div class="statebar" id="gcdBars"></div>
+  <div class="sim-nhan">Nhật ký phép chia</div>
+  <div class="sim-ra" id="gcdRa"></div>
+  <div class="sim-canh" id="gcdCanh"></div>
+  <div class="sim-nut">
+    <button id="gcdNext">Bước tiếp</button>
+    <button id="gcdRun">Chạy hết</button>
+    <button id="gcdReset">Làm lại</button>
+    <button data-gcd="48,18">48, 18</button>
+    <button data-gcd="17,5">17, 5</button>
+    <button data-gcd="25,0">b = 0</button>
+  </div>
+</div>
+
+<h3>Khuôn D — hai con trỏ thu hẹp một đoạn</h3>
+
+<p>Kiểm tra chuỗi đối xứng là một quá trình chưa biết chính xác bao nhiêu lượt nếu ta chỉ
+nghĩ theo điều kiện “hai đầu chưa gặp nhau”:</p>
+
+<div class="codewrap noname"><pre><code>int l = 0, r = (int)s.size() - 1;
+bool ok = true;
+while (l &lt; r) {
+    if (s[l] != s[r]) {
+        ok = false;
+        break;
+    }
+    l++;
+    r--;
+}
+cout &lt;&lt; (ok ? "YES" : "NO");</code></pre></div>
+
+<p>Đại lượng tiến triển là độ dài đoạn đang xét: sau mỗi lượt nó giảm 2. Vòng dừng khi
+<code class="inl">l &gt;= r</code> hoặc khi phát hiện một cặp khác nhau.</p>
+
+<div class="box ex">
+<div class="t">Một khuôn chương trình hoàn chỉnh</div>
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    long long n;
+    cin &gt;&gt; n;
+
+    long long original = n;
+    long long reversed = 0;
+
+    do {
+        int digit = n % 10;
+        reversed = reversed * 10 + digit;
+        n /= 10;
+    } while (n &gt; 0);
+
+    cout &lt;&lt; (original == reversed ? "YES" : "NO") &lt;&lt; '\n';
+    return 0;
+}</code></pre></div>
+<p><code class="inl">do-while</code> được dùng để số 0 cũng đi qua thân vòng đúng một lần.</p>
+</div>
+
+<h2 id="s5"><span class="num">5.</span>do-while, break và continue</h2>
+
+<h3>do-while: chạy trước, kiểm tra sau</h3>
+
+<div class="haicot">
+<div>
+<div class="cot-ten"><code class="inl">while</code> — có thể chạy 0 lần</div>
+<div class="codewrap noname"><pre><code>while (condition) {
+    work();
+}</code></pre></div>
+</div>
+<div>
+<div class="cot-ten"><code class="inl">do-while</code> — chạy ít nhất 1 lần</div>
+<div class="codewrap noname"><pre><code>do {
+    work();
+} while (condition);</code></pre></div>
+</div>
+</div>
+
+<p>Dấu chấm phẩy sau <code class="inl">while (condition);</code> của
+<code class="inl">do-while</code> là bắt buộc. Cấu trúc này phù hợp với menu cần hiển thị
+ít nhất một lần, hoặc xử lý chữ số của 0.</p>
+
+<h3>break: thoát ngay khỏi vòng gần nhất</h3>
+
+<div class="codewrap noname"><pre><code>int i = 2;
+while (i * i &lt;= n) {
+    if (n % i == 0) {
+        cout &lt;&lt; "KHONG NGUYEN TO";
+        break;
+    }
+    i++;
+}</code></pre></div>
+
+<p><code class="inl">break</code> chỉ thoát vòng gần nhất. Với vòng lặp lồng nhau, nó
+không tự thoát tất cả các tầng.</p>
+
+<h3>continue: bỏ phần còn lại của lượt hiện tại</h3>
+
+<p>Trong <code class="inl">while</code>, <code class="inl">continue</code> đặc biệt nguy
+hiểm vì phần cập nhật thường nằm cuối thân vòng:</p>
+
+<div class="haicot">
+<div>
+<div class="cot-ten">Sai — gặp số chẵn là mắc kẹt</div>
+<div class="codewrap noname"><pre><code>int i = 1;
+while (i &lt;= n) {
+    if (i % 2 == 0) continue;
+    cout &lt;&lt; i &lt;&lt; " ";
+    i++;
+}</code></pre></div>
+</div>
+<div>
+<div class="cot-ten">Đúng — cập nhật trước khi continue</div>
+<div class="codewrap noname"><pre><code>int i = 1;
+while (i &lt;= n) {
+    if (i % 2 == 0) {
+        i++;
+        continue;
+    }
+    cout &lt;&lt; i &lt;&lt; " ";
+    i++;
+}</code></pre></div>
+</div>
+</div>
+
+<div class="box tech">
+<div class="t">Cách tốt hơn: tránh continue nếu điều kiện viết lại được</div>
+<div class="codewrap noname"><pre><code>int i = 1;
+while (i &lt;= n) {
+    if (i % 2 != 0) cout &lt;&lt; i &lt;&lt; " ";
+    i++;
+}</code></pre></div>
+<p>Mọi đường đi qua thân vòng đều chạm cùng một lệnh cập nhật. Cấu trúc này ít rủi ro hơn.</p>
+</div>
+
+<h2 id="s6"><span class="num">6.</span>Độ phức tạp và những cái bẫy</h2>
+
+<h3>Không nhìn chữ while để đo độ phức tạp</h3>
+
+<p>Phải hỏi trạng thái thay đổi nhanh đến đâu:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Cập nhật</th><th>Số lượt điển hình</th><th>Độ phức tạp</th></tr></thead>
+<tbody>
+<tr><td><code class="inl">i++</code> từ 1 tới n</td><td><span class="mathv">n</span></td><td><code class="inl">O(n)</code></td></tr>
+<tr><td><code class="inl">n /= 10</code></td><td>số chữ số của n</td><td><code class="inl">O(log n)</code></td></tr>
+<tr><td><code class="inl">n /= 2</code></td><td>số bit của n</td><td><code class="inl">O(log n)</code></td></tr>
+<tr><td>Euclid</td><td>tối đa theo log của số nhỏ hơn</td><td><code class="inl">O(log min(a,b))</code></td></tr>
+<tr><td>mỗi lượt tăng l hoặc giảm r</td><td>tối đa n lần tổng cộng</td><td><code class="inl">O(n)</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Bảy cái bẫy</h3>
+
+<div class="box warn">
+<div class="t">1. Quên cập nhật</div>
+<div class="codewrap noname"><pre><code>int i = 1;
+while (i &lt;= n)
+    cout &lt;&lt; i;   // i mãi bằng 1</code></pre></div>
+<p>Nếu <code class="inl">n &gt;= 1</code>, điều kiện không bao giờ đổi.</p>
+</div>
+
+<div class="box warn">
+<div class="t">2. Cập nhật sai hướng</div>
+<div class="codewrap noname"><pre><code>while (i &lt;= n) {
+    ...
+    i--;          // càng lúc càng xa n + 1
+}</code></pre></div>
+<p>Điều kiện cần <code class="inl">i</code> tăng để trở thành sai, nhưng chương trình lại giảm nó.</p>
+</div>
+
+<div class="box warn">
+<div class="t">3. Dấu chấm phẩy tạo thân rỗng</div>
+<div class="codewrap noname"><pre><code>while (i &lt;= n); {
+    cout &lt;&lt; i;
+    i++;
+}</code></pre></div>
+<p>Thân thật của vòng là câu lệnh rỗng sau dấu chấm phẩy. Khối ngoặc phía sau không thuộc
+vòng và không bao giờ được tới nếu vòng rỗng bị mắc kẹt.</p>
+</div>
+
+<div class="box warn">
+<div class="t">4. Nhập mồi nhưng quên nhập lại</div>
+<div class="codewrap noname"><pre><code>cin &gt;&gt; x;
+while (x != 0) {
+    sum += x;
+    // thiếu cin >> x;
+}</code></pre></div>
+<p><code class="inl">x</code> giữ nguyên, nên nếu ban đầu khác 0 thì vòng chạy mãi.</p>
+</div>
+
+<div class="box warn">
+<div class="t">5. Xử lý lính canh như dữ liệu thật</div>
+<div class="codewrap noname"><pre><code>while (true) {
+    cin &gt;&gt; x;
+    sum += x;          // đã cộng trước khi kiểm tra
+    if (x == -1) break;
+}</code></pre></div>
+<p>Nếu <code class="inl">-1</code> chỉ là dấu kết thúc, tổng đã bị cộng sai. Kiểm tra lính canh
+trước khi xử lý.</p>
+</div>
+
+<div class="box warn">
+<div class="t">6. Mất giá trị gốc khi tách chữ số</div>
+<p>Sau vòng <code class="inl">while (n &gt; 0) n /= 10;</code>, biến <code class="inl">n</code>
+đã bằng 0. Nếu còn cần số ban đầu để so sánh, hãy lưu
+<code class="inl">long long original = n;</code> trước vòng.</p>
+</div>
+
+<div class="box warn">
+<div class="t">7. Tràn số trong điều kiện</div>
+<div class="codewrap noname"><pre><code>while (i * i &lt;= n) ...</code></pre></div>
+<p>Nếu <code class="inl">i</code> là <code class="inl">int</code>, phép nhân có thể tràn trước
+khi so với <code class="inl">n</code>. Dùng <code class="inl">1LL * i * i &lt;= n</code> hoặc
+viết <code class="inl">i &lt;= n / i</code> khi phù hợp.</p>
+</div>
+
+<div class="box def">
+<div class="t">Bốn câu tự hỏi trước khi nộp</div>
+<ul>
+<li>Điều kiện được viết theo nghĩa <b>còn tiếp tục</b> hay đã vô tình viết theo nghĩa <b>đã xong</b>?</li>
+<li>Mọi đường đi trong thân vòng có làm trạng thái thay đổi không, kể cả nhánh có <code class="inl">continue</code>?</li>
+<li>Có một đại lượng tăng, giảm hoặc thu hẹp để chứng minh vòng chắc chắn dừng không?</li>
+<li>Trường hợp trạng thái ban đầu đã ở điểm dừng — như <code class="inl">n = 0</code> — có cần thân vòng chạy một lần không?</li>
+</ul>
+</div>
+
+<h2 id="s7"><span class="num">7.</span>Lộ trình luyện tập</h2>
+
+<p>Làm theo bốn chặng dưới đây. Mỗi chặng thêm đúng một kiểu trạng thái mới.</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th class="c">Chặng</th><th>Nhóm bài</th><th>Kĩ năng trọng tâm</th><th class="c">Mục nên đọc</th></tr></thead>
+<tbody>
+<tr><td class="c">1</td><td>In dãy số; tính tổng 1..n; đếm số chia hết; tìm ước đầu tiên</td><td>Khởi tạo, điều kiện, cập nhật; phân biệt <code class="inl">&lt;</code> và <code class="inl">&lt;=</code></td><td class="c">1, 2</td></tr>
+<tr><td class="c">2</td><td>Đếm chữ số; tổng chữ số; đảo số; số đối xứng; chữ số lớn nhất</td><td>Trạng thái biến đổi bằng <code class="inl">%</code> và <code class="inl">/</code>; xử lý n = 0</td><td class="c">4, 5</td></tr>
+<tr><td class="c">3</td><td>Tổng tới lính canh; đếm số dương tới 0; đọc tới EOF; menu lặp</td><td>Đọc mồi, kiểm tra lính canh, đặt phép nhập trong điều kiện</td><td class="c">3, 5</td></tr>
+<tr><td class="c">4</td><td>UCLN; phân tích thừa số; kiểm tra nguyên tố; hai con trỏ; tìm kiếm nhị phân</td><td>Chứng minh dừng bằng đại lượng tiến triển; đánh giá <code class="inl">O(log n)</code> và <code class="inl">O(n)</code></td><td class="c">4, 6</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box ex">
+<div class="t">Mười hai bài tự luyện theo thứ tự</div>
+<ol>
+<li>In các số từ 1 đến <span class="mathv">n</span> bằng <code class="inl">while</code>.</li>
+<li>In các số từ <span class="mathv">n</span> về 1.</li>
+<li>Tính tổng các số chẵn không vượt quá <span class="mathv">n</span>.</li>
+<li>Đếm số chữ số của <span class="mathv">n</span>, kể cả <code class="inl">n = 0</code>.</li>
+<li>Tính tổng và tích các chữ số.</li>
+<li>Đảo một số nguyên không âm.</li>
+<li>Kiểm tra số đối xứng.</li>
+<li>Đọc các số tới khi gặp 0, in số lớn nhất đã đọc.</li>
+<li>Đọc tới EOF và đếm có bao nhiêu số âm.</li>
+<li>Tìm UCLN và BCNN của hai số.</li>
+<li>Phân tích <span class="mathv">n</span> thành thừa số nguyên tố.</li>
+<li>Kiểm tra chuỗi đối xứng bằng hai con trỏ.</li>
+</ol>
+</div>
+
+<div class="box def">
+<div class="t">Kết luận cần nhớ</div>
+<p>Đừng bắt đầu bằng việc hỏi “dùng <code class="inl">while</code> hay
+<code class="inl">for</code>?”. Hãy hỏi: <b>trạng thái hiện tại là gì, khi nào còn phải
+làm, và mỗi lượt làm trạng thái tiến về đâu?</b> Khi ba câu này rõ ràng, vòng lặp chỉ còn
+là cách ghi lại quá trình ấy bằng cú pháp C++.</p>
+</div>
+
+</div>
+</div>
+
+<script>
+(function () {
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function rows(lines, active) {
+    var h = '';
+    for (var i = 0; i < lines.length; i++)
+      h += '<div class="' + (i === active ? 'chay' : 'bo') + '">' + esc(lines[i]) + '</div>';
+    return h;
+  }
+
+  /* ---------- Mô phỏng 1: while đếm tăng ---------- */
+  var trI = document.getElementById('traceI'), trN = document.getElementById('traceN'),
+      trState = document.getElementById('traceState'), trDong = document.getElementById('traceDong'),
+      trRa = document.getElementById('traceRa'), trCanh = document.getElementById('traceCanh');
+  var tr = null;
+  var trLines = ['int i = i0;', 'while (i <= n) {', '    cout << i << " ";', '    i++;', '}'];
+
+  function traceReset() {
+    var i0 = parseInt(trI.value, 10), n = parseInt(trN.value, 10);
+    if (isNaN(i0)) i0 = 1;
+    if (isNaN(n)) n = 4;
+    tr = {i:i0, n:n, phase:0, out:[], done:false, steps:0};
+    trState.textContent = 'Đã đặt trạng thái đầu';
+    tracePaint();
+  }
+  function tracePaint() {
+    var active = tr.done ? -1 : (tr.phase === 0 ? 0 : tr.phase === 1 ? 1 : tr.phase === 2 ? 2 : 3);
+    trDong.innerHTML = rows(trLines, active);
+    trRa.textContent = 'i = ' + tr.i + '   n = ' + tr.n + '\nKết quả: ' + (tr.out.length ? tr.out.join(' ') : '(rỗng)');
+    trRa.className = 'sim-ra' + (tr.done && tr.out.length === 0 ? ' trong' : '');
+    if (tr.done) trCanh.textContent = 'Điều kiện i <= n đã sai. Vòng lặp kết thúc sau ' + tr.out.length + ' lượt.';
+    else if (tr.phase === 1) trCanh.textContent = 'Máy sắp kiểm tra điều kiện với i = ' + tr.i + '.';
+    else if (tr.phase === 2) trCanh.textContent = 'Điều kiện đúng, nên thân vòng được chạy.';
+    else if (tr.phase === 3) trCanh.textContent = 'Sau khi in, phải cập nhật i để tiến gần điểm dừng.';
+    else trCanh.textContent = 'Khởi tạo chỉ thực hiện một lần.';
+  }
+  function traceStep() {
+    if (!tr || tr.done) return;
+    tr.steps++;
+    if (tr.steps > 200) { tr.done = true; trCanh.textContent = 'Dừng mô phỏng để tránh quá nhiều bước.'; tracePaint(); return; }
+    if (tr.phase === 0) { tr.phase = 1; trState.textContent = 'Đã khởi tạo i'; }
+    else if (tr.phase === 1) {
+      if (tr.i <= tr.n) { tr.phase = 2; trState.textContent = 'Điều kiện đúng'; }
+      else { tr.done = true; trState.textContent = 'Điều kiện sai — thoát'; }
+    } else if (tr.phase === 2) { tr.out.push(tr.i); tr.phase = 3; trState.textContent = 'Đã chạy thân vòng'; }
+    else { tr.i++; tr.phase = 1; trState.textContent = 'Đã cập nhật i'; }
+    tracePaint();
+  }
+  document.getElementById('traceNext').addEventListener('click', traceStep);
+  document.getElementById('traceRun').addEventListener('click', function(){ var guard=0; while(tr && !tr.done && guard++<500) traceStep(); });
+  document.getElementById('traceReset').addEventListener('click', traceReset);
+  trI.addEventListener('input', traceReset); trN.addEventListener('input', traceReset);
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-trace]'), function(b){
+    b.addEventListener('click', function(){ var p=b.getAttribute('data-trace').split(','); trI.value=p[0]; trN.value=p[1]; traceReset(); });
+  });
+  traceReset();
+
+  /* ---------- Mô phỏng 2: tách chữ số ---------- */
+  var dN = document.getElementById('digitN'), dState = document.getElementById('digitState'),
+      dDong = document.getElementById('digitDong'), dBars = document.getElementById('digitBars'),
+      dRa = document.getElementById('digitRa'), dCanh = document.getElementById('digitCanh');
+  var dg = null;
+  var dLines = ['while (n > 0) {', '    digit = n % 10;', '    sum += digit;', '    n /= 10;', '}'];
+  function digitReset(){
+    var n = Math.trunc(Number(dN.value)); if (!isFinite(n) || n < 0) n = 0;
+    dg = {n:n, original:n, phase:0, digit:null, sum:0, got:[], done:false, steps:0};
+    dState.textContent='Sẵn sàng kiểm tra n > 0'; digitPaint();
+  }
+  function digitPaint(){
+    var active = dg.done ? -1 : dg.phase;
+    dDong.innerHTML = rows(dLines, active);
+    dBars.innerHTML = '<div class="state">n = <b>'+dg.n+'</b></div>'+
+      '<div class="state">digit = <b>'+(dg.digit===null?'?':dg.digit)+'</b></div>'+
+      '<div class="state">sum = <b>'+dg.sum+'</b></div>';
+    dRa.textContent = dg.got.length ? dg.got.join(' → ') : '(chưa lấy chữ số nào)';
+    dRa.className = 'sim-ra' + (dg.done && dg.got.length===0 ? ' trong' : '');
+    if (dg.done && dg.original===0) dCanh.textContent='Với n = 0, while (n > 0) chạy 0 lần. Nếu cần coi 0 là một chữ số, dùng do-while hoặc xử lý riêng.';
+    else if (dg.done) dCanh.textContent='n đã bằng 0. Tổng chữ số = '+dg.sum+'.';
+    else if (dg.phase===0) dCanh.textContent='Kiểm tra xem số còn chữ số nào chưa.';
+    else if (dg.phase===1) dCanh.textContent='Phép n % 10 lấy chữ số ngoài cùng bên phải.';
+    else if (dg.phase===2) dCanh.textContent='Cộng chữ số vừa lấy vào tổng.';
+    else if (dg.phase===3) dCanh.textContent='Phép chia nguyên n /= 10 xóa chữ số cuối.';
+    else dCanh.textContent='Quay lại kiểm tra với số ngắn hơn.';
+  }
+  function digitStep(){
+    if(!dg || dg.done) return;
+    if(++dg.steps>100){dg.done=true; digitPaint(); return;}
+    if(dg.phase===0){
+      if(dg.n>0){dg.phase=1; dState.textContent='Điều kiện đúng';}
+      else {dg.done=true; dState.textContent='Điều kiện sai — kết thúc';}
+    } else if(dg.phase===1){dg.digit=dg.n%10; dg.got.push(dg.digit); dg.phase=2; dState.textContent='Đã lấy chữ số cuối';}
+    else if(dg.phase===2){dg.sum+=dg.digit; dg.phase=3; dState.textContent='Đã cập nhật tổng';}
+    else if(dg.phase===3){dg.n=Math.floor(dg.n/10); dg.phase=4; dState.textContent='Đã xóa chữ số cuối';}
+    else {dg.phase=0; dState.textContent='Quay lại điều kiện';}
+    digitPaint();
+  }
+  document.getElementById('digitNext').addEventListener('click',digitStep);
+  document.getElementById('digitRun').addEventListener('click',function(){var g=0;while(dg&&!dg.done&&g++<500)digitStep();});
+  document.getElementById('digitReset').addEventListener('click',digitReset);
+  dN.addEventListener('input',digitReset);
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-digit]'),function(b){
+    b.addEventListener('click',function(){dN.value=b.getAttribute('data-digit');digitReset();});
+  });
+  digitReset();
+
+  /* ---------- Mô phỏng 3: Euclid ---------- */
+  var gA=document.getElementById('gcdA'),gB=document.getElementById('gcdB'),
+      gState=document.getElementById('gcdState'),gDong=document.getElementById('gcdDong'),
+      gBars=document.getElementById('gcdBars'),gRa=document.getElementById('gcdRa'),gCanh=document.getElementById('gcdCanh');
+  var ge=null;
+  var gLines=['while (b != 0) {','    r = a % b;','    a = b;','    b = r;','}'];
+  function gcdReset(){
+    var a=Math.abs(Math.trunc(Number(gA.value))),b=Math.abs(Math.trunc(Number(gB.value)));
+    if(!isFinite(a))a=0;if(!isFinite(b))b=0;
+    ge={a:a,b:b,r:null,phase:0,log:[],done:false,steps:0};
+    gState.textContent='Sẵn sàng kiểm tra b != 0';gcdPaint();
+  }
+  function gcdPaint(){
+    gDong.innerHTML=rows(gLines,ge.done?-1:ge.phase);
+    gBars.innerHTML='<div class="state">a = <b>'+ge.a+'</b></div><div class="state">b = <b>'+ge.b+'</b></div><div class="state">r = <b>'+(ge.r===null?'?':ge.r)+'</b></div>';
+    gRa.textContent=ge.log.length?ge.log.join('\n'):'(chưa có phép chia)';
+    if(ge.done){gCanh.textContent='b = 0 nên UCLN là a = '+ge.a+'.';gState.textContent='Kết thúc';}
+    else if(ge.phase===0)gCanh.textContent='Khi b còn khác 0, ta tiếp tục thay cặp (a, b).';
+    else if(ge.phase===1)gCanh.textContent='Số dư luôn nhỏ hơn b, đây là đại lượng bảo đảm quá trình tiến xuống.';
+    else if(ge.phase===2)gCanh.textContent='Đưa số chia cũ lên vị trí a.';
+    else if(ge.phase===3)gCanh.textContent='Đưa số dư xuống vị trí b.';
+    else gCanh.textContent='Quay lại kiểm tra cặp số mới.';
+  }
+  function gcdStep(){
+    if(!ge||ge.done)return;
+    if(++ge.steps>100){ge.done=true;gcdPaint();return;}
+    if(ge.phase===0){if(ge.b!==0){ge.phase=1;gState.textContent='Điều kiện đúng';}else{ge.done=true;}}
+    else if(ge.phase===1){ge.r=ge.a%ge.b;ge.log.push(ge.a+' = '+Math.floor(ge.a/ge.b)+' × '+ge.b+' + '+ge.r);ge.phase=2;gState.textContent='Đã tính số dư';}
+    else if(ge.phase===2){ge.a=ge.b;ge.phase=3;gState.textContent='Đã gán a = b';}
+    else if(ge.phase===3){ge.b=ge.r;ge.phase=4;gState.textContent='Đã gán b = r';}
+    else {ge.r=null;ge.phase=0;gState.textContent='Quay lại điều kiện';}
+    gcdPaint();
+  }
+  document.getElementById('gcdNext').addEventListener('click',gcdStep);
+  document.getElementById('gcdRun').addEventListener('click',function(){var g=0;while(ge&&!ge.done&&g++<500)gcdStep();});
+  document.getElementById('gcdReset').addEventListener('click',gcdReset);
+  gA.addEventListener('input',gcdReset);gB.addEventListener('input',gcdReset);
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-gcd]'),function(b){
+    b.addEventListener('click',function(){var p=b.getAttribute('data-gcd').split(',');gA.value=p[0];gB.value=p[1];gcdReset();});
+  });
+  gcdReset();
+})();
+</script>
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>
