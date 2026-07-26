@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chuỗi đẹp | Hướng dẫn lời giải</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<style>
+  /* Các phòng mô phỏng dùng hoàn toàn biến màu của chuan.css để tự thích nghi
+     với nền sáng và nền tối. */
+  .sim{background:var(--card);border:1px solid var(--border);border-radius:10px;
+       padding:16px 18px;margin:20px 0}
+  .sim-hang{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;margin-bottom:12px}
+  .sim-o{display:flex;align-items:center;gap:8px;font-size:.92rem}
+  .sim-o label{color:var(--muted)}
+  .sim input[type=text],.sim input[type=number]{padding:6px 9px;border-radius:6px;
+       border:1px solid var(--border);background:var(--bg);color:var(--fg);
+       font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;font-size:.9rem}
+  .sim input[type=text]{width:min(460px,72vw)}
+  .sim input[type=number]{width:76px}
+  .sim input[type=range]{width:min(330px,65vw);accent-color:var(--blue)}
+  .sim-nhan{font-size:.8rem;color:var(--muted);margin:10px 0 5px}
+  .sim-nut{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .sim-nut button{background:var(--bg);color:var(--fg);border:1px solid var(--border);
+       border-radius:7px;padding:6px 12px;font-size:.84rem;cursor:pointer;font-family:inherit}
+  .sim-nut button:hover{border-color:var(--blue);color:var(--blue)}
+  .sim-nut button:disabled{opacity:.42;cursor:not-allowed}
+  .sim-ra{margin-top:10px;font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;
+       background:var(--code-bg);color:var(--code-fg);border:1px solid var(--border);
+       border-left:4px solid var(--green);border-radius:8px;padding:9px 13px;white-space:pre-wrap}
+  .sim-ra.sai{border-left-color:var(--red);color:var(--red)}
+  .sim-canh{margin-top:10px;font-size:.88rem;color:var(--amber);min-height:1.2em}
+
+  .haicot{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:700px){.haicot{grid-template-columns:1fr}}
+  .cot-ten{font-size:.84rem;color:var(--muted);margin-bottom:5px}
+
+  /* Dãy ký tự trực quan */
+  .chuoi{display:flex;align-items:stretch;gap:6px;min-height:58px;overflow-x:auto;
+         padding:5px 2px 8px}
+  .ky{min-width:42px;padding:7px 8px;border:1px solid var(--border);border-radius:7px;
+      background:var(--bg);text-align:center;font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;
+      font-weight:700;position:relative}
+  .ky small{display:block;color:var(--muted);font-size:.67rem;font-weight:400;margin-top:3px}
+  .ky.giu{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+  .ky.xoa{border-color:var(--red);color:var(--red);background:var(--red-bg);opacity:.68}
+  .ky.chung{border-color:var(--amber);color:var(--amber);background:var(--amber-bg)}
+  .ky.da{opacity:.55}
+  .ky.tiep{border-color:var(--blue);color:var(--blue);box-shadow:0 0 0 2px var(--blue-bg)}
+  .cat{width:5px;min-width:5px;border-radius:4px;background:var(--blue);position:relative}
+  .cat::after{content:"k";position:absolute;top:-17px;left:-2px;color:var(--blue);
+      font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;font-size:.72rem}
+
+  .congthuc{font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;
+      background:var(--code-bg);border:1px solid var(--border);border-radius:8px;
+      padding:10px 13px;overflow-x:auto;color:var(--code-fg)}
+  .badge{display:inline-block;padding:2px 7px;border-radius:999px;font-size:.78rem;
+      border:1px solid var(--border);background:var(--bg);margin:2px 3px}
+  .badge.g{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+  .badge.r{border-color:var(--red);color:var(--red);background:var(--red-bg)}
+  .badge.b{border-color:var(--blue);color:var(--blue);background:var(--blue-bg)}
+
+  .ct{width:100%;border-collapse:collapse;margin-top:10px;font-size:.9rem}
+  .ct th,.ct td{border:1px solid var(--border);padding:6px 10px;text-align:center}
+  .ct th{background:var(--bg);color:var(--blue);font-weight:600}
+  .ct td.ai{text-align:left}
+  .ct tr.now td{background:var(--blue-bg);color:var(--blue)}
+  .ct tr.best td{background:var(--green-bg)}
+
+  /* Trục mô tả điểm chia */
+  .split-svg{margin:18px 0;overflow-x:auto}
+
+/*cv-fix-nen-sang*/
+:root{--c-cmt:#5f6672}
+@media (prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+:root[data-theme="light"]{--c-cmt:#5f6672}
+:root[data-theme="dark"]{--c-cmt:#8b949e}
+.box th,.tablewrap th,table th{color:var(--blue)!important}
+.box td,.tablewrap td,table td{color:var(--fg)}
+.ct th{color:var(--blue)!important}
+/*/cv-fix-nen-sang*/
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Hướng dẫn bài Chuỗi đẹp: từ dấu hiệu chia hết cho 4 đến dạng 2*[13]*, chọn điểm chia và lời giải O(n) với bộ nhớ O(1). Kèm ba mô phỏng.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Chuỗi đẹp | Hướng dẫn lời giải">
+<meta property="og:description" content="Chứng minh đầy đủ, thuật toán tuyến tính, code C++ và mô phỏng trực quan cho bài Chuỗi đẹp.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Chuỗi đẹp</div>
+  <a href="#s1">1. Chia hết cho 4</a>
+  <a href="#s2">2. Hình dạng chuỗi đẹp</a>
+  <a href="#s3">3. Xóa ít thành giữ nhiều</a>
+  <a href="#s4">4. Điểm chia và O(n)</a>
+  <a href="#s5">5. Chứng minh đúng</a>
+  <a href="#s6">6. Cài đặt và bẫy</a>
+  <a href="#s7">7. Chạy mẫu và tự kiểm</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb">Hướng dẫn bài tập<span class="cv-sep">/</span><span class="cv-here">Chuỗi đẹp</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Hướng dẫn giải bài tập lập trình thi đấu</div>
+  <h1>Chuỗi đẹp</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p>Cho một chuỗi chỉ gồm các chữ số từ <code class="inl">1</code> đến
+<code class="inl">4</code>. Ta được phép xóa một số ký tự nhưng không được đổi thứ tự
+những ký tự còn lại. Mục tiêu là làm cho chuỗi không còn bất kỳ <b>dãy con</b> nào tạo
+thành một số chia hết cho 4, với số lần xóa ít nhất.</p>
+
+<div class="box def">
+<div class="t">Sợi chỉ đỏ</div>
+<p>Một chuỗi đẹp phải xóa hết chữ số <code class="inl">4</code>, đồng thời không được có
+một chữ số <code class="inl">1</code> hoặc <code class="inl">3</code> đứng trước một
+chữ số <code class="inl">2</code>. Vì vậy chuỗi đẹp có đúng hình dạng:</p>
+<p style="text-align:center"><code class="inl">222...222</code> rồi đến một chuỗi bất kỳ chỉ gồm <code class="inl">1</code> và <code class="inl">3</code>.</p>
+<p>Viết gọn bằng biểu thức hình thức: <code class="inl">2*[13]*</code>.</p>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Rút điều kiện chia hết cho 4 về ba mẫu cấm</a></li>
+    <li><a href="#s2">Chứng minh hình dạng của mọi chuỗi đẹp</a></li>
+    <li><a href="#s3">Đổi bài toán xóa ít nhất thành giữ nhiều nhất</a></li>
+    <li><a href="#s4">Quét mọi điểm chia trong O(n)</a></li>
+    <li><a href="#s5">Chứng minh tính đúng đắn</a></li>
+    <li><a href="#s6">Cài đặt C++ và những bẫy thường gặp</a></li>
+    <li><a href="#s7">Chạy mẫu và bộ câu hỏi tự kiểm</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Rút điều kiện chia hết cho 4 về ba mẫu cấm</h2>
+
+<p>Điểm khó của đề nằm ở cụm từ <b>dãy con</b>: hai chữ số được chọn không nhất thiết đứng
+cạnh nhau. Tuy nhiên, dấu hiệu chia hết cho 4 giúp ta không phải xét mọi dãy con.</p>
+
+<div class="box tech">
+<div class="t">Dấu hiệu chia hết cho 4</div>
+<p>Một số có ít nhất hai chữ số chia hết cho 4 khi và chỉ khi số tạo bởi
+<b>hai chữ số cuối</b> của nó chia hết cho 4. Với số chỉ có một chữ số, ta xét trực tiếp
+chữ số đó.</p>
+</div>
+
+<p>Chuỗi chỉ dùng các chữ số từ 1 đến 4. Trong 16 cặp hai chữ số có thể xuất hiện, chỉ có
+bốn cặp sau chia hết cho 4:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th class="c">Hai chữ số cuối</th><th class="c">Giá trị</th><th class="c">Chia hết cho 4?</th></tr></thead>
+<tbody>
+<tr><td class="c"><code class="inl">12</code></td><td class="c">12</td><td class="c">Có</td></tr>
+<tr><td class="c"><code class="inl">24</code></td><td class="c">24</td><td class="c">Có</td></tr>
+<tr><td class="c"><code class="inl">32</code></td><td class="c">32</td><td class="c">Có</td></tr>
+<tr><td class="c"><code class="inl">44</code></td><td class="c">44</td><td class="c">Có</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Nhưng chữ số <code class="inl">4</code> đứng một mình đã tạo thành số 4, chia hết cho
+4. Do đó, chỉ cần chuỗi còn một chữ số 4 thì chuỗi đã không đẹp. Khi mọi chữ số 4 đã bị
+xóa, hai cặp <code class="inl">24</code> và <code class="inl">44</code> cũng tự biến
+mất. Cuối cùng chỉ còn hai dãy con hai ký tự phải cấm:</p>
+
+<div style="text-align:center;margin:16px 0">
+  <span class="badge r">4</span>
+  <span class="badge r">12</span>
+  <span class="badge r">32</span>
+</div>
+
+<div class="box def">
+<div class="t">Tiêu chuẩn tương đương thứ nhất</div>
+<p>Một chuỗi là đẹp khi và chỉ khi nó không chứa chữ số <code class="inl">4</code>, không
+chứa dãy con <code class="inl">12</code>, và không chứa dãy con
+<code class="inl">32</code>.</p>
+</div>
+
+<h3>Thử tay: tìm một dãy con làm chuỗi không đẹp</h3>
+
+<p>Nhập một chuỗi. Mô phỏng sẽ tìm một “nhân chứng”: hoặc một chữ số 4, hoặc một cặp
+<code class="inl">12</code>/<code class="inl">32</code> có thể nằm cách xa nhau.</p>
+
+<div class="sim">
+  <div class="sim-hang">
+    <div class="sim-o"><label for="ktS">Chuỗi s</label><input type="text" id="ktS" value="3123" maxlength="40"></div>
+  </div>
+  <div class="sim-nhan">Các vị trí trong chuỗi</div>
+  <div class="chuoi" id="ktChuoi"></div>
+  <div class="sim-ra" id="ktRa"></div>
+  <div class="sim-canh" id="ktCanh"></div>
+  <div class="sim-nut">
+    <button data-kt="31">31 · đẹp</button>
+    <button data-kt="222">222 · đẹp</button>
+    <button data-kt="143">143</button>
+    <button data-kt="3123">3123</button>
+    <button data-kt="1322">1322</button>
+  </div>
+</div>
+
+<h2 id="s2"><span class="num">2.</span>Chứng minh hình dạng của mọi chuỗi đẹp</h2>
+
+<p>Sau khi loại chữ số 4, chuỗi chỉ còn các chữ số 1, 2 và 3. Hai mẫu cấm
+<code class="inl">12</code> và <code class="inl">32</code> nói cùng một điều:</p>
+
+<div class="box warn">
+<div class="t">Không được có 1 hoặc 3 nằm trước 2</div>
+<p>Nếu một chữ số 1 đứng trước một chữ số 2, chọn hai vị trí ấy sẽ được dãy con 12. Nếu
+một chữ số 3 đứng trước một chữ số 2, chọn hai vị trí ấy sẽ được dãy con 32. Cả hai số
+đều chia hết cho 4.</p>
+</div>
+
+<p>Vì thế, nếu chuỗi còn chữ số 2 thì <b>mọi chữ số 2 phải nằm trước mọi chữ số 1 và 3</b>.
+Bên trong nhóm 1 và 3, thứ tự tùy ý vì các cặp 11, 13, 31, 33 đều không chia hết cho 4.</p>
+
+<div class="split-svg">
+<svg viewBox="0 0 760 150" width="100%" style="max-width:760px;display:block;margin:0 auto"
+     xmlns="http://www.w3.org/2000/svg" role="img"
+     aria-label="Chuỗi đẹp gồm một đoạn các chữ số 2, sau đó là một đoạn các chữ số 1 hoặc 3">
+  <rect x="55" y="35" width="290" height="46" rx="8" fill="var(--blue-bg)" stroke="var(--blue)" stroke-width="1.5"/>
+  <rect x="345" y="35" width="360" height="46" rx="8" fill="var(--green-bg)" stroke="var(--green)" stroke-width="1.5"/>
+  <text x="200" y="64" text-anchor="middle" font-size="18" fill="var(--blue)">2 2 2 2 ... 2</text>
+  <text x="525" y="64" text-anchor="middle" font-size="18" fill="var(--green)">1 hoặc 3, theo thứ tự bất kỳ</text>
+  <line x1="345" y1="22" x2="345" y2="100" stroke="var(--amber)" stroke-width="2" stroke-dasharray="5 4"/>
+  <text x="345" y="118" text-anchor="middle" font-size="13" fill="var(--amber)">điểm chia k</text>
+  <text x="200" y="134" text-anchor="middle" font-size="12" fill="var(--muted)">phía trái chỉ giữ 2</text>
+  <text x="525" y="134" text-anchor="middle" font-size="12" fill="var(--muted)">phía phải chỉ giữ 1 và 3</text>
+</svg>
+</div>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Chuỗi</th><th class="c">Có dạng <code class="inl">2*[13]*</code>?</th><th class="c">Kết luận</th></tr></thead>
+<tbody>
+<tr><td><code class="inl">222</code></td><td class="c">Có: phần sau rỗng</td><td class="c">Đẹp</td></tr>
+<tr><td><code class="inl">213</code></td><td class="c">Có</td><td class="c">Đẹp</td></tr>
+<tr><td><code class="inl">3311</code></td><td class="c">Có: phần 2 rỗng</td><td class="c">Đẹp</td></tr>
+<tr><td><code class="inl">1322</code></td><td class="c">Không</td><td class="c">Có dãy con 12 hoặc 32</td></tr>
+<tr><td><code class="inl">2143</code></td><td class="c">Không vì có 4</td><td class="c">Không đẹp</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box def">
+<div class="t">Tiêu chuẩn tương đương thứ hai</div>
+<p>Một chuỗi là đẹp khi và chỉ khi nó có dạng <code class="inl">2*[13]*</code>: một số
+lượng tùy ý chữ số 2, theo sau bởi một số lượng tùy ý chữ số 1 hoặc 3.</p>
+</div>
+
+<h2 id="s3"><span class="num">3.</span>Đổi bài toán xóa ít nhất thành giữ nhiều nhất</h2>
+
+<p>Xóa một số ký tự khỏi chuỗi nhưng giữ nguyên thứ tự tương đương với chọn một
+<b>dãy con</b> để giữ lại. Nếu dãy con đẹp dài nhất có độ dài
+<span class="mathv">L</span>, số ký tự phải xóa là:</p>
+
+<div class="congthuc">đáp án = |s| − L</div>
+
+<p>Ta vừa chứng minh dãy con đẹp phải có dạng <code class="inl">2*[13]*</code>. Hãy đặt
+một điểm chia <span class="mathv">k</span> vào một trong
+<span class="mathv">n+1</span> khe của chuỗi:</p>
+
+<ul>
+<li>Ở phía trái điểm chia, chỉ giữ các chữ số <code class="inl">2</code>.</li>
+<li>Ở phía phải điểm chia, chỉ giữ các chữ số <code class="inl">1</code> hoặc
+<code class="inl">3</code>.</li>
+<li>Mọi chữ số <code class="inl">4</code> luôn bị xóa.</li>
+</ul>
+
+<p>Với một điểm chia cố định, không có lý do gì bỏ một ký tự hợp lệ: giữ thêm một chữ số 2
+ở trái hoặc một chữ số 1/3 ở phải vẫn bảo toàn dạng <code class="inl">2*[13]*</code>.
+Vì vậy:</p>
+
+<div class="congthuc">giữ(k) = số chữ số 2 trong s[0..k−1] + số chữ số 1 hoặc 3 trong s[k..n−1]</div>
+
+<div class="box tech">
+<div class="t">Hai điểm chia biên cũng phải xét</div>
+<ul>
+<li><span class="mathv">k = 0</span>: không giữ chữ số 2 nào; giữ mọi chữ số 1 và 3.</li>
+<li><span class="mathv">k = n</span>: giữ mọi chữ số 2; không giữ chữ số 1 hay 3 nào.</li>
+</ul>
+<p>Hai trường hợp này xử lý đúng các chuỗi như <code class="inl">3311</code> hoặc
+<code class="inl">2222</code>.</p>
+</div>
+
+<h3>Thử tay: kéo điểm chia</h3>
+
+<p>Mỗi ký tự màu xanh được giữ, màu đỏ bị xóa. Kéo điểm chia qua từng khe và quan sát số
+ký tự giữ được. Mô phỏng cũng chỉ ra điểm chia tốt nhất.</p>
+
+<div class="sim">
+  <div class="sim-hang">
+    <div class="sim-o"><label for="pcS">Chuỗi s</label><input type="text" id="pcS" value="3244123" maxlength="40"></div>
+    <div class="sim-o"><label for="pcK">k</label><input type="range" id="pcK" min="0" max="7" value="0"><span id="pcKSo" class="badge b">0</span></div>
+  </div>
+  <div class="sim-nhan">Giữ/xóa theo điểm chia hiện tại</div>
+  <div class="chuoi" id="pcChuoi"></div>
+  <div class="sim-ra" id="pcRa"></div>
+  <div class="sim-canh" id="pcCanh"></div>
+  <div class="sim-nut">
+    <button data-pc="3244123">3244123</button>
+    <button data-pc="24424224242">24424224242</button>
+    <button data-pc="4132423432241231">4132423432241231</button>
+    <button id="pcBest">Nhảy tới điểm chia tốt nhất</button>
+  </div>
+</div>
+
+<h2 id="s4"><span class="num">4.</span>Quét mọi điểm chia trong O(n)</h2>
+
+<p>Tính lại hai số đếm từ đầu cho từng điểm chia sẽ mất
+<span class="mathv">O(n²)</span>. Thay vào đó, ta dịch điểm chia từ trái sang phải và cập
+nhật hai biến:</p>
+
+<ul>
+<li><code class="inl">left2</code>: số chữ số 2 đã nằm bên trái điểm chia.</li>
+<li><code class="inl">right13</code>: số chữ số 1 hoặc 3 còn nằm bên phải điểm chia.</li>
+</ul>
+
+<p>Ban đầu điểm chia ở trước chuỗi, nên <code class="inl">left2 = 0</code>, còn
+<code class="inl">right13</code> bằng tổng số chữ số 1 và 3 trong cả chuỗi. Khi cho điểm
+chia đi qua một ký tự:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th class="c">Ký tự vừa đi qua</th><th>Cập nhật</th><th>Lý do</th></tr></thead>
+<tbody>
+<tr><td class="c"><code class="inl">1</code> hoặc <code class="inl">3</code></td><td><code class="inl">--right13</code></td><td>Ký tự ấy không còn ở phía phải.</td></tr>
+<tr><td class="c"><code class="inl">2</code></td><td><code class="inl">++left2</code></td><td>Ký tự ấy vừa gia nhập phía trái.</td></tr>
+<tr><td class="c"><code class="inl">4</code></td><td>Không đổi</td><td>Chữ số 4 không bao giờ được giữ.</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Sau mỗi lần dịch điểm chia, độ dài dãy con giữ được là
+<code class="inl">left2 + right13</code>. Lấy giá trị lớn nhất trên tất cả
+<span class="mathv">n+1</span> điểm chia.</p>
+
+<div class="codewrap noname"><pre><code>int right13 = 0;
+for (char c : s)
+    if (c == '1' || c == '3') ++right13;
+
+int left2 = 0;
+int best = right13;             // điểm chia k = 0
+
+for (char c : s) {
+    if (c == '1' || c == '3') --right13;
+    else if (c == '2') ++left2;
+
+    best = max(best, left2 + right13);
+}
+
+int answer = (int)s.size() - best;</code></pre></div>
+
+<h3>Chạy tay với s = 3244123</h3>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th class="c">k</th><th class="c">Ký tự vừa qua</th><th class="c">left2</th><th class="c">right13</th><th class="c">Giữ được</th><th class="c">best</th></tr></thead>
+<tbody>
+<tr><td class="c">0</td><td class="c">—</td><td class="c">0</td><td class="c">3</td><td class="c">3</td><td class="c">3</td></tr>
+<tr><td class="c">1</td><td class="c">3</td><td class="c">0</td><td class="c">2</td><td class="c">2</td><td class="c">3</td></tr>
+<tr><td class="c">2</td><td class="c">2</td><td class="c">1</td><td class="c">2</td><td class="c">3</td><td class="c">3</td></tr>
+<tr><td class="c">3</td><td class="c">4</td><td class="c">1</td><td class="c">2</td><td class="c">3</td><td class="c">3</td></tr>
+<tr><td class="c">4</td><td class="c">4</td><td class="c">1</td><td class="c">2</td><td class="c">3</td><td class="c">3</td></tr>
+<tr><td class="c">5</td><td class="c">1</td><td class="c">1</td><td class="c">1</td><td class="c">2</td><td class="c">3</td></tr>
+<tr><td class="c">6</td><td class="c">2</td><td class="c">2</td><td class="c">1</td><td class="c">3</td><td class="c">3</td></tr>
+<tr><td class="c">7</td><td class="c">3</td><td class="c">2</td><td class="c">0</td><td class="c">2</td><td class="c">3</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Dãy con đẹp dài nhất có độ dài 3, nên phải xóa
+<code class="inl">7 − 3 = 4</code> ký tự.</p>
+
+<h3>Thử tay: thuật toán quét từng bước</h3>
+
+<div class="sim">
+  <div class="sim-hang">
+    <div class="sim-o"><label for="qtS">Chuỗi s</label><input type="text" id="qtS" value="3244123" maxlength="40"></div>
+  </div>
+  <div class="sim-nut">
+    <button id="qtReset">Làm lại</button>
+    <button id="qtNext">Bước tiếp</button>
+    <button id="qtAll">Chạy hết</button>
+  </div>
+  <div class="sim-nhan">Vị trí của điểm chia</div>
+  <div class="chuoi" id="qtChuoi"></div>
+  <div class="sim-ra" id="qtRa"></div>
+  <div class="sim-nhan">Lịch sử cập nhật</div>
+  <div style="overflow-x:auto"><table class="ct"><thead><tr><th>k</th><th>Ký tự qua điểm chia</th><th>left2</th><th>right13</th><th>left2 + right13</th><th>best</th></tr></thead><tbody id="qtBody"></tbody></table></div>
+</div>
+
+<div class="box def">
+<div class="t">Độ phức tạp</div>
+<p>Mỗi test case được quét hai lần, mỗi ký tự chỉ gây ra O(1) thao tác. Do đó thời gian là
+<span class="mathv">O(|s|)</span>, bộ nhớ phụ là <span class="mathv">O(1)</span>.
+Với tổng độ dài không vượt quá <span class="mathv">3 · 10<sup>5</sup></span>, lời giải
+chạy thoải mái.</p>
+</div>
+
+<h2 id="s5"><span class="num">5.</span>Chứng minh tính đúng đắn</h2>
+
+<p>Phần này trình bày đủ các mắt xích để có thể viết vào lời giải chính thức.</p>
+
+<div class="box ex">
+<div class="t">Bổ đề 1 — Các mẫu cấm</div>
+<p>Một chuỗi là đẹp khi và chỉ khi nó không chứa chữ số 4 và không chứa dãy con 12 hoặc 32.</p>
+<p><b>Chứng minh.</b> Nếu chuỗi chứa 4, dãy con một ký tự “4” chia hết cho 4. Nếu chứa 12
+hoặc 32, chính dãy con hai ký tự đó chia hết cho 4.</p>
+<p>Ngược lại, giả sử chuỗi không chứa ba mẫu trên nhưng tồn tại một dãy con tạo thành số
+chia hết cho 4. Dãy con ấy không thể có một chữ số, vì chữ số chia hết cho 4 duy nhất
+trong tập {1,2,3,4} là 4. Nếu có ít nhất hai chữ số, hai chữ số cuối phải là một trong
+12, 24, 32, 44. Hai trường hợp có 4 mâu thuẫn với việc chuỗi không chứa 4; hai trường
+hợp còn lại mâu thuẫn với việc không chứa 12 và 32. Vậy không tồn tại dãy con như thế.</p>
+</div>
+
+<div class="box ex">
+<div class="t">Bổ đề 2 — Hình dạng của chuỗi đẹp</div>
+<p>Một chuỗi là đẹp khi và chỉ khi nó có dạng <code class="inl">2*[13]*</code>.</p>
+<p><b>Chứng minh.</b> Theo Bổ đề 1, chuỗi đẹp không có 4. Nếu có một chữ số 1 hoặc 3 đứng
+trước một chữ số 2, hai vị trí ấy tạo thành dãy con 12 hoặc 32, mâu thuẫn. Do đó mọi chữ
+số 2 phải đứng trước mọi chữ số 1 và 3, nên chuỗi có dạng đã nêu.</p>
+<p>Ngược lại, chuỗi dạng <code class="inl">2*[13]*</code> không có 4. Nó cũng không thể
+có dãy con 12 hoặc 32 vì không có chữ số 2 nào nằm sau chữ số 1 hoặc 3. Theo Bổ đề 1,
+chuỗi ấy đẹp.</p>
+</div>
+
+<div class="box ex">
+<div class="t">Bổ đề 3 — Tối ưu với một điểm chia cố định</div>
+<p>Với điểm chia <span class="mathv">k</span>, dãy con đẹp dài nhất có mọi chữ số 2 được
+chọn ở bên trái và mọi chữ số 1/3 được chọn ở bên phải có độ dài
+<code class="inl">cnt2(trái) + cnt13(phải)</code>.</p>
+<p><b>Chứng minh.</b> Mọi ký tự được chọn theo quy tắc này tạo thành một dãy
+<code class="inl">2*[13]*</code>, nên đẹp. Bỏ bớt bất kỳ ký tự hợp lệ nào chỉ làm dãy
+ngắn hơn. Không thể thêm một ký tự khác: 1/3 ở trái sẽ phá phần toàn 2, 2 ở phải sẽ phá
+thứ tự, còn 4 không bao giờ được phép giữ.</p>
+</div>
+
+<div class="box def">
+<div class="t">Định lý — Thuật toán trả về số lần xóa tối thiểu</div>
+<p>Mọi dãy con đẹp đều có một điểm chia nằm sau chữ số 2 cuối cùng được giữ và trước chữ
+số 1/3 đầu tiên được giữ. Vì thuật toán xét đủ mọi điểm chia, theo Bổ đề 3 nó tìm được
+độ dài lớn nhất của mọi dãy con đẹp. Lấy độ dài chuỗi ban đầu trừ đi giá trị ấy chính là
+số ký tự tối thiểu phải xóa.</p>
+</div>
+
+<h2 id="s6"><span class="num">6.</span>Cài đặt C++ và những bẫy thường gặp</h2>
+
+<h3>Chương trình hoàn chỉnh</h3>
+
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int t;
+    cin &gt;&gt; t;
+
+    while (t--) {
+        string s;
+        cin &gt;&gt; s;
+
+        int right13 = 0;
+        for (char c : s)
+            if (c == '1' || c == '3')
+                ++right13;
+
+        int left2 = 0;
+        int best = right13;  // k = 0
+
+        for (char c : s) {
+            if (c == '1' || c == '3')
+                --right13;
+            else if (c == '2')
+                ++left2;
+            // c == '4': không biến nào thay đổi
+
+            best = max(best, left2 + right13);
+        }
+
+        cout &lt;&lt; (int)s.size() - best &lt;&lt; '\n';
+    }
+
+    return 0;
+}</code></pre></div>
+
+<div class="box tech">
+<div class="t">Một cách nhìn DP tương đương</div>
+<p>Có thể duy trì <code class="inl">only2</code> là số chữ số 2 đã gặp và
+<code class="inl">beautiful</code> là độ dài dãy con đẹp dài nhất của tiền tố:</p>
+<div class="codewrap noname"><pre><code>int only2 = 0, beautiful = 0;
+for (char c : s) {
+    if (c == '2') {
+        ++only2;
+        beautiful = max(beautiful, only2);
+    } else if (c == '1' || c == '3') {
+        ++beautiful;
+    }
+}
+cout &lt;&lt; (int)s.size() - beautiful &lt;&lt; '\n';</code></pre></div>
+<p>Cách này cũng đúng và ngắn, nhưng cách điểm chia thường dễ chứng minh và ít “nhảy cóc”
+hơn đối với người mới học.</p>
+</div>
+
+<h3>Sáu bẫy dễ mắc</h3>
+
+<div class="box warn">
+<div class="t">1. Nhầm dãy con với chuỗi con</div>
+<p>Ở <code class="inl">3123</code>, hai ký tự 3 và 2 không đứng cạnh nhau nhưng vẫn chọn
+được theo đúng thứ tự để tạo 32. Tìm bằng <code class="inl">s.find("32")</code> là sai.</p>
+</div>
+
+<div class="box warn">
+<div class="t">2. Quên rằng một chữ số 4 đã đủ phá hỏng</div>
+<p>Chỉ xét các cặp hai chữ số sẽ bỏ sót chuỗi <code class="inl">4</code>. Đây cũng là lý
+do mọi chữ số 4 đều bắt buộc bị xóa.</p>
+</div>
+
+<div class="box warn">
+<div class="t">3. Nghĩ chỉ cần xóa hết chữ số 4</div>
+<p>Chuỗi <code class="inl">1322</code> không có 4 nhưng vẫn không đẹp vì chứa dãy con
+12 và 32. Thứ tự tương đối giữa nhóm {1,3} và chữ số 2 mới là phần còn lại của bài.</p>
+</div>
+
+<div class="box warn">
+<div class="t">4. Bỏ quên điểm chia k = 0</div>
+<p>Nếu khởi tạo <code class="inl">best = 0</code> rồi chỉ cập nhật sau khi đọc ký tự đầu,
+ta có thể bỏ lỡ phương án giữ toàn bộ các chữ số 1/3, chẳng hạn chuỗi
+<code class="inl">31313</code>. Phải khởi tạo <code class="inl">best = right13</code>.</p>
+</div>
+
+<div class="box warn">
+<div class="t">5. Cố giữ chữ số 1/3 ở trái hoặc chữ số 2 ở phải</div>
+<p>Một dãy con đẹp chỉ cần giữ đúng thứ tự, không cần là đoạn liên tiếp. Vì vậy với mỗi
+điểm chia, cứ giữ <b>tất cả</b> chữ số 2 ở trái và <b>tất cả</b> chữ số 1/3 ở phải; những
+ký tự trái loại phải xóa, không có trường hợp ngoại lệ.</p>
+</div>
+
+<div class="box warn">
+<div class="t">6. Dùng thuật toán nặng hơn cần thiết</div>
+<p>Có thể mô hình hóa bằng quy hoạch động trên phần dư modulo 4, nhưng bài có cấu trúc đặc
+biệt mạnh hơn nhiều. Sau khi rút ra dạng <code class="inl">2*[13]*</code>, chỉ cần vài
+biến đếm và O(1) bộ nhớ.</p>
+</div>
+
+<h2 id="s7"><span class="num">7.</span>Chạy mẫu và bộ câu hỏi tự kiểm</h2>
+
+<h3>Đối chiếu toàn bộ ví dụ</h3>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Chuỗi</th><th class="c">Độ dài</th><th>Một dãy con đẹp tối ưu</th><th class="c">Giữ</th><th class="c">Xóa</th></tr></thead>
+<tbody>
+<tr><td><code class="inl">4</code></td><td class="c">1</td><td>chuỗi rỗng</td><td class="c">0</td><td class="c"><b>1</b></td></tr>
+<tr><td><code class="inl">13</code></td><td class="c">2</td><td><code class="inl">13</code></td><td class="c">2</td><td class="c"><b>0</b></td></tr>
+<tr><td><code class="inl">3244123</code></td><td class="c">7</td><td><code class="inl">213</code> hoặc <code class="inl">313</code></td><td class="c">3</td><td class="c"><b>4</b></td></tr>
+<tr><td><code class="inl">24424224242</code></td><td class="c">11</td><td><code class="inl">222222</code></td><td class="c">6</td><td class="c"><b>5</b></td></tr>
+<tr><td><code class="inl">4132423432241231</code></td><td class="c">16</td><td><code class="inl">1333131</code></td><td class="c">7</td><td class="c"><b>9</b></td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Sample input</h3>
+<div class="codewrap noname"><pre><code>5
+4
+13
+3244123
+24424224242
+4132423432241231</code></pre></div>
+
+<h3>Sample output</h3>
+<div class="codewrap noname"><pre><code>1
+0
+4
+5
+9</code></pre></div>
+
+<div class="box def">
+<div class="t">Năm câu tự hỏi trước khi nộp</div>
+<ul>
+<li>Mình đã dùng đúng nghĩa <b>dãy con</b>, không nhầm với đoạn con liên tiếp chưa?</li>
+<li>Mình đã chứng minh chữ số 4 luôn phải xóa chưa?</li>
+<li>Mình có nhận ra hai mẫu còn lại là 12 và 32 không?</li>
+<li>Mình đã xét đủ <span class="mathv">n+1</span> điểm chia, đặc biệt
+<span class="mathv">k=0</span> chưa?</li>
+<li>Kết quả cuối cùng là <code class="inl">n - best</code>, chứ không phải
+<code class="inl">best</code>, đúng không?</li>
+</ul>
+</div>
+
+<div class="box ex">
+<div class="t">Bài tập tự kiểm nhanh</div>
+<p>Không chạy code, hãy tìm đáp án cho các chuỗi sau rồi dùng phòng mô phỏng để kiểm tra:</p>
+<ol>
+<li><code class="inl">2313</code></li>
+<li><code class="inl">333222</code></li>
+<li><code class="inl">2221331</code></li>
+<li><code class="inl">4444</code></li>
+<li><code class="inl">121212</code></li>
+</ol>
+<p>Gợi ý: đừng tìm các cặp cấm trực tiếp. Hãy thử mọi vị trí hợp lý của đường phân cách
+giữa phần giữ chữ số 2 và phần giữ chữ số 1/3.</p>
+</div>
+
+</div>
+</div>
+
+<script>
+(function () {
+  function clean(raw) {
+    return raw.replace(/\s+/g, '').replace(/[^1-4]/g, '');
+  }
+
+  function charBox(c, i, cls) {
+    return '<span class="ky ' + (cls || '') + '">' + c + '<small>i=' + i + '</small></span>';
+  }
+
+  /* ---------- Mô phỏng 1: tìm nhân chứng không đẹp ---------- */
+  var ktS = document.getElementById('ktS'),
+      ktChuoi = document.getElementById('ktChuoi'),
+      ktRa = document.getElementById('ktRa'),
+      ktCanh = document.getElementById('ktCanh');
+
+  function ktVe() {
+    var raw = ktS.value;
+    var s = clean(raw);
+    if (s !== raw) ktS.value = s;
+
+    if (s.length === 0) {
+      ktChuoi.innerHTML = '';
+      ktRa.textContent = 'Chuỗi rỗng là chuỗi đẹp.';
+      ktRa.className = 'sim-ra';
+      ktCanh.textContent = '';
+      return;
+    }
+
+    var bad = null, i, first13 = -1;
+    for (i = 0; i < s.length; ++i) {
+      if (s[i] === '4') {
+        bad = {type: 'one', a: i};
+        break;
+      }
+    }
+    if (!bad) {
+      for (i = 0; i < s.length; ++i) {
+        if ((s[i] === '1' || s[i] === '3') && first13 < 0) first13 = i;
+        if (s[i] === '2' && first13 >= 0) {
+          bad = {type: 'pair', a: first13, b: i};
+          break;
+        }
+      }
+    }
+
+    var html = '';
+    for (i = 0; i < s.length; ++i) {
+      var mark = bad && (i === bad.a || i === bad.b) ? 'chung' : '';
+      html += charBox(s[i], i, mark);
+    }
+    ktChuoi.innerHTML = html;
+
+    if (!bad) {
+      ktRa.textContent = 'ĐẸP — không có 4, 12 hoặc 32 dưới dạng dãy con.';
+      ktRa.className = 'sim-ra';
+      ktCanh.textContent = 'Chuỗi có dạng 2*[13]*.';
+    } else if (bad.type === 'one') {
+      ktRa.textContent = 'KHÔNG ĐẸP — ký tự 4 tại vị trí ' + bad.a + ' tự tạo thành số 4.';
+      ktRa.className = 'sim-ra sai';
+      ktCanh.textContent = 'Mọi chữ số 4 đều bắt buộc phải bị xóa.';
+    } else {
+      var pair = s[bad.a] + s[bad.b];
+      ktRa.textContent = 'KHÔNG ĐẸP — chọn vị trí ' + bad.a + ' và ' + bad.b + ' được dãy con ' + pair + ', chia hết cho 4.';
+      ktRa.className = 'sim-ra sai';
+      ktCanh.textContent = 'Hai ký tự không cần đứng cạnh nhau; chỉ cần giữ nguyên thứ tự.';
+    }
+  }
+
+  ktS.addEventListener('input', ktVe);
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-kt]'), function (b) {
+    b.addEventListener('click', function () { ktS.value = b.getAttribute('data-kt'); ktVe(); });
+  });
+  ktVe();
+
+  /* ---------- Mô phỏng 2: kéo điểm chia ---------- */
+  var pcS = document.getElementById('pcS'),
+      pcK = document.getElementById('pcK'),
+      pcKSo = document.getElementById('pcKSo'),
+      pcChuoi = document.getElementById('pcChuoi'),
+      pcRa = document.getElementById('pcRa'),
+      pcCanh = document.getElementById('pcCanh'),
+      pcBestBtn = document.getElementById('pcBest');
+
+  var pcBestK = 0;
+
+  function bestSplit(s) {
+    var right = 0, left = 0, best = 0, bk = 0, i;
+    for (i = 0; i < s.length; ++i)
+      if (s[i] === '1' || s[i] === '3') ++right;
+    best = right;
+    for (i = 0; i < s.length; ++i) {
+      if (s[i] === '1' || s[i] === '3') --right;
+      else if (s[i] === '2') ++left;
+      if (left + right > best) {
+        best = left + right;
+        bk = i + 1;
+      }
+    }
+    return {k: bk, keep: best};
+  }
+
+  function pcSetString(s) {
+    pcS.value = clean(s);
+    pcK.max = pcS.value.length;
+    pcK.value = 0;
+    pcVe();
+  }
+
+  function pcVe() {
+    var raw = pcS.value;
+    var s = clean(raw);
+    if (s !== raw) pcS.value = s;
+    pcK.max = s.length;
+    var k = Math.min(parseInt(pcK.value, 10) || 0, s.length);
+    pcK.value = k;
+    pcKSo.textContent = k;
+
+    var info = bestSplit(s);
+    pcBestK = info.k;
+
+    var html = '', keep = 0, left2 = 0, right13 = 0, kept = '', i;
+    for (i = 0; i <= s.length; ++i) {
+      if (i === k) html += '<span class="cat" aria-label="điểm chia"></span>';
+      if (i === s.length) break;
+      var ok = (i < k && s[i] === '2') || (i >= k && (s[i] === '1' || s[i] === '3'));
+      if (ok) { ++keep; kept += s[i]; }
+      html += charBox(s[i], i, ok ? 'giu' : 'xoa');
+    }
+    for (i = 0; i < k; ++i) if (s[i] === '2') ++left2;
+    for (i = k; i < s.length; ++i) if (s[i] === '1' || s[i] === '3') ++right13;
+    pcChuoi.innerHTML = html;
+
+    pcRa.textContent = 'k = ' + k + ': left2 = ' + left2 + ', right13 = ' + right13
+      + ', giữ = ' + keep + ', xóa = ' + (s.length - keep)
+      + '\nDãy giữ lại: ' + (kept || '(rỗng)');
+    pcRa.className = 'sim-ra';
+    pcCanh.textContent = 'Tốt nhất giữ được ' + info.keep + ' ký tự tại một điểm chia k = '
+      + info.k + ', nên đáp án là ' + (s.length - info.keep) + '.';
+  }
+
+  pcS.addEventListener('input', function () { pcK.value = 0; pcVe(); });
+  pcK.addEventListener('input', pcVe);
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-pc]'), function (b) {
+    b.addEventListener('click', function () { pcSetString(b.getAttribute('data-pc')); });
+  });
+  pcBestBtn.addEventListener('click', function () { pcK.value = pcBestK; pcVe(); });
+  pcVe();
+
+  /* ---------- Mô phỏng 3: quét tuyến tính từng bước ---------- */
+  var qtS = document.getElementById('qtS'),
+      qtReset = document.getElementById('qtReset'),
+      qtNext = document.getElementById('qtNext'),
+      qtAll = document.getElementById('qtAll'),
+      qtChuoi = document.getElementById('qtChuoi'),
+      qtRa = document.getElementById('qtRa'),
+      qtBody = document.getElementById('qtBody');
+
+  var qs = '', qk = 0, qleft = 0, qright = 0, qbest = 0, qhist = [];
+
+  function qtRender() {
+    var html = '', i;
+    for (i = 0; i <= qs.length; ++i) {
+      if (i === qk) html += '<span class="cat" aria-label="điểm chia"></span>';
+      if (i === qs.length) break;
+      var cls = i < qk ? 'da' : (i === qk ? 'tiep' : '');
+      html += charBox(qs[i], i, cls);
+    }
+    qtChuoi.innerHTML = html;
+
+    qtRa.textContent = 'k = ' + qk + ', left2 = ' + qleft + ', right13 = ' + qright
+      + ', giữ hiện tại = ' + (qleft + qright) + ', best = ' + qbest
+      + (qk === qs.length ? '\nKết thúc: xóa tối thiểu ' + (qs.length - qbest) + ' ký tự.' : '');
+
+    var rows = '';
+    for (i = 0; i < qhist.length; ++i) {
+      var h = qhist[i];
+      var clsRow = i === qhist.length - 1 ? ' class="now"' : '';
+      rows += '<tr' + clsRow + '><td>' + h.k + '</td><td>' + h.c + '</td><td>'
+        + h.left + '</td><td>' + h.right + '</td><td>' + h.cur + '</td><td>' + h.best + '</td></tr>';
+    }
+    qtBody.innerHTML = rows;
+    qtNext.disabled = qk >= qs.length;
+    qtAll.disabled = qk >= qs.length;
+  }
+
+  function qtInit() {
+    qs = clean(qtS.value);
+    qtS.value = qs;
+    qk = 0; qleft = 0; qright = 0;
+    for (var i = 0; i < qs.length; ++i)
+      if (qs[i] === '1' || qs[i] === '3') ++qright;
+    qbest = qright;
+    qhist = [{k: 0, c: '—', left: 0, right: qright, cur: qright, best: qbest}];
+    qtRender();
+  }
+
+  function qtStep() {
+    if (qk >= qs.length) return;
+    var c = qs[qk];
+    if (c === '1' || c === '3') --qright;
+    else if (c === '2') ++qleft;
+    ++qk;
+    qbest = Math.max(qbest, qleft + qright);
+    qhist.push({k: qk, c: c, left: qleft, right: qright, cur: qleft + qright, best: qbest});
+    qtRender();
+  }
+
+  qtS.addEventListener('input', qtInit);
+  qtReset.addEventListener('click', qtInit);
+  qtNext.addEventListener('click', qtStep);
+  qtAll.addEventListener('click', function () { while (qk < qs.length) qtStep(); });
+  qtInit();
+})();
+</script>
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>
