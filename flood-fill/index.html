@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loang (Flood Fill) | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<style>
+/* Hai quy tắc riêng của bài này, chuan.css không có. */
+svg .eg.dim{stroke:var(--border); stroke-width:2; stroke-dasharray:5 4}
+svg .eg.on2{stroke:var(--hl2); stroke-width:3.4}
+
+/*cv-fix-nen-sang*/
+/* Ép mọi màu gõ cứng của bản nền tối theo bảng màu của chuẩn (tự đổi theo
+   nền sáng/tối). Đặt cuối <style> nên thắng các quy tắc trước cùng độ đặc hiệu. */
+
+/* 0) Màu chú thích mã mặc định của chuẩn (#8b949e) quá nhạt trên nền sáng
+   (tương phản 2,89 < 4,5). Làm đậm hơn ở nền sáng, giữ nguyên ở nền tối.
+   Khối <style> này đứng SAU chuan.css nên đè được cả bốn trạng thái nền. */
+:root{--c-cmt:#5f6672}
+@media (prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+:root[data-theme="light"]{--c-cmt:#5f6672}
+:root[data-theme="dark"]{--c-cmt:#8b949e}
+
+/* 1) Khối mã tự tạo của trang: nền và chữ theo chuẩn, rồi token màu cú pháp
+      dùng bảng token của chuẩn (var --c-*) vốn tự đổi nền. */
+/* KHÔNG đụng .codeline: nó có biến thể .codeline.hot tô sáng dòng đang chạy,
+   ép nền sẽ xoá mất hiệu ứng đó. Chỉ ép khung chứa và màu chữ mặc định. */
+.code-block, .code-container, .code, .code-runner, pre.code-block{
+  background:var(--code-bg) !important;
+}
+.code-block, .code-container, .code, .code-runner, pre.code-block, .codeline{
+  color:var(--code-fg) !important;
+}
+.c-kw,.tk-keyword,.kw,.token-kw{color:var(--c-kw) !important}
+.c-str,.tk-string,.st,.token-str{color:var(--c-str) !important}
+.c-cm,.tk-comment,.cm,.token-com{color:var(--c-cmt) !important}
+.c-num,.tk-number,.nm,.token-num{color:var(--c-num) !important}
+.c-fn,.tk-func,.fn,.token-func{color:var(--c-fn) !important}
+.c-type,.c-ty,.tk-type,.token-type{color:var(--c-kw) !important}
+.c-op,.op,.cmp-op,.tk-ident,.tk-macro,.pp,.tk-punc,.tk-comment{color:var(--code-fg) !important}
+.tk-comment,.c-cm{color:var(--c-cmt) !important}
+
+/* 2) Hộp/khung nội dung có nền tối gõ cứng -> nền theo chuẩn (tự đổi). */
+.quiz-box,.explain,.q-card,.lab-container,.lab-visual,.grid-board,.grid-vis,
+.sim-controls,.score-box,.var-item,.var-box,.var-badge,.info-panel,.set-box,
+.map-entry,.hero-insight,.array-cell,.bucket-tube,.reg-item,.quiz,.quiz-opt,
+.quiz-exp,.quiz-expl,.pitfall-col,.pitfall-card,.lab-bar,.formula-box,
+.mini-interactive,.visual-area,.state-panel,.info-box,.io-table,.styled-table,
+.say,.lab-msg,.word-box,.block-label,.col,.pit-col,.cmp-lab,.formula-b,
+.bucket-text,.grid-vis,.hero-insight{
+  background:var(--card) !important;
+}
+
+/* 3) Chữ nội dung gõ cứng màu sáng -> màu chữ chuẩn. */
+.qt,.q-text,.math-display,.reg-val,.bucket-text,.quiz-q,.lab-msg,.explain,
+.explain *,.quiz-box p,.quiz-box h4,.q-card *,
+.say,.say *,.formula-box,.formula-box *,.fv,.word-box,.word-box *,.col,.pit-col,
+.lab-msg *,.quiz p,.quiz h4{
+  color:var(--fg) !important;
+}
+
+/* 4) Ô bảng: tiêu đề dùng màu nhấn, ô thường dùng màu chữ chuẩn. */
+.box th, .tablewrap th, table th{color:var(--blue) !important}
+.box td, .tablewrap td, table td{color:var(--fg)}
+/*/cv-fix-nen-sang*/
+</style>
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Chuyên đề Loang (Flood Fill): DFS, BFS, thành phần liên thông trên lưới và các ứng dụng trong lập trình thi đấu.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Loang (Flood Fill) | Lý thuyết CP">
+<meta property="og:description" content="DFS, BFS và kỹ thuật loang trên lưới trong lập trình thi đấu.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Loang (Flood Fill)</div>
+  <a href="#s1">1. Bài toán mở đầu</a>
+  <a href="#s2">2. Mô hình lưới</a>
+  <a href="#s3">3. Nguyên lý loang</a>
+  <a href="#s4">4. DFS và BFS</a>
+  <a href="#s5">5. Thành phần liên thông</a>
+  <a href="#s6">6. Lỗi thường gặp</a>
+  <a href="#s7">7. Biến thể và ứng dụng</a>
+  <a href="#s8">8. Bài tập mẫu</a>
+  <a href="#s9">9. Bài tập tự luyện</a>
+  <a href="#s10">10. Tổng kết</a>
+</aside>
+
+<div class="main"><div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav"><div class="cv-nav-in">
+  <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a>
+  <a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a>
+  <a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+  <span class="cv-crumb">Duyệt đồ thị<span class="cv-sep">/</span><span class="cv-here">Loang (Flood Fill)</span></span>
+</div></nav>
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Loang (Flood Fill)</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<nav class="toc"><b>Nội dung</b><ol>
+  <li><a href="#s1">Bài toán mở đầu: tô một vùng kín</a></li>
+  <li><a href="#s2">Mô hình hoá lưới thành đồ thị</a></li>
+  <li><a href="#s3">Nguyên lý của thuật toán loang</a></li>
+  <li><a href="#s4">Cài đặt bằng DFS và BFS</a></li>
+  <li><a href="#s5">Đếm thành phần liên thông</a></li>
+  <li><a href="#s6">Những lỗi thường gặp</a></li>
+  <li><a href="#s7">Ứng dụng và các biến thể</a></li>
+  <li><a href="#s8">Bài tập mẫu có lời giải</a></li>
+  <li><a href="#s9">Bài tập tự luyện</a></li>
+  <li><a href="#s10">Tổng kết</a></li>
+</ol></nav>
+
+<h2 id="s1"><span class="num">1</span>Bài toán mở đầu: tô một vùng kín</h2>
+<p>Trong các phần mềm vẽ, công cụ <strong>thùng sơn</strong> cho phép nhấp vào một điểm và tô toàn bộ vùng có cùng màu với điểm đó. Màu mới lan sang các ô kề, rồi tiếp tục lan từ những ô vừa tô, cho đến khi gặp đường biên hoặc một màu khác.</p>
+<p>Trong lập trình thi đấu, quá trình này được gọi là <strong>loang</strong> hay <strong>Flood Fill</strong>. Kỹ thuật này không chỉ dùng để tô màu, mà còn để đếm đảo, tìm vùng nước, đo diện tích miền, kiểm tra đường đi trong mê cung, xác định vùng bao quanh và xử lý rất nhiều bài toán trên ma trận.</p>
+
+<figure>
+<svg viewBox="0 0 520 260" width="520" role="img" aria-label="Minh hoạ loang trên lưới">
+  <g transform="translate(30,25)">
+    <rect x="0" y="0" width="210" height="210" fill="none" stroke="var(--border)" stroke-width="2"/>
+    <g stroke="var(--border)">
+      <path d="M30 0V210M60 0V210M90 0V210M120 0V210M150 0V210M180 0V210"/>
+      <path d="M0 30H210M0 60H210M0 90H210M0 120H210M0 150H210M0 180H210"/>
+    </g>
+    <g fill="var(--hl2)" opacity=".35">
+      <rect x="30" y="30" width="30" height="30"/><rect x="60" y="30" width="30" height="30"/>
+      <rect x="30" y="60" width="30" height="30"/><rect x="60" y="60" width="30" height="30"/><rect x="90" y="60" width="30" height="30"/>
+      <rect x="60" y="90" width="30" height="30"/><rect x="90" y="90" width="30" height="30"/>
+      <rect x="90" y="120" width="30" height="30"/><rect x="120" y="120" width="30" height="30"/>
+    </g>
+    <g fill="var(--fg)"><circle cx="45" cy="45" r="5"/><text class="el" x="10" y="235">Điểm bắt đầu</text></g>
+  </g>
+  <path class="eg on" d="M265 130H330"/>
+  <path d="M322 120l12 10-12 10" fill="none" stroke="var(--hl)" stroke-width="3"/>
+  <g transform="translate(350,25)">
+    <rect x="0" y="0" width="140" height="210" rx="8" fill="var(--card)" stroke="var(--border)"/>
+    <text class="cap" x="70" y="35">Flood Fill</text>
+    <text class="el" x="70" y="75">1. Lấy một ô</text>
+    <text class="el" x="70" y="105">2. Đánh dấu</text>
+    <text class="el" x="70" y="135">3. Thêm ô kề</text>
+    <text class="el" x="70" y="165">4. Lặp đến hết</text>
+  </g>
+</svg>
+<figcaption>Flood Fill bắt đầu từ một ô nguồn và thăm toàn bộ các ô có thể đi tới theo quy tắc kề đã chọn.</figcaption>
+</figure>
+
+<div class="box tech"><div class="t">Ý tưởng cốt lõi</div>
+<p>Mỗi ô hợp lệ được xem như một <strong>đỉnh</strong>. Hai ô có thể chuyển trực tiếp cho nhau được nối bằng một <strong>cạnh</strong>. Flood Fill thực chất là một lần duyệt DFS hoặc BFS trên đồ thị ẩn này.</p></div>
+
+<h2 id="s2"><span class="num">2</span>Mô hình hoá lưới thành đồ thị</h2>
+<h3>2.1. Ô, cạnh và điều kiện hợp lệ</h3>
+<p>Cho ma trận gồm <span class="mathv">n</span> hàng và <span class="mathv">m</span> cột. Ô tại hàng <span class="mathv">i</span>, cột <span class="mathv">j</span> được ký hiệu là <span class="mathv">(i, j)</span>. Khi duyệt, một ô chỉ được đưa vào vùng loang nếu đồng thời thoả mãn:</p>
+<ul><li>Nằm trong biên của ma trận.</li><li>Thoả điều kiện của đề bài, chẳng hạn là đất, là ô trống hoặc có cùng màu với ô nguồn.</li><li>Chưa được thăm trước đó.</li></ul>
+
+<h3>2.2. Bốn hướng và tám hướng</h3>
+<div class="tablewrap"><table><thead><tr><th>Kiểu kề</th><th>Các bước di chuyển</th><th>Tình huống thường gặp</th></tr></thead><tbody>
+<tr><td><strong>4 hướng</strong></td><td>lên, xuống, trái, phải</td><td>Đường đi ô vuông, đảo nối bằng cạnh, mê cung.</td></tr>
+<tr><td><strong>8 hướng</strong></td><td>4 hướng chính và 4 đường chéo</td><td>Điểm ảnh, vùng chạm nhau tại góc, ảnh nhị phân.</td></tr>
+</tbody></table></div>
+
+<div class="codewrap"><div class="name">Mảng dịch chuyển</div><pre><code>// 4 hướng
+int dx4[4] = {-1, 1, 0, 0};
+int dy4[4] = {0, 0, -1, 1};
+
+// 8 hướng
+int dx8[8] = {-1, -1, -1, 0, 0, 1, 1, 1};
+int dy8[8] = {-1,  0,  1,-1, 1,-1, 0, 1};</code></pre></div>
+
+<div class="box warn"><div class="t">Đọc kỹ khái niệm “liền kề”</div>
+<p>Hai ô chạm nhau ở một góc có thuộc cùng vùng hay không phụ thuộc hoàn toàn vào đề bài. Chọn nhầm 4 hướng thành 8 hướng hoặc ngược lại sẽ làm thay đổi số thành phần liên thông.</p></div>
+
+<h2 id="s3"><span class="num">3</span>Nguyên lý của thuật toán loang</h2>
+<div class="box def"><div class="t">Mô tả thuật toán</div><ol>
+<li>Chọn ô bắt đầu <span class="mathv">(sx, sy)</span>.</li>
+<li>Đánh dấu ô đó đã được thăm.</li>
+<li>Xét mọi ô kề theo quy tắc 4 hoặc 8 hướng.</li>
+<li>Với mỗi ô kề hợp lệ và chưa thăm, đánh dấu rồi tiếp tục loang từ ô đó.</li>
+<li>Dừng khi không còn ô nào chờ xử lý.</li>
+</ol></div>
+
+<h3>3.1. Bất biến quan trọng</h3>
+<p>Mỗi ô được đưa vào cấu trúc duyệt <strong>nhiều nhất một lần</strong>. Vì vậy, dù từ một ô ta thử nhiều hướng, tổng số thao tác vẫn tuyến tính theo số ô của ma trận.</p>
+
+<h3>3.2. Chứng minh đúng</h3>
+<p><strong>Tính không bỏ sót.</strong> Nếu một ô <span class="mathv">v</span> thuộc cùng vùng với ô nguồn, tồn tại một dãy các ô kề hợp lệ từ nguồn tới <span class="mathv">v</span>. Thuật toán lần lượt mở rộng qua từng cạnh trên dãy đó, nên cuối cùng sẽ thăm <span class="mathv">v</span>.</p>
+<p><strong>Tính không thăm thừa.</strong> Thuật toán chỉ chuyển sang ô kề khi ô đó thoả điều kiện hợp lệ, vì thế không thể vượt qua tường hay đi vào một vùng khác.</p>
+
+<h3>3.3. Độ phức tạp</h3>
+<div class="box cmplx"><div class="t">Đánh giá</div><ul>
+<li><strong>Thời gian:</strong> <span class="mathv">O(n · m)</span> trong trường hợp duyệt toàn bộ lưới.</li>
+<li><strong>Bộ nhớ:</strong> <span class="mathv">O(n · m)</span> cho mảng đánh dấu và ngăn xếp hoặc hàng đợi.</li>
+<li>Nếu chỉ loang một vùng có <span class="mathv">S</span> ô, chi phí thực tế là <span class="mathv">O(S)</span>.</li>
+</ul></div>
+
+<h2 id="s4"><span class="num">4</span>Cài đặt bằng DFS và BFS</h2>
+<h3>4.1. DFS đệ quy</h3>
+<p>DFS đi sâu theo một nhánh trước, sau đó quay lui. Đây là cách viết ngắn và gần với định nghĩa loang nhất.</p>
+<div class="codewrap"><div class="name">Flood Fill bằng DFS đệ quy</div><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 1005;
+int n, m, a[MAXN][MAXN];
+bool visited[MAXN][MAXN];
+int dx[4] = {-1, 1, 0, 0};
+int dy[4] = {0, 0, -1, 1};
+
+bool inside(int x, int y) {
+    return 1 &lt;= x &amp;&amp; x &lt;= n &amp;&amp; 1 &lt;= y &amp;&amp; y &lt;= m;
+}
+
+void dfs(int x, int y) {
+    visited[x][y] = true;
+    for (int k = 0; k &lt; 4; k++) {
+        int nx = x + dx[k];
+        int ny = y + dy[k];
+        if (inside(nx, ny) &amp;&amp; a[nx][ny] == 1 &amp;&amp; !visited[nx][ny])
+            dfs(nx, ny);
+    }
+}</code></pre></div>
+
+<div class="box warn"><div class="t">Nguy cơ tràn ngăn xếp</div><p>Nếu vùng liên thông có hàng trăm nghìn hoặc hàng triệu ô, độ sâu đệ quy có thể rất lớn. Khi giới hạn lưới lớn, nên dùng BFS hoặc DFS khử đệ quy.</p></div>
+
+<h3>4.2. BFS bằng hàng đợi</h3>
+<p>BFS mở rộng theo từng lớp khoảng cách. Cách này an toàn với vùng lớn và còn cho phép tính đường đi ngắn nhất trên lưới không trọng số.</p>
+<div class="codewrap"><div class="name">Flood Fill bằng BFS</div><pre><code>void bfs(int sx, int sy) {
+    queue&lt;pair&lt;int, int&gt;&gt; q;
+    q.push({sx, sy});
+    visited[sx][sy] = true; // đánh dấu ngay khi đưa vào hàng đợi
+
+    while (!q.empty()) {
+        auto [x, y] = q.front();
+        q.pop();
+
+        for (int k = 0; k &lt; 4; k++) {
+            int nx = x + dx[k];
+            int ny = y + dy[k];
+            if (inside(nx, ny) &amp;&amp; a[nx][ny] == 1 &amp;&amp; !visited[nx][ny]) {
+                visited[nx][ny] = true;
+                q.push({nx, ny});
+            }
+        }
+    }
+}</code></pre></div>
+
+<h3>4.3. DFS khử đệ quy</h3>
+<div class="codewrap"><div class="name">Flood Fill bằng stack</div><pre><code>void floodFillStack(int sx, int sy) {
+    stack&lt;pair&lt;int, int&gt;&gt; st;
+    st.push({sx, sy});
+    visited[sx][sy] = true;
+
+    while (!st.empty()) {
+        auto [x, y] = st.top();
+        st.pop();
+        for (int k = 0; k &lt; 4; k++) {
+            int nx = x + dx[k], ny = y + dy[k];
+            if (inside(nx, ny) &amp;&amp; a[nx][ny] == 1 &amp;&amp; !visited[nx][ny]) {
+                visited[nx][ny] = true;
+                st.push({nx, ny});
+            }
+        }
+    }
+}</code></pre></div>
+
+<h3>4.4. So sánh DFS và BFS</h3>
+<div class="tablewrap"><table><thead><tr><th>Tiêu chí</th><th>DFS</th><th>BFS</th></tr></thead><tbody>
+<tr><td>Mục tiêu chính</td><td>Duyệt hết một vùng</td><td>Duyệt hết vùng và tính khoảng cách ngắn nhất</td></tr>
+<tr><td>Cấu trúc</td><td>Ngăn xếp hoặc đệ quy</td><td>Hàng đợi</td></tr>
+<tr><td>Rủi ro</td><td>Đệ quy sâu có thể tràn stack</td><td>Hàng đợi có thể chiếm nhiều bộ nhớ</td></tr>
+<tr><td>Độ phức tạp</td><td>O(nm)</td><td>O(nm)</td></tr>
+</tbody></table></div>
+
+<h2 id="s5"><span class="num">5</span>Đếm thành phần liên thông</h2>
+<p>Một trong những mẫu bài quan trọng nhất là đếm số vùng tách biệt. Ta duyệt toàn bộ ma trận; mỗi khi gặp một ô hợp lệ chưa thăm, đó là điểm bắt đầu của một thành phần mới. Tăng đáp án lên 1 rồi loang để đánh dấu toàn bộ thành phần đó.</p>
+<div class="codewrap"><div class="name">Đếm số vùng gồm các ô giá trị 1</div><pre><code>int components = 0;
+for (int i = 1; i &lt;= n; i++) {
+    for (int j = 1; j &lt;= m; j++) {
+        if (a[i][j] == 1 &amp;&amp; !visited[i][j]) {
+            components++;
+            bfs(i, j);
+        }
+    }
+}
+cout &lt;&lt; components &lt;&lt; '\n';</code></pre></div>
+
+<h3>5.1. Thu thập thông tin của từng vùng</h3>
+<p>Trong lúc loang, ta có thể tính đồng thời nhiều đại lượng:</p>
+<ul><li><strong>Diện tích:</strong> tăng 1 khi thăm một ô.</li><li><strong>Chu vi:</strong> với mỗi cạnh của ô đang xét, nếu phía bên kia ra ngoài lưới hoặc là ô nước thì tăng 1.</li><li><strong>Hộp bao:</strong> cập nhật hàng nhỏ nhất, lớn nhất, cột nhỏ nhất, lớn nhất.</li><li><strong>Khoảng cách:</strong> BFS lưu <code class="inl">dist[nx][ny] = dist[x][y] + 1</code>.</li><li><strong>Ô đại diện:</strong> lưu ô đầu tiên hoặc ô có thứ tự từ điển nhỏ nhất.</li></ul>
+
+<h3>5.2. Tính diện tích và chu vi</h3>
+<div class="codewrap"><div class="name">Loang một đảo và tính đồng thời diện tích, chu vi</div><pre><code>pair&lt;int, int&gt; measure(int sx, int sy) {
+    queue&lt;pair&lt;int, int&gt;&gt; q;
+    q.push({sx, sy});
+    visited[sx][sy] = true;
+    int area = 0, perimeter = 0;
+
+    while (!q.empty()) {
+        auto [x, y] = q.front(); q.pop();
+        area++;
+        for (int k = 0; k &lt; 4; k++) {
+            int nx = x + dx[k], ny = y + dy[k];
+            if (!inside(nx, ny) || a[nx][ny] == 0) {
+                perimeter++;
+            } else if (!visited[nx][ny]) {
+                visited[nx][ny] = true;
+                q.push({nx, ny});
+            }
+        }
+    }
+    return {area, perimeter};
+}</code></pre></div>
+
+<h2 id="s6"><span class="num">6</span>Những lỗi thường gặp</h2>
+<div class="box warn"><div class="t">Danh sách kiểm tra trước khi nộp bài</div><ol>
+<li><strong>Quên kiểm tra biên</strong> trước khi truy cập ma trận.</li>
+<li><strong>Đánh dấu quá muộn.</strong> Với BFS, phải đánh dấu ngay lúc đưa ô vào hàng đợi; nếu chờ đến lúc lấy ra, một ô có thể bị thêm nhiều lần.</li>
+<li><strong>Nhầm 4 hướng và 8 hướng.</strong></li>
+<li><strong>Đổi màu nguồn quá sớm</strong> nhưng lại tiếp tục so sánh với màu hiện tại thay vì lưu màu ban đầu.</li>
+<li><strong>Không xử lý trường hợp màu mới bằng màu cũ.</strong> Một số cài đặt thay màu trực tiếp sẽ lặp vô hạn nếu không kiểm tra.</li>
+<li><strong>DFS đệ quy quá sâu</strong> gây Runtime Error.</li>
+<li><strong>Dùng chung mảng visited</strong> cho nhiều test mà không xoá.</li>
+<li><strong>Sai chỉ số 0/1-based</strong> giữa dữ liệu và hàm kiểm tra biên.</li>
+<li><strong>Loang nhầm điều kiện.</strong> Có bài yêu cầu cùng ký tự, có bài chỉ cần khác tường, có bài còn ràng buộc độ cao.</li>
+</ol></div>
+
+<h3>6.1. Flood Fill đổi màu</h3>
+<div class="codewrap"><div class="name">Đổi toàn bộ vùng cùng màu với ô nguồn</div><pre><code>void recolor(int sx, int sy, int newColor) {
+    int oldColor = a[sx][sy];
+    if (oldColor == newColor) return;
+
+    queue&lt;pair&lt;int, int&gt;&gt; q;
+    q.push({sx, sy});
+    a[sx][sy] = newColor;
+
+    while (!q.empty()) {
+        auto [x, y] = q.front(); q.pop();
+        for (int k = 0; k &lt; 4; k++) {
+            int nx = x + dx[k], ny = y + dy[k];
+            if (inside(nx, ny) &amp;&amp; a[nx][ny] == oldColor) {
+                a[nx][ny] = newColor;
+                q.push({nx, ny});
+            }
+        }
+    }
+}</code></pre></div>
+
+<h2 id="s7"><span class="num">7</span>Ứng dụng và các biến thể</h2>
+<h3>7.1. Bài toán đếm đảo</h3><p>Mỗi ô đất là một đỉnh; hai ô đất kề nhau được nối cạnh. Số đảo chính là số thành phần liên thông của đồ thị ô đất.</p>
+<h3>7.2. Mê cung và đường đi ngắn nhất</h3><p>Khi mỗi bước có cùng chi phí, BFS từ ô xuất phát cho khoảng cách ngắn nhất tới mọi ô có thể tới. Có thể lưu thêm mảng cha để dựng lại đường đi.</p>
+<h3>7.3. Loang đa nguồn</h3><p>Đưa tất cả nguồn vào hàng đợi ở khoảng cách 0 trước khi BFS. Kỹ thuật này dùng trong bài cháy lan, lây nhiễm, khoảng cách tới bệnh viện gần nhất hoặc biến đổi ma trận.</p>
+<div class="codewrap"><div class="name">BFS đa nguồn</div><pre><code>queue&lt;pair&lt;int, int&gt;&gt; q;
+for (auto [x, y] : sources) {
+    dist[x][y] = 0;
+    q.push({x, y});
+}
+while (!q.empty()) {
+    auto [x, y] = q.front(); q.pop();
+    for (int k = 0; k &lt; 4; k++) {
+        int nx = x + dx[k], ny = y + dy[k];
+        if (inside(nx, ny) &amp;&amp; dist[nx][ny] == -1) {
+            dist[nx][ny] = dist[x][y] + 1;
+            q.push({nx, ny});
+        }
+    }
+}</code></pre></div>
+
+<h3>7.4. Loang theo độ cao hoặc điều kiện động</h3><p>Cạnh giữa hai ô chỉ tồn tại nếu thoả điều kiện như <span class="mathv">|h[u] - h[v]| ≤ K</span>, ô sau không thấp hơn ô trước, hoặc thời điểm tới ô phải sớm hơn lửa. Flood Fill không thay đổi; chỉ thay hàm kiểm tra chuyển trạng thái.</p>
+<h3>7.5. Đánh dấu vùng ngoài</h3><p>Thay vì loang từ một ô bên trong, ta thêm các ô biên hợp lệ làm nguồn và loang từ ngoài vào. Những ô không được thăm sau đó chính là vùng bị bao kín. Đây là cách giải điển hình cho bài “Surrounded Regions”.</p>
+<h3>7.6. Nén thành phần</h3><p>Sau khi gán nhãn mỗi vùng bằng một mã thành phần, ta có thể coi cả vùng như một đỉnh mới. Các quan hệ giữa vùng tạo thành một đồ thị nhỏ hơn, giúp giải các bài nhiều tầng.</p>
+<h3>7.7. Lưới không đều và đồ thị tổng quát</h3><p>Flood Fill không bắt buộc phải chạy trên ma trận. Trên đồ thị danh sách kề, thao tác tương tự chính là DFS/BFS tìm thành phần liên thông.</p>
+
+<h2 id="s8"><span class="num">8</span>Bài tập mẫu có lời giải</h2>
+<h3>8.1. Bài 1 — Đếm số đảo</h3>
+<p><strong>Đề.</strong> Cho ma trận <span class="mathv">n × m</span> gồm ký tự <code class="inl">'.'</code> và <code class="inl">'#'</code>. Hai ô <code class="inl">'#'</code> thuộc cùng đảo nếu kề cạnh. Hãy đếm số đảo.</p>
+<p><strong>Phân tích.</strong> Duyệt mọi ô; khi gặp đất chưa thăm, tăng số đảo và BFS toàn bộ vùng đó.</p>
+<div class="codewrap"><div class="name">Lời giải hoàn chỉnh</div><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    vector&lt;string&gt; a(n);
+    for (string &amp;row : a) cin &gt;&gt; row;
+
+    vector&lt;vector&lt;bool&gt;&gt; vis(n, vector&lt;bool&gt;(m, false));
+    int dx[4] = {-1, 1, 0, 0};
+    int dy[4] = {0, 0, -1, 1};
+    int islands = 0;
+
+    for (int i = 0; i &lt; n; i++) {
+        for (int j = 0; j &lt; m; j++) {
+            if (a[i][j] != '#' || vis[i][j]) continue;
+            islands++;
+            queue&lt;pair&lt;int, int&gt;&gt; q;
+            q.push({i, j});
+            vis[i][j] = true;
+
+            while (!q.empty()) {
+                auto [x, y] = q.front(); q.pop();
+                for (int k = 0; k &lt; 4; k++) {
+                    int nx = x + dx[k], ny = y + dy[k];
+                    if (0 &lt;= nx &amp;&amp; nx &lt; n &amp;&amp; 0 &lt;= ny &amp;&amp; ny &lt; m &amp;&amp;
+                        a[nx][ny] == '#' &amp;&amp; !vis[nx][ny]) {
+                        vis[nx][ny] = true;
+                        q.push({nx, ny});
+                    }
+                }
+            }
+        }
+    }
+    cout &lt;&lt; islands &lt;&lt; '\n';
+}</code></pre></div>
+
+<h3>8.2. Bài 2 — Diện tích vùng lớn nhất</h3>
+<p><strong>Đề.</strong> Cho ma trận nhị phân. Hãy tìm số ô lớn nhất trong một thành phần 4 hướng gồm toàn số 1.</p>
+<p><strong>Phân tích.</strong> Mỗi lần bắt đầu một vùng mới, đặt <code class="inl">area = 0</code>, tăng khi lấy một ô ra khỏi hàng đợi, rồi cập nhật đáp án lớn nhất.</p>
+<div class="codewrap"><div class="name">Hàm tính diện tích một vùng</div><pre><code>int getArea(int sx, int sy) {
+    queue&lt;pair&lt;int, int&gt;&gt; q;
+    q.push({sx, sy});
+    visited[sx][sy] = true;
+    int area = 0;
+    while (!q.empty()) {
+        auto [x, y] = q.front(); q.pop();
+        area++;
+        for (int k = 0; k &lt; 4; k++) {
+            int nx = x + dx[k], ny = y + dy[k];
+            if (inside(nx, ny) &amp;&amp; a[nx][ny] == 1 &amp;&amp; !visited[nx][ny]) {
+                visited[nx][ny] = true;
+                q.push({nx, ny});
+            }
+        }
+    }
+    return area;
+}</code></pre></div>
+
+<h3>8.3. Bài 3 — Đường đi trong mê cung</h3>
+<p><strong>Đề.</strong> Tìm số bước ít nhất từ <code class="inl">S</code> tới <code class="inl">T</code>, chỉ đi qua ô không phải tường.</p>
+<p><strong>Phân tích.</strong> Đây là BFS trên đồ thị không trọng số. Lần đầu tiên tới một ô chính là lúc tìm được khoảng cách ngắn nhất tới ô đó.</p>
+<div class="codewrap"><div class="name">BFS khoảng cách ngắn nhất</div><pre><code>vector&lt;vector&lt;int&gt;&gt; dist(n, vector&lt;int&gt;(m, -1));
+queue&lt;pair&lt;int, int&gt;&gt; q;
+dist[sx][sy] = 0;
+q.push({sx, sy});
+while (!q.empty()) {
+    auto [x, y] = q.front(); q.pop();
+    for (int k = 0; k &lt; 4; k++) {
+        int nx = x + dx[k], ny = y + dy[k];
+        if (0 &lt;= nx &amp;&amp; nx &lt; n &amp;&amp; 0 &lt;= ny &amp;&amp; ny &lt; m &amp;&amp;
+            grid[nx][ny] != '#' &amp;&amp; dist[nx][ny] == -1) {
+            dist[nx][ny] = dist[x][y] + 1;
+            q.push({nx, ny});
+        }
+    }
+}
+cout &lt;&lt; dist[tx][ty] &lt;&lt; '\n';</code></pre></div>
+
+<h3>8.4. Bài 4 — Vùng bị bao quanh</h3>
+<p><strong>Đề.</strong> Trên bảng gồm <code class="inl">O</code> và <code class="inl">X</code>, đổi mọi vùng <code class="inl">O</code> bị bao kín bởi <code class="inl">X</code> thành <code class="inl">X</code>.</p>
+<p><strong>Phân tích.</strong> Các ô <code class="inl">O</code> nối được với biên không bị bao kín. Loang từ mọi ô <code class="inl">O</code> trên biên để đánh dấu an toàn; cuối cùng đổi những ô <code class="inl">O</code> chưa đánh dấu.</p>
+
+<h2 id="s9"><span class="num">9</span>Bài tập tự luyện</h2>
+<div class="tablewrap"><table><thead><tr><th class="c">STT</th><th>Bài</th><th>Gợi ý</th><th class="c">Mức</th></tr></thead><tbody>
+<tr><td class="c">1</td><td>CSES — Counting Rooms</td><td>Đếm thành phần liên thông của các ô trống.</td><td class="c">Dễ</td></tr>
+<tr><td class="c">2</td><td>LeetCode 733 — Flood Fill</td><td>Lưu màu cũ, đổi màu khi đưa ô vào hàng đợi.</td><td class="c">Dễ</td></tr>
+<tr><td class="c">3</td><td>LeetCode 200 — Number of Islands</td><td>Đếm đảo bằng DFS/BFS.</td><td class="c">Dễ</td></tr>
+<tr><td class="c">4</td><td>LeetCode 695 — Max Area of Island</td><td>Tính diện tích từng vùng.</td><td class="c">Dễ</td></tr>
+<tr><td class="c">5</td><td>LeetCode 994 — Rotting Oranges</td><td>BFS đa nguồn theo thời gian.</td><td class="c">TB</td></tr>
+<tr><td class="c">6</td><td>LeetCode 130 — Surrounded Regions</td><td>Loang từ biên để đánh dấu vùng không bị bao.</td><td class="c">TB</td></tr>
+<tr><td class="c">7</td><td>CSES — Labyrinth</td><td>BFS và mảng cha để dựng đường đi.</td><td class="c">TB</td></tr>
+<tr><td class="c">8</td><td>CSES — Monsters</td><td>Hai BFS: quái vật đa nguồn và người.</td><td class="c">Khó</td></tr>
+<tr><td class="c">9</td><td>USACO — Perimeter</td><td>Tính đồng thời diện tích và chu vi từng vùng.</td><td class="c">TB</td></tr>
+<tr><td class="c">10</td><td>Codeforces — Ice Cave</td><td>Điều kiện ô đích và khả năng đi tới có ngoại lệ.</td><td class="c">Khó</td></tr>
+</tbody></table></div>
+
+<h2 id="s10"><span class="num">10</span>Tổng kết</h2>
+<div class="box cmplx"><div class="t">Năm câu hỏi cần trả lời khi gặp bài loang</div><ol>
+<li><strong>Trạng thái là gì?</strong> Thường là một ô, nhưng có thể kèm hướng, chìa khoá hoặc thời gian.</li>
+<li><strong>Các trạng thái kề nhau theo quy tắc nào?</strong> 4 hướng, 8 hướng hay điều kiện riêng.</li>
+<li><strong>Ô nào hợp lệ?</strong> Không vượt biên, không phải tường, thoả màu hoặc độ cao.</li>
+<li><strong>Cần DFS hay BFS?</strong> Chỉ duyệt vùng thì dùng cách nào cũng được; cần đường ngắn nhất thì dùng BFS.</li>
+<li><strong>Cần thu thập gì trong lúc loang?</strong> Số vùng, diện tích, chu vi, khoảng cách, đường đi hoặc nhãn thành phần.</li>
+</ol>
+<p>Flood Fill là một trong những khuôn mẫu nền tảng nhất của lập trình thi đấu. Khi nhìn thấy ma trận và các vùng nối nhau, hãy nghĩ ngay đến việc biến mỗi ô thành một đỉnh và dùng DFS/BFS để duyệt thành phần liên thông.</p></div>
+
+</div></div>
+<script src="../assets/chuan.js"></script>
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>
