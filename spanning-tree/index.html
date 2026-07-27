@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cây khung nhỏ nhất – Kruskal | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<style>
+  /* CSS riêng của phòng mô phỏng — CHỈ dùng biến màu của chuan.css */
+  .simgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:16px 0}
+  .simcard{min-width:0;border:1px solid var(--border);border-radius:14px;background:var(--card);padding:14px}
+  .simcard h3{margin-top:0}
+  .simboard{width:100%;height:auto;display:block;border:1px solid var(--border);border-radius:12px;background:var(--bg)}
+  .simcontrols{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+  .simcontrols button{border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--fg);padding:9px 13px;cursor:pointer}
+  .simcontrols button.primary{background:var(--blue-bg);color:var(--blue);border-color:var(--blue)}
+  .simcontrols button:disabled{opacity:.55;cursor:not-allowed}
+  .simstatus{border:1px solid var(--border);border-radius:12px;padding:10px;background:var(--bg);min-height:48px}
+  .simstatus strong{color:var(--blue)}
+  .simscroll{overflow-x:auto;max-width:100%;border:1px solid var(--border);border-radius:12px}
+  .edgetable{width:100%;border-collapse:collapse;min-width:560px}
+  .edgetable th,.edgetable td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:left}
+  .edgetable tr:last-child td{border-bottom:0}
+  .edge-normal{stroke:var(--edge);stroke-width:3}
+  .edge-current{stroke:var(--amber);stroke-width:6}
+  .edge-picked{stroke:var(--blue);stroke-width:6}
+  .edge-rejected{stroke:var(--red);stroke-width:4;stroke-dasharray:7 6}
+  .node-circle{fill:var(--card);stroke:var(--purple);stroke-width:3}
+  .node-label{fill:var(--fg);font-size:16px;font-weight:700;text-anchor:middle;dominant-baseline:middle}
+  .edge-label-bg{fill:var(--card);stroke:var(--border);stroke-width:1}
+  .edge-label{fill:var(--fg);font-size:13px;font-weight:700;text-anchor:middle;dominant-baseline:middle}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{display:inline-block;width:28px;height:4px;border-radius:999px;background:var(--edge)}
+  .legend .lg-current{background:var(--amber)}
+  .legend .lg-picked{background:var(--blue)}
+  .legend .lg-rejected{background:var(--red)}
+  .twocol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .checkline{display:flex;align-items:flex-start;gap:10px}
+  .checkline input{margin-top:4px}
+  .machineout{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;border:1px solid var(--border);border-radius:10px;background:var(--code-bg);color:var(--code-fg);padding:12px;min-height:48px}
+  .mini-note{color:var(--muted);font-size:.95rem}
+  @media (max-width:760px){
+    .simgrid,.twocol{grid-template-columns:1fr}
+  }
+
+/*cv-fix-nen-sang*/
+:root{--c-cmt:#5f6672}
+@media (prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+:root[data-theme="light"]{--c-cmt:#5f6672}
+:root[data-theme="dark"]{--c-cmt:#8b949e}
+.box th, .tablewrap th, table th{color:var(--blue) !important}
+.box td, .tablewrap td, table td{color:var(--fg)}
+/*/cv-fix-nen-sang*/
+</style>
+<!--cv-head-->
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">MST — Kruskal</div>
+  <a href="#s1">1. Tạo nghi vấn</a>
+  <a href="#s2">2. Vì sao Kruskal đúng</a>
+  <a href="#s3">3. Chỗ dễ sai</a>
+  <a href="#s4">4. Khuôn mẫu cài đặt</a>
+  <a href="#s5">5. Biến thể</a>
+  <a href="#s6">6. Nhận dạng và bẫy</a>
+  <a href="#s7">7. Lộ trình bài luyện</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Cây khung nhỏ nhất – Kruskal</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p>
+  Một hệ thống kết nối tối ưu không được đánh giá bằng từng cạnh riêng lẻ mà bằng
+  cấu trúc cuối cùng. Sợi chỉ đỏ của chuyên đề là:
+  <b>Kruskal không chọn cạnh chỉ vì nó nhẹ; Kruskal chọn cạnh nhẹ nhất còn nối được
+  hai thành phần khác nhau.</b>
+</p>
+
+<nav class="toc"><b>Nội dung</b><ol>
+  <li><a href="#s1">Tạo nghi vấn</a></li>
+  <li><a href="#s2">Vì sao Kruskal đúng</a></li>
+  <li><a href="#s3">Chỗ dễ sai</a></li>
+  <li><a href="#s4">Khuôn mẫu cài đặt</a></li>
+  <li><a href="#s5">Biến thể</a></li>
+  <li><a href="#s6">Nhận dạng và bẫy</a></li>
+  <li><a href="#s7">Lộ trình bài luyện</a></li>
+</ol></nav>
+
+<h2 id="s1"><span class="num">1.</span>Tạo nghi vấn: rẻ hơn có chắc đúng hơn?</h2>
+
+<p>
+  Có <span class="mathv">n</span> = 6 địa điểm và 9 phương án nối. Ta cần chọn đúng
+  5 cạnh để mọi địa điểm liên lạc được với nhau. Hai cách nghĩ cùng bắt đầu từ
+  danh sách cạnh đã sắp tăng:
+</p>
+
+<div class="box ex">
+  <div class="t">Hai cách nghĩ</div>
+  <ul>
+    <li><b>Cách A:</b> lấy thẳng 5 cạnh nhẹ nhất.</li>
+    <li><b>Cách B:</b> xét từ nhẹ đến nặng, chỉ lấy cạnh nối hai thành phần khác nhau.</li>
+  </ul>
+</div>
+
+<div class="simcontrols">
+  <button type="button" class="primary" id="stepBoth">Chạy một bước</button>
+  <button type="button" id="autoBoth">Tự chạy</button>
+  <button type="button" id="resetBoth">Đặt lại</button>
+  <span id="bothStepText" class="mini-note">Chưa xét cạnh nào.</span>
+</div>
+
+<div class="legend" aria-label="Chú giải màu cạnh">
+  <span><i></i>Chưa xét</span>
+  <span><i class="lg-current"></i>Đang xét</span>
+  <span><i class="lg-picked"></i>Đã chọn</span>
+  <span><i class="lg-rejected"></i>Bị loại</span>
+</div>
+
+<div class="simgrid">
+  <section class="simcard">
+    <h3>Cách A — lấy đủ 5 cạnh nhẹ nhất</h3>
+    <svg id="naiveSvg" class="simboard" viewBox="0 0 360 250" role="img" aria-label="Mô phỏng cách lấy năm cạnh nhẹ nhất"></svg>
+    <div id="naiveStatus" class="simstatus" aria-live="polite">Tổng đang chọn: 0.</div>
+  </section>
+  <section class="simcard">
+    <h3>Cách B — Kruskal</h3>
+    <svg id="kruskalSvg" class="simboard" viewBox="0 0 360 250" role="img" aria-label="Mô phỏng thuật toán Kruskal"></svg>
+    <div id="kruskalStatus" class="simstatus" aria-live="polite">Tổng đang chọn: 0.</div>
+  </section>
+</div>
+
+<div class="simscroll">
+<table class="edgetable">
+<thead>
+<tr><th>Thứ tự</th><th>Cạnh</th><th>Trọng số</th><th>Cách A</th><th>Kruskal</th></tr>
+</thead>
+<tbody id="edgeRunBody"></tbody>
+</table>
+</div>
+
+<p>
+  Cách A có thể cho tổng nhỏ hơn nhưng lại chứa chu trình và chưa nối hết các đỉnh;
+  đó không phải cây khung. Cách B bỏ cạnh gây chu trình, rồi dùng một cạnh nặng hơn
+  để nối hai phần còn rời nhau. Vậy <b>vì sao việc bỏ một cạnh nhẹ lại không làm mất
+  phương án tối ưu?</b>
+</p>
+
+<h2 id="s2"><span class="num">2.</span>Vì sao Kruskal đúng: lựa chọn an toàn qua lát cắt</h2>
+
+<div class="box def">
+  <div class="t">Cây khung và cây khung nhỏ nhất</div>
+  <p>
+    Với đồ thị vô hướng liên thông có <span class="mathv">n</span> đỉnh, cây khung
+    là một tập đúng <span class="mathv">n</span> − 1 cạnh, nối toàn bộ đỉnh và không
+    có chu trình. Cây khung nhỏ nhất là cây khung có tổng trọng số nhỏ nhất.
+  </p>
+</div>
+
+<p>
+  Tại một thời điểm của Kruskal, các cạnh đã chọn chia đồ thị thành nhiều thành phần.
+  Chọn một thành phần và phần còn lại tạo nên một <b>lát cắt</b>. Mọi cạnh có hai đầu
+  nằm ở hai phía khác nhau đều đi qua lát cắt ấy.
+</p>
+
+<div class="box tech">
+  <div class="t">Luật cạnh nhẹ qua lát cắt</div>
+  <p>
+    Trong một lát cắt không cắt qua cạnh đã cố định trước đó, một cạnh nhẹ nhất đi qua
+    lát cắt là lựa chọn an toàn: tồn tại ít nhất một cây khung nhỏ nhất chứa cạnh ấy.
+  </p>
+</div>
+
+<p>
+  Đây chính là tên gọi chặt chẽ cho sợi chỉ đỏ:
+  <b>Kruskal không chọn cạnh chỉ vì nó nhẹ; Kruskal chọn cạnh nhẹ nhất còn nối được
+  hai thành phần khác nhau.</b>
+</p>
+
+<div class="box ex">
+  <div class="t">Lập luận đổi cạnh</div>
+  <ol>
+    <li>Giả sử các cạnh Kruskal đã chọn trước đó cùng nằm trong một cây khung nhỏ nhất <span class="mathv">T</span>.</li>
+    <li>Kruskal chọn cạnh <span class="mathv">e</span> nối hai thành phần khác nhau.</li>
+    <li>Nếu <span class="mathv">T</span> chưa có <span class="mathv">e</span>, thêm <span class="mathv">e</span> vào <span class="mathv">T</span> sẽ tạo đúng một chu trình.</li>
+    <li>Chu trình ấy có một cạnh <span class="mathv">f</span> cũng đi qua lát cắt giữa hai thành phần.</li>
+    <li>Vì <span class="mathv">e</span> được xét trước, trọng số của <span class="mathv">e</span> không lớn hơn trọng số của <span class="mathv">f</span>.</li>
+    <li>Thay <span class="mathv">f</span> bằng <span class="mathv">e</span>, ta vẫn có cây khung và tổng không tăng.</li>
+  </ol>
+</div>
+
+<p>
+  Sau mỗi lần chọn, vẫn tồn tại một cây khung nhỏ nhất chứa toàn bộ cạnh đã chọn.
+  Khi đủ <span class="mathv">n</span> − 1 cạnh, tập cạnh ấy tự nó là một cây khung
+  nhỏ nhất. DSU chỉ là công cụ trả lời nhanh câu hỏi “hai đầu cạnh đã cùng thành phần
+  chưa?”.
+</p>
+
+<h2 id="s3"><span class="num">3.</span>Chỗ dễ sai: đúng thuật toán nhưng sai kết luận</h2>
+
+<div class="twocol">
+  <div class="box warn">
+    <div class="t">MST không phải cây đường đi ngắn nhất</div>
+    <p>
+      MST tối thiểu hóa tổng trọng số của toàn bộ cây. Nó không đảm bảo đường đi từ
+      một đỉnh nguồn tới từng đỉnh khác là ngắn nhất.
+    </p>
+  </div>
+  <div class="box warn">
+    <div class="t">Có thể có nhiều MST</div>
+    <p>
+      Nhiều cây khác nhau có thể cùng đạt một tổng nhỏ nhất. Khi trọng số bằng nhau,
+      thứ tự phụ trong phép sắp xếp có thể làm danh sách cạnh được in ra thay đổi.
+    </p>
+  </div>
+</div>
+
+<div class="box warn">
+  <div class="t">Bẫy đồ thị không liên thông</div>
+  <p>
+    Kruskal vẫn gộp được các cạnh trong từng thành phần và tạo một rừng khung nhỏ nhất.
+    Nếu đề yêu cầu một cây khung của toàn bộ đồ thị, phải kiểm tra số cạnh đã chọn có
+    bằng <span class="mathv">n</span> − 1 hay không.
+  </p>
+
+  <div class="checkline">
+    <input type="checkbox" id="skipConnectivity">
+    <label for="skipConnectivity">
+      Bật lỗi: bỏ kiểm tra <code class="inl">cnt == n - 1</code>.
+    </label>
+  </div>
+  <div id="connectivityOutput" class="machineout" aria-live="polite"></div>
+</div>
+
+<div class="tablewrap">
+<table>
+<thead>
+<tr><th>Tình huống</th><th>Kết luận đúng</th><th>Cách phòng lỗi</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td>Có trọng số âm</td>
+  <td>Kruskal vẫn dùng được vì chỉ cần so sánh thứ tự cạnh.</td>
+  <td>Sắp xếp tăng như bình thường.</td>
+</tr>
+<tr>
+  <td>Có cạnh song song</td>
+  <td>Mỗi cạnh vẫn là một lựa chọn riêng.</td>
+  <td>Giữ nguyên trong danh sách cạnh.</td>
+</tr>
+<tr>
+  <td>Có cạnh tự nối</td>
+  <td>Hai đầu luôn cùng thành phần nên cạnh bị loại.</td>
+  <td>DSU xử lý tự nhiên.</td>
+</tr>
+<tr>
+  <td>Tổng trọng số lớn</td>
+  <td>Biến tổng có thể vượt kiểu <code class="inl">int</code>.</td>
+  <td>Dùng <code class="inl">long long</code> cho trọng số và tổng.</td>
+</tr>
+<tr>
+  <td>Đánh số đỉnh từ 1</td>
+  <td>Mảng DSU cần có chỉ số từ 1 tới <span class="mathv">n</span>.</td>
+  <td>Cấp <span class="mathv">n</span> + 1 phần tử.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="s4"><span class="num">4.</span>Khuôn mẫu cài đặt</h2>
+
+<p>
+  Khuôn cơ bản bám sát sợi chỉ đỏ:
+  <b>Kruskal không chọn cạnh chỉ vì nó nhẹ; Kruskal chọn cạnh nhẹ nhất còn nối được
+  hai thành phần khác nhau.</b>
+</p>
+
+<div class="box tech">
+  <div class="t">Khuôn A — Kruskal cơ bản, phát hiện không tồn tại MST</div>
+  <div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+struct Edge {
+    int u, v;
+    long long w;
+};
+
+int n, m, cnt;
+long long ans;
+vector&lt;int&gt; parentNode, sz;
+vector&lt;Edge&gt; edges;
+
+int root(int u) {
+    if (u == parentNode[u])
+        return u;
+    return parentNode[u] = root(parentNode[u]);
+}
+
+bool joinSet(int u, int v) {
+    u = root(u);
+    v = root(v);
+
+    if (u == v)
+        return false;
+
+    if (sz[u] &lt; sz[v])
+        swap(u, v);
+
+    parentNode[v] = u;
+    sz[u] += sz[v];
+    return true;
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    cin &gt;&gt; n &gt;&gt; m;
+
+    parentNode.resize(n + 1);
+    sz.assign(n + 1, 1);
+    edges.resize(m);
+
+    iota(parentNode.begin(), parentNode.end(), 0);
+
+    for (int i = 0; i &lt; m; i++)
+        cin &gt;&gt; edges[i].u &gt;&gt; edges[i].v &gt;&gt; edges[i].w;
+
+    sort(edges.begin(), edges.end(), [](const Edge &amp;a, const Edge &amp;b) {
+        return a.w &lt; b.w;
+    });
+
+    for (const Edge &amp;e : edges) {
+        if (!joinSet(e.u, e.v))
+            continue;
+
+        ans += e.w;
+        cnt++;
+
+        if (cnt == n - 1)
+            break;
+    }
+
+    if (cnt != n - 1)
+        cout &lt;&lt; "IMPOSSIBLE\n";
+    else
+        cout &lt;&lt; ans &lt;&lt; '\n';
+
+    return 0;
+}</code></pre></div>
+</div>
+
+<div class="box cmplx">
+  <div class="t">Độ phức tạp</div>
+  <p>
+    Sắp xếp <span class="mathv">m</span> cạnh tốn
+    O(<span class="mathv">m</span> log <span class="mathv">m</span>).
+    Các thao tác DSU tốn tổng cộng
+    O(<span class="mathv">m</span> α(<span class="mathv">n</span>)).
+    Vì vậy thường ghi độ phức tạp là
+    O(<span class="mathv">m</span> log <span class="mathv">m</span>), bộ nhớ
+    O(<span class="mathv">n</span> + <span class="mathv">m</span>).
+  </p>
+</div>
+
+<div class="tablewrap">
+<table>
+<thead>
+<tr><th>Tên khuôn</th><th>Giữ nguyên</th><th>Điểm đổi</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td>Khuôn A — tổng trọng số MST</td>
+  <td>Sắp tăng, DSU, đếm cạnh.</td>
+  <td>Cộng trọng số khi gộp thành công.</td>
+</tr>
+<tr>
+  <td>Khuôn B — in các cạnh của MST</td>
+  <td>Toàn bộ Khuôn A.</td>
+  <td>Lưu cạnh vào một danh sách ngay khi <code class="inl">joinSet</code> trả về đúng.</td>
+</tr>
+<tr>
+  <td>Khuôn C — cây khung lớn nhất</td>
+  <td>Điều kiện DSU và số cạnh.</td>
+  <td>Sắp trọng số giảm dần.</td>
+</tr>
+<tr>
+  <td>Khuôn D — rừng khung nhỏ nhất</td>
+  <td>Sắp tăng và DSU.</td>
+  <td>Không yêu cầu <code class="inl">cnt == n - 1</code>; kết quả gồm một cây cho mỗi thành phần.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="s5"><span class="num">5.</span>Biến thể: đề đòi thêm gì thì đổi gì trong khuôn?</h2>
+
+<div class="tablewrap">
+<table>
+<thead>
+<tr><th>Đề đòi thêm gì?</th><th>Đổi gì trong khuôn?</th><th>Công cụ bổ sung</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td>Tối đa hóa tổng trọng số</td>
+  <td>Sắp cạnh giảm dần.</td>
+  <td>Không cần công cụ mới.</td>
+</tr>
+<tr>
+  <td>Dừng khi còn đúng <span class="mathv">k</span> cụm</td>
+  <td>Dừng sau <span class="mathv">n</span> − <span class="mathv">k</span> lần gộp thành công.</td>
+  <td>Theo dõi số thành phần.</td>
+</tr>
+<tr>
+  <td>Mỗi thành phần được phép dùng một phương án riêng có chi phí cố định</td>
+  <td>So sánh lợi ích của cạnh với phương án cố định theo đúng tiêu chí đề.</td>
+  <td>Có thể thêm một đỉnh giả hoặc dừng Kruskal theo ngưỡng.</td>
+</tr>
+<tr>
+  <td>Bắt buộc dùng một cạnh</td>
+  <td>Gộp cạnh đó trước, cộng trước trọng số rồi chạy phần còn lại.</td>
+  <td>Phải xử lý trường hợp cạnh bắt buộc tự tạo mâu thuẫn.</td>
+</tr>
+<tr>
+  <td>Cấm một cạnh</td>
+  <td>Bỏ qua cạnh ấy trong vòng lặp.</td>
+  <td>Chạy lại nếu số lần thử nhỏ.</td>
+</tr>
+<tr>
+  <td>Cây khung nhỏ thứ hai</td>
+  <td>Tạo một MST trước, sau đó xét thay cạnh ngoài cây vào chu trình.</td>
+  <td>Truy vấn cạnh lớn nhất trên đường đi trong cây.</td>
+</tr>
+<tr>
+  <td>Phân loại cạnh: bắt buộc, có thể, không thể thuộc MST</td>
+  <td>Xử lý theo từng nhóm trọng số thay vì từng cạnh độc lập.</td>
+  <td>Cầu trên đồ thị co theo trạng thái DSU.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="box warn">
+  <div class="t">Không phải biến thể nào cũng chỉ sửa một dòng</div>
+  <p>
+    “Cây khung nhỏ thứ hai” và “phân loại cạnh trong mọi MST” dùng Kruskal làm nền,
+    nhưng cần thêm cấu trúc và chứng minh riêng. Không nên ép chúng vào một khuôn
+    Kruskal cơ bản bằng cách chạy thử tùy ý trên mọi cạnh khi giới hạn lớn.
+  </p>
+</div>
+
+<h2 id="s6"><span class="num">6.</span>Nhận dạng và bẫy</h2>
+
+<div class="tablewrap">
+<table>
+<thead>
+<tr><th>Đề nói gì?</th><th>Nghĩ tới gì?</th><th>Câu hỏi kiểm tra</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td>Nối toàn bộ điểm với tổng chi phí nhỏ nhất</td>
+  <td>MST.</td>
+  <td>Các cạnh có tạo thành đồ thị vô hướng có trọng số không?</td>
+</tr>
+<tr>
+  <td>Giữ lại một số tuyến để tiết kiệm nhiều nhất</td>
+  <td>Tổng ban đầu − trọng số MST.</td>
+  <td>Đề có bắt buộc toàn hệ thống vẫn liên thông không?</td>
+</tr>
+<tr>
+  <td>Các điểm cho bằng tọa độ, chi phí là khoảng cách</td>
+  <td>Dựng đồ thị khoảng cách rồi tìm MST.</td>
+  <td>Số đỉnh có cho phép tạo mọi cặp cạnh không?</td>
+</tr>
+<tr>
+  <td>Nối các điểm đặc biệt trong mê cung</td>
+  <td>Tính khoảng cách giữa các điểm đặc biệt, sau đó MST trên đồ thị mới.</td>
+  <td>Khoảng cách giữa hai điểm được tính bằng BFS hay công thức?</td>
+</tr>
+<tr>
+  <td>Sau mỗi cạnh mới, hỏi số thành phần và kích thước lớn nhất</td>
+  <td>DSU trực tiếp, chưa chắc là MST.</td>
+  <td>Có trọng số và mục tiêu tối ưu tổng hay không?</td>
+</tr>
+<tr>
+  <td>Đường đi ngắn nhất từ một nguồn</td>
+  <td>Thuật toán đường đi ngắn, không phải MST.</td>
+  <td>Mục tiêu tối ưu từng đường đi hay tổng cả hệ thống?</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="box warn">
+  <div class="t">Bẫy 1 — cứ đủ <span class="mathv">n</span> − 1 cạnh là cây</div>
+  <p>
+    Sai nếu tập cạnh có chu trình hoặc chưa nối hết đỉnh. Trong Kruskal, điều kiện
+    DSU bảo đảm không có chu trình; số lần gộp bằng <span class="mathv">n</span> − 1
+    mới kéo theo liên thông.
+  </p>
+</div>
+
+<div class="box warn">
+  <div class="t">Bẫy 2 — chọn cạnh nhẹ nhất toàn cục nhưng quên trạng thái hiện tại</div>
+  <p>
+    Cạnh nhẹ có thể nối hai đỉnh đã cùng thành phần. Khi ấy nó không giúp nối thêm
+    phần nào và chỉ tạo chu trình.
+  </p>
+</div>
+
+<div class="box warn">
+  <div class="t">Bẫy 3 — dừng sau khi đã xét <span class="mathv">n</span> − 1 cạnh</div>
+  <p>
+    Phải dừng sau khi đã <b>chọn</b> đủ <span class="mathv">n</span> − 1 cạnh.
+    Nhiều cạnh đầu có thể bị loại.
+  </p>
+</div>
+
+<h2 id="s7"><span class="num">7.</span>Lộ trình bài luyện</h2>
+
+<div class="box warn">
+  <div class="t">Ghi chú tích hợp</div>
+  <p>
+    Nguyên liệu hiện chưa cung cấp mã bài trên CVPOI. Các liên kết dưới đây dùng
+    mã giữ chỗ bắt đầu bằng <code class="inl">MA_CVPOI_</code>. Trước khi đồng bộ
+    trang, thay từng mã giữ chỗ bằng mã thật trên judge.
+  </p>
+</div>
+
+<div class="tablewrap">
+<table>
+<thead>
+<tr><th>Chặng</th><th>Bài luyện</th><th>Trọng tâm</th><th>Đọc mục nào?</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td>1. Khuôn cơ bản</td>
+  <td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_CSES_1675" target="_blank">CSES – Road Reparation</a></td>
+  <td>Tổng MST và phát hiện không liên thông.</td>
+  <td>Mục 3, 4</td>
+</tr>
+<tr>
+  <td>1. Khuôn cơ bản</td>
+  <td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_BLINNET" target="_blank">SPOJ – BLINNET</a></td>
+  <td>Đọc dữ liệu và dựng danh sách cạnh.</td>
+  <td>Mục 4</td>
+</tr>
+<tr>
+  <td>1. Khuôn cơ bản</td>
+  <td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_UVA_11710" target="_blank">UVA 11710 – Expensive Subway</a></td>
+  <td>Ánh xạ tên đỉnh và kiểm tra liên thông.</td>
+  <td>Mục 3, 4</td>
+</tr>
+<tr>
+  <td>1. Khuôn cơ bản</td>
+  <td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_UVA_10034" target="_blank">UVA 10034 – Freckles</a></td>
+  <td>Đồ thị đầy đủ từ tọa độ.</td>
+  <td>Mục 5, 6</td>
+</tr>
+<tr>
+  <td>2. Đổi cách hỏi</td>
+  <td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_UVA_11631" target="_blank">UVA 11631 – Dark Roads</a></td>
+  <td>Tổng ban đầu trừ MST.</td>
+  <td>Mục 5, 6</td>
+</tr>
+<tr>
+  <td>2. Đổi cách hỏi</td>
+  <td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_UVA_908" target="_blank">UVA 908 – Re-connecting Computer Sites</a></td>
+  <td>So sánh hệ thống cũ và phương án kết nối mới.</td>
+  <td>Mục 5</td>
+</tr>
+<tr>
+  <td>2. Đồ thị ẩn</td>
+  <td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_UVA_1235" target="_blank">UVA 1235 – Anti Brute Force Lock</a></td>
+  <td>Trạng thái là đỉnh, chi phí chuyển là cạnh.</td>
+  <td>Mục 5, 6</td>
+</tr>
+<tr>
+  <td>2. Đồ thị ẩn</td>
+  <td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_UVA_10307" target="_blank">UVA 10307 – Killing Aliens in Borg Maze</a></td>
+  <td>BFS tạo khoảng cách rồi chạy MST.</td>
+  <td>Mục 5, 6</td>
+</tr>
+<tr>
+  <td>2. Phân nhóm cạnh</td>
+  <td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_UVA_11228" target="_blank">UVA 11228 – Transportation System</a></td>
+  <td>MST kết hợp ngưỡng phân loại cạnh.</td>
+  <td>Mục 5</td>
+</tr>
+<tr>
+  <td>2. Lựa chọn cố định</td>
+  <td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_UVA_11733" target="_blank">UVA 11733 – Airports</a></td>
+  <td>Kết hợp cạnh với một phương án có chi phí cố định.</td>
+  <td>Mục 5, 6</td>
+</tr>
+<tr>
+  <td>3. Cạnh bị loại</td>
+  <td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_UVA_11747" target="_blank">UVA 11747 – Heavy Cycle Edges</a></td>
+  <td>Quan sát các cạnh bị Kruskal loại.</td>
+  <td>Mục 2, 6</td>
+</tr>
+<tr>
+  <td>3. Cây thứ hai</td>
+  <td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_UVA_10600" target="_blank">UVA 10600 – ACM Contest and Blackout</a></td>
+  <td>Cây khung nhỏ thứ hai.</td>
+  <td>Mục 5</td>
+</tr>
+<tr>
+  <td>4. Phân loại cạnh</td>
+  <td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_CF_160D" target="_blank">Codeforces 160D – Edges in MST</a></td>
+  <td>Cạnh thuộc mọi, một số hoặc không thuộc MST.</td>
+  <td>Mục 2, 5</td>
+</tr>
+<tr>
+  <td>4. Tổng hợp nâng cao</td>
+  <td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_KOICOST" target="_blank">SPOJ – KOICOST</a></td>
+  <td>Khai thác quá trình gộp thành phần theo trọng số.</td>
+  <td>Mục 5, 6</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="box def">
+  <div class="t">Tự kiểm trước khi nộp</div>
+  <ul>
+    <li>Tôi đã xác định đúng mục tiêu là nối toàn bộ hệ thống, không phải tìm đường đi từ một nguồn.</li>
+    <li>Tôi đã sắp cạnh theo đúng chiều tăng hoặc giảm mà đề yêu cầu.</li>
+    <li>Tôi chỉ cộng trọng số khi DSU gộp thành công.</li>
+    <li>Tôi dừng theo số cạnh đã chọn, không theo số cạnh đã xét.</li>
+    <li>Tôi dùng <code class="inl">long long</code> cho trọng số và tổng khi giới hạn có thể lớn.</li>
+    <li>Tôi đã kiểm tra <code class="inl">cnt == n - 1</code> nếu đề yêu cầu một cây khung.</li>
+    <li>Tôi đã xử lý đúng định dạng nhiều bộ dữ liệu, tên đỉnh hoặc tọa độ nếu đề có.</li>
+  </ul>
+</div>
+
+</div>
+</div>
+
+<script>
+(function () {
+  var edges = [
+    {u:1,v:2,w:1},
+    {u:2,v:3,w:2},
+    {u:1,v:3,w:3},
+    {u:4,v:5,w:4},
+    {u:5,v:6,w:5},
+    {u:4,v:6,w:6},
+    {u:3,v:4,w:7},
+    {u:2,v:5,w:8},
+    {u:1,v:6,w:9}
+  ];
+
+  var positions = {
+    1:[65,55],
+    2:[180,35],
+    3:[295,60],
+    4:[65,190],
+    5:[180,215],
+    6:[295,185]
+  };
+
+  var stepIndex = 0;
+  var naiveState = [];
+  var kruskalState = [];
+  var parent = [];
+  var size = [];
+  var naiveSum = 0;
+  var kruskalSum = 0;
+  var naivePicked = 0;
+  var kruskalPicked = 0;
+  var autoTimer = null;
+
+  var stepButton = document.getElementById("stepBoth");
+  var autoButton = document.getElementById("autoBoth");
+  var resetButton = document.getElementById("resetBoth");
+  var naiveSvg = document.getElementById("naiveSvg");
+  var kruskalSvg = document.getElementById("kruskalSvg");
+  var naiveStatus = document.getElementById("naiveStatus");
+  var kruskalStatus = document.getElementById("kruskalStatus");
+  var stepText = document.getElementById("bothStepText");
+  var edgeRunBody = document.getElementById("edgeRunBody");
+  var skipConnectivity = document.getElementById("skipConnectivity");
+  var connectivityOutput = document.getElementById("connectivityOutput");
+  var ns = "http://www.w3.org/2000/svg";
+
+  function makeSvg(name, attrs) {
+    var element = document.createElementNS(ns, name);
+    Object.keys(attrs).forEach(function (key) {
+      element.setAttribute(key, attrs[key]);
+    });
+    return element;
+  }
+
+  function root(u) {
+    if (parent[u] !== u)
+      parent[u] = root(parent[u]);
+    return parent[u];
+  }
+
+  function joinSet(u, v) {
+    u = root(u);
+    v = root(v);
+
+    if (u === v)
+      return false;
+
+    if (size[u] < size[v]) {
+      var tmp = u;
+      u = v;
+      v = tmp;
+    }
+
+    parent[v] = u;
+    size[u] += size[v];
+    return true;
+  }
+
+  function stateClass(state) {
+    if (state === "current")
+      return "edge-current";
+    if (state === "picked")
+      return "edge-picked";
+    if (state === "rejected")
+      return "edge-rejected";
+    return "edge-normal";
+  }
+
+  function drawGraph(svg, states) {
+    svg.innerHTML = "";
+
+    edges.forEach(function (edge, index) {
+      var p1 = positions[edge.u];
+      var p2 = positions[edge.v];
+      var line = makeSvg("line", {
+        x1:p1[0], y1:p1[1], x2:p2[0], y2:p2[1],
+        "class":stateClass(states[index])
+      });
+      svg.appendChild(line);
+
+      var mx = (p1[0] + p2[0]) / 2;
+      var my = (p1[1] + p2[1]) / 2;
+      var rect = makeSvg("rect", {
+        x:mx - 13, y:my - 11, width:26, height:22, rx:7,
+        "class":"edge-label-bg"
+      });
+      var text = makeSvg("text", {
+        x:mx, y:my + 1, "class":"edge-label"
+      });
+      text.textContent = edge.w;
+      svg.appendChild(rect);
+      svg.appendChild(text);
+    });
+
+    Object.keys(positions).forEach(function (key) {
+      var p = positions[key];
+      var circle = makeSvg("circle", {
+        cx:p[0], cy:p[1], r:20, "class":"node-circle"
+      });
+      var text = makeSvg("text", {
+        x:p[0], y:p[1] + 1, "class":"node-label"
+      });
+      text.textContent = key;
+      svg.appendChild(circle);
+      svg.appendChild(text);
+    });
+  }
+
+  function stateText(state) {
+    if (state === "picked")
+      return "chọn";
+    if (state === "rejected")
+      return "loại";
+    if (state === "current")
+      return "đang xét";
+    return "chờ";
+  }
+
+  function renderTable() {
+    edgeRunBody.innerHTML = "";
+
+    edges.forEach(function (edge, index) {
+      var row = document.createElement("tr");
+      row.innerHTML =
+        "<td>" + (index + 1) + "</td>" +
+        "<td>(" + edge.u + ", " + edge.v + ")</td>" +
+        "<td>" + edge.w + "</td>" +
+        "<td>" + stateText(naiveState[index]) + "</td>" +
+        "<td>" + stateText(kruskalState[index]) + "</td>";
+      edgeRunBody.appendChild(row);
+    });
+  }
+
+  function componentCountFromStates(states) {
+    var p = [0,1,2,3,4,5,6];
+
+    function localRoot(u) {
+      while (p[u] !== u) {
+        p[u] = p[p[u]];
+        u = p[u];
+      }
+      return u;
+    }
+
+    function localJoin(u, v) {
+      u = localRoot(u);
+      v = localRoot(v);
+      if (u !== v)
+        p[v] = u;
+    }
+
+    edges.forEach(function (edge, index) {
+      if (states[index] === "picked")
+        localJoin(edge.u, edge.v);
+    });
+
+    var roots = {};
+    for (var i = 1; i <= 6; i++)
+      roots[localRoot(i)] = true;
+    return Object.keys(roots).length;
+  }
+
+  function hasCycleFromStates(states) {
+    var p = [0,1,2,3,4,5,6];
+
+    function localRoot(u) {
+      if (p[u] !== u)
+        p[u] = localRoot(p[u]);
+      return p[u];
+    }
+
+    for (var i = 0; i < edges.length; i++) {
+      if (states[i] !== "picked")
+        continue;
+
+      var u = localRoot(edges[i].u);
+      var v = localRoot(edges[i].v);
+
+      if (u === v)
+        return true;
+
+      p[v] = u;
+    }
+
+    return false;
+  }
+
+  function renderStatuses() {
+    var naiveComponents = componentCountFromStates(naiveState);
+    var naiveCycle = hasCycleFromStates(naiveState);
+
+    if (stepIndex >= 5) {
+      naiveStatus.innerHTML =
+        "Tổng đã chọn: <strong>" + naiveSum + "</strong>. " +
+        "Số thành phần: <strong>" + naiveComponents + "</strong>. " +
+        "Có chu trình: <strong>" + (naiveCycle ? "có" : "không") + "</strong>.";
+    } else {
+      naiveStatus.innerHTML =
+        "Đã chọn <strong>" + naivePicked + "/5</strong> cạnh, tổng " +
+        "<strong>" + naiveSum + "</strong>.";
+    }
+
+    if (kruskalPicked === 5) {
+      kruskalStatus.innerHTML =
+        "Đã đủ cây khung: <strong>5</strong> cạnh, tổng " +
+        "<strong>" + kruskalSum + "</strong>.";
+    } else {
+      kruskalStatus.innerHTML =
+        "Đã chọn <strong>" + kruskalPicked + "/5</strong> cạnh, tổng " +
+        "<strong>" + kruskalSum + "</strong>.";
+    }
+  }
+
+  function renderAll() {
+    drawGraph(naiveSvg, naiveState);
+    drawGraph(kruskalSvg, kruskalState);
+    renderTable();
+    renderStatuses();
+
+    if (stepIndex === 0)
+      stepText.textContent = "Chưa xét cạnh nào.";
+    else if (stepIndex <= edges.length) {
+      var e = edges[stepIndex - 1];
+      stepText.textContent =
+        "Vừa xét cạnh (" + e.u + ", " + e.v + "), trọng số " + e.w + ".";
+    }
+
+    if (kruskalPicked === 5 || stepIndex >= edges.length) {
+      stepButton.disabled = true;
+      autoButton.disabled = true;
+      stopAuto();
+      stepText.textContent =
+        "Kết thúc: cách A có tổng 15 nhưng không phải cây khung; Kruskal có tổng 19 và là cây khung.";
+    }
+  }
+
+  function clearCurrent() {
+    naiveState = naiveState.map(function (state) {
+      return state === "current" ? "normal" : state;
+    });
+    kruskalState = kruskalState.map(function (state) {
+      return state === "current" ? "normal" : state;
+    });
+  }
+
+  function nextStep() {
+    if (kruskalPicked === 5 || stepIndex >= edges.length)
+      return;
+
+    clearCurrent();
+
+    var index = stepIndex;
+    var edge = edges[index];
+
+    naiveState[index] = "current";
+    kruskalState[index] = "current";
+    renderAll();
+
+    if (naivePicked < 5) {
+      naiveState[index] = "picked";
+      naivePicked++;
+      naiveSum += edge.w;
+    } else {
+      naiveState[index] = "rejected";
+    }
+
+    if (joinSet(edge.u, edge.v)) {
+      kruskalState[index] = "picked";
+      kruskalPicked++;
+      kruskalSum += edge.w;
+    } else {
+      kruskalState[index] = "rejected";
+    }
+
+    stepIndex++;
+    renderAll();
+  }
+
+  function stopAuto() {
+    if (autoTimer !== null)
+      window.clearInterval(autoTimer);
+    autoTimer = null;
+    autoButton.textContent = "Tự chạy";
+  }
+
+  function resetSimulation() {
+    stopAuto();
+    stepIndex = 0;
+    naiveState = edges.map(function () { return "normal"; });
+    kruskalState = edges.map(function () { return "normal"; });
+    parent = [0,1,2,3,4,5,6];
+    size = [0,1,1,1,1,1,1];
+    naiveSum = 0;
+    kruskalSum = 0;
+    naivePicked = 0;
+    kruskalPicked = 0;
+    stepButton.disabled = false;
+    autoButton.disabled = false;
+    renderAll();
+  }
+
+  stepButton.addEventListener("click", nextStep);
+
+  autoButton.addEventListener("click", function () {
+    if (autoTimer !== null) {
+      stopAuto();
+      return;
+    }
+
+    autoButton.textContent = "Tạm dừng";
+    autoTimer = window.setInterval(function () {
+      nextStep();
+      if (kruskalPicked === 5 || stepIndex >= edges.length)
+        stopAuto();
+    }, 850);
+  });
+
+  resetButton.addEventListener("click", resetSimulation);
+
+  function renderConnectivityTrap() {
+    var badAnswer = 8;
+
+    if (skipConnectivity.checked) {
+      connectivityOutput.textContent =
+        "Chương trình in: " + badAnswer +
+        "  ← sai kết luận, vì đồ thị chỉ tạo được một rừng gồm hai thành phần.";
+    } else {
+      connectivityOutput.textContent =
+        "Chương trình in: IMPOSSIBLE  ← đúng, vì chỉ chọn được 3 cạnh trong khi cần 4 cạnh.";
+    }
+  }
+
+  skipConnectivity.addEventListener("change", renderConnectivityTrap);
+
+  resetSimulation();
+  renderConnectivityTrap();
+})();
+</script>
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<!--/cv-foot-->
+</body>
+</html>
