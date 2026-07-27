@@ -651,15 +651,15 @@ int main() {
 <script>
 (function () {
   var edges = [
-    {u:1,v:2,w:1},
-    {u:2,v:3,w:2},
-    {u:1,v:3,w:3},
-    {u:4,v:5,w:4},
-    {u:5,v:6,w:5},
-    {u:4,v:6,w:6},
-    {u:3,v:4,w:7},
-    {u:2,v:5,w:8},
-    {u:1,v:6,w:9}
+    {u:1,v:2,w:1, lx:118, ly:46},
+    {u:2,v:3,w:2, lx:241, ly:48},
+    {u:1,v:3,w:3, lx:180, ly:78, curve:-16},
+    {u:4,v:5,w:4, lx:118, ly:203},
+    {u:5,v:6,w:5, lx:241, ly:203},
+    {u:4,v:6,w:6, lx:180, ly:184, curve:16},
+    {u:3,v:4,w:7, lx:135, ly:116, curve:24},
+    {u:2,v:5,w:8, lx:198, ly:125},
+    {u:1,v:6,w:9, lx:160, ly:150, curve:-24}
   ];
 
   var positions = {
@@ -743,20 +743,39 @@ int main() {
     edges.forEach(function (edge, index) {
       var p1 = positions[edge.u];
       var p2 = positions[edge.v];
-      var line = makeSvg("line", {
-        x1:p1[0], y1:p1[1], x2:p2[0], y2:p2[1],
-        "class":stateClass(states[index])
-      });
-      svg.appendChild(line);
+      var shape;
 
-      var mx = (p1[0] + p2[0]) / 2;
-      var my = (p1[1] + p2[1]) / 2;
+      if (edge.curve) {
+        var mx = (p1[0] + p2[0]) / 2;
+        var my = (p1[1] + p2[1]) / 2;
+        var dx = p2[0] - p1[0];
+        var dy = p2[1] - p1[1];
+        var len = Math.sqrt(dx * dx + dy * dy) || 1;
+        var nx = -dy / len;
+        var ny = dx / len;
+        var cx = mx + nx * edge.curve;
+        var cy = my + ny * edge.curve;
+        shape = makeSvg("path", {
+          d:"M " + p1[0] + " " + p1[1] + " Q " + cx + " " + cy + " " + p2[0] + " " + p2[1],
+          fill:"none",
+          "class":stateClass(states[index])
+        });
+      } else {
+        shape = makeSvg("line", {
+          x1:p1[0], y1:p1[1], x2:p2[0], y2:p2[1],
+          "class":stateClass(states[index])
+        });
+      }
+      svg.appendChild(shape);
+
+      var lx = edge.lx !== undefined ? edge.lx : (p1[0] + p2[0]) / 2;
+      var ly = edge.ly !== undefined ? edge.ly : (p1[1] + p2[1]) / 2;
       var rect = makeSvg("rect", {
-        x:mx - 13, y:my - 11, width:26, height:22, rx:7,
+        x:lx - 13, y:ly - 11, width:26, height:22, rx:7,
         "class":"edge-label-bg"
       });
       var text = makeSvg("text", {
-        x:mx, y:my + 1, "class":"edge-label"
+        x:lx, y:ly + 1, "class":"edge-label"
       });
       text.textContent = edge.w;
       svg.appendChild(rect);
