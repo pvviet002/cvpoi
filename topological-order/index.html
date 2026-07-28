@@ -15,24 +15,24 @@
   .two-col,.three-col,.proof-grid,.practice-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:28px;align-items:start}
   .plain-card,.sim-room,.figure-card,.trap-card,.practice-card{min-width:0;max-width:100%;border:1px solid var(--border);background:var(--card);border-radius:16px;padding:24px}
   .plain-card h3,.sim-room h3,.practice-card h3{margin-top:0;color:var(--blue)}
-  .figure-card{overflow:hidden}
-  .figure-scroll{width:100%;max-width:100%;overflow:hidden;padding-bottom:0}
-  .figure-scroll svg{display:block;width:100%;max-width:100%;min-width:0;height:auto}
-  .figure-card figcaption{margin-top:14px;color:var(--muted);font-size:.96rem;line-height:1.65}
-  .graph-edge{fill:none;stroke:var(--edge);stroke-width:2.3}
-  .graph-edge.soft{opacity:.45}
-  .graph-edge.good{stroke:var(--green);stroke-width:3}
-  .graph-edge.bad{stroke:var(--red);stroke-width:3}
-  .graph-edge.focus{stroke:var(--amber);stroke-width:3.4}
-  .graph-edge.removed{opacity:.2;stroke-dasharray:7 5}
-  .graph-node{fill:var(--card);stroke:var(--edge);stroke-width:2.2}
+  .figure-card{overflow:hidden;background:linear-gradient(180deg,var(--card),var(--bg))}
+  .figure-scroll{width:100%;max-width:100%;overflow:hidden;padding:18px;border:1px solid var(--border);border-radius:20px;background:linear-gradient(180deg,var(--bg),var(--card))}
+  .figure-scroll svg{display:block;width:100%;max-width:100%;min-width:0;height:auto;border-radius:16px;background:linear-gradient(180deg,var(--bg),var(--card))}
+  .figure-card figcaption{max-width:940px;margin:16px auto 0;color:var(--muted);font-size:.96rem;line-height:1.7}
+  .graph-edge{fill:none;stroke:var(--edge);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;opacity:.96}
+  .graph-edge.soft{opacity:.3}
+  .graph-edge.good{stroke:var(--green);stroke-width:3.2}
+  .graph-edge.bad{stroke:var(--red);stroke-width:3.2}
+  .graph-edge.focus{stroke:var(--amber);stroke-width:3.6}
+  .graph-edge.removed{opacity:.22;stroke-dasharray:7 5}
+  .graph-node{fill:var(--card);stroke:var(--edge);stroke-width:2.4;filter:drop-shadow(0 6px 12px var(--bg))}
   .graph-node.zero{fill:var(--blue-bg);stroke:var(--blue)}
   .graph-node.done{fill:var(--green-bg);stroke:var(--green)}
-  .graph-node.current{fill:var(--amber-bg);stroke:var(--amber);stroke-width:3.4}
-  .graph-node.cycle{fill:var(--red-bg);stroke:var(--red);stroke-width:3.4}
+  .graph-node.current{fill:var(--amber-bg);stroke:var(--amber);stroke-width:3.6}
+  .graph-node.cycle{fill:var(--red-bg);stroke:var(--red);stroke-width:3.6}
   .graph-node.finished{fill:var(--green-bg);stroke:var(--green)}
-  .graph-text{fill:var(--fg);font-weight:700;font-size:16px;text-anchor:middle;dominant-baseline:middle}
-  .graph-label{fill:var(--muted);font-size:14px;text-anchor:middle}
+  .graph-text{fill:var(--fg);font-weight:800;font-size:17px;letter-spacing:.01em;text-anchor:middle;dominant-baseline:middle}
+  .graph-label{fill:var(--muted);font-size:14.5px;font-weight:600;text-anchor:middle}
   .graph-label.good{fill:var(--green);font-weight:700}
   .graph-label.bad{fill:var(--red);font-weight:700}
   .graph-label.blue{fill:var(--blue);font-weight:700}
@@ -50,8 +50,8 @@
   .sim-toolbar button:hover{border-color:var(--blue)}
   .sim-toolbar button:disabled{opacity:.5;cursor:not-allowed}
   .sim-toolbar label{display:inline-flex;gap:7px;align-items:center;color:var(--fg)}
-  .sim-board{width:100%;max-width:100%;border:1px solid var(--border);border-radius:14px;background:var(--bg);padding:18px;overflow:hidden}
-  .sim-board svg{display:block;width:100%;max-width:100%;min-width:0;height:auto}
+  .sim-board{width:100%;max-width:100%;border:1px solid var(--border);border-radius:18px;background:linear-gradient(180deg,var(--bg),var(--card));padding:18px;overflow:hidden}
+  .sim-board svg{display:block;width:100%;max-width:100%;min-width:0;height:auto;border-radius:16px;background:linear-gradient(180deg,var(--bg),var(--card))}
   .legend{display:flex;flex-wrap:wrap;gap:12px 20px;margin:16px 0;color:var(--muted);font-size:.94rem}
   .legend span{display:inline-flex;align-items:center;gap:7px}
   .swatch{width:14px;height:14px;border:2px solid var(--edge);border-radius:4px;background:var(--card)}
@@ -60,7 +60,7 @@
   .swatch.available{background:var(--blue-bg);border-color:var(--blue)}
   .swatch.rejected{background:var(--red-bg);border-color:var(--red)}
   .status-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:16px}
-  .status-cell{border:1px solid var(--border);border-radius:10px;padding:14px 16px;min-width:0}
+  .status-cell{border:1px solid var(--border);border-radius:12px;padding:14px 16px;min-width:0;background:linear-gradient(180deg,var(--card),var(--bg))}
   .status-cell b{display:block;color:var(--blue);margin-bottom:5px}
   .live{min-height:54px;border-left:4px solid var(--blue);background:var(--blue-bg);padding:12px 14px;border-radius:8px;margin-top:14px;line-height:1.6}
   .live.ok{border-left-color:var(--green);background:var(--green-bg)}
