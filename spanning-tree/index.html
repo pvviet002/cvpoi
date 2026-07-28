@@ -40,8 +40,26 @@
   .checkline input{margin-top:4px}
   .machineout{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;border:1px solid var(--border);border-radius:10px;background:var(--code-bg);color:var(--code-fg);padding:12px;min-height:48px}
   .mini-note{color:var(--muted);font-size:.95rem}
+
+  .figgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:16px 0}
+  .figcard{border:1px solid var(--border);border-radius:14px;background:var(--card);padding:12px;min-width:0}
+  .figcard svg{width:100%;height:auto;display:block;border:1px solid var(--border);border-radius:12px;background:var(--bg)}
+  .figcap{margin-top:10px;color:var(--muted)}
+  .fnodeA{fill:var(--blue-bg);stroke:var(--blue);stroke-width:3}
+  .fnodeB{fill:var(--green-bg);stroke:var(--green);stroke-width:3}
+  .fnodeN{fill:var(--card);stroke:var(--purple);stroke-width:3}
+  .ftext{fill:var(--fg);font-size:16px;font-weight:700;text-anchor:middle;dominant-baseline:middle}
+  .fedge{stroke:var(--edge);stroke-width:3;fill:none}
+  .fsel{stroke:var(--blue);stroke-width:5;fill:none}
+  .fcross{stroke:var(--amber);stroke-width:5;fill:none}
+  .fweak{stroke:var(--edge);stroke-width:3;stroke-dasharray:6 5;fill:none}
+  .fcut{stroke:var(--red);stroke-width:3;stroke-dasharray:8 7;fill:none}
+  .flabelbg{fill:var(--card);stroke:var(--border);stroke-width:1}
+  .flabel{fill:var(--fg);font-size:13px;font-weight:700;text-anchor:middle;dominant-baseline:middle}
+  .fsmall{fill:var(--muted);font-size:13px}
+
   @media (max-width:760px){
-    .simgrid,.twocol{grid-template-columns:1fr}
+    .simgrid,.twocol,.figgrid{grid-template-columns:1fr}
   }
 
 /*cv-fix-nen-sang*/
@@ -83,7 +101,7 @@
 
 <p>
   Một hệ thống kết nối tối ưu không được đánh giá bằng từng cạnh riêng lẻ mà bằng
-  cấu trúc cuối cùng. Sợi chỉ đỏ của chuyên đề là:
+  cấu trúc cuối cùng. Ý chính của chuyên đề là:
   <b>Kruskal không chọn cạnh chỉ vì nó nhẹ; Kruskal chọn cạnh nhẹ nhất còn nối được
   hai thành phần khác nhau.</b>
 </p>
@@ -174,6 +192,98 @@
   nằm ở hai phía khác nhau đều đi qua lát cắt ấy.
 </p>
 
+<div class="figgrid">
+  <div class="figcard">
+    <svg viewBox="0 0 360 220" role="img" aria-label="Minh hoạ lát cắt giữa hai nhóm đỉnh trong Kruskal">
+      <path d="M 180 18 L 180 202" class="fcut"></path>
+      <text x="188" y="28" class="fsmall">lát cắt</text>
+
+      <path d="M 62 58 L 122 42" class="fsel"></path>
+      <path d="M 88 138 L 122 42" class="fsel"></path>
+      <path d="M 238 42 L 298 58" class="fsel"></path>
+      <path d="M 238 42 L 272 138" class="fsel"></path>
+      <path d="M 272 138 L 298 58" class="fsel"></path>
+
+      <path d="M 122 42 L 238 42" class="fcross"></path>
+      <path d="M 122 42 L 272 138" class="fweak"></path>
+      <path d="M 88 138 L 238 42" class="fweak"></path>
+      <path d="M 88 138 L 272 138" class="fweak"></path>
+
+      <rect x="167" y="31" width="26" height="22" rx="7" class="flabelbg"></rect>
+      <text x="180" y="42" class="flabel">4</text>
+      <rect x="184" y="84" width="26" height="22" rx="7" class="flabelbg"></rect>
+      <text x="197" y="95" class="flabel">7</text>
+      <rect x="145" y="80" width="26" height="22" rx="7" class="flabelbg"></rect>
+      <text x="158" y="91" class="flabel">9</text>
+      <rect x="169" y="127" width="26" height="22" rx="7" class="flabelbg"></rect>
+      <text x="182" y="138" class="flabel">8</text>
+
+      <circle cx="62" cy="58" r="18" class="fnodeA"></circle>
+      <text x="62" y="58" class="ftext">1</text>
+      <circle cx="122" cy="42" r="18" class="fnodeA"></circle>
+      <text x="122" y="42" class="ftext">2</text>
+      <circle cx="88" cy="138" r="18" class="fnodeA"></circle>
+      <text x="88" y="138" class="ftext">4</text>
+
+      <circle cx="238" cy="42" r="18" class="fnodeB"></circle>
+      <text x="238" y="42" class="ftext">3</text>
+      <circle cx="298" cy="58" r="18" class="fnodeB"></circle>
+      <text x="298" y="58" class="ftext">5</text>
+      <circle cx="272" cy="138" r="18" class="fnodeB"></circle>
+      <text x="272" y="138" class="ftext">6</text>
+    </svg>
+    <div class="figcap">
+      Các cạnh màu xanh là những cạnh Kruskal đã chọn trước đó. Chúng chia đồ thị thành hai phần.
+      Đường gạch đỏ chỉ là ranh giới tưởng tượng: mọi cạnh đi từ trái sang phải đều là cạnh đi qua lát cắt.
+    </div>
+  </div>
+  <div class="figcard">
+    <svg viewBox="0 0 360 220" role="img" aria-label="Minh hoạ cạnh nhẹ nhất đi qua lát cắt là lựa chọn an toàn">
+      <path d="M 180 18 L 180 202" class="fcut"></path>
+      <text x="188" y="28" class="fsmall">lát cắt</text>
+
+      <path d="M 62 58 L 122 42" class="fsel"></path>
+      <path d="M 88 138 L 122 42" class="fsel"></path>
+      <path d="M 238 42 L 298 58" class="fsel"></path>
+      <path d="M 238 42 L 272 138" class="fsel"></path>
+      <path d="M 272 138 L 298 58" class="fsel"></path>
+
+      <path d="M 122 42 L 238 42" class="fcross"></path>
+      <path d="M 122 42 L 272 138" class="fweak"></path>
+      <path d="M 88 138 L 238 42" class="fweak"></path>
+      <path d="M 88 138 L 272 138" class="fweak"></path>
+
+      <rect x="167" y="31" width="26" height="22" rx="7" class="flabelbg"></rect>
+      <text x="180" y="42" class="flabel">4</text>
+      <rect x="184" y="84" width="26" height="22" rx="7" class="flabelbg"></rect>
+      <text x="197" y="95" class="flabel">7</text>
+      <rect x="145" y="80" width="26" height="22" rx="7" class="flabelbg"></rect>
+      <text x="158" y="91" class="flabel">9</text>
+      <rect x="169" y="127" width="26" height="22" rx="7" class="flabelbg"></rect>
+      <text x="182" y="138" class="flabel">8</text>
+      <text x="200" y="170" class="fsmall">cạnh 4 là nhỏ nhất trong các cạnh cắt qua ranh giới</text>
+
+      <circle cx="62" cy="58" r="18" class="fnodeA"></circle>
+      <text x="62" y="58" class="ftext">1</text>
+      <circle cx="122" cy="42" r="18" class="fnodeA"></circle>
+      <text x="122" y="42" class="ftext">2</text>
+      <circle cx="88" cy="138" r="18" class="fnodeA"></circle>
+      <text x="88" y="138" class="ftext">4</text>
+
+      <circle cx="238" cy="42" r="18" class="fnodeB"></circle>
+      <text x="238" y="42" class="ftext">3</text>
+      <circle cx="298" cy="58" r="18" class="fnodeB"></circle>
+      <text x="298" y="58" class="ftext">5</text>
+      <circle cx="272" cy="138" r="18" class="fnodeB"></circle>
+      <text x="272" y="138" class="ftext">6</text>
+    </svg>
+    <div class="figcap">
+      Trong các cạnh đi qua lát cắt, cạnh trọng số 4 là cạnh nhẹ nhất. Luật lát cắt nói rằng có thể
+      chọn nó mà không làm mất khả năng đi tới một cây khung nhỏ nhất.
+    </div>
+  </div>
+</div>
+
 <div class="box tech">
   <div class="t">Luật cạnh nhẹ qua lát cắt</div>
   <p>
@@ -183,7 +293,7 @@
 </div>
 
 <p>
-  Đây chính là tên gọi chặt chẽ cho sợi chỉ đỏ:
+  Phát biểu này diễn đạt chính xác ý chính ở trên:
   <b>Kruskal không chọn cạnh chỉ vì nó nhẹ; Kruskal chọn cạnh nhẹ nhất còn nối được
   hai thành phần khác nhau.</b>
 </p>
@@ -217,12 +327,54 @@
       một đỉnh nguồn tới từng đỉnh khác là ngắn nhất.
     </p>
   </div>
+  <div class="figcard">
+    <svg viewBox="0 0 360 200" role="img" aria-label="So sánh cây đường đi ngắn nhất từ đỉnh 1 và MST">
+      <text x="88" y="24" class="fsmall">cây đường đi ngắn nhất từ 1</text>
+      <path d="M 60 60 L 150 35" class="fsel"></path>
+      <path d="M 60 60 L 150 120" class="fsel"></path>
+      <path d="M 150 35 L 250 60" class="fsel"></path>
+      <path d="M 150 120 L 250 140" class="fsel"></path>
+      <path d="M 150 35 L 150 120" class="fedge"></path>
+      <rect x="95" y="37" width="26" height="22" rx="7" class="flabelbg"></rect><text x="108" y="48" class="flabel">2</text>
+      <rect x="95" y="82" width="26" height="22" rx="7" class="flabelbg"></rect><text x="108" y="93" class="flabel">2</text>
+      <rect x="192" y="38" width="26" height="22" rx="7" class="flabelbg"></rect><text x="205" y="49" class="flabel">3</text>
+      <rect x="192" y="118" width="26" height="22" rx="7" class="flabelbg"></rect><text x="205" y="129" class="flabel">3</text>
+      <rect x="136" y="70" width="26" height="22" rx="7" class="flabelbg"></rect><text x="149" y="81" class="flabel">1</text>
+      <circle cx="60" cy="60" r="18" class="fnodeN"></circle><text x="60" y="60" class="ftext">1</text>
+      <circle cx="150" cy="35" r="18" class="fnodeN"></circle><text x="150" y="35" class="ftext">2</text>
+      <circle cx="150" cy="120" r="18" class="fnodeN"></circle><text x="150" y="120" class="ftext">3</text>
+      <circle cx="250" cy="60" r="18" class="fnodeN"></circle><text x="250" y="60" class="ftext">4</text>
+      <circle cx="250" cy="140" r="18" class="fnodeN"></circle><text x="250" y="140" class="ftext">5</text>
+    </svg>
+    <div class="figcap">Mục tiêu là tối ưu khoảng cách từ đỉnh 1 tới từng đỉnh.</div>
+  </div>
   <div class="box warn">
     <div class="t">Có thể có nhiều MST</div>
     <p>
       Nhiều cây khác nhau có thể cùng đạt một tổng nhỏ nhất. Khi trọng số bằng nhau,
       thứ tự phụ trong phép sắp xếp có thể làm danh sách cạnh được in ra thay đổi.
     </p>
+  </div>
+  <div class="figcard">
+    <svg viewBox="0 0 360 200" role="img" aria-label="MST có thể khác cây đường đi ngắn nhất">
+      <text x="120" y="24" class="fsmall">một cây khung nhỏ nhất</text>
+      <path d="M 60 60 L 150 35" class="fsel"></path>
+      <path d="M 150 35 L 150 120" class="fsel"></path>
+      <path d="M 150 35 L 250 60" class="fsel"></path>
+      <path d="M 150 120 L 250 140" class="fsel"></path>
+      <path d="M 60 60 L 150 120" class="fedge"></path>
+      <rect x="95" y="37" width="26" height="22" rx="7" class="flabelbg"></rect><text x="108" y="48" class="flabel">2</text>
+      <rect x="136" y="70" width="26" height="22" rx="7" class="flabelbg"></rect><text x="149" y="81" class="flabel">1</text>
+      <rect x="192" y="38" width="26" height="22" rx="7" class="flabelbg"></rect><text x="205" y="49" class="flabel">3</text>
+      <rect x="192" y="118" width="26" height="22" rx="7" class="flabelbg"></rect><text x="205" y="129" class="flabel">3</text>
+      <rect x="95" y="82" width="26" height="22" rx="7" class="flabelbg"></rect><text x="108" y="93" class="flabel">2</text>
+      <circle cx="60" cy="60" r="18" class="fnodeN"></circle><text x="60" y="60" class="ftext">1</text>
+      <circle cx="150" cy="35" r="18" class="fnodeN"></circle><text x="150" y="35" class="ftext">2</text>
+      <circle cx="150" cy="120" r="18" class="fnodeN"></circle><text x="150" y="120" class="ftext">3</text>
+      <circle cx="250" cy="60" r="18" class="fnodeN"></circle><text x="250" y="60" class="ftext">4</text>
+      <circle cx="250" cy="140" r="18" class="fnodeN"></circle><text x="250" y="140" class="ftext">5</text>
+    </svg>
+    <div class="figcap">Mục tiêu là tối ưu tổng của cả cây. Vì mục tiêu khác nhau nên hai cấu trúc có thể khác nhau.</div>
   </div>
 </div>
 
@@ -281,7 +433,7 @@
 <h2 id="s4"><span class="num">4.</span>Khuôn mẫu cài đặt</h2>
 
 <p>
-  Khuôn cơ bản bám sát sợi chỉ đỏ:
+  Khuôn cơ bản bám sát nguyên tắc chính của Kruskal:
   <b>Kruskal không chọn cạnh chỉ vì nó nhẹ; Kruskal chọn cạnh nhẹ nhất còn nối được
   hai thành phần khác nhau.</b>
 </p>
