@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quy hoạch động chữ số | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<style>
+  /* CSS riêng cho hình minh họa và phòng mô phỏng */
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{overflow-x:hidden}
+  .lead{font-size:1.06rem;line-height:1.75}
+  .meta-grid,.two-col,.practice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .meta-card,.figure-card,.sim-room,.practice-card{min-width:0;border:1px solid var(--border);border-radius:14px;background:var(--card);padding:16px}
+  .meta-card b,.practice-card h3{color:var(--blue)}
+  .source-line{border-left:4px solid var(--blue);padding:10px 14px;background:var(--blue-bg);border-radius:0 12px 12px 0}
+  .source-line a{overflow-wrap:anywhere}
+  .figure-card{overflow:hidden;margin:16px 0}
+  .figure-title{margin:0 0 10px;font-weight:700;color:var(--blue)}
+  .figure-scroll{overflow-x:auto;padding-bottom:4px}
+  .figure-scroll svg{display:block;width:100%;min-width:700px;height:auto}
+  .figcap{margin:10px 0 0;color:var(--muted);font-size:.94rem;line-height:1.55}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:10px;color:var(--muted);font-size:.92rem}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .swatch{width:13px;height:13px;border-radius:4px;border:1px solid var(--border);display:inline-block}
+  .sw-blue{background:var(--blue-bg);border-color:var(--blue)}
+  .sw-green{background:var(--green-bg);border-color:var(--green)}
+  .sw-red{background:var(--red-bg);border-color:var(--red)}
+  .sw-amber{background:var(--amber-bg);border-color:var(--amber)}
+  .sw-muted{background:var(--bg);border-color:var(--edge)}
+  .formula{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--code-bg);color:var(--code-fg);padding:14px 16px;margin:14px 0;font-size:1.02rem;line-height:1.65;white-space:nowrap}
+  .mathv{font-style:italic}
+  .steps{counter-reset:step;list-style:none;padding:0;margin:14px 0}
+  .steps li{counter-increment:step;position:relative;padding:0 0 14px 42px;line-height:1.65}
+  .steps li::before{content:counter(step);position:absolute;left:0;top:1px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue);font-weight:700}
+  .sim-room h3{margin-top:0;color:var(--blue)}
+  .sim-controls{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+  .sim-controls button{appearance:none;border:1px solid var(--border);border-radius:10px;padding:9px 13px;background:var(--blue-bg);color:var(--blue);font:inherit;font-weight:700;cursor:pointer}
+  .sim-controls button:hover{border-color:var(--blue)}
+  .sim-controls button:disabled{cursor:not-allowed;opacity:.55}
+  .digit-strip{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0 16px}
+  .digit-box{width:48px;height:48px;border:1px solid var(--edge);border-radius:10px;display:grid;place-items:center;background:var(--bg);font-weight:700;font-size:1.12rem}
+  .digit-box.done{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+  .digit-box.current{border-color:var(--blue);background:var(--blue-bg);color:var(--blue)}
+  .state-grid{display:grid;grid-template-columns:repeat(4,minmax(145px,1fr));gap:10px;overflow-x:auto;padding:4px 1px 8px}
+  .state-card{min-width:145px;border:1px solid var(--edge);border-radius:12px;background:var(--bg);padding:10px;line-height:1.45}
+  .state-card.tight{border-color:var(--blue);background:var(--blue-bg)}
+  .state-card.free{border-color:var(--green);background:var(--green-bg)}
+  .state-card.rejected{border-color:var(--red);background:var(--red-bg)}
+  .state-card.initial{border-color:var(--amber);background:var(--amber-bg)}
+  .state-card b{display:block;margin-bottom:4px}
+  .sim-message{min-height:76px;border:1px solid var(--border);border-radius:12px;background:var(--bg);padding:12px;line-height:1.6}
+  .sim-result{margin-top:10px;font-weight:700;color:var(--green)}
+  .mini-note{font-size:.93rem;color:var(--muted)}
+  .checklist{margin:10px 0 0;padding-left:22px}
+  .checklist li{margin:7px 0}
+  .tag{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:3px 9px;margin:2px 4px 2px 0;background:var(--bg);color:var(--muted);font-size:.88rem}
+  .tablewrap{max-width:100%;overflow-x:auto}
+  .tablewrap table{min-width:820px}
+  .codewrap{max-width:100%;overflow-x:auto}
+  .codewrap pre{margin:0}
+  .svg-label{font-size:15px;fill:var(--fg)}
+  .svg-small{font-size:13px;fill:var(--muted)}
+  .svg-strong{font-size:16px;font-weight:700;fill:var(--fg)}
+  .svg-edge{fill:none;stroke:var(--edge);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .svg-blue{fill:var(--blue-bg);stroke:var(--blue);stroke-width:2}
+  .svg-green{fill:var(--green-bg);stroke:var(--green);stroke-width:2}
+  .svg-red{fill:var(--red-bg);stroke:var(--red);stroke-width:2}
+  .svg-amber{fill:var(--amber-bg);stroke:var(--amber);stroke-width:2}
+  .svg-muted{fill:var(--bg);stroke:var(--edge);stroke-width:1.7}
+  @media (max-width:900px){.meta-grid,.two-col,.practice-grid{grid-template-columns:1fr}.state-grid{grid-template-columns:repeat(4,160px)}}
+  @media (max-width:520px){.meta-card,.figure-card,.sim-room,.practice-card{padding:12px}.sim-controls button{flex:1 1 120px}.lead{font-size:1rem}.formula{font-size:.94rem}.tablewrap table{min-width:760px}.digit-box{width:42px;height:42px}}
+
+/*cv-fix-nen-sang*/
+:root{--c-cmt:#5f6672}
+@media (prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+:root[data-theme="light"]{--c-cmt:#5f6672}
+:root[data-theme="dark"]{--c-cmt:#8b949e}
+.box th, .tablewrap th, table th{color:var(--blue) !important}
+.box td, .tablewrap td, table td{color:var(--fg)}
+/*/cv-fix-nen-sang*/
+</style>
+<!--cv-head-->
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">DP CHỮ SỐ</div>
+  <a href="#s1">1. Tạo vấn đề</a>
+  <a href="#s2">2. Vì sao đúng</a>
+  <a href="#s3">3. Chỗ dễ sai</a>
+  <a href="#s4">4. Khuôn cài đặt</a>
+  <a href="#s5">5. Biến thể</a>
+  <a href="#s6">6. Nhận dạng và bẫy</a>
+  <a href="#s7">7. Lộ trình bài luyện</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>QUY HOẠCH ĐỘNG CHỮ SỐ</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p class="lead">Quy hoạch động chữ số đếm hoặc tối ưu trên một đoạn số rất lớn bằng cách dựng số từ trái sang phải. Mỗi trạng thái chỉ giữ những thông tin của tiền tố có ảnh hưởng tới các chữ số còn lại: vị trí hiện tại, quan hệ với cận, trạng thái bắt đầu số và các đại lượng mà đề yêu cầu theo dõi.</p>
+
+<div class="meta-grid">
+  <div class="meta-card"><b>Kiến thức nền</b><br>Quy hoạch động có nhớ, đệ quy, biểu diễn thập phân, số dư, phép đếm, độ phức tạp và kiểu <code class="inl">long long</code>.</div>
+  <div class="meta-card"><b>Trọng tâm</b><br>Hàm đếm từ 0 đến <span class="mathv">X</span>, trạng thái <code class="inl">tight</code>, chữ số 0 ở đầu, thiết kế trạng thái phụ và chuyển đáp án từ đoạn <span class="mathv">[L, R]</span>.</div>
+</div>
+
+<p class="source-line"><b>Nguồn bài luyện:</b> danh sách cuối bài viết <a href="https://codeforces.com/blog/entry/53960" target="_blank" rel="noopener">Digit DP của flash_7 trên Codeforces</a>. Trang này viết lại mạch lý thuyết bằng tiếng Việt, bổ sung xử lý số 0 ở đầu và sắp xếp bài luyện theo mức độ.</p>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tạo vấn đề: duyệt từng số không còn khả thi</a></li>
+    <li><a href="#s2">Vì sao trạng thái rút gọn là đủ</a></li>
+    <li><a href="#s3">Chỗ dễ sai còn lại</a></li>
+    <li><a href="#s4">Khuôn mẫu cài đặt</a></li>
+    <li><a href="#s5">Các biến thể thường gặp</a></li>
+    <li><a href="#s6">Nhận dạng và bẫy</a></li>
+    <li><a href="#s7">Lộ trình bài luyện</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Tạo vấn đề: duyệt từng số không còn khả thi</h2>
+
+<p>Cần đếm các số nguyên trong đoạn từ 0 đến 325 mà chữ số 2 xuất hiện đúng một lần. Duyệt lần lượt 326 số cho kết quả 124, nhưng cách đó trở nên vô dụng khi cận phải gần 10<sup>18</sup> hoặc được cho bằng một chuỗi hàng trăm chữ số.</p>
+
+<div class="two-col">
+  <div class="box warn">
+    <div class="t">CÁCH NGHĨ CHƯA ĐỦ</div>
+    <p>Dựng mọi dãy ba chữ số từ 000 đến 999 rồi kiểm tra dãy nào không vượt 325. Cách này vẫn sinh quá nhiều nhánh: phần lớn dãy bắt đầu bằng 4, 5, 6, 7, 8 hoặc 9 chắc chắn không hợp lệ nhưng chỉ bị loại sau khi đã dựng.</p>
+  </div>
+  <div class="box ex">
+    <div class="t">CÁCH NGHĨ ĐÚNG</div>
+    <p>Dựng từ trái sang phải và so tiền tố với 325. Nếu tiền tố đã nhỏ hơn tiền tố tương ứng của 325, mọi chữ số sau đều được chọn từ 0 đến 9. Nếu tiền tố còn bằng cận, chữ số tiếp theo không được vượt chữ số của cận tại vị trí đó.</p>
+  </div>
+</div>
+
+<div class="figure-card">
+  <p class="figure-title">Hình 1. Cận 325 chia mỗi bước thành ba loại nhánh</p>
+  <div class="figure-scroll">
+    <svg viewBox="0 0 900 430" role="img" aria-label="Sơ đồ dựng số không vượt 325 theo các trạng thái nhỏ hơn cận, bằng cận và vượt cận">
+      <defs>
+        <marker id="arrow-bound" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 Z" fill="var(--edge)"></path>
+        </marker>
+      </defs>
+      <rect x="18" y="18" width="864" height="394" rx="18" class="svg-muted"></rect>
+      <text x="92" y="56" text-anchor="middle" class="svg-strong">Bắt đầu</text>
+      <text x="285" y="56" text-anchor="middle" class="svg-strong">Chữ số thứ 1</text>
+      <text x="535" y="56" text-anchor="middle" class="svg-strong">Sau tiền tố 3</text>
+      <text x="775" y="56" text-anchor="middle" class="svg-strong">Sau tiền tố 32</text>
+
+      <rect x="48" y="178" width="88" height="54" rx="14" class="svg-amber"></rect>
+      <text x="92" y="205" text-anchor="middle" dominant-baseline="central" class="svg-strong">rỗng</text>
+
+      <path d="M136 190 C178 142, 205 120, 230 112" class="svg-edge" marker-end="url(#arrow-bound)"></path>
+      <path d="M136 205 C180 205, 202 205, 230 205" class="svg-edge" marker-end="url(#arrow-bound)"></path>
+      <path d="M136 220 C178 268, 205 292, 230 300" class="svg-edge" marker-end="url(#arrow-bound)"></path>
+
+      <rect x="230" y="82" width="110" height="60" rx="14" class="svg-green"></rect>
+      <text x="285" y="106" text-anchor="middle" class="svg-strong">0, 1, 2</text>
+      <text x="285" y="128" text-anchor="middle" class="svg-small">đã nhỏ hơn</text>
+
+      <rect x="230" y="175" width="110" height="60" rx="14" class="svg-blue"></rect>
+      <text x="285" y="199" text-anchor="middle" class="svg-strong">3</text>
+      <text x="285" y="221" text-anchor="middle" class="svg-small">còn bằng cận</text>
+
+      <rect x="230" y="270" width="110" height="60" rx="14" class="svg-red"></rect>
+      <text x="285" y="294" text-anchor="middle" class="svg-strong">4 đến 9</text>
+      <text x="285" y="316" text-anchor="middle" class="svg-small">bị loại</text>
+
+      <path d="M340 192 C405 145, 430 120, 472 112" class="svg-edge" marker-end="url(#arrow-bound)"></path>
+      <path d="M340 205 C405 205, 430 205, 472 205" class="svg-edge" marker-end="url(#arrow-bound)"></path>
+      <path d="M340 218 C405 265, 430 292, 472 300" class="svg-edge" marker-end="url(#arrow-bound)"></path>
+
+      <rect x="472" y="82" width="126" height="60" rx="14" class="svg-green"></rect>
+      <text x="535" y="106" text-anchor="middle" class="svg-strong">30, 31</text>
+      <text x="535" y="128" text-anchor="middle" class="svg-small">đã nhỏ hơn 32</text>
+
+      <rect x="472" y="175" width="126" height="60" rx="14" class="svg-blue"></rect>
+      <text x="535" y="199" text-anchor="middle" class="svg-strong">32</text>
+      <text x="535" y="221" text-anchor="middle" class="svg-small">còn bằng cận</text>
+
+      <rect x="472" y="270" width="126" height="60" rx="14" class="svg-red"></rect>
+      <text x="535" y="294" text-anchor="middle" class="svg-strong">33 đến 39</text>
+      <text x="535" y="316" text-anchor="middle" class="svg-small">bị loại</text>
+
+      <path d="M598 192 C650 145, 675 120, 710 112" class="svg-edge" marker-end="url(#arrow-bound)"></path>
+      <path d="M598 205 C650 205, 675 205, 710 205" class="svg-edge" marker-end="url(#arrow-bound)"></path>
+      <path d="M598 218 C650 265, 675 292, 710 300" class="svg-edge" marker-end="url(#arrow-bound)"></path>
+
+      <rect x="710" y="82" width="130" height="60" rx="14" class="svg-green"></rect>
+      <text x="775" y="106" text-anchor="middle" class="svg-strong">320 đến 324</text>
+      <text x="775" y="128" text-anchor="middle" class="svg-small">hợp lệ</text>
+
+      <rect x="710" y="175" width="130" height="60" rx="14" class="svg-blue"></rect>
+      <text x="775" y="199" text-anchor="middle" class="svg-strong">325</text>
+      <text x="775" y="221" text-anchor="middle" class="svg-small">hợp lệ, sát cận</text>
+
+      <rect x="710" y="270" width="130" height="60" rx="14" class="svg-red"></rect>
+      <text x="775" y="294" text-anchor="middle" class="svg-strong">326 đến 329</text>
+      <text x="775" y="316" text-anchor="middle" class="svg-small">bị loại</text>
+
+      <text x="450" y="382" text-anchor="middle" class="svg-small">Nhánh xanh lá không còn chịu giới hạn của cận; nhánh xanh dương vẫn phải bám theo chữ số tiếp theo của 325.</text>
+    </svg>
+  </div>
+  <div class="legend"><span><i class="swatch sw-green"></i>Tiền tố đã nhỏ hơn cận</span><span><i class="swatch sw-blue"></i>Tiền tố còn bằng cận</span><span><i class="swatch sw-red"></i>Tiền tố vượt cận</span><span><i class="swatch sw-amber"></i>Trạng thái đầu</span></div>
+</div>
+
+<div class="box def">
+  <div class="t">CÂU HỎI CHUYỂN TIẾP</div>
+  <p>Khi hai tiền tố khác nhau nhưng cùng vị trí, cùng quan hệ với cận và cùng số lần đã dùng chữ số 2, phần đuôi còn lại có thật sự giống nhau để có thể gộp thành một trạng thái quy hoạch động hay không?</p>
+</div>
+
+<h2 id="s2"><span class="num">2.</span>Vì sao trạng thái rút gọn là đủ</h2>
+
+<p>Hàm chuẩn thường có dạng <code class="inl">dp(pos, tight, started, state)</code>. Bốn thành phần này trả lời đúng bốn câu hỏi mà phần đuôi cần biết.</p>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Thành phần</th><th>Ý nghĩa</th><th>Ảnh hưởng tới chuyển trạng thái</th></tr></thead>
+  <tbody>
+    <tr><td><code class="inl">pos</code></td><td>Đang điền chữ số thứ mấy từ trái sang phải.</td><td>Xác định chữ số cận tương ứng và số vị trí còn lại.</td></tr>
+    <tr><td><code class="inl">tight</code></td><td>Tiền tố hiện tại còn bằng tiền tố của cận hay đã nhỏ hơn.</td><td>Nếu còn bằng, chữ số tối đa là chữ số của cận; nếu đã nhỏ hơn, chữ số tối đa là 9.</td></tr>
+    <tr><td><code class="inl">started</code></td><td>Đã gặp chữ số khác 0 hay chưa.</td><td>Phân biệt số 0 ở đầu dùng để căn độ dài với chữ số 0 thật trong biểu diễn số.</td></tr>
+    <tr><td><code class="inl">state</code></td><td>Thông tin riêng của đề: số lần xuất hiện, tổng chữ số, số dư, chữ số trước, mặt nạ.</td><td>Quyết định số vừa dựng có thỏa điều kiện hay không.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box tech">
+  <div class="t">TÍNH CHẤT CỐT LÕI: HẬU TỐ CHỈ PHỤ THUỘC TRẠNG THÁI</div>
+  <p>Xét hai tiền tố có cùng <code class="inl">pos</code>, cùng <code class="inl">tight</code>, cùng <code class="inl">started</code> và cùng trạng thái phụ. Mọi lựa chọn hợp lệ cho chữ số tiếp theo của tiền tố thứ nhất cũng hợp lệ cho tiền tố thứ hai, đồng thời tạo ra cùng trạng thái mới. Do đó số cách hoàn thiện phần đuôi của hai tiền tố bằng nhau.</p>
+  <p>Đây là lý do có thể bỏ toàn bộ giá trị tiền tố khỏi khóa ghi nhớ. Tiền tố chỉ cần để lại những đặc trưng có ảnh hưởng tới tương lai.</p>
+</div>
+
+<div class="figure-card">
+  <p class="figure-title">Hình 2. Hai tiền tố khác nhau có thể dùng chung một lời giải phần đuôi</p>
+  <div class="figure-scroll">
+    <svg viewBox="0 0 900 390" role="img" aria-label="Hai tiền tố 12 và 42 cùng đi vào một trạng thái quy hoạch động rồi dùng chung các hậu tố">
+      <defs>
+        <marker id="arrow-merge" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 Z" fill="var(--edge)"></path>
+        </marker>
+      </defs>
+      <rect x="18" y="18" width="864" height="354" rx="18" class="svg-muted"></rect>
+      <text x="150" y="54" text-anchor="middle" class="svg-strong">Hai tiền tố khác nhau</text>
+      <text x="450" y="54" text-anchor="middle" class="svg-strong">Trạng thái chung</text>
+      <text x="746" y="54" text-anchor="middle" class="svg-strong">Các lựa chọn phần đuôi</text>
+
+      <rect x="72" y="100" width="156" height="66" rx="14" class="svg-blue"></rect>
+      <text x="150" y="126" text-anchor="middle" class="svg-strong">12</text>
+      <text x="150" y="149" text-anchor="middle" class="svg-small">đã có một chữ số 2</text>
+
+      <rect x="72" y="226" width="156" height="66" rx="14" class="svg-blue"></rect>
+      <text x="150" y="252" text-anchor="middle" class="svg-strong">42</text>
+      <text x="150" y="275" text-anchor="middle" class="svg-small">đã có một chữ số 2</text>
+
+      <path d="M228 133 C310 133, 330 174, 366 185" class="svg-edge" marker-end="url(#arrow-merge)"></path>
+      <path d="M228 259 C310 259, 330 218, 366 207" class="svg-edge" marker-end="url(#arrow-merge)"></path>
+
+      <rect x="366" y="150" width="168" height="92" rx="16" class="svg-green"></rect>
+      <text x="450" y="178" text-anchor="middle" class="svg-strong">pos = 2</text>
+      <text x="450" y="203" text-anchor="middle" class="svg-label">tight = 0</text>
+      <text x="450" y="226" text-anchor="middle" class="svg-label">started = 1, cnt = 1</text>
+
+      <path d="M534 170 C602 126, 628 112, 664 108" class="svg-edge" marker-end="url(#arrow-merge)"></path>
+      <path d="M534 196 C602 196, 628 196, 664 196" class="svg-edge" marker-end="url(#arrow-merge)"></path>
+      <path d="M534 222 C602 266, 628 280, 664 284" class="svg-edge" marker-end="url(#arrow-merge)"></path>
+
+      <rect x="664" y="78" width="164" height="60" rx="14" class="svg-amber"></rect>
+      <text x="746" y="104" text-anchor="middle" class="svg-strong">chọn 0, 1, 3 đến 9</text>
+      <text x="746" y="126" text-anchor="middle" class="svg-small">cnt vẫn bằng 1</text>
+
+      <rect x="664" y="166" width="164" height="60" rx="14" class="svg-red"></rect>
+      <text x="746" y="192" text-anchor="middle" class="svg-strong">chọn 2</text>
+      <text x="746" y="214" text-anchor="middle" class="svg-small">cnt thành 2, bị loại</text>
+
+      <rect x="664" y="254" width="164" height="60" rx="14" class="svg-green"></rect>
+      <text x="746" y="280" text-anchor="middle" class="svg-strong">kết thúc</text>
+      <text x="746" y="302" text-anchor="middle" class="svg-small">cnt = 1 thì nhận</text>
+
+      <text x="450" y="344" text-anchor="middle" class="svg-small">Giá trị 12 hay 42 không còn cần thiết sau khi các đặc trưng ảnh hưởng tới tương lai đã giống nhau.</text>
+    </svg>
+  </div>
+  <div class="legend"><span><i class="swatch sw-blue"></i>Tiền tố cụ thể</span><span><i class="swatch sw-green"></i>Trạng thái đã gộp</span><span><i class="swatch sw-amber"></i>Chuyển hợp lệ</span><span><i class="swatch sw-red"></i>Chuyển bị loại</span></div>
+</div>
+
+<div class="box def">
+  <div class="t">CÔNG THỨC ĐOẠN</div>
+  <p>Đặt <span class="mathv">F(X)</span> là số lượng số hợp lệ trong đoạn từ 0 đến <span class="mathv">X</span>. Khi đó đáp án trên đoạn <span class="mathv">[L, R]</span> là:</p>
+  <div class="formula">Answer(L, R) = F(R) − F(L − 1)</div>
+  <p>Cách tách này loại bỏ nhu cầu theo dõi đồng thời cận dưới và cận trên trong hầu hết bài cơ bản.</p>
+</div>
+
+<h3>Phòng mô phỏng: gộp các tiền tố theo trạng thái</h3>
+<div class="sim-room" id="digit-room">
+  <h3>Cận 325, đếm chữ số 2 xuất hiện đúng một lần</h3>
+  <p class="mini-note">Mỗi bước điền thêm một vị trí. Các tiền tố có cùng <code class="inl">tight</code>, <code class="inl">started</code> và <code class="inl">cnt</code> được cộng số cách vào cùng một thẻ trạng thái.</p>
+  <div class="digit-strip" id="digit-strip" aria-label="Các chữ số của cận 325"></div>
+  <div class="state-grid" id="state-grid" aria-label="Các trạng thái quy hoạch động"></div>
+  <div class="sim-controls">
+    <button type="button" id="digit-step">Chạy một bước</button>
+    <button type="button" id="digit-auto">Tự chạy</button>
+    <button type="button" id="digit-reset">Đặt lại</button>
+  </div>
+  <div class="sim-message" id="digit-message" aria-live="polite">Trạng thái đầu có một tiền tố rỗng: pos = 0, tight = 1, started = 0, cnt = 0.</div>
+  <div class="sim-result" id="digit-result">Kết quả cuối cùng: chưa hoàn tất</div>
+  <div class="legend"><span><i class="swatch sw-blue"></i>Còn bám cận</span><span><i class="swatch sw-green"></i>Đã nhỏ hơn cận</span><span><i class="swatch sw-red"></i>Nhánh bị loại</span><span><i class="swatch sw-amber"></i>Trạng thái đầu</span></div>
+</div>
+
+<h2 id="s3"><span class="num">3.</span>Chỗ dễ sai còn lại</h2>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Vấn đề</th><th>Trực giác dễ nhầm</th><th>Cách máy tính phải xử lý</th></tr></thead>
+  <tbody>
+    <tr><td>Số 0 ở đầu</td><td>Dãy 0025 có hai chữ số 0.</td><td>0025 chỉ biểu diễn số 25; hai số 0 dùng để căn độ dài không được tính vào thuộc tính của số.</td></tr>
+    <tr><td>Số 0</td><td>Chưa bắt đầu số nghĩa là không có số nào.</td><td>Khi đi hết vị trí mà <code class="inl">started = 0</code>, trạng thái đó đại diện cho số 0. Phải quy ước biểu diễn của 0 rõ ràng.</td></tr>
+    <tr><td><code class="inl">tight</code></td><td>Chỉ cần so chữ số hiện tại với cận.</td><td>Giới hạn chữ số hiện tại phụ thuộc toàn bộ quan hệ của tiền tố trước đó với cận, được nén trong <code class="inl">tight</code>.</td></tr>
+    <tr><td>Ghi nhớ trạng thái sát cận</td><td>Mọi trạng thái cùng chỉ số đều dùng chung.</td><td>Trạng thái <code class="inl">tight = 1</code> phụ thuộc cận cụ thể; phải xóa bộ nhớ khi đổi cận hoặc không ghi nhớ phần này giữa các cận.</td></tr>
+    <tr><td>Đoạn có cận trái bằng 0</td><td>Tính trực tiếp <span class="mathv">F(L − 1)</span>.</td><td>Hàm phải trả 0 khi đối số âm để tránh chuyển −1 thành chuỗi chữ số không hợp lệ.</td></tr>
+    <tr><td>Độ dài rất lớn</td><td>Kết quả luôn vừa <code class="inl">long long</code>.</td><td>Nếu cận có hàng trăm chữ số, số lượng có thể cần mô-đun hoặc số nguyên lớn tùy đề.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box warn">
+  <div class="t">CHỮ SỐ 0 Ở ĐẦU LÀ BẪY QUAN TRỌNG NHẤT</div>
+  <p>Khi chọn chữ số 0 trong lúc <code class="inl">started = 0</code>, không tăng bộ đếm chữ số 0, không cập nhật chữ số trước và không đưa 0 vào mặt nạ chữ số đã dùng. Chỉ khi số đã bắt đầu hoặc chữ số đang chọn khác 0 thì chữ số mới thuộc biểu diễn thật.</p>
+</div>
+
+<div class="box tech">
+  <div class="t">KIỂU DỮ LIỆU, CHỈ SỐ VÀ ĐIỀU KIỆN DỪNG</div>
+  <ul>
+    <li>Cận đến 10<sup>18</sup> có tối đa 19 chữ số, nhưng số lượng trạng thái phụ có thể lớn hơn nhiều nếu theo dõi số dư hoặc mặt nạ.</li>
+    <li>Dùng <code class="inl">long long</code> tường minh; kiểu <code class="inl">long</code> chỉ có 4 byte trên MinGW 32-bit.</li>
+    <li>Ở điều kiện dừng <code class="inl">pos == digits.size()</code>, chỉ kiểm tra thuộc tính cuối cùng; không sinh thêm chữ số.</li>
+    <li>Trạng thái phụ phải có miền giá trị hữu hạn. Không lưu nguyên tổng hoặc tích nếu nó có thể tăng quá lớn mà đề chỉ cần số dư, dấu hoặc so sánh ngưỡng.</li>
+  </ul>
+</div>
+
+<h2 id="s4"><span class="num">4.</span>Khuôn mẫu cài đặt</h2>
+
+<h3>Khuôn A — hàm đếm từ 0 đến <span class="mathv">X</span></h3>
+<p>Phần giữ nguyên gồm việc chuyển cận thành chuỗi, duyệt vị trí từ trái sang phải, xác định chữ số tối đa bằng <code class="inl">tight</code> và ghi nhớ trạng thái. Phần thay đổi là trạng thái phụ, cách cập nhật trạng thái phụ và điều kiện nhận ở cuối.</p>
+
+<div class="codewrap noname"><pre><code>long long dfs(int pos, bool tight, bool started, int state) {
+    if (pos == (int)digits.size())
+        return validFinalState(started, state);
+
+    if (visited[pos][tight][started][state])
+        return memo[pos][tight][started][state];
+
+    visited[pos][tight][started][state] = true;
+    long long answer = 0;
+    int limit = tight ? digits[pos] - '0' : 9;
+
+    for (int digit = 0; digit &lt;= limit; digit++) {
+        bool nextTight = tight &amp;&amp; digit == limit;
+        bool nextStarted = started || digit != 0;
+        int nextState = transition(state, digit, started, nextStarted);
+        if (nextState == INVALID_STATE)
+            continue;
+        answer += dfs(pos + 1, nextTight, nextStarted, nextState);
+    }
+
+    memo[pos][tight][started][state] = answer;
+    return answer;
+}</code></pre></div>
+
+<div class="box warn">
+  <div class="t">CHI TIẾT VỀ <code class="inl">nextTight</code></div>
+  <p>Trong khuôn trên, <code class="inl">limit</code> bằng chữ số cận khi <code class="inl">tight = 1</code>, nên điều kiện <code class="inl">digit == limit</code> là đúng. Khi viết lại theo biến <code class="inl">boundDigit</code>, công thức rõ hơn là <code class="inl">nextTight = tight &amp;&amp; digit == boundDigit</code>.</p>
+</div>
+
+<h3>Chương trình hoàn chỉnh — đếm chữ số <span class="mathv">d</span> xuất hiện đúng <span class="mathv">k</span> lần</h3>
+<p>Đầu vào gồm <span class="mathv">L</span>, <span class="mathv">R</span>, <span class="mathv">d</span>, <span class="mathv">k</span>, với 0 ≤ <span class="mathv">L</span> ≤ <span class="mathv">R</span> ≤ 10<sup>18</sup>. Chương trình quy ước biểu diễn thập phân của số 0 là chuỗi “0”.</p>
+
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+string digits;
+int targetDigit, needCount;
+long long memo[20][2][2][20];
+bool visited[20][2][2][20];
+
+long long digitDp(int pos, bool tight, bool started, int countTarget) {
+    if (pos == (int)digits.size()) {
+        int finalCount = countTarget;
+        if (!started &amp;&amp; targetDigit == 0)
+            finalCount = 1;
+        return finalCount == needCount;
+    }
+
+    long long &amp;answer = memo[pos][tight][started][countTarget];
+    if (visited[pos][tight][started][countTarget])
+        return answer;
+
+    visited[pos][tight][started][countTarget] = true;
+    answer = 0;
+    int boundDigit = digits[pos] - '0';
+    int limit = tight ? boundDigit : 9;
+
+    for (int digit = 0; digit &lt;= limit; digit++) {
+        bool nextTight = tight &amp;&amp; digit == boundDigit;
+        bool nextStarted = started || digit != 0;
+        int nextCount = countTarget;
+
+        if (nextStarted &amp;&amp; digit == targetDigit)
+            nextCount++;
+        if (nextCount &gt; needCount)
+            continue;
+
+        answer += digitDp(pos + 1, nextTight, nextStarted, nextCount);
+    }
+
+    return answer;
+}
+
+long long countUpTo(long long x, int digit, int need) {
+    if (x &lt; 0)
+        return 0;
+    if (need &lt; 0 || need &gt; 19)
+        return 0;
+
+    digits = to_string(x);
+    targetDigit = digit;
+    needCount = need;
+    memset(visited, 0, sizeof(visited));
+    return digitDp(0, true, false, 0);
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    long long leftBound, rightBound;
+    int digit, need;
+    cin &gt;&gt; leftBound &gt;&gt; rightBound &gt;&gt; digit &gt;&gt; need;
+
+    if (leftBound &gt; rightBound)
+        swap(leftBound, rightBound);
+
+    long long answer = countUpTo(rightBound, digit, need)
+                     - countUpTo(leftBound - 1, digit, need);
+    cout &lt;&lt; answer &lt;&lt; '\n';
+    return 0;
+}</code></pre></div>
+
+<div class="box ex">
+  <div class="t">DỮ LIỆU KIỂM NHANH</div>
+  <div class="codewrap noname"><pre><code>Input
+0 325 2 1
+
+Output
+124</code></pre></div>
+</div>
+
+<div class="box cmplx">
+  <div class="t">ĐỘ PHỨC TẠP</div>
+  <p>Với <span class="mathv">D</span> chữ số và bộ đếm từ 0 đến <span class="mathv">k</span>, số trạng thái là O(<span class="mathv">Dk</span>) và mỗi trạng thái thử tối đa 10 chữ số. Thời gian là O(10<span class="mathv">Dk</span>), bộ nhớ là O(<span class="mathv">Dk</span>). Hai chiều Boolean chỉ tạo hệ số hằng.</p>
+</div>
+
+<h3>Khuôn B — cách thêm trạng thái phụ</h3>
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Điều kiện cần theo dõi</th><th>Trạng thái thêm</th><th>Cập nhật khi chọn chữ số <span class="mathv">digit</span></th></tr></thead>
+  <tbody>
+    <tr><td>Tổng chữ số bằng <span class="mathv">S</span></td><td><code class="inl">sum</code></td><td><code class="inl">nextSum = sum + digit</code></td></tr>
+    <tr><td>Số chia hết cho <span class="mathv">m</span></td><td><code class="inl">remainder</code></td><td><code class="inl">nextRemainder = (remainder * 10 + digit) % m</code></td></tr>
+    <tr><td>Không có hai chữ số kề nhau bằng nhau</td><td><code class="inl">previousDigit</code></td><td>Loại chuyển nếu số đã bắt đầu và <code class="inl">digit == previousDigit</code>.</td></tr>
+    <tr><td>Đã dùng những chữ số nào</td><td><code class="inl">mask</code></td><td><code class="inl">nextMask = mask | (1 &lt;&lt; digit)</code> sau khi số bắt đầu.</td></tr>
+    <tr><td>Ràng buộc theo vị trí</td><td>Thường đã có <code class="inl">pos</code></td><td>Kiểm tra chẵn lẻ hoặc lớp vị trí trước khi nhận chữ số.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="s5"><span class="num">5.</span>Các biến thể thường gặp</h2>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Đề yêu cầu thêm gì</th><th>Cần thay đổi gì trong khuôn</th><th>Công cụ bổ sung</th></tr></thead>
+  <tbody>
+    <tr><td>Tổng chữ số thuộc một tập nhỏ</td><td>Thêm chiều tổng chữ số và kiểm tra tập ở điều kiện dừng.</td><td>Không cần công cụ mới nếu tổng tối đa nhỏ.</td></tr>
+    <tr><td>Giá trị số và tổng chữ số cùng chia hết cho <span class="mathv">m</span></td><td>Thêm hai chiều số dư.</td><td>Giới hạn trạng thái bằng số dư; cần ước lượng O(<span class="mathv">Dm</span><sup>2</sup>).</td></tr>
+    <tr><td>Chữ số ở vị trí chẵn, lẻ phải theo mẫu</td><td>Lọc chữ số được chọn theo <code class="inl">pos</code>.</td><td>Không cần thuật toán mới; phải thống nhất cách đánh số vị trí.</td></tr>
+    <tr><td>Không xuất hiện một mẫu con cấm</td><td>Trạng thái phụ là trạng thái của máy tự động sau tiền tố hiện tại.</td><td>KMP hoặc Aho–Corasick kết hợp DP chữ số.</td></tr>
+    <tr><td>Mọi chữ số trong một tập phải xuất hiện</td><td>Thêm mặt nạ các chữ số đã dùng.</td><td>DP mặt nạ; tối đa 2<sup>10</sup> mặt nạ cho hệ thập phân.</td></tr>
+    <tr><td>Tìm số có tích chữ số lớn nhất trong đoạn</td><td>Giá trị DP là phương án tốt nhất, không còn là số cách.</td><td>Lưu lựa chọn để truy vết hoặc so sánh chuỗi.</td></tr>
+    <tr><td>Đếm số đối xứng</td><td>Dựng nửa đầu rồi suy ra nửa sau, hoặc theo dõi quan hệ đối xứng.</td><td>Thường cần thiết kế riêng; không phải chỉ thêm một chiều đơn giản.</td></tr>
+    <tr><td>Nhiều truy vấn dùng cùng điều kiện</td><td>Tách các trạng thái không bám cận để tái sử dụng.</td><td>Tiền xử lý DP tự do, đánh dấu phiên hoặc quy hoạch động lặp.</td></tr>
+    <tr><td>Cận có hàng trăm nghìn chữ số</td><td>Đệ quy theo từng chữ số có thể quá sâu và trạng thái sát cận quá lớn.</td><td>DP lặp, ma trận chuyển, tự động hoặc kỹ thuật theo cấu trúc riêng của đề.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box warn">
+  <div class="t">KHÔNG PHẢI BIẾN THỂ NÀO CŨNG CHỈ THÊM MỘT CHIỀU</div>
+  <p>Thêm số dư, tổng chữ số hoặc chữ số trước thường là sửa nhỏ. Điều kiện chứa mẫu, đối xứng, tối ưu tích chữ số hoặc cận cực dài có thể buộc thay đổi cách biểu diễn trạng thái, kiểu giá trị DP và cả hướng duyệt.</p>
+</div>
+
+<h2 id="s6"><span class="num">6.</span>Nhận dạng và bẫy</h2>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Đề nói gì</th><th>Nên nghĩ tới gì</th><th>Câu hỏi cần tự kiểm tra</th></tr></thead>
+  <tbody>
+    <tr><td>Đếm số trong đoạn rất lớn, điều kiện phụ thuộc chữ số</td><td>Hàm <span class="mathv">F(X)</span> và DP chữ số</td><td>Thuộc tính của một tiền tố có thể nén thành trạng thái hữu hạn nào?</td></tr>
+    <tr><td>Số chia hết cho <span class="mathv">m</span></td><td>Trạng thái số dư</td><td><span class="mathv">m</span> có đủ nhỏ để thêm một chiều kích thước <span class="mathv">m</span> không?</td></tr>
+    <tr><td>Tổng, hiệu hoặc tích chữ số</td><td>Trạng thái tổng, hiệu, tích đã nén</td><td>Cần giá trị chính xác, số dư, dấu hay chỉ so với ngưỡng?</td></tr>
+    <tr><td>Chữ số kề nhau hoặc mẫu cấm</td><td>Chữ số trước hoặc máy tự động</td><td>Thông tin tối thiểu về hậu tố của tiền tố là gì?</td></tr>
+    <tr><td>Vị trí chẵn, lẻ có quy tắc riêng</td><td>Dùng <code class="inl">pos</code> trong chuyển trạng thái</td><td>Vị trí được tính từ trái hay từ phải, bắt đầu bằng 0 hay 1?</td></tr>
+    <tr><td>Cần tìm số tối ưu thay vì đếm</td><td>DP giá trị và truy vết</td><td>So sánh hai phương án theo giá trị số, tích, tổng hay thứ tự từ điển?</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box warn">
+  <div class="t">BẪY 1 — “DÃY 0007 CÓ BA CHỮ SỐ 0”</div>
+  <p><b>Nhận định sai:</b> mọi vị trí đã điền đều là chữ số thật của số.</p>
+  <p><b>Lý do sai:</b> các số 0 trước chữ số 7 chỉ dùng để mọi số có cùng độ dài với cận.</p>
+  <p><b>Cách phòng tránh:</b> thêm <code class="inl">started</code> và chỉ cập nhật thuộc tính chữ số khi số đã bắt đầu.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">BẪY 2 — “TIGHT CHỈ PHỤ THUỘC CHỮ SỐ HIỆN TẠI”</div>
+  <p><b>Nhận định sai:</b> cứ chọn chữ số không vượt chữ số cận tại vị trí hiện tại là đủ.</p>
+  <p><b>Lý do sai:</b> nếu tiền tố đã nhỏ hơn cận, chữ số hiện tại có thể lớn hơn chữ số cận cùng vị trí mà toàn số vẫn nhỏ hơn cận.</p>
+  <p><b>Cách phòng tránh:</b> giới hạn bằng 9 khi <code class="inl">tight = 0</code>; chỉ bám chữ số cận khi <code class="inl">tight = 1</code>.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">BẪY 3 — “CỨ THÊM TRẠNG THÁI LÀ ĐƯỢC”</div>
+  <p><b>Nhận định sai:</b> thêm tổng, số dư, mặt nạ và chữ số trước vào cùng một DP luôn chạy được.</p>
+  <p><b>Lý do sai:</b> tích kích thước các chiều có thể vượt giới hạn thời gian và bộ nhớ.</p>
+  <p><b>Cách phòng tránh:</b> tính số trạng thái trước khi viết mã, loại chiều suy ra được và tìm cách nén thuộc tính theo số dư, mặt nạ hoặc ngưỡng.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">BẪY 4 — “F(R) − F(L − 1) LUÔN AN TOÀN”</div>
+  <p><b>Nhận định sai:</b> không cần xử lý riêng khi <span class="mathv">L</span> bằng 0.</p>
+  <p><b>Lý do sai:</b> <span class="mathv">L − 1</span> âm và không có biểu diễn chữ số theo khuôn thông thường.</p>
+  <p><b>Cách phòng tránh:</b> cho <span class="mathv">F(X)</span> trả 0 ngay khi <span class="mathv">X &lt; 0</span>.</p>
+</div>
+
+<h2 id="s7"><span class="num">7.</span>Lộ trình bài luyện</h2>
+
+<p>Các bài dưới đây đều xuất hiện trong danh sách bài luyện của bài viết Codeforces đã nêu. Liên kết nguồn dẫn tới hệ thống chấm gốc; liên kết CVPOI đang dùng mã giữ chỗ và phải được thay trước khi đồng bộ site.</p>
+
+<div class="practice-grid">
+  <div class="practice-card">
+    <h3>Chặng 1 — Làm quen với <span class="mathv">F(R) − F(L − 1)</span></h3>
+    <p><span class="tag">Tổng chữ số</span><span class="tag">Trạng thái nhỏ</span></p>
+    <ol>
+      <li><a href="https://www.spoj.com/problems/CPCRC1C/" target="_blank" rel="noopener">Sum of Digits</a> — tính tổng các chữ số trên một đoạn. Đọc lại mục 2, 4. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_SUM_OF_DIGITS" target="_blank">CVPOI</a>.</li>
+      <li><a href="https://www.spoj.com/problems/PR003004/" target="_blank" rel="noopener">Digit Sum</a> — tổng chữ số với nhiều bộ dữ liệu. Đọc lại mục 3, 4. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_DIGIT_SUM" target="_blank">CVPOI</a>.</li>
+      <li><a href="https://lightoj.com/problem/investigation" target="_blank" rel="noopener">Investigation</a> — theo dõi đồng thời số dư của số và tổng chữ số. Đọc lại mục 4, 5. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_INVESTIGATION" target="_blank">CVPOI</a>.</li>
+    </ol>
+  </div>
+
+  <div class="practice-card">
+    <h3>Chặng 2 — Trạng thái theo vị trí và tần suất</h3>
+    <p><span class="tag">Vị trí</span><span class="tag">Số dư</span><span class="tag">Tần suất</span></p>
+    <ol>
+      <li><a href="https://codeforces.com/problemset/problem/628/D" target="_blank" rel="noopener">Magic Numbers</a> — chữ số bắt buộc theo vị trí và số dư theo mô-đun. Đọc lại mục 3, 5. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_MAGIC_NUMBERS" target="_blank">CVPOI</a>.</li>
+      <li><a href="https://www.codechef.com/problems/DGTCNT" target="_blank" rel="noopener">Chef and Digits</a> — theo dõi tần suất nhiều chữ số. Đọc lại mục 3, 5. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_CHEF_AND_DIGITS" target="_blank">CVPOI</a>.</li>
+      <li><a href="https://toph.co/p/lids" target="_blank" rel="noopener">LIDS</a> — trạng thái liên quan dãy con tăng trên các chữ số. Đọc lại mục 2, 5. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_LIDS" target="_blank">CVPOI</a>.</li>
+    </ol>
+  </div>
+
+  <div class="practice-card">
+    <h3>Chặng 3 — Thiết kế trạng thái chuyên biệt</h3>
+    <p><span class="tag">Đối xứng</span><span class="tag">Tối ưu</span><span class="tag">Mặt nạ</span></p>
+    <ol>
+      <li><a href="https://lightoj.com/problem/palindromic-numbers" target="_blank" rel="noopener">Palindromic Numbers</a> — đếm số đối xứng trên đoạn. Đọc lại mục 5. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_PALINDROMIC_NUMBERS" target="_blank">CVPOI</a>.</li>
+      <li><a href="https://codeforces.com/gym/100886/problem/G" target="_blank" rel="noopener">Maximum Product</a> — tìm số có tích chữ số lớn nhất. Đọc lại mục 5, 6. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_MAXIMUM_PRODUCT" target="_blank">CVPOI</a>.</li>
+      <li><a href="https://www.codechef.com/problems/WORKCHEF" target="_blank" rel="noopener">Chef and special numbers</a> — kết hợp mặt nạ chữ số và tính chia hết. Đọc lại mục 5, 6. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_WORKCHEF" target="_blank">CVPOI</a>.</li>
+    </ol>
+  </div>
+
+  <div class="practice-card">
+    <h3>Chặng 4 — Tổng hiệu theo vị trí</h3>
+    <p><span class="tag">Chẵn lẻ vị trí</span><span class="tag">Số nguyên tố</span></p>
+    <ol>
+      <li><a href="https://www.spoj.com/problems/LUCIFER/" target="_blank" rel="noopener">LUCIFER Number</a> — hiệu tổng chữ số ở hai lớp vị trí là số nguyên tố. Đọc lại mục 3, 5. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_LUCIFER" target="_blank">CVPOI</a>.</li>
+      <li><a href="https://www.spoj.com/problems/RAONE/" target="_blank" rel="noopener">Ra-One Numbers</a> — luyện trạng thái hiệu tổng theo vị trí. Đọc lại mục 3, 5. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_RAONE" target="_blank">CVPOI</a>.</li>
+    </ol>
+  </div>
+</div>
+
+<div class="box def">
+  <div class="t">TỰ KIỂM TRƯỚC KHI NỘP</div>
+  <ul class="checklist">
+    <li>Đã định nghĩa chính xác <span class="mathv">F(X)</span> có bao gồm số 0 hay không.</li>
+    <li>Đã phân biệt số 0 ở đầu với chữ số 0 thật bằng <code class="inl">started</code> hoặc một lập luận tương đương.</li>
+    <li>Đã tính trước tổng số trạng thái và số chuyển để chắc chắn không vượt giới hạn.</li>
+    <li>Đã kiểm tra <span class="mathv">L = 0</span>, <span class="mathv">L = R</span>, cận chỉ có một chữ số và thuộc tính không thể đạt.</li>
+    <li>Đã xóa bộ nhớ ghi nhớ khi đổi cận hoặc tách trạng thái bám cận khỏi phần tái sử dụng.</li>
+    <li>Đã so kết quả DP với vét cạn trên các cận nhỏ trước khi nộp.</li>
+    <li>Đã thay toàn bộ mã <code class="inl">MA_CVPOI_TEN_BAI</code> bằng mã bài thật trước khi đồng bộ.</li>
+  </ul>
+</div>
+
+</div>
+</div>
+
+<script>
+(function () {
+  const bound = '325';
+  const targetDigit = 2;
+  const needCount = 1;
+  const strip = document.getElementById('digit-strip');
+  const grid = document.getElementById('state-grid');
+  const message = document.getElementById('digit-message');
+  const result = document.getElementById('digit-result');
+  const stepButton = document.getElementById('digit-step');
+  const autoButton = document.getElementById('digit-auto');
+  const resetButton = document.getElementById('digit-reset');
+  let position = 0;
+  let states = new Map();
+  let timer = null;
+
+  function keyOf(tight, started, count) {
+    return [tight ? 1 : 0, started ? 1 : 0, count].join('|');
+  }
+
+  function parseKey(key) {
+    const parts = key.split('|').map(Number);
+    return {tight: parts[0] === 1, started: parts[1] === 1, count: parts[2]};
+  }
+
+  function renderStrip() {
+    strip.innerHTML = '';
+    for (let i = 0; i < bound.length; i++) {
+      const box = document.createElement('div');
+      box.className = 'digit-box';
+      if (i < position)
+        box.classList.add('done');
+      else if (i === position)
+        box.classList.add('current');
+      box.textContent = bound[i];
+      strip.appendChild(box);
+    }
+  }
+
+  function renderStates(rejected) {
+    grid.innerHTML = '';
+    const entries = Array.from(states.entries()).sort(function (a, b) {
+      return a[0].localeCompare(b[0]);
+    });
+
+    if (position === 0) {
+      const initial = document.createElement('div');
+      initial.className = 'state-card initial';
+      initial.innerHTML = '<b>Tiền tố rỗng</b>tight = 1<br>started = 0<br>cnt = 0<br>số cách = 1';
+      grid.appendChild(initial);
+    } else {
+      entries.forEach(function (entry) {
+        const state = parseKey(entry[0]);
+        const card = document.createElement('div');
+        card.className = 'state-card ' + (state.tight ? 'tight' : 'free');
+        card.innerHTML = '<b>' + (state.tight ? 'Còn bám cận' : 'Đã nhỏ hơn') + '</b>'
+          + 'started = ' + (state.started ? 1 : 0) + '<br>'
+          + 'cnt = ' + state.count + '<br>'
+          + 'số tiền tố = ' + entry[1];
+        grid.appendChild(card);
+      });
+    }
+
+    if (rejected > 0) {
+      const rejectedCard = document.createElement('div');
+      rejectedCard.className = 'state-card rejected';
+      rejectedCard.innerHTML = '<b>Nhánh bị loại</b>Vượt cận hoặc làm cnt &gt; ' + needCount + '<br>số nhánh = ' + rejected;
+      grid.appendChild(rejectedCard);
+    }
+  }
+
+  function finalAnswer() {
+    let answer = 0;
+    states.forEach(function (ways, key) {
+      const state = parseKey(key);
+      let finalCount = state.count;
+      if (!state.started && targetDigit === 0)
+        finalCount = 1;
+      if (finalCount === needCount)
+        answer += ways;
+    });
+    return answer;
+  }
+
+  function runStep() {
+    if (position >= bound.length)
+      return;
+
+    const nextStates = new Map();
+    let rejected = 0;
+    const boundDigit = Number(bound[position]);
+
+    states.forEach(function (ways, key) {
+      const state = parseKey(key);
+      const limit = state.tight ? boundDigit : 9;
+
+      for (let digit = 0; digit <= 9; digit++) {
+        if (digit > limit) {
+          rejected += ways;
+          continue;
+        }
+
+        const nextStarted = state.started || digit !== 0;
+        let nextCount = state.count;
+        if (nextStarted && digit === targetDigit)
+          nextCount++;
+        if (nextCount > needCount) {
+          rejected += ways;
+          continue;
+        }
+
+        const nextTight = state.tight && digit === boundDigit;
+        const nextKey = keyOf(nextTight, nextStarted, nextCount);
+        nextStates.set(nextKey, (nextStates.get(nextKey) || 0) + ways);
+      }
+    });
+
+    states = nextStates;
+    position++;
+    renderStrip();
+    renderStates(rejected);
+
+    let totalPrefixes = 0;
+    states.forEach(function (ways) {
+      totalPrefixes += ways;
+    });
+
+    message.textContent = 'Đã xử lý ' + position + ' chữ số. Có ' + totalPrefixes
+      + ' tiền tố chưa vi phạm điều kiện, được gộp thành ' + states.size
+      + ' trạng thái; ' + rejected + ' nhánh bị loại trong bước này.';
+
+    if (position === bound.length) {
+      const answer = finalAnswer();
+      result.textContent = 'Kết quả cuối cùng: ' + answer;
+      message.textContent += ' Cộng các trạng thái có cnt = 1 thu được ' + answer + ' số.';
+      stepButton.disabled = true;
+      autoButton.disabled = true;
+      stopAuto();
+    }
+  }
+
+  function stopAuto() {
+    if (timer !== null) {
+      clearInterval(timer);
+      timer = null;
+    }
+    autoButton.textContent = 'Tự chạy';
+  }
+
+  function toggleAuto() {
+    if (timer !== null) {
+      stopAuto();
+      return;
+    }
+    if (position >= bound.length)
+      return;
+    autoButton.textContent = 'Dừng';
+    timer = setInterval(function () {
+      runStep();
+      if (position >= bound.length)
+        stopAuto();
+    }, 900);
+  }
+
+  function reset() {
+    stopAuto();
+    position = 0;
+    states = new Map([[keyOf(true, false, 0), 1]]);
+    stepButton.disabled = false;
+    autoButton.disabled = false;
+    message.textContent = 'Trạng thái đầu có một tiền tố rỗng: pos = 0, tight = 1, started = 0, cnt = 0.';
+    result.textContent = 'Kết quả cuối cùng: chưa hoàn tất';
+    renderStrip();
+    renderStates(0);
+  }
+
+  stepButton.addEventListener('click', runStep);
+  autoButton.addEventListener('click', toggleAuto);
+  resetButton.addEventListener('click', reset);
+  reset();
+})();
+</script>
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<!--/cv-foot-->
+</body>
+</html>
