@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sắp xếp tô-pô + chu trình | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<style>
+  /* CSS riêng cho hình minh họa và phòng mô phỏng */
+  *{box-sizing:border-box}
+  html,body{max-width:100%;overflow-x:hidden}
+  .lead{font-size:1.05rem;line-height:1.75}
+  .mini-note{color:var(--muted);font-size:.94rem}
+  .two-col,.three-col,.proof-grid,.practice-grid{display:grid;gap:16px;align-items:start}
+  .two-col,.proof-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .three-col{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .practice-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .plain-card,.sim-room,.figure-card,.trap-card,.practice-card{min-width:0;border:1px solid var(--border);background:var(--card);border-radius:14px;padding:16px}
+  .plain-card h3,.sim-room h3,.practice-card h3{margin-top:0;color:var(--blue)}
+  .figure-card{overflow:hidden}
+  .figure-scroll{max-width:100%;overflow-x:auto;padding-bottom:4px}
+  .figure-scroll svg{display:block;width:100%;min-width:540px;height:auto}
+  .figure-card figcaption{margin-top:10px;color:var(--muted);font-size:.94rem;line-height:1.55}
+  .graph-edge{fill:none;stroke:var(--edge);stroke-width:2.3}
+  .graph-edge.soft{opacity:.45}
+  .graph-edge.good{stroke:var(--green);stroke-width:3}
+  .graph-edge.bad{stroke:var(--red);stroke-width:3}
+  .graph-edge.focus{stroke:var(--amber);stroke-width:3.4}
+  .graph-edge.removed{opacity:.2;stroke-dasharray:7 5}
+  .graph-node{fill:var(--card);stroke:var(--edge);stroke-width:2.2}
+  .graph-node.zero{fill:var(--blue-bg);stroke:var(--blue)}
+  .graph-node.done{fill:var(--green-bg);stroke:var(--green)}
+  .graph-node.current{fill:var(--amber-bg);stroke:var(--amber);stroke-width:3.4}
+  .graph-node.cycle{fill:var(--red-bg);stroke:var(--red);stroke-width:3.4}
+  .graph-node.finished{fill:var(--green-bg);stroke:var(--green)}
+  .graph-text{fill:var(--fg);font-weight:700;font-size:16px;text-anchor:middle;dominant-baseline:middle}
+  .graph-label{fill:var(--muted);font-size:14px;text-anchor:middle}
+  .graph-label.good{fill:var(--green);font-weight:700}
+  .graph-label.bad{fill:var(--red);font-weight:700}
+  .graph-label.blue{fill:var(--blue);font-weight:700}
+  .divider{stroke:var(--border);stroke-width:2;stroke-dasharray:8 7}
+  .order-line{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+  .order-chip{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:34px;border:1px solid var(--border);border-radius:9px;background:var(--card);font-weight:700}
+  .order-chip.good{background:var(--green-bg);border-color:var(--green)}
+  .order-chip.bad{background:var(--red-bg);border-color:var(--red)}
+  .step-list{margin:8px 0 0;padding-left:20px}
+  .sim-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+  .sim-toolbar button,.sim-toolbar select,.sim-toolbar label{font:inherit}
+  .sim-toolbar button,.sim-toolbar select{border:1px solid var(--border);background:var(--card);color:var(--fg);border-radius:9px;padding:9px 12px}
+  .sim-toolbar button{cursor:pointer}
+  .sim-toolbar button:hover{border-color:var(--blue)}
+  .sim-toolbar button:disabled{opacity:.5;cursor:not-allowed}
+  .sim-toolbar label{display:inline-flex;gap:7px;align-items:center;color:var(--fg)}
+  .sim-board{border:1px solid var(--border);border-radius:12px;background:var(--bg);padding:10px;overflow-x:auto}
+  .sim-board svg{display:block;width:100%;min-width:600px;height:auto}
+  .legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin:12px 0;color:var(--muted);font-size:.92rem}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .swatch{width:14px;height:14px;border:2px solid var(--edge);border-radius:4px;background:var(--card)}
+  .swatch.current{background:var(--amber-bg);border-color:var(--amber)}
+  .swatch.selected{background:var(--green-bg);border-color:var(--green)}
+  .swatch.available{background:var(--blue-bg);border-color:var(--blue)}
+  .swatch.rejected{background:var(--red-bg);border-color:var(--red)}
+  .status-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+  .status-cell{border:1px solid var(--border);border-radius:10px;padding:10px;min-width:0}
+  .status-cell b{display:block;color:var(--blue);margin-bottom:4px}
+  .live{min-height:54px;border-left:4px solid var(--blue);background:var(--blue-bg);padding:10px 12px;border-radius:8px;margin-top:12px;line-height:1.55}
+  .live.ok{border-left-color:var(--green);background:var(--green-bg)}
+  .live.warn{border-left-color:var(--amber);background:var(--amber-bg)}
+  .live.bad{border-left-color:var(--red);background:var(--red-bg)}
+  .formula{display:inline-block;border:1px solid var(--border);background:var(--card);border-radius:8px;padding:4px 8px;font-weight:700}
+  .callout-line{border-left:4px solid var(--purple);padding:8px 12px;background:var(--purple-bg);border-radius:8px}
+  .compare-list{margin:0;padding-left:20px}
+  .compare-list li{margin:8px 0}
+  .code-title{margin:18px 0 7px;font-weight:700;color:var(--blue)}
+  .codewrap{max-width:100%;overflow:auto}
+  .tablewrap{max-width:100%;overflow-x:auto}
+  .tablewrap table{min-width:760px}
+  .trap-card{border-left:5px solid var(--red)}
+  .trap-card b{color:var(--red)}
+  .trap-card p{margin:7px 0}
+  .practice-card ol{padding-left:20px}
+  .practice-card li{margin:12px 0}
+  .practice-meta{display:block;margin-top:4px;color:var(--muted);font-size:.9rem}
+  .checklist li{margin:8px 0}
+  .mathv{font-style:italic}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--border);background:var(--card);font-size:.86rem;white-space:nowrap}
+  .pill.small{border-color:var(--green);background:var(--green-bg)}
+  .pill.extra{border-color:var(--purple);background:var(--purple-bg)}
+  @media (max-width:900px){
+    .practice-grid,.three-col{grid-template-columns:1fr}
+    .status-grid{grid-template-columns:1fr}
+  }
+  @media (max-width:720px){
+    .two-col,.proof-grid{grid-template-columns:1fr}
+    .plain-card,.sim-room,.figure-card,.trap-card,.practice-card{padding:13px}
+    .sim-toolbar{align-items:stretch}
+    .sim-toolbar button,.sim-toolbar select{width:100%}
+    .figure-scroll svg{min-width:500px}
+    .tablewrap table{min-width:680px}
+  }
+  @media (max-width:390px){
+    .figure-scroll svg{min-width:470px}
+    .sim-board svg{min-width:560px}
+    .order-chip{min-width:31px;height:31px}
+  }
+
+/*cv-fix-nen-sang*/
+:root{--c-cmt:#5f6672}
+@media (prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+:root[data-theme="light"]{--c-cmt:#5f6672}
+:root[data-theme="dark"]{--c-cmt:#8b949e}
+.box th, .tablewrap th, table th{color:var(--blue) !important}
+.box td, .tablewrap td, table td{color:var(--fg)}
+/*/cv-fix-nen-sang*/
+</style>
+<!--cv-head-->
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">TÔ-PÔ + CHU TRÌNH</div>
+  <a href="#s1">1. Tạo vấn đề</a>
+  <a href="#s2">2. Vì sao đúng</a>
+  <a href="#s3">3. Chỗ dễ sai</a>
+  <a href="#s4">4. Khuôn cài đặt</a>
+  <a href="#s5">5. Biến thể</a>
+  <a href="#s6">6. Nhận dạng và bẫy</a>
+  <a href="#s7">7. Lộ trình bài luyện</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Sắp xếp tô-pô + chu trình</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p class="lead">Sắp xếp tô-pô biến các quan hệ “phải làm trước” thành một thứ tự hợp lệ trên đồ thị có hướng. Cùng một cơ chế cũng cho ta cách phát hiện chu trình: nếu các ràng buộc tạo thành vòng phụ thuộc, không thể xếp toàn bộ đỉnh theo thứ tự trước–sau.</p>
+
+<div class="box tech">
+  <div class="t">KIẾN THỨC NỀN VÀ TRỌNG TÂM</div>
+  <p>Chuyên đề dành cho học sinh đã biết danh sách kề, duyệt DFS/BFS, hàng đợi và độ phức tạp <span class="formula">O(<span class="mathv">n</span> + <span class="mathv">m</span>)</span>. Trọng tâm là hai khuôn chuẩn: thuật toán Kahn bằng bậc vào và DFS ba màu; sau đó dùng thứ tự tô-pô cho quy hoạch động trên DAG.</p>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tạo vấn đề: thứ tự nào thật sự hợp lệ?</a></li>
+    <li><a href="#s2">Vì sao cách đúng là đúng?</a></li>
+    <li><a href="#s3">Chỗ dễ sai còn lại</a></li>
+    <li><a href="#s4">Khuôn mẫu cài đặt</a></li>
+    <li><a href="#s5">Các biến thể thường gặp</a></li>
+    <li><a href="#s6">Nhận dạng đề và các bẫy</a></li>
+    <li><a href="#s7">Lộ trình bài luyện</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Tạo vấn đề: thứ tự nào thật sự hợp lệ?</h2>
+
+<p>Mỗi đỉnh biểu diễn một công việc; cạnh <span class="formula"><span class="mathv">u</span> → <span class="mathv">v</span></span> nói rằng công việc <span class="mathv">u</span> phải hoàn thành trước công việc <span class="mathv">v</span>. Với bốn công việc và các cạnh 2→1, 2→3, 1→4, 3→4, ta cần tìm một dãy chứa đủ bốn đỉnh và tôn trọng mọi cạnh.</p>
+
+<div class="two-col">
+  <figure class="figure-card">
+    <div class="figure-scroll">
+      <svg viewBox="0 0 620 300" role="img" aria-label="Đồ thị bốn công việc với hai thứ tự ứng viên, một sai và một đúng">
+        <defs>
+          <marker id="arr-s1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)"></path>
+          </marker>
+          <marker id="arr-s1-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--red)"></path>
+          </marker>
+        </defs>
+        <text x="155" y="30" class="graph-label blue">Quan hệ trước–sau</text>
+        <path d="M 125 105 C 175 76, 225 76, 275 105" class="graph-edge" marker-end="url(#arr-s1)"></path>
+        <path d="M 125 125 C 172 152, 225 152, 275 125" class="graph-edge" marker-end="url(#arr-s1)"></path>
+        <path d="M 315 105 C 365 76, 415 76, 465 105" class="graph-edge" marker-end="url(#arr-s1)"></path>
+        <path d="M 315 125 C 365 152, 415 152, 465 125" class="graph-edge" marker-end="url(#arr-s1)"></path>
+        <circle cx="105" cy="115" r="24" class="graph-node zero"></circle>
+        <circle cx="295" cy="92" r="24" class="graph-node"></circle>
+        <circle cx="295" cy="138" r="24" class="graph-node"></circle>
+        <circle cx="485" cy="115" r="24" class="graph-node"></circle>
+        <text x="105" y="115" class="graph-text">2</text>
+        <text x="295" y="92" class="graph-text">1</text>
+        <text x="295" y="138" class="graph-text">3</text>
+        <text x="485" y="115" class="graph-text">4</text>
+        <line x1="30" y1="185" x2="590" y2="185" class="divider"></line>
+        <text x="150" y="218" class="graph-label bad">Ứng viên A: 1, 2, 3, 4</text>
+        <path d="M 86 252 L 214 252" class="graph-edge bad" marker-end="url(#arr-s1-bad)"></path>
+        <text x="150" y="280" class="graph-label bad">Cạnh 2→1 đi ngược thứ tự</text>
+        <text x="455" y="218" class="graph-label good">Ứng viên B: 2, 1, 3, 4</text>
+        <text x="455" y="260" class="graph-label good">Mọi cạnh đều đi từ trái sang phải</text>
+      </svg>
+    </div>
+    <figcaption>Đánh số nhỏ trước có vẻ tự nhiên nhưng không liên quan đến quan hệ phụ thuộc. Đỉnh 1 nhỏ hơn 2 vẫn phải đứng sau 2 vì có cạnh 2→1.</figcaption>
+  </figure>
+
+  <div class="plain-card">
+    <h3>Hai cách nghĩ trên cùng dữ liệu</h3>
+    <ol class="compare-list">
+      <li><b>Chọn đỉnh có số nhỏ nhất chưa dùng.</b> Cách này cho dãy 1, 2, 3, 4 và sai ngay ở cạnh 2→1.</li>
+      <li><b>Chọn một đỉnh không còn tiền nhiệm chưa xử lý.</b> Ban đầu chỉ có đỉnh 2 thỏa mãn; sau khi bỏ 2 và các cạnh đi ra, đỉnh 1 và 3 mới trở thành lựa chọn hợp lệ.</li>
+    </ol>
+    <div class="box warn">
+      <div class="t">ĐIỂM CHƯA ĐỦ</div>
+      <p>“Chọn đỉnh chưa có cạnh đi vào” chỉ đúng khi bậc vào được tính trên phần đồ thị còn lại. Sau mỗi lần chọn, phải xóa ảnh hưởng của các cạnh đi ra khỏi đỉnh đó.</p>
+    </div>
+    <p class="callout-line">Vì sao một đỉnh có bậc vào bằng 0 luôn có thể đặt tiếp theo mà không làm hỏng lời giải?</p>
+  </div>
+</div>
+
+<h2 id="s2"><span class="num">2.</span>Vì sao cách đúng là đúng?</h2>
+
+<div class="box def">
+  <div class="t">ĐỊNH NGHĨA SẮP XẾP TÔ-PÔ</div>
+  <p>Một thứ tự tô-pô của đồ thị có hướng là một hoán vị các đỉnh sao cho với mọi cạnh <span class="formula"><span class="mathv">u</span> → <span class="mathv">v</span></span>, đỉnh <span class="mathv">u</span> xuất hiện trước đỉnh <span class="mathv">v</span>. Đồ thị có thứ tự tô-pô khi và chỉ khi nó không có chu trình có hướng; đồ thị như vậy gọi là DAG.</p>
+</div>
+
+<div class="proof-grid">
+  <figure class="figure-card">
+    <div class="figure-scroll">
+      <svg viewBox="0 0 640 330" role="img" aria-label="Minh họa đỉnh bậc vào bằng không trong phần đồ thị còn lại của thuật toán Kahn">
+        <defs>
+          <marker id="arr-s2a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)"></path>
+          </marker>
+        </defs>
+        <rect x="28" y="40" width="165" height="245" rx="18" fill="var(--green-bg)" stroke="var(--green)"></rect>
+        <rect x="228" y="40" width="380" height="245" rx="18" fill="var(--card)" stroke="var(--border)"></rect>
+        <text x="110" y="72" class="graph-label good">Đã xếp</text>
+        <text x="418" y="72" class="graph-label blue">Phần đồ thị còn lại</text>
+        <circle cx="90" cy="130" r="23" class="graph-node done"></circle>
+        <circle cx="135" cy="220" r="23" class="graph-node done"></circle>
+        <text x="90" y="130" class="graph-text">a</text>
+        <text x="135" y="220" class="graph-text">b</text>
+        <circle cx="300" cy="160" r="25" class="graph-node zero"></circle>
+        <circle cx="430" cy="105" r="23" class="graph-node"></circle>
+        <circle cx="430" cy="220" r="23" class="graph-node"></circle>
+        <circle cx="555" cy="160" r="23" class="graph-node"></circle>
+        <text x="300" y="160" class="graph-text">x</text>
+        <text x="430" y="105" class="graph-text">y</text>
+        <text x="430" y="220" class="graph-text">z</text>
+        <text x="555" y="160" class="graph-text">t</text>
+        <path d="M 160 205 C 205 190, 240 174, 275 164" class="graph-edge soft" marker-end="url(#arr-s2a)"></path>
+        <path d="M 325 152 C 356 131, 380 116, 405 108" class="graph-edge good" marker-end="url(#arr-s2a)"></path>
+        <path d="M 324 171 C 355 191, 380 209, 405 216" class="graph-edge good" marker-end="url(#arr-s2a)"></path>
+        <path d="M 453 111 C 493 120, 514 134, 534 151" class="graph-edge" marker-end="url(#arr-s2a)"></path>
+        <path d="M 453 213 C 492 201, 514 185, 535 168" class="graph-edge" marker-end="url(#arr-s2a)"></path>
+        <text x="300" y="222" class="graph-label blue">bậc vào còn lại = 0</text>
+        <text x="320" y="312" class="graph-label">Không có cạnh từ một đỉnh chưa xếp đi vào x</text>
+      </svg>
+    </div>
+    <figcaption>Đỉnh <span class="mathv">x</span> có thể nhận cạnh từ phần đã xếp, nhưng không còn nhận cạnh từ phần chưa xếp. Vì vậy đặt <span class="mathv">x</span> ngay sau tiền tố hiện tại không vi phạm ràng buộc nào.</figcaption>
+  </figure>
+
+  <div class="plain-card">
+    <h3>Tính an toàn của lựa chọn bậc vào 0</h3>
+    <p>Giả sử ta đã tạo được một tiền tố hợp lệ và đang xét phần đồ thị chưa dùng. Chọn đỉnh <span class="mathv">x</span> có bậc vào bằng 0 trong phần còn lại.</p>
+    <p>Mọi cạnh đi vào <span class="mathv">x</span>, nếu có, đều xuất phát từ một đỉnh đã nằm trong tiền tố. Không có đỉnh chưa dùng nào bắt buộc phải đứng trước <span class="mathv">x</span>. Do đó nối <span class="mathv">x</span> vào cuối tiền tố vẫn giữ thứ tự hợp lệ.</p>
+    <p>Sau khi chọn <span class="mathv">x</span>, ta bỏ các cạnh <span class="mathv">x</span>→<span class="mathv">v</span>. Việc giảm bậc vào của <span class="mathv">v</span> mô phỏng đúng việc loại <span class="mathv">x</span> khỏi phần đồ thị còn lại.</p>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="box ex">
+    <div class="t">KAHN PHÁT HIỆN CHU TRÌNH</div>
+    <p>Nếu hàng đợi hết mà số đỉnh đã lấy nhỏ hơn <span class="mathv">n</span>, các đỉnh còn lại đều có bậc vào dương. Trong một đồ thị hữu hạn, đi ngược theo các cạnh đi vào đủ lâu sẽ gặp lại một đỉnh, tạo thành chu trình có hướng.</p>
+  </div>
+  <div class="box ex">
+    <div class="t">DFS PHÁT HIỆN CHU TRÌNH</div>
+    <p>Trong DFS, cạnh đi tới một đỉnh đang nằm trên ngăn xếp đệ quy là cạnh ngược. Đường trên ngăn xếp từ đỉnh đó đến đỉnh hiện tại, cộng với cạnh ngược, tạo thành một chu trình.</p>
+  </div>
+</div>
+
+<figure class="figure-card">
+  <div class="figure-scroll">
+    <svg viewBox="0 0 760 265" role="img" aria-label="Chứng minh chu trình không thể có thứ tự tô-pô bằng bất đẳng thức vị trí mâu thuẫn">
+      <defs>
+        <marker id="arr-s2b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--red)"></path>
+        </marker>
+      </defs>
+      <text x="190" y="32" class="graph-label bad">Chu trình 2→4→5→2</text>
+      <circle cx="90" cy="130" r="26" class="graph-node cycle"></circle>
+      <circle cx="235" cy="70" r="26" class="graph-node cycle"></circle>
+      <circle cx="235" cy="190" r="26" class="graph-node cycle"></circle>
+      <text x="90" y="130" class="graph-text">2</text>
+      <text x="235" y="70" class="graph-text">4</text>
+      <text x="235" y="190" class="graph-text">5</text>
+      <path d="M 114 120 C 150 92, 178 79, 208 72" class="graph-edge bad" marker-end="url(#arr-s2b)"></path>
+      <path d="M 237 97 L 237 162" class="graph-edge bad" marker-end="url(#arr-s2b)"></path>
+      <path d="M 210 190 C 167 183, 132 162, 111 146" class="graph-edge bad" marker-end="url(#arr-s2b)"></path>
+      <line x1="345" y1="35" x2="345" y2="230" class="divider"></line>
+      <text x="550" y="65" class="graph-label">Nếu có thứ tự tô-pô thì:</text>
+      <text x="550" y="112" class="graph-label blue">pos(2) &lt; pos(4)</text>
+      <text x="550" y="148" class="graph-label blue">pos(4) &lt; pos(5)</text>
+      <text x="550" y="184" class="graph-label bad">pos(5) &lt; pos(2)</text>
+      <text x="550" y="228" class="graph-label bad">Suy ra pos(2) &lt; pos(2), vô lý</text>
+    </svg>
+  </div>
+  <figcaption>Một chu trình buộc mỗi đỉnh phải đứng trước chính nó sau khi ghép các quan hệ “đứng trước”, nên không tồn tại thứ tự tô-pô.</figcaption>
+</figure>
+
+<div class="sim-room" id="kahn-room">
+  <h3>Phòng mô phỏng 1 — Kahn từng bước</h3>
+  <p>Chọn cách lấy đỉnh bậc vào 0. Hàng đợi thường tạo một thứ tự hợp lệ; hàng đợi ưu tiên lấy số nhỏ nhất tạo thứ tự từ điển nhỏ nhất đối với tập lựa chọn hiện tại.</p>
+  <div class="sim-toolbar">
+    <label for="kahn-mode">Cấu trúc chọn đỉnh:</label>
+    <select id="kahn-mode">
+      <option value="queue">Hàng đợi FIFO</option>
+      <option value="heap">Hàng đợi ưu tiên nhỏ nhất</option>
+    </select>
+    <button type="button" id="kahn-step">Chạy một bước</button>
+    <button type="button" id="kahn-auto">Tự chạy</button>
+    <button type="button" id="kahn-reset">Đặt lại</button>
+  </div>
+  <div class="legend" aria-label="Chú giải màu mô phỏng Kahn">
+    <span><i class="swatch current"></i>Đang xét</span>
+    <span><i class="swatch selected"></i>Đã chọn</span>
+    <span><i class="swatch available"></i>Bậc vào 0</span>
+    <span><i class="swatch rejected"></i>Cạnh đã loại</span>
+  </div>
+  <div class="sim-board">
+    <svg id="kahn-svg" viewBox="0 0 700 340" role="img" aria-label="Mô phỏng thuật toán Kahn trên đồ thị sáu đỉnh">
+      <defs>
+        <marker id="arr-kahn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)"></path>
+        </marker>
+      </defs>
+      <g data-edge="1-3"><path d="M 113 83 C 155 63, 194 63, 236 83" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="175" y="55" class="graph-label">1→3</text></g>
+      <g data-edge="2-4"><path d="M 113 242 C 155 264, 194 264, 236 242" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="175" y="286" class="graph-label">2→4</text></g>
+      <g data-edge="2-3"><path d="M 112 222 C 157 190, 194 139, 240 103" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="174" y="166" class="graph-label">2→3</text></g>
+      <g data-edge="3-5"><path d="M 284 94 C 335 102, 373 130, 414 151" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="350" y="103" class="graph-label">3→5</text></g>
+      <g data-edge="4-5"><path d="M 284 232 C 335 222, 374 195, 414 173" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="350" y="235" class="graph-label">4→5</text></g>
+      <g data-edge="5-6"><path d="M 462 162 L 582 162" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="522" y="145" class="graph-label">5→6</text></g>
+      <g data-node="1"><circle cx="85" cy="88" r="28" class="graph-node"></circle><text x="85" y="88" class="graph-text">1</text><text x="85" y="127" class="graph-label" data-indeg="1">in=0</text></g>
+      <g data-node="2"><circle cx="85" cy="237" r="28" class="graph-node"></circle><text x="85" y="237" class="graph-text">2</text><text x="85" y="278" class="graph-label" data-indeg="2">in=0</text></g>
+      <g data-node="3"><circle cx="260" cy="90" r="28" class="graph-node"></circle><text x="260" y="90" class="graph-text">3</text><text x="260" y="130" class="graph-label" data-indeg="3">in=2</text></g>
+      <g data-node="4"><circle cx="260" cy="237" r="28" class="graph-node"></circle><text x="260" y="237" class="graph-text">4</text><text x="260" y="278" class="graph-label" data-indeg="4">in=1</text></g>
+      <g data-node="5"><circle cx="438" cy="162" r="28" class="graph-node"></circle><text x="438" y="162" class="graph-text">5</text><text x="438" y="203" class="graph-label" data-indeg="5">in=2</text></g>
+      <g data-node="6"><circle cx="610" cy="162" r="28" class="graph-node"></circle><text x="610" y="162" class="graph-text">6</text><text x="610" y="203" class="graph-label" data-indeg="6">in=1</text></g>
+    </svg>
+  </div>
+  <div class="status-grid">
+    <div class="status-cell"><b>Tập có bậc vào 0</b><span id="kahn-ready">1, 2</span></div>
+    <div class="status-cell"><b>Thứ tự đã tạo</b><span id="kahn-order">Chưa có</span></div>
+    <div class="status-cell"><b>Số đỉnh đã chọn</b><span id="kahn-count">0 / 6</span></div>
+  </div>
+  <div class="live" id="kahn-live" aria-live="polite">Ban đầu, đỉnh 1 và 2 đều có bậc vào bằng 0.</div>
+</div>
+
+<h2 id="s3"><span class="num">3.</span>Chỗ dễ sai còn lại</h2>
+
+<div class="tablewrap">
+<table>
+  <thead>
+    <tr>
+      <th>Khái niệm</th>
+      <th>Dễ nhầm với</th>
+      <th>Khác biệt cần nhớ</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Đỉnh đã thăm trong DFS</td>
+      <td>Đỉnh đang nằm trên ngăn xếp đệ quy</td>
+      <td>Cạnh tới đỉnh màu xám mới chứng minh có chu trình; cạnh tới đỉnh màu đen chỉ đi tới một nhánh đã hoàn tất.</td>
+    </tr>
+    <tr>
+      <td>Thứ tự tô-pô bất kỳ</td>
+      <td>Thứ tự từ điển nhỏ nhất</td>
+      <td>Hàng đợi thường đủ cho yêu cầu “in một thứ tự”. Muốn nhỏ nhất phải dùng hàng đợi ưu tiên nhỏ nhất.</td>
+    </tr>
+    <tr>
+      <td>Chu trình có hướng</td>
+      <td>Chu trình trong đồ thị vô hướng</td>
+      <td>Không dùng điều kiện “gặp đỉnh đã thăm khác cha”. Với đồ thị có hướng, dùng bậc vào hoặc DFS ba màu.</td>
+    </tr>
+    <tr>
+      <td>Bậc vào ban đầu</td>
+      <td>Bậc vào trong phần đồ thị còn lại</td>
+      <td>Mỗi khi lấy <span class="mathv">u</span>, phải giảm bậc vào của mọi <span class="mathv">v</span> có cạnh <span class="mathv">u</span>→<span class="mathv">v</span>.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="two-col">
+  <figure class="figure-card">
+    <div class="figure-scroll">
+      <svg viewBox="0 0 650 300" role="img" aria-label="Phân biệt đỉnh đang trên ngăn xếp DFS và đỉnh đã hoàn tất">
+        <defs>
+          <marker id="arr-s3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)"></path>
+          </marker>
+          <marker id="arr-s3-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--red)"></path>
+          </marker>
+        </defs>
+        <text x="185" y="28" class="graph-label blue">Ngăn xếp hiện tại: 1 → 2 → 4</text>
+        <circle cx="80" cy="150" r="27" class="graph-node current"></circle>
+        <circle cx="220" cy="90" r="27" class="graph-node current"></circle>
+        <circle cx="365" cy="90" r="27" class="graph-node current"></circle>
+        <circle cx="220" cy="220" r="27" class="graph-node finished"></circle>
+        <circle cx="505" cy="150" r="27" class="graph-node"></circle>
+        <text x="80" y="150" class="graph-text">1</text>
+        <text x="220" y="90" class="graph-text">2</text>
+        <text x="365" y="90" class="graph-text">4</text>
+        <text x="220" y="220" class="graph-text">3</text>
+        <text x="505" y="150" class="graph-text">5</text>
+        <path d="M 104 138 C 135 116, 165 103, 193 96" class="graph-edge" marker-end="url(#arr-s3)"></path>
+        <path d="M 247 90 L 338 90" class="graph-edge" marker-end="url(#arr-s3)"></path>
+        <path d="M 104 163 C 138 184, 165 202, 194 213" class="graph-edge" marker-end="url(#arr-s3)"></path>
+        <path d="M 390 100 C 438 111, 461 126, 482 142" class="graph-edge" marker-end="url(#arr-s3)"></path>
+        <path d="M 349 108 C 315 141, 270 148, 235 112" class="graph-edge bad" marker-end="url(#arr-s3-red)"></path>
+        <text x="298" y="153" class="graph-label bad">4→2: cạnh ngược</text>
+        <text x="220" y="267" class="graph-label good">3 đã hoàn tất</text>
+      </svg>
+    </div>
+    <figcaption>Màu xám nghĩa là đỉnh vẫn nằm trên đường DFS hiện tại. Cạnh 4→2 khép kín đường 2→4 và tạo chu trình. Đỉnh 3 màu xanh đã rời ngăn xếp nên cạnh tới 3 không tự động tạo chu trình.</figcaption>
+  </figure>
+
+  <div class="plain-card">
+    <h3>Lỗi cài đặt thường gặp</h3>
+    <ul class="compare-list">
+      <li><b>Chỉ dùng mảng <code class="inl">visited</code>.</b> Không phân biệt được đỉnh đang xử lý với đỉnh đã hoàn tất.</li>
+      <li><b>Quên kiểm tra <code class="inl">order.size() == n</code>.</b> Kahn có thể trả về một tiền tố rồi dừng giữa chu trình.</li>
+      <li><b>Đếm bậc vào không khớp cạnh trùng.</b> Nếu vẫn lưu hai cạnh giống nhau, phải tăng và giảm bậc vào hai lần; hoặc khử trùng cả khi lưu và khi đếm.</li>
+      <li><b>Đảo cạnh.</b> Câu “<span class="mathv">a</span> phải trước <span class="mathv">b</span>” tạo cạnh <span class="mathv">a</span>→<span class="mathv">b</span>, không phải chiều ngược lại.</li>
+      <li><b>Tràn ngăn xếp.</b> DFS đệ quy sâu tới <span class="mathv">n</span>; với giới hạn lớn, Kahn hoặc DFS lặp an toàn hơn.</li>
+      <li><b>Dùng <code class="inl">int</code> cho số đường đi.</b> Bậc vào thường vừa <code class="inl">int</code>, nhưng số đường đi hoặc tổng trọng số có thể cần <code class="inl">long long</code> hay phép chia dư.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="sim-room" id="dfs-room">
+  <h3>Phòng mô phỏng 2 — DFS ba màu và cạnh ngược</h3>
+  <p>Bật cạnh 5→2 để tạo chu trình. Mô phỏng ghi lại từng lần vào đỉnh, xét cạnh, kết thúc đỉnh hoặc phát hiện cạnh ngược.</p>
+  <div class="sim-toolbar">
+    <label><input type="checkbox" id="dfs-cycle"> Bật cạnh 5→2</label>
+    <button type="button" id="dfs-step">Chạy một bước</button>
+    <button type="button" id="dfs-auto">Tự chạy</button>
+    <button type="button" id="dfs-reset">Đặt lại</button>
+  </div>
+  <div class="legend" aria-label="Chú giải màu mô phỏng DFS">
+    <span><i class="swatch current"></i>Màu xám: đang trên ngăn xếp</span>
+    <span><i class="swatch selected"></i>Màu đen: đã hoàn tất</span>
+    <span><i class="swatch available"></i>Chưa thăm</span>
+    <span><i class="swatch rejected"></i>Cạnh ngược / chu trình</span>
+  </div>
+  <div class="sim-board">
+    <svg id="dfs-svg" viewBox="0 0 700 360" role="img" aria-label="Mô phỏng DFS ba màu trên đồ thị năm đỉnh">
+      <defs>
+        <marker id="arr-dfs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)"></path>
+        </marker>
+      </defs>
+      <g data-dfs-edge="1-2"><path d="M 112 171 C 160 126, 203 105, 248 92" class="graph-edge" marker-end="url(#arr-dfs)"></path><text x="181" y="119" class="graph-label">1→2</text></g>
+      <g data-dfs-edge="1-3"><path d="M 112 190 C 160 229, 203 247, 248 258" class="graph-edge" marker-end="url(#arr-dfs)"></path><text x="180" y="245" class="graph-label">1→3</text></g>
+      <g data-dfs-edge="2-4"><path d="M 302 91 C 354 100, 396 126, 438 163" class="graph-edge" marker-end="url(#arr-dfs)"></path><text x="370" y="112" class="graph-label">2→4</text></g>
+      <g data-dfs-edge="3-4"><path d="M 302 258 C 354 247, 397 221, 439 191" class="graph-edge" marker-end="url(#arr-dfs)"></path><text x="370" y="250" class="graph-label">3→4</text></g>
+      <g data-dfs-edge="4-5"><path d="M 491 178 L 590 178" class="graph-edge" marker-end="url(#arr-dfs)"></path><text x="540" y="159" class="graph-label">4→5</text></g>
+      <g data-dfs-edge="5-2" hidden><path d="M 610 153 C 555 60, 423 39, 302 76" class="graph-edge bad" marker-end="url(#arr-dfs)"></path><text x="455" y="45" class="graph-label bad">5→2</text></g>
+      <g data-dfs-node="1"><circle cx="85" cy="180" r="28" class="graph-node zero"></circle><text x="85" y="180" class="graph-text">1</text></g>
+      <g data-dfs-node="2"><circle cx="275" cy="85" r="28" class="graph-node zero"></circle><text x="275" y="85" class="graph-text">2</text></g>
+      <g data-dfs-node="3"><circle cx="275" cy="265" r="28" class="graph-node zero"></circle><text x="275" y="265" class="graph-text">3</text></g>
+      <g data-dfs-node="4"><circle cx="465" cy="180" r="28" class="graph-node zero"></circle><text x="465" y="180" class="graph-text">4</text></g>
+      <g data-dfs-node="5"><circle cx="618" cy="178" r="28" class="graph-node zero"></circle><text x="618" y="178" class="graph-text">5</text></g>
+      <text x="350" y="332" class="graph-label" id="dfs-stack-label">Ngăn xếp: rỗng</text>
+    </svg>
+  </div>
+  <div class="status-grid">
+    <div class="status-cell"><b>Đang xét</b><span id="dfs-current">Chưa có</span></div>
+    <div class="status-cell"><b>Thứ tự kết thúc</b><span id="dfs-finish">Chưa có</span></div>
+    <div class="status-cell"><b>Kết quả</b><span id="dfs-result">Chưa kết luận</span></div>
+  </div>
+  <div class="live" id="dfs-live" aria-live="polite">Đồ thị chưa có cạnh 5→2. Nhấn “Chạy một bước” để bắt đầu từ đỉnh 1.</div>
+</div>
+
+<h2 id="s4"><span class="num">4.</span>Khuôn mẫu cài đặt</h2>
+
+<div class="box tech">
+  <div class="t">PHẦN GIỮ NGUYÊN VÀ PHẦN THAY ĐỔI</div>
+  <p>Khung đọc <span class="mathv">n</span>, <span class="mathv">m</span>, xây danh sách kề và duyệt đủ các đỉnh thường giữ nguyên. Phần thay đổi nằm ở cấu trúc chọn đỉnh bậc vào 0, cách xử lý khi có nhiều lựa chọn, dữ liệu phụ cho quy hoạch động và định dạng kết quả khi có chu trình.</p>
+</div>
+
+<div class="code-title">Khuôn 1 — Kahn bằng hàng đợi, in một thứ tự tô-pô</div>
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int n, m;
+vector&lt;vector&lt;int&gt;&gt; adj;
+vector&lt;int&gt; indeg;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    cin &gt;&gt; n &gt;&gt; m;
+    adj.assign(n + 1, {});
+    indeg.assign(n + 1, 0);
+
+    for (int i = 1; i &lt;= m; i++) {
+        int u, v;
+        cin &gt;&gt; u &gt;&gt; v;
+        adj[u].push_back(v);
+        indeg[v]++;
+    }
+
+    queue&lt;int&gt; q;
+    for (int u = 1; u &lt;= n; u++)
+        if (indeg[u] == 0)
+            q.push(u);
+
+    vector&lt;int&gt; order;
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+        order.push_back(u);
+
+        for (int v : adj[u]) {
+            indeg[v]--;
+            if (indeg[v] == 0)
+                q.push(v);
+        }
+    }
+
+    if ((int)order.size() != n) {
+        cout &lt;&lt; "IMPOSSIBLE\n";
+        return 0;
+    }
+
+    for (int u : order)
+        cout &lt;&lt; u &lt;&lt; ' ';
+    cout &lt;&lt; '\n';
+    return 0;
+}</code></pre></div>
+
+<div class="box cmplx">
+  <div class="t">ĐỘ PHỨC TẠP KAHN</div>
+  <p>Mỗi đỉnh vào và ra hàng đợi nhiều nhất một lần; mỗi cạnh được dùng đúng một lần để giảm bậc vào. Thời gian <span class="formula">O(<span class="mathv">n</span> + <span class="mathv">m</span>)</span>, bộ nhớ <span class="formula">O(<span class="mathv">n</span> + <span class="mathv">m</span>)</span>.</p>
+</div>
+
+<div class="code-title">Khuôn 2 — DFS ba màu, vừa phát hiện chu trình vừa tạo thứ tự</div>
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int n, m;
+vector&lt;vector&lt;int&gt;&gt; adj;
+vector&lt;int&gt; color, order;
+bool hasCycle;
+
+void dfs(int u) {
+    color[u] = 1; // Màu xám: đang nằm trên ngăn xếp đệ quy
+
+    for (int v : adj[u]) {
+        if (color[v] == 0)
+            dfs(v);
+        else if (color[v] == 1)
+            hasCycle = true; // Cạnh ngược tới đỉnh đang xử lý
+    }
+
+    color[u] = 2; // Màu đen: đã hoàn tất
+    order.push_back(u);
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    cin &gt;&gt; n &gt;&gt; m;
+    adj.assign(n + 1, {});
+    color.assign(n + 1, 0);
+
+    for (int i = 1; i &lt;= m; i++) {
+        int u, v;
+        cin &gt;&gt; u &gt;&gt; v;
+        adj[u].push_back(v);
+    }
+
+    for (int u = 1; u &lt;= n; u++)
+        if (color[u] == 0)
+            dfs(u);
+
+    if (hasCycle) {
+        cout &lt;&lt; "IMPOSSIBLE\n";
+        return 0;
+    }
+
+    reverse(order.begin(), order.end());
+    for (int u : order)
+        cout &lt;&lt; u &lt;&lt; ' ';
+    cout &lt;&lt; '\n';
+    return 0;
+}</code></pre></div>
+
+<div class="box warn">
+  <div class="t">LƯU Ý VỀ DFS ĐỆ QUY</div>
+  <p>Khuôn trên làm rõ ý tưởng nhưng độ sâu đệ quy có thể đạt <span class="mathv">n</span>. Khi giới hạn <span class="mathv">n</span> lớn hoặc ngăn xếp nhỏ, ưu tiên Kahn hoặc chuyển DFS sang dạng lặp.</p>
+</div>
+
+<div class="code-title">Khuôn 3 — Chỉ thay cấu trúc chọn để lấy thứ tự từ điển nhỏ nhất</div>
+<div class="codewrap noname"><pre><code>priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; q;
+
+for (int u = 1; u &lt;= n; u++)
+    if (indeg[u] == 0)
+        q.push(u);
+
+while (!q.empty()) {
+    int u = q.top();
+    q.pop();
+    order.push_back(u);
+
+    for (int v : adj[u]) {
+        indeg[v]--;
+        if (indeg[v] == 0)
+            q.push(v);
+    }
+}</code></pre></div>
+
+<div class="box cmplx">
+  <div class="t">ĐỘ PHỨC TẠP KHI DÙNG HÀNG ĐỢI ƯU TIÊN</div>
+  <p>Mỗi thao tác thêm hoặc lấy đỉnh tốn <span class="formula">O(log <span class="mathv">n</span>)</span>. Tổng thời gian là <span class="formula">O((<span class="mathv">n</span> + <span class="mathv">m</span>) log <span class="mathv">n</span>)</span> theo cách đánh giá an toàn; phần duyệt cạnh vẫn tuyến tính.</p>
+</div>
+
+<h2 id="s5"><span class="num">5.</span>Các biến thể thường gặp</h2>
+
+<div class="tablewrap">
+<table>
+  <thead>
+    <tr>
+      <th>Đề yêu cầu thêm gì?</th>
+      <th>Cần thay đổi gì trong khuôn?</th>
+      <th>Công cụ bổ sung</th>
+      <th>Mức thay đổi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>In một thứ tự hợp lệ bất kỳ</td>
+      <td>Giữ nguyên Kahn với <code class="inl">queue</code> hoặc DFS rồi đảo thứ tự kết thúc.</td>
+      <td>Không cần</td>
+      <td><span class="pill small">Sửa nhỏ</span></td>
+    </tr>
+    <tr>
+      <td>Thứ tự từ điển nhỏ nhất</td>
+      <td>Thay <code class="inl">queue</code> bằng hàng đợi ưu tiên nhỏ nhất.</td>
+      <td><code class="inl">priority_queue</code></td>
+      <td><span class="pill small">Sửa nhỏ</span></td>
+    </tr>
+    <tr>
+      <td>Kiểm tra thứ tự có duy nhất hay không</td>
+      <td>Tại mỗi bước Kahn, kiểm tra số đỉnh đang có bậc vào 0. Nếu có ít nhất hai lựa chọn thì thứ tự không duy nhất.</td>
+      <td>Tập hoặc hàng đợi ưu tiên để biết số lựa chọn</td>
+      <td><span class="pill small">Sửa nhỏ</span></td>
+    </tr>
+    <tr>
+      <td>Liệt kê tất cả thứ tự tô-pô</td>
+      <td>Không thể chỉ đổi một dòng. Phải thử từng đỉnh bậc vào 0, cập nhật bậc vào rồi quay lui.</td>
+      <td>Quay lui, giới hạn <span class="mathv">n</span> nhỏ</td>
+      <td><span class="pill extra">Thuật toán bổ sung</span></td>
+    </tr>
+    <tr>
+      <td>Đường đi dài nhất trên DAG</td>
+      <td>Duyệt đỉnh theo thứ tự tô-pô và thư giãn <span class="formula">dp[<span class="mathv">v</span>] = max(dp[<span class="mathv">v</span>], dp[<span class="mathv">u</span>] + w)</span>.</td>
+      <td>Quy hoạch động, mảng truy vết nếu cần in đường đi</td>
+      <td><span class="pill extra">Thuật toán bổ sung</span></td>
+    </tr>
+    <tr>
+      <td>Đếm số đường đi trên DAG</td>
+      <td>Duyệt theo thứ tự tô-pô và cộng <span class="formula">dp[<span class="mathv">v</span>] += dp[<span class="mathv">u</span>]</span>.</td>
+      <td>Quy hoạch động, phép chia dư nếu đề cho</td>
+      <td><span class="pill extra">Thuật toán bổ sung</span></td>
+    </tr>
+    <tr>
+      <td>Suy ra thứ tự chữ cái từ danh sách từ</td>
+      <td>Tạo cạnh từ cặp ký tự khác nhau đầu tiên của hai từ kề nhau; kiểm tra riêng trường hợp từ dài đứng trước chính tiền tố của nó.</td>
+      <td>Xây đồ thị từ dữ liệu chuỗi</td>
+      <td><span class="pill extra">Mô hình hóa bổ sung</span></td>
+    </tr>
+    <tr>
+      <td>Đồ thị có chu trình nhưng cần gom các nhóm phụ thuộc vòng</td>
+      <td>Không sắp tô-pô trực tiếp trên đỉnh. Co mỗi thành phần liên thông mạnh thành một đỉnh rồi sắp tô-pô trên đồ thị co.</td>
+      <td>Tarjan hoặc Kosaraju</td>
+      <td><span class="pill extra">Thuật toán mới</span></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<figure class="figure-card">
+  <div class="figure-scroll">
+    <svg viewBox="0 0 760 315" role="img" aria-label="Minh họa quy hoạch động đường đi dài nhất trên DAG theo lớp tô-pô">
+      <defs>
+        <marker id="arr-s5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)"></path>
+        </marker>
+      </defs>
+      <text x="90" y="36" class="graph-label blue">Lớp 1</text>
+      <text x="280" y="36" class="graph-label blue">Lớp 2</text>
+      <text x="475" y="36" class="graph-label blue">Lớp 3</text>
+      <text x="665" y="36" class="graph-label blue">Lớp 4</text>
+      <line x1="180" y1="48" x2="180" y2="275" class="divider"></line>
+      <line x1="375" y1="48" x2="375" y2="275" class="divider"></line>
+      <line x1="570" y1="48" x2="570" y2="275" class="divider"></line>
+      <circle cx="90" cy="158" r="28" class="graph-node zero"></circle>
+      <circle cx="280" cy="95" r="28" class="graph-node"></circle>
+      <circle cx="280" cy="220" r="28" class="graph-node"></circle>
+      <circle cx="475" cy="158" r="28" class="graph-node"></circle>
+      <circle cx="665" cy="158" r="28" class="graph-node done"></circle>
+      <text x="90" y="158" class="graph-text">1</text>
+      <text x="280" y="95" class="graph-text">2</text>
+      <text x="280" y="220" class="graph-text">3</text>
+      <text x="475" y="158" class="graph-text">4</text>
+      <text x="665" y="158" class="graph-text">5</text>
+      <path d="M 116 148 C 168 117, 213 102, 252 97" class="graph-edge" marker-end="url(#arr-s5)"></path>
+      <path d="M 116 169 C 168 198, 213 214, 252 218" class="graph-edge" marker-end="url(#arr-s5)"></path>
+      <path d="M 307 101 C 370 110, 409 126, 450 149" class="graph-edge good" marker-end="url(#arr-s5)"></path>
+      <path d="M 307 214 C 368 201, 410 184, 450 167" class="graph-edge" marker-end="url(#arr-s5)"></path>
+      <path d="M 503 158 L 637 158" class="graph-edge good" marker-end="url(#arr-s5)"></path>
+      <text x="380" y="89" class="graph-label good">cập nhật dp[4]</text>
+      <text x="570" y="142" class="graph-label good">cập nhật dp[5]</text>
+      <text x="380" y="300" class="graph-label">Khi xử lý u, mọi dp[u] từ các tiền nhiệm đã hoàn tất</text>
+    </svg>
+  </div>
+  <figcaption>Thứ tự tô-pô biến DAG thành một chiều xử lý. Khi tới đỉnh <span class="mathv">u</span>, mọi đường đi vào <span class="mathv">u</span> đã được tính, nên có thể đẩy kết quả sang các đỉnh sau.</figcaption>
+</figure>
+
+<h2 id="s6"><span class="num">6.</span>Nhận dạng đề và các bẫy</h2>
+
+<div class="tablewrap">
+<table>
+  <thead>
+    <tr>
+      <th>Đề nói gì?</th>
+      <th>Nên nghĩ tới gì?</th>
+      <th>Câu hỏi cần tự kiểm tra</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>“A phải trước B”, “B phụ thuộc A”, “môn tiên quyết”</td>
+      <td>Đồ thị có hướng và sắp xếp tô-pô</td>
+      <td>Chiều cạnh đã đúng là A→B chưa?</td>
+    </tr>
+    <tr>
+      <td>“Có thể hoàn thành tất cả hay không?”</td>
+      <td>Phát hiện chu trình bằng Kahn hoặc DFS ba màu</td>
+      <td>Kết quả đã xử lý đủ <span class="mathv">n</span> đỉnh chưa?</td>
+    </tr>
+    <tr>
+      <td>“Thứ tự nhỏ nhất”, “ưu tiên nhãn nhỏ”</td>
+      <td>Kahn với hàng đợi ưu tiên nhỏ nhất</td>
+      <td>Đề cần nhỏ nhất toàn cục hay chỉ cần một thứ tự?</td>
+    </tr>
+    <tr>
+      <td>“Số cách”, “đường dài nhất”, “nhiều tuyến” trên DAG</td>
+      <td>Thứ tự tô-pô rồi quy hoạch động</td>
+      <td>Giá trị khởi tạo, đỉnh nguồn và phép chia dư đã đúng chưa?</td>
+    </tr>
+    <tr>
+      <td>“Suy ra bảng chữ cái” từ danh sách từ đã sắp</td>
+      <td>Tạo cạnh giữa ký tự khác đầu tiên rồi tô-pô</td>
+      <td>Đã xử lý trường hợp một từ là tiền tố của từ trước chưa?</td>
+    </tr>
+    <tr>
+      <td>“Liệt kê mọi thứ tự hợp lệ” với <span class="mathv">n</span> nhỏ</td>
+      <td>Quay lui trên tập đỉnh bậc vào 0</td>
+      <td>Giới hạn có cho phép số đáp án tăng rất nhanh không?</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="two-col">
+  <div class="trap-card">
+    <p><b>Nhận định sai:</b> Đồ thị có nhiều đỉnh bậc vào 0 thì không có thứ tự tô-pô.</p>
+    <p><b>Lý do sai:</b> Nhiều đỉnh bậc vào 0 chỉ cho biết có nhiều lựa chọn an toàn ở bước hiện tại.</p>
+    <p><b>Phòng tránh:</b> Chỉ kết luận có chu trình khi không còn đỉnh bậc vào 0 mà vẫn chưa xử lý đủ đỉnh.</p>
+  </div>
+  <div class="trap-card">
+    <p><b>Nhận định sai:</b> Gặp một đỉnh đã thăm trong DFS là có chu trình.</p>
+    <p><b>Lý do sai:</b> Đỉnh đó có thể đã hoàn tất ở một nhánh khác; cạnh chéo không tạo vòng trên ngăn xếp hiện tại.</p>
+    <p><b>Phòng tránh:</b> Dùng ba trạng thái 0, 1, 2 và chỉ báo chu trình khi gặp trạng thái 1.</p>
+  </div>
+  <div class="trap-card">
+    <p><b>Nhận định sai:</b> Đảo thứ tự kết thúc DFS luôn cho một thứ tự tô-pô.</p>
+    <p><b>Lý do sai:</b> Khi đồ thị có chu trình, thứ tự kết thúc vẫn tồn tại nhưng không thỏa mọi cạnh.</p>
+    <p><b>Phòng tránh:</b> Kiểm tra cạnh ngược trong cùng lần DFS trước khi dùng dãy kết thúc.</p>
+  </div>
+  <div class="trap-card">
+    <p><b>Nhận định sai:</b> Muốn thứ tự nhỏ nhất chỉ cần sắp mỗi danh sách kề.</p>
+    <p><b>Lý do sai:</b> Quyết định quan trọng là chọn đỉnh nào trong toàn bộ tập bậc vào 0, không chỉ thứ tự duyệt cạnh đi ra.</p>
+    <p><b>Phòng tránh:</b> Dùng hàng đợi ưu tiên nhỏ nhất cho tập ứng viên.</p>
+  </div>
+  <div class="trap-card">
+    <p><b>Nhận định sai:</b> Có thể dùng tô-pô trực tiếp để tìm đường dài nhất trên mọi đồ thị có hướng.</p>
+    <p><b>Lý do sai:</b> Quy hoạch động theo tô-pô cần DAG. Chu trình làm mất thứ tự xử lý một chiều.</p>
+    <p><b>Phòng tránh:</b> Xác nhận đồ thị là DAG; nếu có chu trình, xem đề có yêu cầu co thành phần liên thông mạnh hay không.</p>
+  </div>
+  <div class="trap-card">
+    <p><b>Nhận định sai:</b> Mọi bài nâng cao từ tô-pô chỉ cần sửa một dòng.</p>
+    <p><b>Lý do sai:</b> Liệt kê tất cả thứ tự, co chu trình hoặc quy hoạch động cần thêm trạng thái và thuật toán riêng.</p>
+    <p><b>Phòng tránh:</b> Tách rõ phần tạo thứ tự, phần mô hình hóa và phần xử lý sau thứ tự.</p>
+  </div>
+</div>
+
+<h2 id="s7"><span class="num">7.</span>Lộ trình bài luyện</h2>
+
+<p>Các mã CVPOI dưới đây đang để ở dạng giữ chỗ vì nguyên liệu chưa cung cấp mã thật. Phải thay mã trước khi đồng bộ trang lên site.</p>
+
+<div class="practice-grid">
+  <div class="practice-card">
+    <h3>Chặng 1 — Tạo thứ tự cơ bản</h3>
+    <ol>
+      <li>
+        <a href="https://cvpoi.id.vn/problem/MA_CVPOI_TOPOSORT" target="_blank">SPOJ TOPOSORT - Topological Sorting</a>
+        <span class="practice-meta">Trọng tâm: Kahn cơ bản, kiểm tra chu trình. Đọc lại mục 2 và mục 4.</span>
+      </li>
+      <li>
+        <a href="https://cvpoi.id.vn/problem/MA_CVPOI_UVA_10305" target="_blank">UVA 10305 - Ordering Tasks</a>
+        <span class="practice-meta">Trọng tâm: in một thứ tự hợp lệ. Đọc lại mục 1 và khuôn Kahn.</span>
+      </li>
+      <li>
+        <a href="https://cvpoi.id.vn/problem/MA_CVPOI_CSES_COURSE_SCHEDULE" target="_blank">CSES - Course Schedule</a>
+        <span class="practice-meta">Trọng tâm: phát hiện bất khả thi bằng số đỉnh đã xử lý. Đọc lại mục 2 và mục 3.</span>
+      </li>
+    </ol>
+  </div>
+
+  <div class="practice-card">
+    <h3>Chặng 2 — Mô hình hóa ràng buộc</h3>
+    <ol>
+      <li>
+        <a href="https://cvpoi.id.vn/problem/MA_CVPOI_UVA_124" target="_blank">UVA 124 - Following Orders</a>
+        <span class="practice-meta">Trọng tâm: liệt kê nhiều thứ tự bằng quay lui. Đọc lại mục 5.</span>
+      </li>
+      <li>
+        <a href="https://cvpoi.id.vn/problem/MA_CVPOI_UVA_200" target="_blank">UVA 200 - Rare Order</a>
+        <span class="practice-meta">Trọng tâm: dựng quan hệ ký tự từ các từ kề nhau. Đọc lại mục 5 và mục 6.</span>
+      </li>
+      <li>
+        <a href="https://cvpoi.id.vn/problem/MA_CVPOI_CF_510C" target="_blank">Codeforces 510C - Fox and Names</a>
+        <span class="practice-meta">Trọng tâm: bảng chữ cái, chu trình và lỗi tiền tố. Đọc lại mục 3, mục 5 và mục 6.</span>
+      </li>
+      <li>
+        <a href="https://cvpoi.id.vn/problem/MA_CVPOI_RPLA" target="_blank">SPOJ RPLA - Answer the boss!</a>
+        <span class="practice-meta">Trọng tâm: lớp tô-pô và mức của đỉnh. Đọc lại mục 2 và mục 5.</span>
+      </li>
+    </ol>
+  </div>
+
+  <div class="practice-card">
+    <h3>Chặng 3 — Quy hoạch động trên DAG</h3>
+    <ol>
+      <li>
+        <a href="https://cvpoi.id.vn/problem/MA_CVPOI_CSES_LONGEST_FLIGHT_ROUTE" target="_blank">CSES - Longest Flight Route</a>
+        <span class="practice-meta">Trọng tâm: đường đi dài nhất và truy vết. Đọc lại mục 5.</span>
+      </li>
+      <li>
+        <a href="https://cvpoi.id.vn/problem/MA_CVPOI_CSES_GAME_ROUTES" target="_blank">CSES - Game Routes</a>
+        <span class="practice-meta">Trọng tâm: đếm đường đi theo thứ tự tô-pô. Đọc lại mục 5 và lưu ý kiểu dữ liệu ở mục 3.</span>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<div class="box def">
+  <div class="t">TỰ KIỂM TRƯỚC KHI NỘP</div>
+  <ul class="checklist">
+    <li>Tôi đã xác định đúng ý nghĩa và chiều của mỗi cạnh.</li>
+    <li>Tôi biết đề cần một thứ tự bất kỳ, thứ tự nhỏ nhất, mọi thứ tự hay chỉ cần kiểm tra chu trình.</li>
+    <li>Nếu dùng Kahn, tôi đã kiểm tra số đỉnh trong kết quả có bằng <span class="mathv">n</span>.</li>
+    <li>Nếu dùng DFS, tôi phân biệt rõ đỉnh chưa thăm, đang xử lý và đã hoàn tất.</li>
+    <li>Nếu có quy hoạch động, tôi đã đặt đúng giá trị khởi tạo và chỉ cập nhật theo chiều cạnh.</li>
+    <li>Tôi đã kiểm tra đỉnh cô lập, nhiều thành phần, cạnh trùng, đồ thị rỗng cạnh và chu trình tự nối.</li>
+    <li>Tôi đã chọn kiểu dữ liệu theo giới hạn thật của đề, không theo thói quen.</li>
+  </ul>
+</div>
+
+</div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  function setCircleClass(group, className) {
+    var circle = group ? group.querySelector('circle') : null;
+    if (!circle)
+      return;
+    circle.setAttribute('class', 'graph-node' + (className ? ' ' + className : ''));
+  }
+
+  function setLiveClass(element, state) {
+    element.className = 'live' + (state ? ' ' + state : '');
+  }
+
+  var kahnNodes = [1, 2, 3, 4, 5, 6];
+  var kahnEdges = [[1, 3], [2, 4], [2, 3], [3, 5], [4, 5], [5, 6]];
+  var kahnAdj = {
+    1: [3],
+    2: [4, 3],
+    3: [5],
+    4: [5],
+    5: [6],
+    6: []
+  };
+  var kahnState = null;
+  var kahnTimer = null;
+  var kahnMode = document.getElementById('kahn-mode');
+  var kahnStepButton = document.getElementById('kahn-step');
+  var kahnAutoButton = document.getElementById('kahn-auto');
+  var kahnResetButton = document.getElementById('kahn-reset');
+  var kahnReady = document.getElementById('kahn-ready');
+  var kahnOrder = document.getElementById('kahn-order');
+  var kahnCount = document.getElementById('kahn-count');
+  var kahnLive = document.getElementById('kahn-live');
+
+  function kahnPickIndex() {
+    if (kahnMode.value === 'heap') {
+      var bestIndex = 0;
+      for (var i = 1; i < kahnState.ready.length; i++)
+        if (kahnState.ready[i] < kahnState.ready[bestIndex])
+          bestIndex = i;
+      return bestIndex;
+    }
+    return 0;
+  }
+
+  function kahnReset() {
+    if (kahnTimer !== null) {
+      clearInterval(kahnTimer);
+      kahnTimer = null;
+    }
+    kahnAutoButton.textContent = 'Tự chạy';
+    kahnMode.disabled = false;
+    kahnStepButton.disabled = false;
+    kahnState = {
+      indeg: {1: 0, 2: 0, 3: 2, 4: 1, 5: 2, 6: 1},
+      ready: [1, 2],
+      order: [],
+      current: null,
+      removed: {},
+      finished: false
+    };
+    renderKahn();
+    setLiveClass(kahnLive, '');
+    kahnLive.textContent = 'Ban đầu, đỉnh 1 và 2 đều có bậc vào bằng 0.';
+  }
+
+  function kahnStep() {
+    if (kahnState.finished)
+      return;
+    if (kahnState.ready.length === 0) {
+      kahnState.finished = true;
+      renderKahn();
+      return;
+    }
+
+    var pickIndex = kahnPickIndex();
+    var u = kahnState.ready.splice(pickIndex, 1)[0];
+    kahnState.current = u;
+    kahnState.order.push(u);
+    var becameReady = [];
+
+    kahnAdj[u].forEach(function (v) {
+      kahnState.removed[u + '-' + v] = true;
+      kahnState.indeg[v]--;
+      if (kahnState.indeg[v] === 0) {
+        kahnState.ready.push(v);
+        becameReady.push(v);
+      }
+    });
+
+    if (kahnState.order.length === kahnNodes.length)
+      kahnState.finished = true;
+
+    renderKahn();
+    if (kahnState.finished) {
+      setLiveClass(kahnLive, 'ok');
+      kahnLive.textContent = 'Đã xử lý đủ 6 đỉnh. Thứ tự tô-pô thu được là ' + kahnState.order.join(', ') + '.';
+      kahnStepButton.disabled = true;
+      stopKahnAuto();
+    } else if (becameReady.length > 0) {
+      setLiveClass(kahnLive, '');
+      kahnLive.textContent = 'Chọn đỉnh ' + u + ', loại các cạnh đi ra. Đỉnh mới có bậc vào 0: ' + becameReady.join(', ') + '.';
+    } else {
+      setLiveClass(kahnLive, '');
+      kahnLive.textContent = 'Chọn đỉnh ' + u + '. Chưa có đỉnh mới đạt bậc vào 0.';
+    }
+  }
+
+  function renderKahn() {
+    kahnNodes.forEach(function (u) {
+      var group = document.querySelector('[data-node="' + u + '"]');
+      var className = '';
+      if (kahnState.current === u)
+        className = 'current';
+      else if (kahnState.order.indexOf(u) !== -1)
+        className = 'done';
+      else if (kahnState.indeg[u] === 0)
+        className = 'zero';
+      setCircleClass(group, className);
+      var indegLabel = group.querySelector('[data-indeg="' + u + '"]');
+      indegLabel.textContent = 'in=' + kahnState.indeg[u];
+    });
+
+    kahnEdges.forEach(function (edge) {
+      var key = edge[0] + '-' + edge[1];
+      var path = document.querySelector('[data-edge="' + key + '"] path');
+      path.setAttribute('class', 'graph-edge' + (kahnState.removed[key] ? ' removed' : ''));
+    });
+
+    var readyView = kahnState.ready.slice();
+    if (kahnMode.value === 'heap')
+      readyView.sort(function (a, b) { return a - b; });
+    kahnReady.textContent = readyView.length ? readyView.join(', ') : 'Rỗng';
+    kahnOrder.textContent = kahnState.order.length ? kahnState.order.join(' → ') : 'Chưa có';
+    kahnCount.textContent = kahnState.order.length + ' / ' + kahnNodes.length;
+  }
+
+  function stopKahnAuto() {
+    if (kahnTimer !== null) {
+      clearInterval(kahnTimer);
+      kahnTimer = null;
+    }
+    kahnAutoButton.textContent = 'Tự chạy';
+    kahnMode.disabled = false;
+  }
+
+  function toggleKahnAuto() {
+    if (kahnTimer !== null) {
+      stopKahnAuto();
+      return;
+    }
+    if (kahnState.finished)
+      kahnReset();
+    kahnMode.disabled = true;
+    kahnAutoButton.textContent = 'Dừng';
+    kahnStep();
+    if (!kahnState.finished)
+      kahnTimer = setInterval(kahnStep, 850);
+  }
+
+  kahnStepButton.addEventListener('click', kahnStep);
+  kahnAutoButton.addEventListener('click', toggleKahnAuto);
+  kahnResetButton.addEventListener('click', kahnReset);
+  kahnMode.addEventListener('change', function () {
+    kahnReset();
+    kahnLive.textContent = kahnMode.value === 'heap'
+      ? 'Chế độ ưu tiên nhỏ nhất: mỗi bước lấy đỉnh nhỏ nhất trong tập bậc vào 0.'
+      : 'Chế độ FIFO: đỉnh vào hàng đợi trước sẽ được lấy trước.';
+  });
+
+  var dfsCycleToggle = document.getElementById('dfs-cycle');
+  var dfsStepButton = document.getElementById('dfs-step');
+  var dfsAutoButton = document.getElementById('dfs-auto');
+  var dfsResetButton = document.getElementById('dfs-reset');
+  var dfsCurrent = document.getElementById('dfs-current');
+  var dfsFinish = document.getElementById('dfs-finish');
+  var dfsResult = document.getElementById('dfs-result');
+  var dfsLive = document.getElementById('dfs-live');
+  var dfsStackLabel = document.getElementById('dfs-stack-label');
+  var dfsTimer = null;
+  var dfsState = null;
+
+  function buildDfsEvents(withCycle) {
+    var adj = {
+      1: [2, 3],
+      2: [4],
+      3: [4],
+      4: [5],
+      5: withCycle ? [2] : []
+    };
+    var color = [0, 0, 0, 0, 0, 0];
+    var parent = [0, 0, 0, 0, 0, 0];
+    var stack = [];
+    var finish = [];
+    var events = [];
+    var hasCycle = false;
+
+    function snapshot(type, data) {
+      events.push({
+        type: type,
+        node: data.node || null,
+        from: data.from || null,
+        to: data.to || null,
+        message: data.message,
+        color: color.slice(),
+        stack: stack.slice(),
+        finish: finish.slice(),
+        cycle: data.cycle ? data.cycle.slice() : null,
+        hasCycle: hasCycle
+      });
+    }
+
+    function makeCycle(u, v) {
+      var chain = [u];
+      while (chain[chain.length - 1] !== v)
+        chain.push(parent[chain[chain.length - 1]]);
+      chain.reverse();
+      chain.push(v);
+      return chain;
+    }
+
+    function dfs(u) {
+      color[u] = 1;
+      stack.push(u);
+      snapshot('enter', {node: u, message: 'Vào đỉnh ' + u + ', đổi sang màu xám và đưa lên ngăn xếp.'});
+
+      for (var i = 0; i < adj[u].length; i++) {
+        var v = adj[u][i];
+        snapshot('edge', {from: u, to: v, node: u, message: 'Xét cạnh ' + u + '→' + v + '.'});
+        if (color[v] === 0) {
+          parent[v] = u;
+          dfs(v);
+          if (hasCycle)
+            return;
+        } else if (color[v] === 1) {
+          hasCycle = true;
+          var cycle = makeCycle(u, v);
+          snapshot('back', {
+            from: u,
+            to: v,
+            node: u,
+            cycle: cycle,
+            message: 'Cạnh ' + u + '→' + v + ' đi tới đỉnh màu xám, tạo chu trình ' + cycle.join('→') + '.'
+          });
+          return;
+        }
+      }
+
+      stack.pop();
+      color[u] = 2;
+      finish.push(u);
+      snapshot('exit', {node: u, message: 'Kết thúc đỉnh ' + u + ', đổi sang màu đen và thêm vào dãy kết thúc.'});
+    }
+
+    for (var u = 1; u <= 5; u++) {
+      if (color[u] === 0)
+        dfs(u);
+      if (hasCycle)
+        break;
+    }
+
+    if (!hasCycle) {
+      var topo = finish.slice().reverse();
+      events.push({
+        type: 'done',
+        node: null,
+        from: null,
+        to: null,
+        message: 'Không có cạnh ngược. Đảo dãy kết thúc để được thứ tự tô-pô ' + topo.join('→') + '.',
+        color: color.slice(),
+        stack: [],
+        finish: finish.slice(),
+        cycle: null,
+        hasCycle: false,
+        topo: topo
+      });
+    }
+    return events;
+  }
+
+  function dfsReset() {
+    if (dfsTimer !== null) {
+      clearInterval(dfsTimer);
+      dfsTimer = null;
+    }
+    dfsAutoButton.textContent = 'Tự chạy';
+    dfsCycleToggle.disabled = false;
+    dfsStepButton.disabled = false;
+    var withCycle = dfsCycleToggle.checked;
+    dfsState = {
+      events: buildDfsEvents(withCycle),
+      index: -1,
+      event: null,
+      finished: false
+    };
+    document.querySelector('[data-dfs-edge="5-2"]').hidden = !withCycle;
+    renderDfs();
+    setLiveClass(dfsLive, '');
+    dfsLive.textContent = withCycle
+      ? 'Đã bật cạnh 5→2. Nhấn “Chạy một bước” để quan sát lúc DFS gặp cạnh ngược.'
+      : 'Đồ thị chưa có cạnh 5→2. Nhấn “Chạy một bước” để bắt đầu từ đỉnh 1.';
+  }
+
+  function dfsStep() {
+    if (dfsState.finished)
+      return;
+    dfsState.index++;
+    if (dfsState.index >= dfsState.events.length) {
+      dfsState.finished = true;
+      stopDfsAuto();
+      return;
+    }
+    dfsState.event = dfsState.events[dfsState.index];
+    if (dfsState.event.type === 'done' || dfsState.event.type === 'back')
+      dfsState.finished = true;
+    renderDfs();
+    if (dfsState.finished) {
+      dfsStepButton.disabled = true;
+      stopDfsAuto();
+    }
+  }
+
+  function renderDfs() {
+    var event = dfsState.event;
+    var colors = event ? event.color : [0, 0, 0, 0, 0, 0];
+    for (var u = 1; u <= 5; u++) {
+      var group = document.querySelector('[data-dfs-node="' + u + '"]');
+      var className = 'zero';
+      if (colors[u] === 1)
+        className = 'current';
+      else if (colors[u] === 2)
+        className = 'finished';
+      if (event && event.cycle && event.cycle.indexOf(u) !== -1)
+        className = 'cycle';
+      setCircleClass(group, className);
+    }
+
+    document.querySelectorAll('[data-dfs-edge] path').forEach(function (path) {
+      path.setAttribute('class', 'graph-edge');
+    });
+    if (event && event.from !== null) {
+      var edgePath = document.querySelector('[data-dfs-edge="' + event.from + '-' + event.to + '"] path');
+      if (edgePath)
+        edgePath.setAttribute('class', 'graph-edge ' + (event.type === 'back' ? 'bad' : 'focus'));
+    }
+
+    var stack = event ? event.stack : [];
+    dfsStackLabel.textContent = 'Ngăn xếp: ' + (stack.length ? stack.join(' → ') : 'rỗng');
+    dfsCurrent.textContent = event && event.node !== null ? String(event.node) : 'Chưa có';
+    dfsFinish.textContent = event && event.finish.length ? event.finish.join(' → ') : 'Chưa có';
+
+    if (!event) {
+      dfsResult.textContent = 'Chưa kết luận';
+      return;
+    }
+
+    dfsLive.textContent = event.message;
+    if (event.type === 'back') {
+      setLiveClass(dfsLive, 'bad');
+      dfsResult.textContent = 'Có chu trình: ' + event.cycle.join(' → ');
+    } else if (event.type === 'done') {
+      setLiveClass(dfsLive, 'ok');
+      dfsResult.textContent = 'DAG, thứ tự: ' + event.topo.join(' → ');
+    } else {
+      setLiveClass(dfsLive, event.type === 'edge' ? 'warn' : '');
+      dfsResult.textContent = 'Đang duyệt';
+    }
+  }
+
+  function stopDfsAuto() {
+    if (dfsTimer !== null) {
+      clearInterval(dfsTimer);
+      dfsTimer = null;
+    }
+    dfsAutoButton.textContent = 'Tự chạy';
+    dfsCycleToggle.disabled = false;
+  }
+
+  function toggleDfsAuto() {
+    if (dfsTimer !== null) {
+      stopDfsAuto();
+      return;
+    }
+    if (dfsState.finished)
+      dfsReset();
+    dfsCycleToggle.disabled = true;
+    dfsAutoButton.textContent = 'Dừng';
+    dfsStep();
+    if (!dfsState.finished)
+      dfsTimer = setInterval(dfsStep, 720);
+  }
+
+  dfsStepButton.addEventListener('click', dfsStep);
+  dfsAutoButton.addEventListener('click', toggleDfsAuto);
+  dfsResetButton.addEventListener('click', dfsReset);
+  dfsCycleToggle.addEventListener('change', dfsReset);
+
+  kahnReset();
+  dfsReset();
+})();
+</script>
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<!--/cv-foot-->
+</body>
+</html>
