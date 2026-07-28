@@ -15,11 +15,11 @@
   .two-col,.proof-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .three-col{grid-template-columns:repeat(3,minmax(0,1fr))}
   .practice-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .plain-card,.sim-room,.figure-card,.trap-card,.practice-card{min-width:0;border:1px solid var(--border);background:var(--card);border-radius:14px;padding:16px}
+  .plain-card,.sim-room,.figure-card,.trap-card,.practice-card{min-width:0;max-width:100%;border:1px solid var(--border);background:var(--card);border-radius:14px;padding:16px}
   .plain-card h3,.sim-room h3,.practice-card h3{margin-top:0;color:var(--blue)}
   .figure-card{overflow:hidden}
-  .figure-scroll{max-width:100%;overflow-x:auto;padding-bottom:4px}
-  .figure-scroll svg{display:block;width:100%;min-width:540px;height:auto}
+  .figure-scroll{width:100%;max-width:100%;overflow:hidden;padding-bottom:0}
+  .figure-scroll svg{display:block;width:100%;max-width:100%;min-width:0;height:auto}
   .figure-card figcaption{margin-top:10px;color:var(--muted);font-size:.94rem;line-height:1.55}
   .graph-edge{fill:none;stroke:var(--edge);stroke-width:2.3}
   .graph-edge.soft{opacity:.45}
@@ -51,8 +51,8 @@
   .sim-toolbar button:hover{border-color:var(--blue)}
   .sim-toolbar button:disabled{opacity:.5;cursor:not-allowed}
   .sim-toolbar label{display:inline-flex;gap:7px;align-items:center;color:var(--fg)}
-  .sim-board{border:1px solid var(--border);border-radius:12px;background:var(--bg);padding:10px;overflow-x:auto}
-  .sim-board svg{display:block;width:100%;min-width:600px;height:auto}
+  .sim-board{width:100%;max-width:100%;border:1px solid var(--border);border-radius:12px;background:var(--bg);padding:10px;overflow:hidden}
+  .sim-board svg{display:block;width:100%;max-width:100%;min-width:0;height:auto}
   .legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin:12px 0;color:var(--muted);font-size:.92rem}
   .legend span{display:inline-flex;align-items:center;gap:7px}
   .swatch{width:14px;height:14px;border:2px solid var(--edge);border-radius:4px;background:var(--card)}
@@ -90,17 +90,17 @@
     .practice-grid,.three-col{grid-template-columns:1fr}
     .status-grid{grid-template-columns:1fr}
   }
-  @media (max-width:720px){
+  @media (max-width:900px){
     .two-col,.proof-grid{grid-template-columns:1fr}
+  }
+  @media (max-width:720px){
+    .three-col,.practice-grid,.status-grid{grid-template-columns:1fr}
     .plain-card,.sim-room,.figure-card,.trap-card,.practice-card{padding:13px}
     .sim-toolbar{align-items:stretch}
     .sim-toolbar button,.sim-toolbar select{width:100%}
-    .figure-scroll svg{min-width:500px}
     .tablewrap table{min-width:680px}
   }
   @media (max-width:390px){
-    .figure-scroll svg{min-width:470px}
-    .sim-board svg{min-width:560px}
     .order-chip{min-width:31px;height:31px}
   }
 
