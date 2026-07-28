@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Quy hoạch động chữ số | Lý thuyết CP</title>
-<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../../assets/chuan.css">
 <style>
   /* CSS riêng cho hình minh họa và phòng mô phỏng */
   *{box-sizing:border-box}
@@ -81,7 +81,15 @@
 .box td, .tablewrap td, table td{color:var(--fg)}
 /*/cv-fix-nen-sang*/
 </style>
+
 <!--cv-head-->
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<meta name="description" content="Đếm số trên đoạn rất lớn bằng cách dựng số từ trái sang phải: trạng thái tight, chữ số 0 ở đầu, thiết kế trạng thái phụ.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Quy hoạch động chữ số | Lý thuyết CP">
+<meta property="og:description" content="Đếm số trên đoạn rất lớn bằng cách dựng số từ trái sang phải: trạng thái tight, chữ số 0 ở đầu, thiết kế trạng thái phụ.">
 <!--/cv-head-->
 </head>
 <body class="cv-side">
@@ -101,6 +109,12 @@
 <div class="main">
 <div class="wrap">
 <!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../index.html">Quy hoạch động</a><span class="cv-sep">/</span><span class="cv-here">Quy hoạch động chữ số</span></span>
+  </div>
+</nav>
 <!--/cv-nav-->
 
 <header>
@@ -557,16 +571,16 @@ Output
 
 <h2 id="s7"><span class="num">7.</span>Lộ trình bài luyện</h2>
 
-<p>Các bài dưới đây đều xuất hiện trong danh sách bài luyện của bài viết Codeforces đã nêu. Liên kết nguồn dẫn tới hệ thống chấm gốc; liên kết CVPOI đang dùng mã giữ chỗ và phải được thay trước khi đồng bộ site.</p>
+<p>Các bài dưới đây đều xuất hiện trong danh sách bài luyện của bài viết Codeforces đã nêu, xếp theo mức độ tăng dần. Mỗi liên kết dẫn thẳng tới hệ thống chấm gốc; cột <b>đọc lại mục</b> chỉ ra phần lý thuyết cần xem trước khi bắt tay.</p>
 
 <div class="practice-grid">
   <div class="practice-card">
     <h3>Chặng 1 — Làm quen với <span class="mathv">F(R) − F(L − 1)</span></h3>
     <p><span class="tag">Tổng chữ số</span><span class="tag">Trạng thái nhỏ</span></p>
     <ol>
-      <li><a href="https://www.spoj.com/problems/CPCRC1C/" target="_blank" rel="noopener">Sum of Digits</a> — tính tổng các chữ số trên một đoạn. Đọc lại mục 2, 4. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_SUM_OF_DIGITS" target="_blank">CVPOI</a>.</li>
-      <li><a href="https://www.spoj.com/problems/PR003004/" target="_blank" rel="noopener">Digit Sum</a> — tổng chữ số với nhiều bộ dữ liệu. Đọc lại mục 3, 4. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_DIGIT_SUM" target="_blank">CVPOI</a>.</li>
-      <li><a href="https://lightoj.com/problem/investigation" target="_blank" rel="noopener">Investigation</a> — theo dõi đồng thời số dư của số và tổng chữ số. Đọc lại mục 4, 5. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_INVESTIGATION" target="_blank">CVPOI</a>.</li>
+      <li><a href="https://www.spoj.com/problems/CPCRC1C/" target="_blank" rel="noopener">Sum of Digits</a> — tính tổng các chữ số trên một đoạn. Đọc lại mục 2, 4.</li>
+      <li><a href="https://www.spoj.com/problems/PR003004/" target="_blank" rel="noopener">Digit Sum</a> — tổng chữ số với nhiều bộ dữ liệu. Đọc lại mục 3, 4.</li>
+      <li><a href="https://lightoj.com/problem/investigation" target="_blank" rel="noopener">Investigation</a> — theo dõi đồng thời số dư của số và tổng chữ số. Đọc lại mục 4, 5.</li>
     </ol>
   </div>
 
@@ -574,9 +588,9 @@ Output
     <h3>Chặng 2 — Trạng thái theo vị trí và tần suất</h3>
     <p><span class="tag">Vị trí</span><span class="tag">Số dư</span><span class="tag">Tần suất</span></p>
     <ol>
-      <li><a href="https://codeforces.com/problemset/problem/628/D" target="_blank" rel="noopener">Magic Numbers</a> — chữ số bắt buộc theo vị trí và số dư theo mô-đun. Đọc lại mục 3, 5. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_MAGIC_NUMBERS" target="_blank">CVPOI</a>.</li>
-      <li><a href="https://www.codechef.com/problems/DGTCNT" target="_blank" rel="noopener">Chef and Digits</a> — theo dõi tần suất nhiều chữ số. Đọc lại mục 3, 5. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_CHEF_AND_DIGITS" target="_blank">CVPOI</a>.</li>
-      <li><a href="https://toph.co/p/lids" target="_blank" rel="noopener">LIDS</a> — trạng thái liên quan dãy con tăng trên các chữ số. Đọc lại mục 2, 5. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_LIDS" target="_blank">CVPOI</a>.</li>
+      <li><a href="https://codeforces.com/problemset/problem/628/D" target="_blank" rel="noopener">Magic Numbers</a> — chữ số bắt buộc theo vị trí và số dư theo mô-đun. Đọc lại mục 3, 5.</li>
+      <li><a href="https://www.codechef.com/problems/DGTCNT" target="_blank" rel="noopener">Chef and Digits</a> — theo dõi tần suất nhiều chữ số. Đọc lại mục 3, 5.</li>
+      <li><a href="https://toph.co/p/lids" target="_blank" rel="noopener">LIDS</a> — trạng thái liên quan dãy con tăng trên các chữ số. Đọc lại mục 2, 5.</li>
     </ol>
   </div>
 
@@ -584,9 +598,9 @@ Output
     <h3>Chặng 3 — Thiết kế trạng thái chuyên biệt</h3>
     <p><span class="tag">Đối xứng</span><span class="tag">Tối ưu</span><span class="tag">Mặt nạ</span></p>
     <ol>
-      <li><a href="https://lightoj.com/problem/palindromic-numbers" target="_blank" rel="noopener">Palindromic Numbers</a> — đếm số đối xứng trên đoạn. Đọc lại mục 5. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_PALINDROMIC_NUMBERS" target="_blank">CVPOI</a>.</li>
-      <li><a href="https://codeforces.com/gym/100886/problem/G" target="_blank" rel="noopener">Maximum Product</a> — tìm số có tích chữ số lớn nhất. Đọc lại mục 5, 6. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_MAXIMUM_PRODUCT" target="_blank">CVPOI</a>.</li>
-      <li><a href="https://www.codechef.com/problems/WORKCHEF" target="_blank" rel="noopener">Chef and special numbers</a> — kết hợp mặt nạ chữ số và tính chia hết. Đọc lại mục 5, 6. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_WORKCHEF" target="_blank">CVPOI</a>.</li>
+      <li><a href="https://lightoj.com/problem/palindromic-numbers" target="_blank" rel="noopener">Palindromic Numbers</a> — đếm số đối xứng trên đoạn. Đọc lại mục 5.</li>
+      <li><a href="https://codeforces.com/gym/100886/problem/G" target="_blank" rel="noopener">Maximum Product</a> — tìm số có tích chữ số lớn nhất. Đọc lại mục 5, 6.</li>
+      <li><a href="https://www.codechef.com/problems/WORKCHEF" target="_blank" rel="noopener">Chef and special numbers</a> — kết hợp mặt nạ chữ số và tính chia hết. Đọc lại mục 5, 6.</li>
     </ol>
   </div>
 
@@ -594,8 +608,8 @@ Output
     <h3>Chặng 4 — Tổng hiệu theo vị trí</h3>
     <p><span class="tag">Chẵn lẻ vị trí</span><span class="tag">Số nguyên tố</span></p>
     <ol>
-      <li><a href="https://www.spoj.com/problems/LUCIFER/" target="_blank" rel="noopener">LUCIFER Number</a> — hiệu tổng chữ số ở hai lớp vị trí là số nguyên tố. Đọc lại mục 3, 5. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_LUCIFER" target="_blank">CVPOI</a>.</li>
-      <li><a href="https://www.spoj.com/problems/RAONE/" target="_blank" rel="noopener">Ra-One Numbers</a> — luyện trạng thái hiệu tổng theo vị trí. Đọc lại mục 3, 5. <a href="https://cvpoi.id.vn/problem/MA_CVPOI_RAONE" target="_blank">CVPOI</a>.</li>
+      <li><a href="https://www.spoj.com/problems/LUCIFER/" target="_blank" rel="noopener">LUCIFER Number</a> — hiệu tổng chữ số ở hai lớp vị trí là số nguyên tố. Đọc lại mục 3, 5.</li>
+      <li><a href="https://www.spoj.com/problems/RAONE/" target="_blank" rel="noopener">Ra-One Numbers</a> — luyện trạng thái hiệu tổng theo vị trí. Đọc lại mục 3, 5.</li>
     </ol>
   </div>
 </div>
@@ -609,7 +623,6 @@ Output
     <li>Đã kiểm tra <span class="mathv">L = 0</span>, <span class="mathv">L = R</span>, cận chỉ có một chữ số và thuộc tính không thể đạt.</li>
     <li>Đã xóa bộ nhớ ghi nhớ khi đổi cận hoặc tách trạng thái bám cận khỏi phần tái sử dụng.</li>
     <li>Đã so kết quả DP với vét cạn trên các cận nhỏ trước khi nộp.</li>
-    <li>Đã thay toàn bộ mã <code class="inl">MA_CVPOI_TEN_BAI</code> bằng mã bài thật trước khi đồng bộ.</li>
   </ul>
 </div>
 
@@ -798,9 +811,13 @@ Output
   reset();
 })();
 </script>
-<script src="../assets/chuan.js"></script>
+<script src="../../assets/chuan.js"></script>
 
 <!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
 <!--/cv-foot-->
 </body>
 </html>
