@@ -36,6 +36,17 @@
   .graph-label.good{fill:var(--green);font-weight:700}
   .graph-label.bad{fill:var(--red);font-weight:700}
   .graph-label.blue{fill:var(--blue);font-weight:700}
+  .graph-panel{fill:var(--bg);stroke:var(--border);stroke-width:1.4}
+  .graph-panel.good{fill:var(--green-bg);stroke:var(--green)}
+  .graph-panel.bad{fill:var(--red-bg);stroke:var(--red)}
+  .graph-chip{fill:var(--card);stroke:var(--border);stroke-width:1.2}
+  .graph-chip.good{fill:var(--green-bg);stroke:var(--green)}
+  .graph-chip.bad{fill:var(--red-bg);stroke:var(--red)}
+  .graph-title{fill:var(--blue);font-size:18px;font-weight:800;text-anchor:middle}
+  .graph-note{fill:var(--fg);font-size:15px;font-weight:600;text-anchor:middle}
+  .graph-note.good{fill:var(--green)}
+  .graph-note.bad{fill:var(--red)}
+  .graph-subtle{fill:var(--muted);font-size:14px;font-weight:600;text-anchor:middle}
   .divider{stroke:var(--border);stroke-width:2;stroke-dasharray:8 7}
   .order-line{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
   .order-chip{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:34px;border:1px solid var(--border);border-radius:9px;background:var(--card);font-weight:700}
@@ -161,35 +172,47 @@
 <div class="two-col">
   <figure class="figure-card">
     <div class="figure-scroll">
-      <svg viewBox="0 0 620 300" role="img" aria-label="Đồ thị bốn công việc với hai thứ tự ứng viên, một sai và một đúng">
-        <defs>
-          <marker id="arr-s1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)"></path>
-          </marker>
-          <marker id="arr-s1-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--red)"></path>
-          </marker>
-        </defs>
-        <text x="155" y="30" class="graph-label blue">Quan hệ trước–sau</text>
-        <path d="M 125 105 C 175 76, 225 76, 275 105" class="graph-edge" marker-end="url(#arr-s1)"></path>
-        <path d="M 125 125 C 172 152, 225 152, 275 125" class="graph-edge" marker-end="url(#arr-s1)"></path>
-        <path d="M 315 105 C 365 76, 415 76, 465 105" class="graph-edge" marker-end="url(#arr-s1)"></path>
-        <path d="M 315 125 C 365 152, 415 152, 465 125" class="graph-edge" marker-end="url(#arr-s1)"></path>
-        <circle cx="105" cy="115" r="24" class="graph-node zero"></circle>
-        <circle cx="295" cy="92" r="24" class="graph-node"></circle>
-        <circle cx="295" cy="138" r="24" class="graph-node"></circle>
-        <circle cx="485" cy="115" r="24" class="graph-node"></circle>
-        <text x="105" y="115" class="graph-text">2</text>
-        <text x="295" y="92" class="graph-text">1</text>
-        <text x="295" y="138" class="graph-text">3</text>
-        <text x="485" y="115" class="graph-text">4</text>
-        <line x1="30" y1="185" x2="590" y2="185" class="divider"></line>
-        <text x="150" y="218" class="graph-label bad">Ứng viên A: 1, 2, 3, 4</text>
-        <path d="M 86 252 L 214 252" class="graph-edge bad" marker-end="url(#arr-s1-bad)"></path>
-        <text x="150" y="280" class="graph-label bad">Cạnh 2→1 đi ngược thứ tự</text>
-        <text x="455" y="218" class="graph-label good">Ứng viên B: 2, 1, 3, 4</text>
-        <text x="455" y="260" class="graph-label good">Mọi cạnh đều đi từ trái sang phải</text>
-      </svg>
+      <svg viewBox="0 0 760 360" role="img" aria-label="Đồ thị bốn công việc với hai thứ tự ứng viên, một sai và một đúng">
+      <defs>
+        <marker id="arr-s1" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)"></path>
+        </marker>
+        <marker id="arr-s1-bad" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--red)"></path>
+        </marker>
+      </defs>
+      <text x="160" y="40" class="graph-title">Quan hệ trước–sau</text>
+      <path d="M 168 112 C 228 68, 288 66, 332 88" class="graph-edge" marker-end="url(#arr-s1)"></path>
+      <path d="M 168 128 C 228 172, 288 174, 332 152" class="graph-edge" marker-end="url(#arr-s1)"></path>
+      <path d="M 388 88 C 452 64, 514 66, 552 106" class="graph-edge" marker-end="url(#arr-s1)"></path>
+      <path d="M 388 152 C 452 176, 514 174, 552 134" class="graph-edge" marker-end="url(#arr-s1)"></path>
+      <circle cx="140" cy="120" r="28" class="graph-node zero"></circle>
+      <circle cx="360" cy="85" r="28" class="graph-node"></circle>
+      <circle cx="360" cy="155" r="28" class="graph-node"></circle>
+      <circle cx="580" cy="120" r="28" class="graph-node"></circle>
+      <text x="140" y="120" class="graph-text">2</text>
+      <text x="360" y="85" class="graph-text">1</text>
+      <text x="360" y="155" class="graph-text">3</text>
+      <text x="580" y="120" class="graph-text">4</text>
+      <line x1="70" y1="220" x2="690" y2="220" class="divider"></line>
+      <rect x="90" y="242" width="260" height="88" rx="16" class="graph-panel bad"></rect>
+      <rect x="410" y="242" width="260" height="88" rx="16" class="graph-panel good"></rect>
+      <text x="220" y="268" class="graph-title">Ứng viên A</text>
+      <text x="540" y="268" class="graph-title">Ứng viên B</text>
+      <rect x="132" y="282" width="36" height="26" rx="8" class="graph-chip bad"></rect>
+      <rect x="176" y="282" width="36" height="26" rx="8" class="graph-chip"></rect>
+      <rect x="220" y="282" width="36" height="26" rx="8" class="graph-chip"></rect>
+      <rect x="264" y="282" width="36" height="26" rx="8" class="graph-chip"></rect>
+      <text x="150" y="295" class="graph-note">1</text><text x="194" y="295" class="graph-note">2</text><text x="238" y="295" class="graph-note">3</text><text x="282" y="295" class="graph-note">4</text>
+      <rect x="452" y="282" width="36" height="26" rx="8" class="graph-chip good"></rect>
+      <rect x="496" y="282" width="36" height="26" rx="8" class="graph-chip"></rect>
+      <rect x="540" y="282" width="36" height="26" rx="8" class="graph-chip"></rect>
+      <rect x="584" y="282" width="36" height="26" rx="8" class="graph-chip"></rect>
+      <text x="470" y="295" class="graph-note">2</text><text x="514" y="295" class="graph-note">1</text><text x="558" y="295" class="graph-note">3</text><text x="602" y="295" class="graph-note">4</text>
+      <path d="M 210 314 L 258 314" class="graph-edge bad" marker-end="url(#arr-s1-bad)"></path>
+      <text x="220" y="336" class="graph-note bad">Sai vì cạnh 2→1 đi ngược thứ tự</text>
+      <text x="540" y="336" class="graph-note good">Đúng vì mọi cạnh đều đi từ trái sang phải</text>
+    </svg>
     </div>
     <figcaption>Đánh số nhỏ trước có vẻ tự nhiên nhưng không liên quan đến quan hệ phụ thuộc. Đỉnh 1 nhỏ hơn 2 vẫn phải đứng sau 2 vì có cạnh 2→1.</figcaption>
   </figure>
@@ -218,36 +241,36 @@
 <div class="proof-grid">
   <figure class="figure-card">
     <div class="figure-scroll">
-      <svg viewBox="0 0 640 330" role="img" aria-label="Minh họa đỉnh bậc vào bằng không trong phần đồ thị còn lại của thuật toán Kahn">
-        <defs>
-          <marker id="arr-s2a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)"></path>
-          </marker>
-        </defs>
-        <rect x="28" y="40" width="165" height="245" rx="18" fill="var(--green-bg)" stroke="var(--green)"></rect>
-        <rect x="228" y="40" width="380" height="245" rx="18" fill="var(--card)" stroke="var(--border)"></rect>
-        <text x="110" y="72" class="graph-label good">Đã xếp</text>
-        <text x="418" y="72" class="graph-label blue">Phần đồ thị còn lại</text>
-        <circle cx="90" cy="130" r="23" class="graph-node done"></circle>
-        <circle cx="135" cy="220" r="23" class="graph-node done"></circle>
-        <text x="90" y="130" class="graph-text">a</text>
-        <text x="135" y="220" class="graph-text">b</text>
-        <circle cx="300" cy="160" r="25" class="graph-node zero"></circle>
-        <circle cx="430" cy="105" r="23" class="graph-node"></circle>
-        <circle cx="430" cy="220" r="23" class="graph-node"></circle>
-        <circle cx="555" cy="160" r="23" class="graph-node"></circle>
-        <text x="300" y="160" class="graph-text">x</text>
-        <text x="430" y="105" class="graph-text">y</text>
-        <text x="430" y="220" class="graph-text">z</text>
-        <text x="555" y="160" class="graph-text">t</text>
-        <path d="M 160 205 C 205 190, 240 174, 275 164" class="graph-edge soft" marker-end="url(#arr-s2a)"></path>
-        <path d="M 325 152 C 356 131, 380 116, 405 108" class="graph-edge good" marker-end="url(#arr-s2a)"></path>
-        <path d="M 324 171 C 355 191, 380 209, 405 216" class="graph-edge good" marker-end="url(#arr-s2a)"></path>
-        <path d="M 453 111 C 493 120, 514 134, 534 151" class="graph-edge" marker-end="url(#arr-s2a)"></path>
-        <path d="M 453 213 C 492 201, 514 185, 535 168" class="graph-edge" marker-end="url(#arr-s2a)"></path>
-        <text x="300" y="222" class="graph-label blue">bậc vào còn lại = 0</text>
-        <text x="320" y="312" class="graph-label">Không có cạnh từ một đỉnh chưa xếp đi vào x</text>
-      </svg>
+      <svg viewBox="0 0 860 340" role="img" aria-label="Minh họa đỉnh bậc vào bằng không trong phần đồ thị còn lại của thuật toán Kahn">
+      <defs>
+        <marker id="arr-s2a" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)"></path>
+        </marker>
+      </defs>
+      <rect x="60" y="55" width="200" height="220" rx="22" class="graph-panel good"></rect>
+      <rect x="320" y="55" width="470" height="220" rx="22" class="graph-panel"></rect>
+      <text x="160" y="85" class="graph-title">Đã xếp</text>
+      <text x="555" y="85" class="graph-title">Phần đồ thị còn lại</text>
+      <circle cx="135" cy="125" r="28" class="graph-node done"></circle>
+      <circle cx="185" cy="220" r="28" class="graph-node done"></circle>
+      <text x="135" y="125" class="graph-text">a</text>
+      <text x="185" y="220" class="graph-text">b</text>
+      <circle cx="400" cy="170" r="28" class="graph-node zero"></circle>
+      <circle cx="555" cy="115" r="28" class="graph-node"></circle>
+      <circle cx="555" cy="225" r="28" class="graph-node"></circle>
+      <circle cx="705" cy="170" r="28" class="graph-node"></circle>
+      <text x="400" y="170" class="graph-text">x</text>
+      <text x="555" y="115" class="graph-text">y</text>
+      <text x="555" y="225" class="graph-text">z</text>
+      <text x="705" y="170" class="graph-text">t</text>
+      <path d="M 212 213 C 270 198, 320 186, 365 176" class="graph-edge soft" marker-end="url(#arr-s2a)"></path>
+      <path d="M 428 160 C 470 135, 506 123, 526 118" class="graph-edge good" marker-end="url(#arr-s2a)"></path>
+      <path d="M 428 180 C 469 204, 505 217, 526 222" class="graph-edge good" marker-end="url(#arr-s2a)"></path>
+      <path d="M 583 120 C 633 128, 664 142, 677 160" class="graph-edge" marker-end="url(#arr-s2a)"></path>
+      <path d="M 583 220 C 633 211, 664 197, 677 180" class="graph-edge" marker-end="url(#arr-s2a)"></path>
+      <text x="400" y="214" class="graph-note">bậc vào còn lại = 0</text>
+      <text x="555" y="305" class="graph-subtle">Không có cạnh từ một đỉnh chưa xếp đi vào x</text>
+    </svg>
     </div>
     <figcaption>Đỉnh <span class="mathv">x</span> có thể nhận cạnh từ phần đã xếp, nhưng không còn nhận cạnh từ phần chưa xếp. Vì vậy đặt <span class="mathv">x</span> ngay sau tiền tố hiện tại không vi phạm ràng buộc nào.</figcaption>
   </figure>
@@ -273,28 +296,31 @@
 
 <figure class="figure-card">
   <div class="figure-scroll">
-    <svg viewBox="0 0 760 265" role="img" aria-label="Chứng minh chu trình không thể có thứ tự tô-pô bằng bất đẳng thức vị trí mâu thuẫn">
+    <svg viewBox="0 0 820 280" role="img" aria-label="Chứng minh chu trình không thể có thứ tự tô-pô bằng bất đẳng thức vị trí mâu thuẫn">
       <defs>
-        <marker id="arr-s2b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <marker id="arr-s2b" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)"></path>
+        </marker>
+        <marker id="arr-s2b-red" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--red)"></path>
         </marker>
       </defs>
-      <text x="190" y="32" class="graph-label bad">Chu trình 2→4→5→2</text>
-      <circle cx="90" cy="130" r="26" class="graph-node cycle"></circle>
-      <circle cx="235" cy="70" r="26" class="graph-node cycle"></circle>
-      <circle cx="235" cy="190" r="26" class="graph-node cycle"></circle>
-      <text x="90" y="130" class="graph-text">2</text>
-      <text x="235" y="70" class="graph-text">4</text>
-      <text x="235" y="190" class="graph-text">5</text>
-      <path d="M 114 120 C 150 92, 178 79, 208 72" class="graph-edge bad" marker-end="url(#arr-s2b)"></path>
-      <path d="M 237 97 L 237 162" class="graph-edge bad" marker-end="url(#arr-s2b)"></path>
-      <path d="M 210 190 C 167 183, 132 162, 111 146" class="graph-edge bad" marker-end="url(#arr-s2b)"></path>
-      <line x1="345" y1="35" x2="345" y2="230" class="divider"></line>
-      <text x="550" y="65" class="graph-label">Nếu có thứ tự tô-pô thì:</text>
-      <text x="550" y="112" class="graph-label blue">pos(2) &lt; pos(4)</text>
-      <text x="550" y="148" class="graph-label blue">pos(4) &lt; pos(5)</text>
-      <text x="550" y="184" class="graph-label bad">pos(5) &lt; pos(2)</text>
-      <text x="550" y="228" class="graph-label bad">Suy ra pos(2) &lt; pos(2), vô lý</text>
+      <text x="410" y="36" class="graph-title">Chu trình tạo mâu thuẫn về vị trí</text>
+      <circle cx="180" cy="130" r="28" class="graph-node current"></circle>
+      <circle cx="410" cy="130" r="28" class="graph-node current"></circle>
+      <circle cx="640" cy="130" r="28" class="graph-node cycle"></circle>
+      <text x="180" y="130" class="graph-text">u</text>
+      <text x="410" y="130" class="graph-text">v</text>
+      <text x="640" y="130" class="graph-text">w</text>
+      <path d="M 208 130 C 274 130, 316 130, 382 130" class="graph-edge" marker-end="url(#arr-s2b)"></path>
+      <path d="M 438 130 C 505 130, 547 130, 612 130" class="graph-edge" marker-end="url(#arr-s2b)"></path>
+      <path d="M 620 104 C 520 42, 300 42, 200 104" class="graph-edge bad" marker-end="url(#arr-s2b-red)"></path>
+      <text x="290" y="108" class="graph-note">pos(u) &lt; pos(v)</text>
+      <text x="522" y="108" class="graph-note">pos(v) &lt; pos(w)</text>
+      <text x="410" y="58" class="graph-note bad">pos(w) &lt; pos(u)</text>
+      <rect x="160" y="190" width="500" height="50" rx="14" class="graph-panel bad"></rect>
+      <text x="410" y="215" class="graph-note bad">Gộp các bất đẳng thức: pos(u) &lt; pos(v) &lt; pos(w) &lt; pos(u)</text>
+      <text x="410" y="238" class="graph-subtle">Mâu thuẫn này cho thấy đồ thị có chu trình thì không thể có thứ tự tô-pô.</text>
     </svg>
   </div>
   <figcaption>Một chu trình buộc mỗi đỉnh phải đứng trước chính nó sau khi ghép các quan hệ “đứng trước”, nên không tồn tại thứ tự tô-pô.</figcaption>
@@ -320,24 +346,24 @@
     <span><i class="swatch rejected"></i>Cạnh đã loại</span>
   </div>
   <div class="sim-board">
-    <svg id="kahn-svg" viewBox="0 0 700 340" role="img" aria-label="Mô phỏng thuật toán Kahn trên đồ thị sáu đỉnh">
+    <svg id="kahn-svg" viewBox="0 0 920 430" role="img" aria-label="Mô phỏng thuật toán Kahn trên đồ thị sáu đỉnh">
       <defs>
-        <marker id="arr-kahn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <marker id="arr-kahn" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)"></path>
         </marker>
       </defs>
-      <g data-edge="1-3"><path d="M 113 83 C 155 63, 194 63, 236 83" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="175" y="55" class="graph-label">1→3</text></g>
-      <g data-edge="2-4"><path d="M 113 242 C 155 264, 194 264, 236 242" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="175" y="286" class="graph-label">2→4</text></g>
-      <g data-edge="2-3"><path d="M 112 222 C 157 190, 194 139, 240 103" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="174" y="166" class="graph-label">2→3</text></g>
-      <g data-edge="3-5"><path d="M 284 94 C 335 102, 373 130, 414 151" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="350" y="103" class="graph-label">3→5</text></g>
-      <g data-edge="4-5"><path d="M 284 232 C 335 222, 374 195, 414 173" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="350" y="235" class="graph-label">4→5</text></g>
-      <g data-edge="5-6"><path d="M 462 162 L 582 162" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="522" y="145" class="graph-label">5→6</text></g>
-      <g data-node="1"><circle cx="85" cy="88" r="28" class="graph-node"></circle><text x="85" y="88" class="graph-text">1</text><text x="85" y="127" class="graph-label" data-indeg="1">in=0</text></g>
-      <g data-node="2"><circle cx="85" cy="237" r="28" class="graph-node"></circle><text x="85" y="237" class="graph-text">2</text><text x="85" y="278" class="graph-label" data-indeg="2">in=0</text></g>
-      <g data-node="3"><circle cx="260" cy="90" r="28" class="graph-node"></circle><text x="260" y="90" class="graph-text">3</text><text x="260" y="130" class="graph-label" data-indeg="3">in=2</text></g>
-      <g data-node="4"><circle cx="260" cy="237" r="28" class="graph-node"></circle><text x="260" y="237" class="graph-text">4</text><text x="260" y="278" class="graph-label" data-indeg="4">in=1</text></g>
-      <g data-node="5"><circle cx="438" cy="162" r="28" class="graph-node"></circle><text x="438" y="162" class="graph-text">5</text><text x="438" y="203" class="graph-label" data-indeg="5">in=2</text></g>
-      <g data-node="6"><circle cx="610" cy="162" r="28" class="graph-node"></circle><text x="610" y="162" class="graph-text">6</text><text x="610" y="203" class="graph-label" data-indeg="6">in=1</text></g>
+      <g data-edge="1-3"><path d="M 154 115 C 214 88, 260 88, 306 115" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="230" y="84" class="graph-label">1→3</text></g>
+      <g data-edge="2-4"><path d="M 154 285 C 214 312, 260 312, 306 285" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="230" y="328" class="graph-label">2→4</text></g>
+      <g data-edge="2-3"><path d="M 153 265 C 216 213, 260 158, 308 125" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="230" y="198" class="graph-label">2→3</text></g>
+      <g data-edge="3-5"><path d="M 374 126 C 440 137, 489 160, 553 188" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="470" y="134" class="graph-label">3→5</text></g>
+      <g data-edge="4-5"><path d="M 374 274 C 440 264, 490 238, 553 212" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="470" y="278" class="graph-label">4→5</text></g>
+      <g data-edge="5-6"><path d="M 624 200 L 732 200" class="graph-edge" marker-end="url(#arr-kahn)"></path><text x="678" y="176" class="graph-label">5→6</text></g>
+      <g data-node="1"><circle cx="120" cy="115" r="34" class="graph-node"></circle><text x="120" y="115" class="graph-text">1</text><text x="120" y="158" class="graph-label" data-indeg="1">in=0</text></g>
+      <g data-node="2"><circle cx="120" cy="285" r="34" class="graph-node"></circle><text x="120" y="285" class="graph-text">2</text><text x="120" y="328" class="graph-label" data-indeg="2">in=0</text></g>
+      <g data-node="3"><circle cx="340" cy="115" r="34" class="graph-node"></circle><text x="340" y="115" class="graph-text">3</text><text x="340" y="158" class="graph-label" data-indeg="3">in=2</text></g>
+      <g data-node="4"><circle cx="340" cy="285" r="34" class="graph-node"></circle><text x="340" y="285" class="graph-text">4</text><text x="340" y="328" class="graph-label" data-indeg="4">in=1</text></g>
+      <g data-node="5"><circle cx="590" cy="200" r="34" class="graph-node"></circle><text x="590" y="200" class="graph-text">5</text><text x="590" y="244" class="graph-label" data-indeg="5">in=2</text></g>
+      <g data-node="6"><circle cx="800" cy="200" r="34" class="graph-node"></circle><text x="800" y="200" class="graph-text">6</text><text x="800" y="244" class="graph-label" data-indeg="6">in=1</text></g>
     </svg>
   </div>
   <div class="status-grid">
@@ -387,33 +413,34 @@
 <div class="two-col">
   <figure class="figure-card">
     <div class="figure-scroll">
-      <svg viewBox="0 0 650 300" role="img" aria-label="Phân biệt đỉnh đang trên ngăn xếp DFS và đỉnh đã hoàn tất">
+      <svg viewBox="0 0 920 420" role="img" aria-label="Phân biệt đỉnh đang trên ngăn xếp DFS và đỉnh đã hoàn tất">
         <defs>
-          <marker id="arr-s3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <marker id="arr-s3" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
             <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)"></path>
           </marker>
-          <marker id="arr-s3-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <marker id="arr-s3-red" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
             <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--red)"></path>
           </marker>
         </defs>
-        <text x="185" y="28" class="graph-label blue">Ngăn xếp hiện tại: 1 → 2 → 4</text>
-        <circle cx="80" cy="150" r="27" class="graph-node current"></circle>
-        <circle cx="220" cy="90" r="27" class="graph-node current"></circle>
-        <circle cx="365" cy="90" r="27" class="graph-node current"></circle>
-        <circle cx="220" cy="220" r="27" class="graph-node finished"></circle>
-        <circle cx="505" cy="150" r="27" class="graph-node"></circle>
-        <text x="80" y="150" class="graph-text">1</text>
-        <text x="220" y="90" class="graph-text">2</text>
-        <text x="365" y="90" class="graph-text">4</text>
-        <text x="220" y="220" class="graph-text">3</text>
-        <text x="505" y="150" class="graph-text">5</text>
-        <path d="M 104 138 C 135 116, 165 103, 193 96" class="graph-edge" marker-end="url(#arr-s3)"></path>
-        <path d="M 247 90 L 338 90" class="graph-edge" marker-end="url(#arr-s3)"></path>
-        <path d="M 104 163 C 138 184, 165 202, 194 213" class="graph-edge" marker-end="url(#arr-s3)"></path>
-        <path d="M 390 100 C 438 111, 461 126, 482 142" class="graph-edge" marker-end="url(#arr-s3)"></path>
-        <path d="M 349 108 C 315 141, 270 148, 235 112" class="graph-edge bad" marker-end="url(#arr-s3-red)"></path>
-        <text x="298" y="153" class="graph-label bad">4→2: cạnh ngược</text>
-        <text x="220" y="267" class="graph-label good">3 đã hoàn tất</text>
+        <text x="460" y="40" class="graph-title">Ngăn xếp hiện tại: 1 → 2 → 4</text>
+        <circle cx="130" cy="210" r="34" class="graph-node current"></circle>
+        <circle cx="350" cy="120" r="34" class="graph-node current"></circle>
+        <circle cx="350" cy="300" r="34" class="graph-node finished"></circle>
+        <circle cx="590" cy="210" r="34" class="graph-node current"></circle>
+        <circle cx="800" cy="210" r="34" class="graph-node"></circle>
+        <text x="130" y="210" class="graph-text">1</text>
+        <text x="350" y="120" class="graph-text">2</text>
+        <text x="350" y="300" class="graph-text">3</text>
+        <text x="590" y="210" class="graph-text">4</text>
+        <text x="800" y="210" class="graph-text">5</text>
+        <path d="M 162 196 C 220 150, 272 130, 316 124" class="graph-edge" marker-end="url(#arr-s3)"></path>
+        <path d="M 162 224 C 220 270, 272 290, 316 296" class="graph-edge" marker-end="url(#arr-s3)"></path>
+        <path d="M 384 127 C 448 139, 496 165, 556 195" class="graph-edge" marker-end="url(#arr-s3)"></path>
+        <path d="M 384 292 C 448 278, 496 252, 556 225" class="graph-edge" marker-end="url(#arr-s3)"></path>
+        <path d="M 624 210 L 732 210" class="graph-edge" marker-end="url(#arr-s3)"></path>
+        <path d="M 768 183 C 690 68, 486 58, 380 103" class="graph-edge bad" marker-end="url(#arr-s3-red)"></path>
+        <text x="585" y="70" class="graph-note bad">4→2 tạo cạnh ngược</text>
+        <text x="350" y="356" class="graph-note good">3 đã hoàn tất nên không còn nằm trên ngăn xếp</text>
       </svg>
     </div>
     <figcaption>Màu xám nghĩa là đỉnh vẫn nằm trên đường DFS hiện tại. Cạnh 4→2 khép kín đường 2→4 và tạo chu trình. Đỉnh 3 màu xanh đã rời ngăn xếp nên cạnh tới 3 không tự động tạo chu trình.</figcaption>
@@ -448,24 +475,24 @@
     <span><i class="swatch rejected"></i>Cạnh ngược / chu trình</span>
   </div>
   <div class="sim-board">
-    <svg id="dfs-svg" viewBox="0 0 700 360" role="img" aria-label="Mô phỏng DFS ba màu trên đồ thị năm đỉnh">
+    <svg id="dfs-svg" viewBox="0 0 920 420" role="img" aria-label="Mô phỏng DFS ba màu trên đồ thị năm đỉnh">
       <defs>
-        <marker id="arr-dfs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <marker id="arr-dfs" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)"></path>
         </marker>
       </defs>
-      <g data-dfs-edge="1-2"><path d="M 112 171 C 160 126, 203 105, 248 92" class="graph-edge" marker-end="url(#arr-dfs)"></path><text x="181" y="119" class="graph-label">1→2</text></g>
-      <g data-dfs-edge="1-3"><path d="M 112 190 C 160 229, 203 247, 248 258" class="graph-edge" marker-end="url(#arr-dfs)"></path><text x="180" y="245" class="graph-label">1→3</text></g>
-      <g data-dfs-edge="2-4"><path d="M 302 91 C 354 100, 396 126, 438 163" class="graph-edge" marker-end="url(#arr-dfs)"></path><text x="370" y="112" class="graph-label">2→4</text></g>
-      <g data-dfs-edge="3-4"><path d="M 302 258 C 354 247, 397 221, 439 191" class="graph-edge" marker-end="url(#arr-dfs)"></path><text x="370" y="250" class="graph-label">3→4</text></g>
-      <g data-dfs-edge="4-5"><path d="M 491 178 L 590 178" class="graph-edge" marker-end="url(#arr-dfs)"></path><text x="540" y="159" class="graph-label">4→5</text></g>
-      <g data-dfs-edge="5-2" hidden><path d="M 610 153 C 555 60, 423 39, 302 76" class="graph-edge bad" marker-end="url(#arr-dfs)"></path><text x="455" y="45" class="graph-label bad">5→2</text></g>
-      <g data-dfs-node="1"><circle cx="85" cy="180" r="28" class="graph-node zero"></circle><text x="85" y="180" class="graph-text">1</text></g>
-      <g data-dfs-node="2"><circle cx="275" cy="85" r="28" class="graph-node zero"></circle><text x="275" y="85" class="graph-text">2</text></g>
-      <g data-dfs-node="3"><circle cx="275" cy="265" r="28" class="graph-node zero"></circle><text x="275" y="265" class="graph-text">3</text></g>
-      <g data-dfs-node="4"><circle cx="465" cy="180" r="28" class="graph-node zero"></circle><text x="465" y="180" class="graph-text">4</text></g>
-      <g data-dfs-node="5"><circle cx="618" cy="178" r="28" class="graph-node zero"></circle><text x="618" y="178" class="graph-text">5</text></g>
-      <text x="350" y="332" class="graph-label" id="dfs-stack-label">Ngăn xếp: rỗng</text>
+      <g data-dfs-edge="1-2"><path d="M 162 196 C 220 150, 272 130, 316 124" class="graph-edge" marker-end="url(#arr-dfs)"></path><text x="230" y="148" class="graph-label">1→2</text></g>
+      <g data-dfs-edge="1-3"><path d="M 162 224 C 220 270, 272 290, 316 296" class="graph-edge" marker-end="url(#arr-dfs)"></path><text x="230" y="284" class="graph-label">1→3</text></g>
+      <g data-dfs-edge="2-4"><path d="M 384 127 C 448 139, 496 165, 556 195" class="graph-edge" marker-end="url(#arr-dfs)"></path><text x="468" y="140" class="graph-label">2→4</text></g>
+      <g data-dfs-edge="3-4"><path d="M 384 292 C 448 278, 496 252, 556 225" class="graph-edge" marker-end="url(#arr-dfs)"></path><text x="468" y="282" class="graph-label">3→4</text></g>
+      <g data-dfs-edge="4-5"><path d="M 624 210 L 732 210" class="graph-edge" marker-end="url(#arr-dfs)"></path><text x="678" y="186" class="graph-label">4→5</text></g>
+      <g data-dfs-edge="5-2" hidden><path d="M 768 183 C 690 68, 486 58, 380 103" class="graph-edge bad" marker-end="url(#arr-dfs)"></path><text x="590" y="64" class="graph-label bad">5→2</text></g>
+      <g data-dfs-node="1"><circle cx="130" cy="210" r="34" class="graph-node zero"></circle><text x="130" y="210" class="graph-text">1</text></g>
+      <g data-dfs-node="2"><circle cx="350" cy="120" r="34" class="graph-node zero"></circle><text x="350" y="120" class="graph-text">2</text></g>
+      <g data-dfs-node="3"><circle cx="350" cy="300" r="34" class="graph-node zero"></circle><text x="350" y="300" class="graph-text">3</text></g>
+      <g data-dfs-node="4"><circle cx="590" cy="210" r="34" class="graph-node zero"></circle><text x="590" y="210" class="graph-text">4</text></g>
+      <g data-dfs-node="5"><circle cx="800" cy="210" r="34" class="graph-node zero"></circle><text x="800" y="210" class="graph-text">5</text></g>
+      <text x="460" y="380" class="graph-label" id="dfs-stack-label">Ngăn xếp: rỗng</text>
     </svg>
   </div>
   <div class="status-grid">
@@ -689,37 +716,37 @@ while (!q.empty()) {
 
 <figure class="figure-card">
   <div class="figure-scroll">
-    <svg viewBox="0 0 760 315" role="img" aria-label="Minh họa quy hoạch động đường đi dài nhất trên DAG theo lớp tô-pô">
+    <svg viewBox="0 0 920 360" role="img" aria-label="Minh họa quy hoạch động đường đi dài nhất trên DAG theo lớp tô-pô">
       <defs>
-        <marker id="arr-s5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <marker id="arr-s5" viewBox="0 0 10 10" refX="8.8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
           <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)"></path>
         </marker>
       </defs>
-      <text x="90" y="36" class="graph-label blue">Lớp 1</text>
-      <text x="280" y="36" class="graph-label blue">Lớp 2</text>
-      <text x="475" y="36" class="graph-label blue">Lớp 3</text>
-      <text x="665" y="36" class="graph-label blue">Lớp 4</text>
-      <line x1="180" y1="48" x2="180" y2="275" class="divider"></line>
-      <line x1="375" y1="48" x2="375" y2="275" class="divider"></line>
-      <line x1="570" y1="48" x2="570" y2="275" class="divider"></line>
-      <circle cx="90" cy="158" r="28" class="graph-node zero"></circle>
-      <circle cx="280" cy="95" r="28" class="graph-node"></circle>
-      <circle cx="280" cy="220" r="28" class="graph-node"></circle>
-      <circle cx="475" cy="158" r="28" class="graph-node"></circle>
-      <circle cx="665" cy="158" r="28" class="graph-node done"></circle>
-      <text x="90" y="158" class="graph-text">1</text>
-      <text x="280" y="95" class="graph-text">2</text>
-      <text x="280" y="220" class="graph-text">3</text>
-      <text x="475" y="158" class="graph-text">4</text>
-      <text x="665" y="158" class="graph-text">5</text>
-      <path d="M 116 148 C 168 117, 213 102, 252 97" class="graph-edge" marker-end="url(#arr-s5)"></path>
-      <path d="M 116 169 C 168 198, 213 214, 252 218" class="graph-edge" marker-end="url(#arr-s5)"></path>
-      <path d="M 307 101 C 370 110, 409 126, 450 149" class="graph-edge good" marker-end="url(#arr-s5)"></path>
-      <path d="M 307 214 C 368 201, 410 184, 450 167" class="graph-edge" marker-end="url(#arr-s5)"></path>
-      <path d="M 503 158 L 637 158" class="graph-edge good" marker-end="url(#arr-s5)"></path>
-      <text x="380" y="89" class="graph-label good">cập nhật dp[4]</text>
-      <text x="570" y="142" class="graph-label good">cập nhật dp[5]</text>
-      <text x="380" y="300" class="graph-label">Khi xử lý u, mọi dp[u] từ các tiền nhiệm đã hoàn tất</text>
+      <text x="120" y="36" class="graph-title">Lớp 1</text>
+      <text x="340" y="36" class="graph-title">Lớp 2</text>
+      <text x="590" y="36" class="graph-title">Lớp 3</text>
+      <text x="800" y="36" class="graph-title">Lớp 4</text>
+      <line x1="220" y1="55" x2="220" y2="295" class="divider"></line>
+      <line x1="465" y1="55" x2="465" y2="295" class="divider"></line>
+      <line x1="695" y1="55" x2="695" y2="295" class="divider"></line>
+      <circle cx="120" cy="175" r="30" class="graph-node zero"></circle>
+      <circle cx="340" cy="105" r="30" class="graph-node"></circle>
+      <circle cx="340" cy="245" r="30" class="graph-node"></circle>
+      <circle cx="590" cy="175" r="30" class="graph-node"></circle>
+      <circle cx="800" cy="175" r="30" class="graph-node done"></circle>
+      <text x="120" y="175" class="graph-text">1</text>
+      <text x="340" y="105" class="graph-text">2</text>
+      <text x="340" y="245" class="graph-text">3</text>
+      <text x="590" y="175" class="graph-text">4</text>
+      <text x="800" y="175" class="graph-text">5</text>
+      <path d="M 150 166 C 212 128, 262 112, 308 108" class="graph-edge" marker-end="url(#arr-s5)"></path>
+      <path d="M 150 184 C 212 222, 262 238, 308 242" class="graph-edge" marker-end="url(#arr-s5)"></path>
+      <path d="M 370 112 C 442 123, 494 146, 558 168" class="graph-edge good" marker-end="url(#arr-s5)"></path>
+      <path d="M 370 238 C 442 226, 494 204, 558 182" class="graph-edge" marker-end="url(#arr-s5)"></path>
+      <path d="M 620 175 L 768 175" class="graph-edge good" marker-end="url(#arr-s5)"></path>
+      <text x="486" y="92" class="graph-note good">cập nhật dp[4]</text>
+      <text x="694" y="152" class="graph-note good">cập nhật dp[5]</text>
+      <text x="460" y="330" class="graph-subtle">Khi xử lý u theo thứ tự tô-pô, mọi dp[u] từ các tiền nhiệm đã sẵn sàng.</text>
     </svg>
   </div>
   <figcaption>Thứ tự tô-pô biến DAG thành một chiều xử lý. Khi tới đỉnh <span class="mathv">u</span>, mọi đường đi vào <span class="mathv">u</span> đã được tính, nên có thể đẩy kết quả sang các đỉnh sau.</figcaption>
