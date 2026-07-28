@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tổ hợp đếm nâng cao CP | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<style>
+  /* CSS riêng cho hình minh họa và phòng mô phỏng */
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{overflow-x:hidden}
+  .lead{font-size:1.06rem;line-height:1.75}
+  .meta-grid,.two-col,.sim-grid,.practice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .meta-card,.figure-card,.sim-room,.practice-card{min-width:0;border:1px solid var(--border);border-radius:14px;background:var(--card);padding:16px}
+  .meta-card b,.practice-card h3{color:var(--blue)}
+  .figure-card{overflow:hidden}
+  .figure-title{margin:0 0 10px;font-weight:700;color:var(--blue)}
+  .figure-scroll{overflow-x:auto;padding-bottom:4px}
+  .figure-scroll svg{display:block;width:100%;min-width:620px;height:auto}
+  .figcap{margin:10px 0 0;color:var(--muted);font-size:.94rem;line-height:1.55}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:10px;color:var(--muted);font-size:.92rem}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .swatch{width:13px;height:13px;border-radius:4px;border:1px solid var(--border);display:inline-block}
+  .sw-blue{background:var(--blue-bg);border-color:var(--blue)}
+  .sw-green{background:var(--green-bg);border-color:var(--green)}
+  .sw-red{background:var(--red-bg);border-color:var(--red)}
+  .sw-amber{background:var(--amber-bg);border-color:var(--amber)}
+  .sw-muted{background:var(--bg);border-color:var(--edge)}
+  .formula{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--code-bg);color:var(--code-fg);padding:14px 16px;margin:14px 0;font-size:1.02rem;line-height:1.65;white-space:nowrap}
+  .mathv{font-style:italic}
+  .steps{counter-reset:step;list-style:none;padding:0;margin:14px 0}
+  .steps li{counter-increment:step;position:relative;padding:0 0 14px 42px;line-height:1.65}
+  .steps li::before{content:counter(step);position:absolute;left:0;top:1px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue);font-weight:700}
+  .sim-room h3{margin-top:0;color:var(--blue)}
+  .sim-controls{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+  .sim-controls button{appearance:none;border:1px solid var(--border);border-radius:10px;padding:9px 13px;background:var(--blue-bg);color:var(--blue);font:inherit;font-weight:700;cursor:pointer}
+  .sim-controls button:hover{border-color:var(--blue)}
+  .sim-controls button:disabled{cursor:not-allowed;opacity:.55}
+  .term-track{display:grid;grid-template-columns:repeat(4,minmax(126px,1fr));gap:10px;overflow-x:auto;padding:4px 1px 8px}
+  .term-card{min-width:126px;border:1px solid var(--edge);border-radius:12px;background:var(--bg);padding:10px;transition:transform .15s ease,border-color .15s ease}
+  .term-card .term-head{font-weight:700;margin-bottom:6px}
+  .term-card.current{border-color:var(--blue);background:var(--blue-bg);transform:translateY(-2px)}
+  .term-card.added{border-color:var(--green);background:var(--green-bg)}
+  .term-card.removed{border-color:var(--red);background:var(--red-bg)}
+  .term-card.pending{color:var(--muted)}
+  .sim-message{min-height:72px;border:1px solid var(--border);border-radius:12px;background:var(--bg);padding:12px;line-height:1.6}
+  .sim-result{margin-top:10px;font-weight:700;color:var(--green)}
+  .mini-note{font-size:.93rem;color:var(--muted)}
+  .checklist{margin:10px 0 0;padding-left:22px}
+  .checklist li{margin:7px 0}
+  .tag{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:3px 9px;margin:2px 4px 2px 0;background:var(--bg);color:var(--muted);font-size:.88rem}
+  .nowrap{white-space:nowrap}
+  .tablewrap{max-width:100%;overflow-x:auto}
+  .tablewrap table{min-width:760px}
+  .codewrap{max-width:100%;overflow-x:auto}
+  .codewrap pre{margin:0}
+  .svg-label{font-size:15px;fill:var(--fg)}
+  .svg-small{font-size:13px;fill:var(--muted)}
+  .svg-strong{font-size:16px;font-weight:700;fill:var(--fg)}
+  .svg-edge{fill:none;stroke:var(--edge);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .svg-blue{fill:var(--blue-bg);stroke:var(--blue);stroke-width:2}
+  .svg-green{fill:var(--green-bg);stroke:var(--green);stroke-width:2}
+  .svg-amber{fill:var(--amber-bg);stroke:var(--amber);stroke-width:2}
+  .svg-muted{fill:var(--bg);stroke:var(--edge);stroke-width:1.7}
+  @media (max-width:900px){.meta-grid,.two-col,.sim-grid,.practice-grid{grid-template-columns:1fr}.term-track{grid-template-columns:repeat(4,150px)}}
+  @media (max-width:520px){.meta-card,.figure-card,.sim-room,.practice-card{padding:12px}.sim-controls button{flex:1 1 120px}.lead{font-size:1rem}.formula{font-size:.94rem}.tablewrap table{min-width:680px}}
+
+/*cv-fix-nen-sang*/
+:root{--c-cmt:#5f6672}
+@media (prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+:root[data-theme="light"]{--c-cmt:#5f6672}
+:root[data-theme="dark"]{--c-cmt:#8b949e}
+.box th, .tablewrap th, table th{color:var(--blue) !important}
+.box td, .tablewrap td, table td{color:var(--fg)}
+/*/cv-fix-nen-sang*/
+</style>
+<!--cv-head-->
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">TỔ HỢP ĐẾM</div>
+  <a href="#s1">1. Tạo vấn đề</a>
+  <a href="#s2">2. Vì sao đúng</a>
+  <a href="#s3">3. Chỗ dễ sai</a>
+  <a href="#s4">4. Khuôn cài đặt</a>
+  <a href="#s5">5. Biến thể</a>
+  <a href="#s6">6. Nhận dạng và bẫy</a>
+  <a href="#s7">7. Lộ trình bài luyện</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>TỔ HỢP ĐẾM NÂNG CAO CP</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p class="lead">Tổ hợp đếm trong lập trình thi đấu không dừng ở việc thay số vào công thức. Người giải cần chọn đúng đối tượng để đếm, kiểm soát phần bị đếm lặp, xác định khi nào phép chia theo mô-đun hợp lệ và nhận ra lúc phải chuyển sang quy hoạch động, nguyên lý bù trừ, Lucas hoặc các công cụ mạnh hơn.</p>
+
+<div class="meta-grid">
+  <div class="meta-card"><b>Kiến thức nền</b><br>Quy tắc cộng và nhân, chỉnh hợp, tổ hợp, giai thừa, lũy thừa nhanh, số dư và độ phức tạp.</div>
+  <div class="meta-card"><b>Trọng tâm</b><br>Tổ hợp theo mô-đun nguyên tố, nguyên lý bù trừ, phân phối vật, đếm số cách dùng đủ loại và lựa chọn khuôn cài đặt theo giới hạn.</div>
+</div>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tạo vấn đề: một phép trừ tưởng đúng</a></li>
+    <li><a href="#s2">Vì sao nguyên lý bù trừ là đúng</a></li>
+    <li><a href="#s3">Chỗ dễ sai còn lại</a></li>
+    <li><a href="#s4">Khuôn mẫu cài đặt</a></li>
+    <li><a href="#s5">Các biến thể thường gặp</a></li>
+    <li><a href="#s6">Nhận dạng và bẫy</a></li>
+    <li><a href="#s7">Lộ trình bài luyện</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Tạo vấn đề: một phép trừ tưởng đúng</h2>
+
+<p>Xét các chuỗi độ dài 4 tạo từ ba ký hiệu A, B, C. Cần đếm số chuỗi trong đó cả ba ký hiệu đều xuất hiện ít nhất một lần.</p>
+
+<div class="two-col">
+  <div class="box warn">
+    <div class="t">CÁCH NGHĨ CHƯA ĐỦ</div>
+    <p>Có tất cả 3<sup>4</sup> = 81 chuỗi. Với mỗi ký hiệu bị thiếu, còn 2<sup>4</sup> chuỗi chỉ dùng hai ký hiệu còn lại. Trừ 3 × 2<sup>4</sup> cho kết quả 33.</p>
+    <p>Phép trừ này làm các chuỗi chỉ dùng đúng một ký hiệu bị trừ hai lần. Ví dụ chuỗi AAAA vừa nằm trong nhóm “thiếu B”, vừa nằm trong nhóm “thiếu C”.</p>
+  </div>
+  <div class="box ex">
+    <div class="t">CÁCH NGHĨ ĐÚNG</div>
+    <p>Sau khi trừ các nhóm thiếu một ký hiệu, phải cộng lại phần giao của từng cặp nhóm. Có 3 cách chọn hai ký hiệu bị thiếu và mỗi cách còn đúng 1 chuỗi.</p>
+    <p>Kết quả là 81 − 48 + 3 = 36.</p>
+  </div>
+</div>
+
+<div class="box def">
+  <div class="t">CÂU HỎI CHUYỂN TIẾP</div>
+  <p>Vì sao chuỗi bị trừ hai lần phải được cộng lại đúng một lần, và khi có nhiều điều kiện hơn thì dấu cộng, trừ phải sắp xếp thế nào?</p>
+</div>
+
+<h2 id="s2"><span class="num">2.</span>Vì sao nguyên lý bù trừ là đúng</h2>
+
+<p>Nguyên lý bù trừ đếm hợp của nhiều tập bằng cách cộng số phần tử của từng tập, trừ các giao đôi, cộng các giao ba và tiếp tục đổi dấu. Trong bài toán chuỗi, tập <span class="mathv">M</span><sub>i</sub> gồm các chuỗi không dùng ký hiệu thứ <span class="mathv">i</span>.</p>
+
+<div class="formula">Số chuỗi hợp lệ = ∑<sub>i=0</sub><sup>k</sup> (−1)<sup>i</sup> × C(k, i) × (k − i)<sup>n</sup></div>
+
+<p>Chọn <span class="mathv">i</span> ký hiệu bị cấm có C(<span class="mathv">k</span>, <span class="mathv">i</span>) cách. Sau khi cấm, mỗi vị trí của chuỗi còn <span class="mathv">k</span> − <span class="mathv">i</span> lựa chọn, nên có (<span class="mathv">k</span> − <span class="mathv">i</span>)<sup>n</sup> chuỗi. Dấu của hạng tử đổi theo tính chẵn lẻ của <span class="mathv">i</span>.</p>
+
+<div class="box tech">
+  <div class="t">CHỨNG MINH BẰNG HỆ SỐ CỦA MỘT ĐỐI TƯỢNG</div>
+  <p>Xét một chuỗi cụ thể đang thiếu đúng <span class="mathv">m</span> ký hiệu. Khi cộng trừ tất cả các tập, chuỗi này được tính với tổng hệ số:</p>
+  <div class="formula">C(m, 1) − C(m, 2) + C(m, 3) − … + (−1)<sup>m+1</sup>C(m, m) = 1</div>
+  <p>Đẳng thức trên suy ra từ (1 − 1)<sup>m</sup> = 0. Vì vậy mỗi chuỗi không hợp lệ xuất hiện đúng một lần trong hợp các tập bị cấm. Chuỗi hợp lệ không thuộc tập nào nên có hệ số 0 trong phần bị loại. Lấy tổng tất cả chuỗi rồi trừ hợp các chuỗi không hợp lệ là an toàn.</p>
+</div>
+
+<div class="figure-card">
+  <p class="figure-title">Hình 1. Vì sao chia cho <span class="mathv">r</span>! khi chuyển từ chỉnh hợp sang tổ hợp</p>
+  <div class="figure-scroll">
+    <svg viewBox="0 0 760 430" role="img" aria-label="Sáu thứ tự của ba phần tử 1, 2, 3 cùng quy về một tập hợp không xét thứ tự">
+      <defs>
+        <marker id="arrow-comb" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 Z" fill="var(--edge)"></path>
+        </marker>
+      </defs>
+      <rect x="18" y="18" width="724" height="394" rx="18" class="svg-muted"></rect>
+      <text x="145" y="48" text-anchor="middle" class="svg-strong">Các thứ tự khác nhau</text>
+      <text x="590" y="48" text-anchor="middle" class="svg-strong">Một lựa chọn không xét thứ tự</text>
+
+      <g class="svg-label" text-anchor="middle" dominant-baseline="central">
+        <rect x="70" y="72" width="150" height="40" rx="10" class="svg-blue"></rect><text x="145" y="92">1, 2, 3</text>
+        <rect x="70" y="128" width="150" height="40" rx="10" class="svg-blue"></rect><text x="145" y="148">1, 3, 2</text>
+        <rect x="70" y="184" width="150" height="40" rx="10" class="svg-blue"></rect><text x="145" y="204">2, 1, 3</text>
+        <rect x="70" y="240" width="150" height="40" rx="10" class="svg-blue"></rect><text x="145" y="260">2, 3, 1</text>
+        <rect x="70" y="296" width="150" height="40" rx="10" class="svg-blue"></rect><text x="145" y="316">3, 1, 2</text>
+        <rect x="70" y="352" width="150" height="40" rx="10" class="svg-blue"></rect><text x="145" y="372">3, 2, 1</text>
+      </g>
+
+      <path d="M220 92 C340 92, 390 154, 490 188" class="svg-edge" marker-end="url(#arrow-comb)"></path>
+      <path d="M220 148 C340 148, 390 174, 490 198" class="svg-edge" marker-end="url(#arrow-comb)"></path>
+      <path d="M220 204 C340 204, 390 200, 490 208" class="svg-edge" marker-end="url(#arrow-comb)"></path>
+      <path d="M220 260 C340 260, 390 232, 490 218" class="svg-edge" marker-end="url(#arrow-comb)"></path>
+      <path d="M220 316 C340 316, 390 258, 490 228" class="svg-edge" marker-end="url(#arrow-comb)"></path>
+      <path d="M220 372 C340 372, 390 284, 490 238" class="svg-edge" marker-end="url(#arrow-comb)"></path>
+
+      <rect x="500" y="165" width="180" height="96" rx="16" class="svg-green"></rect>
+      <text x="590" y="203" text-anchor="middle" class="svg-strong">{1, 2, 3}</text>
+      <text x="590" y="230" text-anchor="middle" class="svg-small">6 = 3! thứ tự</text>
+      <text x="380" y="402" text-anchor="middle" class="svg-small">Mỗi tập gồm r phần tử tương ứng đúng r! dãy có thứ tự.</text>
+    </svg>
+  </div>
+  <p class="figcap">Chỉnh hợp đếm cả thứ tự. Tổ hợp gộp <span class="mathv">r</span>! thứ tự của cùng một tập thành một lựa chọn, nên C(<span class="mathv">n</span>, <span class="mathv">r</span>) = P(<span class="mathv">n</span>, <span class="mathv">r</span>) / <span class="mathv">r</span>!.</p>
+  <div class="legend"><span><i class="swatch sw-blue"></i>Dãy có thứ tự</span><span><i class="swatch sw-green"></i>Tập không xét thứ tự</span></div>
+</div>
+
+<h3>Phòng mô phỏng: chạy từng hạng của nguyên lý bù trừ</h3>
+<div class="sim-room" id="ie-room">
+  <h3>Chuỗi độ dài 4 trên bảng chữ cái 3 ký hiệu</h3>
+  <p class="mini-note">Mỗi bước xử lý một giá trị <span class="mathv">i</span>: số ký hiệu bị cấm. Màu xanh lá là hạng cộng, màu đỏ là hạng trừ, màu xanh dương là hạng đang xét.</p>
+  <div class="term-track" id="ie-terms" aria-label="Các hạng tử nguyên lý bù trừ"></div>
+  <div class="sim-controls">
+    <button type="button" id="ie-step">Chạy một bước</button>
+    <button type="button" id="ie-auto">Tự chạy</button>
+    <button type="button" id="ie-reset">Đặt lại</button>
+  </div>
+  <div class="sim-message" id="ie-message" aria-live="polite">Nhấn “Chạy một bước” để bắt đầu từ i = 0.</div>
+  <div class="sim-result" id="ie-result">Kết quả hiện tại: 0</div>
+  <div class="legend"><span><i class="swatch sw-blue"></i>Đang xét</span><span><i class="swatch sw-green"></i>Đã cộng</span><span><i class="swatch sw-red"></i>Đã trừ</span><span><i class="swatch sw-muted"></i>Chưa xét</span></div>
+</div>
+
+<h2 id="s3"><span class="num">3.</span>Chỗ dễ sai còn lại</h2>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Khái niệm</th><th>Dễ nhầm với</th><th>Điểm phân biệt</th></tr></thead>
+  <tbody>
+    <tr><td>C(<span class="mathv">n</span>, <span class="mathv">r</span>)</td><td>P(<span class="mathv">n</span>, <span class="mathv">r</span>)</td><td>Tổ hợp không xét thứ tự; chỉnh hợp xét thứ tự.</td></tr>
+    <tr><td>Chia số nguyên</td><td>Nhân nghịch đảo theo mô-đun</td><td><code class="inl">a / b</code> trong C++ không thay cho <code class="inl">a × b<sup>−1</sup> mod MOD</code>.</td></tr>
+    <tr><td>Mô-đun nguyên tố</td><td>Mô-đun bất kỳ</td><td>Công thức nghịch đảo <span class="mathv">x</span><sup>MOD−2</sup> chỉ dùng trực tiếp khi MOD nguyên tố và <span class="mathv">x</span> không chia hết cho MOD.</td></tr>
+    <tr><td>Giai thừa đến <span class="mathv">N</span></td><td>Mọi <span class="mathv">N</span></td><td>Nếu <span class="mathv">N</span> ≥ MOD thì <span class="mathv">N</span>! ≡ 0, không thể lấy nghịch đảo theo khuôn thông thường.</td></tr>
+    <tr><td>Đếm bù</td><td>Trừ riêng từng điều kiện xấu</td><td>Các nhóm xấu có thể giao nhau; phải kiểm tra phần bị đếm lặp.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box warn">
+  <div class="t">BẪY KIỂU DỮ LIỆU VÀ SỐ DƯ</div>
+  <ul>
+    <li>Dùng <code class="inl">long long</code> cho tích hai số dư. Khuôn trong trang giả sử MOD đủ nhỏ để tích không vượt giới hạn của <code class="inl">long long</code>.</li>
+    <li>Sau phép trừ, chuẩn hóa bằng <code class="inl">(x - y + MOD) % MOD</code> hoặc cộng MOD trước khi lấy số dư.</li>
+    <li>Không dùng kiểu <code class="inl">long</code> để thay cho <code class="inl">long long</code> trên MinGW 32-bit.</li>
+  </ul>
+</div>
+
+<div class="box tech">
+  <div class="t">BIÊN VÀ CHỈ SỐ</div>
+  <ul>
+    <li>Quy ước C(<span class="mathv">n</span>, <span class="mathv">r</span>) = 0 khi <span class="mathv">r</span> &lt; 0 hoặc <span class="mathv">r</span> &gt; <span class="mathv">n</span>.</li>
+    <li>Tiền xử lý mảng từ 0 đến <span class="mathv">N</span>; luôn đặt 0! = 1.</li>
+    <li>Hàm lũy thừa nhanh thường trả 1 cho <span class="mathv">a</span><sup>0</sup>, kể cả khi <span class="mathv">a</span> = 0. Cần đối chiếu ý nghĩa tổ hợp của trường hợp <span class="mathv">n</span> = 0.</li>
+    <li>Khi dùng vòng lặp giảm với biến không dấu, điều kiện dừng dễ bị tràn vòng. Khuôn dưới đây dùng <code class="inl">int</code> cho chỉ số.</li>
+  </ul>
+</div>
+
+<h2 id="s4"><span class="num">4.</span>Khuôn mẫu cài đặt</h2>
+
+<h3>Khuôn A — giai thừa và nghịch đảo giai thừa, MOD nguyên tố</h3>
+<p>Giữ nguyên hàm lũy thừa, phần tiền xử lý và hàm C(<span class="mathv">n</span>, <span class="mathv">r</span>). Chỉ thay giới hạn <span class="mathv">N</span>, mô-đun và phần công thức của bài.</p>
+
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const long long MOD = 1000000007LL;
+vector&lt;long long&gt; fact, invFact;
+
+long long modPow(long long a, long long e) {
+    long long res = 1;
+    while (e &gt; 0) {
+        if (e &amp; 1)
+            res = res * a % MOD;
+        a = a * a % MOD;
+        e &gt;&gt;= 1;
+    }
+    return res;
+}
+
+void prepareComb(int n) {
+    fact.assign(n + 1, 1);
+    invFact.assign(n + 1, 1);
+    for (int i = 1; i &lt;= n; ++i)
+        fact[i] = fact[i - 1] * i % MOD;
+
+    invFact[n] = modPow(fact[n], MOD - 2);
+    for (int i = n; i &gt;= 1; --i)
+        invFact[i - 1] = invFact[i] * i % MOD;
+}
+
+long long comb(int n, int r) {
+    if (r &lt; 0 || r &gt; n)
+        return 0;
+    return fact[n] * invFact[r] % MOD * invFact[n - r] % MOD;
+}</code></pre></div>
+
+<div class="figure-card">
+  <p class="figure-title">Hình 2. Tiền xử lý một lần, trả lời nhiều truy vấn</p>
+  <div class="figure-scroll">
+    <svg viewBox="0 0 820 300" role="img" aria-label="Hai hàng fact và invFact được tiền xử lý, sau đó ba ô được lấy để tính một tổ hợp">
+      <defs>
+        <marker id="arrow-pre" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 Z" fill="var(--edge)"></path>
+        </marker>
+      </defs>
+      <rect x="18" y="18" width="784" height="264" rx="18" class="svg-muted"></rect>
+      <text x="82" y="76" text-anchor="middle" class="svg-strong">fact</text>
+      <text x="82" y="148" text-anchor="middle" class="svg-strong">invFact</text>
+
+      <g text-anchor="middle" dominant-baseline="central" class="svg-label">
+        <rect x="130" y="50" width="70" height="48" rx="9" class="svg-blue"></rect><text x="165" y="74">0!</text>
+        <rect x="210" y="50" width="70" height="48" rx="9" class="svg-blue"></rect><text x="245" y="74">1!</text>
+        <rect x="290" y="50" width="70" height="48" rx="9" class="svg-blue"></rect><text x="325" y="74">2!</text>
+        <rect x="370" y="50" width="70" height="48" rx="9" class="svg-blue"></rect><text x="405" y="74">3!</text>
+        <rect x="450" y="50" width="70" height="48" rx="9" class="svg-blue"></rect><text x="485" y="74">…</text>
+        <rect x="530" y="50" width="70" height="48" rx="9" class="svg-green"></rect><text x="565" y="74">n!</text>
+
+        <rect x="130" y="122" width="70" height="48" rx="9" class="svg-amber"></rect><text x="165" y="146">1/0!</text>
+        <rect x="210" y="122" width="70" height="48" rx="9" class="svg-amber"></rect><text x="245" y="146">1/1!</text>
+        <rect x="290" y="122" width="70" height="48" rx="9" class="svg-amber"></rect><text x="325" y="146">1/2!</text>
+        <rect x="370" y="122" width="70" height="48" rx="9" class="svg-amber"></rect><text x="405" y="146">1/3!</text>
+        <rect x="450" y="122" width="70" height="48" rx="9" class="svg-amber"></rect><text x="485" y="146">…</text>
+        <rect x="530" y="122" width="70" height="48" rx="9" class="svg-green"></rect><text x="565" y="146">1/n!</text>
+      </g>
+
+      <path d="M165 98 L165 118" class="svg-edge" marker-end="url(#arrow-pre)"></path>
+      <path d="M245 98 L245 118" class="svg-edge" marker-end="url(#arrow-pre)"></path>
+      <path d="M325 98 L325 118" class="svg-edge" marker-end="url(#arrow-pre)"></path>
+      <path d="M405 98 L405 118" class="svg-edge" marker-end="url(#arrow-pre)"></path>
+      <path d="M565 98 L565 118" class="svg-edge" marker-end="url(#arrow-pre)"></path>
+
+      <rect x="160" y="208" width="500" height="48" rx="12" class="svg-green"></rect>
+      <text x="410" y="232" text-anchor="middle" dominant-baseline="central" class="svg-label">C(n, r) = fact[n] × invFact[r] × invFact[n − r]</text>
+      <path d="M565 170 C565 190, 520 198, 500 204" class="svg-edge" marker-end="url(#arrow-pre)"></path>
+      <path d="M325 170 C325 190, 350 198, 365 204" class="svg-edge" marker-end="url(#arrow-pre)"></path>
+      <text x="690" y="90" text-anchor="middle" class="svg-small">O(N) tiền xử lý</text>
+      <text x="690" y="116" text-anchor="middle" class="svg-small">O(1) mỗi truy vấn</text>
+    </svg>
+  </div>
+  <p class="figcap">Mảng <code class="inl">fact</code> đi xuôi. Chỉ cần tính một nghịch đảo ở cuối, sau đó suy ra toàn bộ <code class="inl">invFact</code> khi đi ngược.</p>
+  <div class="legend"><span><i class="swatch sw-blue"></i>Giai thừa</span><span><i class="swatch sw-amber"></i>Nghịch đảo giai thừa</span><span><i class="swatch sw-green"></i>Giá trị được dùng trong truy vấn</span></div>
+</div>
+
+<h3>Khuôn B — tam giác Pascal, không cần phép chia</h3>
+<p>Khuôn này phù hợp khi <span class="mathv">n</span> nhỏ, mô-đun không nguyên tố hoặc cần toàn bộ C(<span class="mathv">n</span>, <span class="mathv">r</span>) trong một vùng nhỏ.</p>
+
+<div class="codewrap noname"><pre><code>vector&lt;vector&lt;long long&gt;&gt; buildPascal(int n, long long mod) {
+    vector&lt;vector&lt;long long&gt;&gt; c(n + 1, vector&lt;long long&gt;(n + 1, 0));
+    c[0][0] = 1;
+    for (int i = 1; i &lt;= n; ++i) {
+        c[i][0] = c[i][i] = 1;
+        for (int j = 1; j &lt; i; ++j)
+            c[i][j] = (c[i - 1][j - 1] + c[i - 1][j]) % mod;
+    }
+    return c;
+}</code></pre></div>
+
+<h3>Chương trình hoàn chỉnh — đếm chuỗi dùng đủ mọi ký hiệu</h3>
+<p>Đầu vào gồm độ dài <span class="mathv">n</span> và số ký hiệu <span class="mathv">k</span>. Chương trình tính số chuỗi độ dài <span class="mathv">n</span> dùng đủ cả <span class="mathv">k</span> ký hiệu theo mô-đun 1&nbsp;000&nbsp;000&nbsp;007. Khuôn giả sử <span class="mathv">k</span> nhỏ hơn MOD và đủ nhỏ để tiền xử lý mảng.</p>
+
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const long long MOD = 1000000007LL;
+vector&lt;long long&gt; fact, invFact;
+
+long long modPow(long long a, long long e) {
+    long long res = 1;
+    a %= MOD;
+    while (e &gt; 0) {
+        if (e &amp; 1)
+            res = res * a % MOD;
+        a = a * a % MOD;
+        e &gt;&gt;= 1;
+    }
+    return res;
+}
+
+void prepareComb(int n) {
+    fact.assign(n + 1, 1);
+    invFact.assign(n + 1, 1);
+    for (int i = 1; i &lt;= n; ++i)
+        fact[i] = fact[i - 1] * i % MOD;
+
+    invFact[n] = modPow(fact[n], MOD - 2);
+    for (int i = n; i &gt;= 1; --i)
+        invFact[i - 1] = invFact[i] * i % MOD;
+}
+
+long long comb(int n, int r) {
+    if (r &lt; 0 || r &gt; n)
+        return 0;
+    return fact[n] * invFact[r] % MOD * invFact[n - r] % MOD;
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    long long n;
+    int k;
+    if (!(cin &gt;&gt; n &gt;&gt; k))
+        return 0;
+
+    prepareComb(k);
+
+    long long ans = 0;
+    for (int i = 0; i &lt;= k; ++i) {
+        long long waysChooseMissing = comb(k, i);
+        long long waysFill = modPow(k - i, n);
+        long long term = waysChooseMissing * waysFill % MOD;
+
+        if (i &amp; 1)
+            ans = (ans - term + MOD) % MOD;
+        else
+            ans = (ans + term) % MOD;
+    }
+
+    cout &lt;&lt; ans &lt;&lt; '\n';
+    return 0;
+}</code></pre></div>
+
+<div class="box cmplx">
+  <div class="t">ĐỘ PHỨC TẠP</div>
+  <p>Tiền xử lý tổ hợp tốn O(<span class="mathv">k</span> + log MOD). Vòng bù trừ có <span class="mathv">k</span> + 1 hạng, mỗi hạng tính một lũy thừa nhanh O(log <span class="mathv">n</span>), nên tổng là O(<span class="mathv">k</span> log <span class="mathv">n</span>). Bộ nhớ O(<span class="mathv">k</span>).</p>
+</div>
+
+<h2 id="s5"><span class="num">5.</span>Các biến thể thường gặp</h2>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Đề yêu cầu thêm gì</th><th>Cần thay đổi gì trong khuôn</th><th>Công cụ bổ sung</th></tr></thead>
+  <tbody>
+    <tr><td>Dùng đúng <span class="mathv">t</span> trong <span class="mathv">k</span> loại</td><td>Chọn <span class="mathv">t</span> loại rồi đếm chuỗi dùng đủ <span class="mathv">t</span> loại</td><td>C(<span class="mathv">k</span>, <span class="mathv">t</span>) và bù trừ</td></tr>
+    <tr><td>Mỗi loại xuất hiện ít nhất <span class="mathv">L</span> lần</td><td>Không thể chỉ đổi một hạng tử lũy thừa</td><td>Hàm sinh, quy hoạch động hoặc bù trừ có hệ số</td></tr>
+    <tr><td>Phân <span class="mathv">n</span> vật giống nhau vào <span class="mathv">k</span> hộp</td><td>Chuyển từ chuỗi sang nghiệm nguyên không âm</td><td>Phương pháp ngăn cách: C(<span class="mathv">n</span> + <span class="mathv">k</span> − 1, <span class="mathv">k</span> − 1)</td></tr>
+    <tr><td>Mỗi hộp có giới hạn trên</td><td>Trừ các nghiệm vượt giới hạn</td><td>Bù trừ hoặc quy hoạch động</td></tr>
+    <tr><td><span class="mathv">n</span> rất lớn, MOD nguyên tố nhỏ</td><td>Không tiền xử lý đến <span class="mathv">n</span></td><td>Định lý Lucas</td></tr>
+    <tr><td>MOD là hợp số</td><td>Không dùng trực tiếp <span class="mathv">x</span><sup>MOD−2</sup></td><td>Phân tích lũy thừa nguyên tố, CRT hoặc Pascal khi giới hạn nhỏ</td></tr>
+    <tr><td>Đếm cấu hình quay hoặc lật được xem như nhau</td><td>Không thể sửa một dòng trong công thức tổ hợp</td><td>Bổ đề Burnside hoặc Pólya</td></tr>
+    <tr><td>Nhiều truy vấn với cùng giới hạn</td><td>Tiền xử lý một lần và tái sử dụng</td><td>Giai thừa, nghịch đảo giai thừa, lưu bảng</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box def">
+  <div class="t">PHÂN LOẠI MỨC THAY ĐỔI</div>
+  <p><span class="tag">Sửa nhỏ</span> thay điều kiện chọn <span class="mathv">r</span>, đổi số loại hoặc ghép thêm một hệ số tổ hợp.</p>
+  <p><span class="tag">Đổi khuôn</span> mô-đun hợp số, <span class="mathv">n</span> ≥ MOD, có giới hạn tần suất, hoặc các cấu hình có đối xứng. Những trường hợp này cần chứng minh và công cụ mới, không nên ép vào khuôn giai thừa quen thuộc.</p>
+</div>
+
+<h2 id="s6"><span class="num">6.</span>Nhận dạng và bẫy</h2>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Đề nói gì</th><th>Nên nghĩ tới gì</th><th>Câu hỏi cần tự kiểm tra</th></tr></thead>
+  <tbody>
+    <tr><td>“Ít nhất một”, “không được thiếu loại nào”</td><td>Đếm bù hoặc nguyên lý bù trừ</td><td>Các điều kiện xấu có giao nhau không?</td></tr>
+    <tr><td>“Chọn vị trí”, “chọn nhóm”</td><td>Tổ hợp</td><td>Thứ tự có tạo ra cấu hình mới không?</td></tr>
+    <tr><td>“Phân vật giống nhau”</td><td>Ngăn cách hoặc nghiệm nguyên</td><td>Hộp có phân biệt không, có giới hạn dưới hoặc trên không?</td></tr>
+    <tr><td>“Nhiều truy vấn C(n, r)”</td><td>Tiền xử lý giai thừa</td><td>MOD có nguyên tố và max <span class="mathv">n</span> có nhỏ hơn MOD không?</td></tr>
+    <tr><td>“n rất lớn, MOD nhỏ”</td><td>Biểu diễn theo cơ số MOD, Lucas</td><td>MOD có thật sự nguyên tố không?</td></tr>
+    <tr><td>“Xem như nhau sau quay/lật”</td><td>Đếm quỹ đạo đối xứng</td><td>Nhóm phép biến đổi gồm những phép nào?</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="practice-grid">
+  <div class="box warn">
+    <div class="t">BẪY 1 — CHIA TRỰC TIẾP SAU KHI LẤY MOD</div>
+    <p><b>Nhận định sai:</b> Tính <span class="mathv">n</span>! mod MOD rồi chia cho <span class="mathv">r</span>! mod MOD.</p>
+    <p><b>Lý do sai:</b> Phép chia số nguyên không bảo toàn quan hệ đồng dư.</p>
+    <p><b>Phòng tránh:</b> Nhân với nghịch đảo mô-đun khi điều kiện tồn tại được bảo đảm.</p>
+  </div>
+  <div class="box warn">
+    <div class="t">BẪY 2 — CHỈ TRỪ CÁC ĐIỀU KIỆN XẤU</div>
+    <p><b>Nhận định sai:</b> Mỗi điều kiện xấu trừ một lần là đủ.</p>
+    <p><b>Lý do sai:</b> Một cấu hình có thể vi phạm nhiều điều kiện và bị trừ lặp.</p>
+    <p><b>Phòng tránh:</b> Vẽ quan hệ giao hoặc xét hệ số của một cấu hình cụ thể.</p>
+  </div>
+  <div class="box warn">
+    <div class="t">BẪY 3 — DÙNG KHUÔN GIAI THỪA KHI n ≥ MOD</div>
+    <p><b>Nhận định sai:</b> Chỉ cần tăng kích thước mảng.</p>
+    <p><b>Lý do sai:</b> Giai thừa chứa thừa số MOD nên bằng 0 theo mô-đun.</p>
+    <p><b>Phòng tránh:</b> Kiểm tra giới hạn trước khi chọn Lucas, CRT hoặc phương pháp khác.</p>
+  </div>
+  <div class="box warn">
+    <div class="t">BẪY 4 — QUÊN PHÂN BIỆT VẬT VÀ HỘP</div>
+    <p><b>Nhận định sai:</b> Mọi bài phân phối đều dùng C(<span class="mathv">n</span> + <span class="mathv">k</span> − 1, <span class="mathv">k</span> − 1).</p>
+    <p><b>Lý do sai:</b> Công thức đó dành cho vật giống nhau và hộp phân biệt, không có giới hạn trên.</p>
+    <p><b>Phòng tránh:</b> Ghi rõ vật có phân biệt, hộp có phân biệt và mỗi hộp được nhận bao nhiêu.</p>
+  </div>
+</div>
+
+<h2 id="s7"><span class="num">7.</span>Lộ trình bài luyện</h2>
+
+<p>Các mã dưới đây là mã giữ chỗ vì chưa có danh sách CVPOI thật. Phải thay mã trước khi đồng bộ lên site.</p>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Chặng</th><th>Bài luyện</th><th>Trọng tâm</th><th>Mục cần đọc lại</th></tr></thead>
+  <tbody>
+    <tr><td rowspan="3" class="nowrap">Chặng 1<br>Nền tảng</td><td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_CHON_VI_TRI" target="_blank">Chọn vị trí</a></td><td>Phân biệt tổ hợp và chỉnh hợp</td><td>Mục 2, Hình 1</td></tr>
+    <tr><td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_DUONG_DI_LUOI" target="_blank">Đường đi trên lưới</a></td><td>Chọn vị trí của các bước</td><td>Mục 2 và 4</td></tr>
+    <tr><td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_PHAN_KEO" target="_blank">Phân kẹo</a></td><td>Ngăn cách, giới hạn dưới</td><td>Mục 5</td></tr>
+
+    <tr><td rowspan="3" class="nowrap">Chặng 2<br>Bù trừ</td><td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_DUNG_DU_KY_HIEU" target="_blank">Dùng đủ ký hiệu</a></td><td>Bù trừ trên tập ký hiệu bị thiếu</td><td>Mục 1, 2 và mô phỏng</td></tr>
+    <tr><td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_HOP_RONG" target="_blank">Không hộp nào rỗng</a></td><td>Ánh xạ toàn ánh, chọn hộp rỗng</td><td>Mục 2 và 4</td></tr>
+    <tr><td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_GIOI_HAN_TREN" target="_blank">Giới hạn trên</a></td><td>Bù trừ cho nghiệm nguyên bị chặn</td><td>Mục 5 và 6</td></tr>
+
+    <tr><td rowspan="3" class="nowrap">Chặng 3<br>Nâng cao</td><td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_LUCAS" target="_blank">Chữ số tổ hợp</a></td><td>Lucas với <span class="mathv">n</span> lớn</td><td>Mục 3 và 5</td></tr>
+    <tr><td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_MOD_HOP_SO" target="_blank">Tổ hợp mô-đun hợp số</a></td><td>Số mũ thừa số nguyên tố và CRT</td><td>Mục 3, 5 và 6</td></tr>
+    <tr><td><a href="https://cvpoi.id.vn/problem/MA_CVPOI_DOI_XUNG" target="_blank">Vòng màu đối xứng</a></td><td>Burnside, phân lớp theo phép biến đổi</td><td>Mục 5 và 6</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box def">
+  <div class="t">TỰ KIỂM TRƯỚC KHI NỘP</div>
+  <ul class="checklist">
+    <li>Tôi đã xác định rõ thứ tự có quan trọng hay không.</li>
+    <li>Tôi đã ghi rõ vật và hộp có phân biệt hay không.</li>
+    <li>Tôi đã kiểm tra các tập điều kiện xấu có giao nhau không.</li>
+    <li>Tôi đã xác nhận MOD nguyên tố trước khi dùng Fermat nhỏ.</li>
+    <li>Tôi đã kiểm tra giới hạn lớn nhất có nhỏ hơn MOD hay không.</li>
+    <li>Tôi đã chuẩn hóa số âm sau phép trừ theo mô-đun.</li>
+    <li>Tôi đã thử các biên <span class="mathv">n</span> = 0, <span class="mathv">k</span> = 0, <span class="mathv">r</span> = 0 và <span class="mathv">r</span> &gt; <span class="mathv">n</span> khi chúng hợp lệ với đề.</li>
+    <li>Tôi đã so sánh với vét cạn cho dữ liệu nhỏ.</li>
+  </ul>
+</div>
+
+</div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var room = document.getElementById('ie-room');
+  if (!room)
+    return;
+
+  var termsData = [
+    {i: 0, choose: 1, remain: 3, power: 81, sign: 1, contribution: 81},
+    {i: 1, choose: 3, remain: 2, power: 16, sign: -1, contribution: 48},
+    {i: 2, choose: 3, remain: 1, power: 1, sign: 1, contribution: 3},
+    {i: 3, choose: 1, remain: 0, power: 0, sign: -1, contribution: 0}
+  ];
+
+  var termsEl = document.getElementById('ie-terms');
+  var stepBtn = document.getElementById('ie-step');
+  var autoBtn = document.getElementById('ie-auto');
+  var resetBtn = document.getElementById('ie-reset');
+  var messageEl = document.getElementById('ie-message');
+  var resultEl = document.getElementById('ie-result');
+  var index = 0;
+  var total = 0;
+  var timer = null;
+  var pendingTimeout = null;
+  var busy = false;
+
+  function renderTerms() {
+    termsEl.innerHTML = '';
+    termsData.forEach(function (item, pos) {
+      var card = document.createElement('div');
+      card.className = 'term-card pending';
+      card.dataset.index = String(pos);
+      card.innerHTML = '<div class="term-head">i = ' + item.i + '</div>' +
+        '<div>C(3, ' + item.i + ') = ' + item.choose + '</div>' +
+        '<div>Còn ' + item.remain + ' ký hiệu</div>' +
+        '<div>' + item.remain + '<sup>4</sup> = ' + item.power + '</div>' +
+        '<div>Hạng: ' + (item.sign > 0 ? '+' : '−') + item.contribution + '</div>';
+      termsEl.appendChild(card);
+    });
+  }
+
+  function setCardState(pos, state) {
+    var card = termsEl.querySelector('[data-index="' + pos + '"]');
+    if (!card)
+      return;
+    card.className = 'term-card ' + state;
+  }
+
+  function finishAuto() {
+    if (timer !== null) {
+      window.clearInterval(timer);
+      timer = null;
+    }
+    autoBtn.textContent = 'Tự chạy';
+  }
+
+  function runStep() {
+    if (busy)
+      return;
+    if (index >= termsData.length) {
+      finishAuto();
+      messageEl.textContent = 'Đã xử lý đủ bốn hạng. Kết quả cuối cùng là 36 chuỗi.';
+      resultEl.textContent = 'Kết quả cuối cùng: 36';
+      stepBtn.disabled = true;
+      return;
+    }
+
+    busy = true;
+    stepBtn.disabled = true;
+    var item = termsData[index];
+    setCardState(index, 'current');
+    messageEl.textContent = 'Đang xét i = ' + item.i + ': chọn ' + item.i + ' ký hiệu bị cấm, có C(3, ' + item.i + ') = ' + item.choose + ' cách; mỗi cách tạo ' + item.power + ' chuỗi.';
+
+    pendingTimeout = window.setTimeout(function () {
+      if (item.sign > 0) {
+        total += item.contribution;
+        setCardState(index, 'added');
+        messageEl.textContent = 'Cộng ' + item.contribution + '. Tổng tạm thời là ' + total + '.';
+      } else {
+        total -= item.contribution;
+        setCardState(index, 'removed');
+        messageEl.textContent = 'Trừ ' + item.contribution + '. Tổng tạm thời là ' + total + '.';
+      }
+      resultEl.textContent = 'Kết quả hiện tại: ' + total;
+      pendingTimeout = null;
+      busy = false;
+      index += 1;
+      if (index >= termsData.length) {
+        finishAuto();
+        stepBtn.disabled = true;
+        messageEl.textContent += ' Đã hoàn tất; kết quả cuối cùng là 36.';
+        resultEl.textContent = 'Kết quả cuối cùng: 36';
+      } else {
+        stepBtn.disabled = false;
+      }
+    }, 220);
+  }
+
+  function toggleAuto() {
+    if (timer !== null) {
+      finishAuto();
+      return;
+    }
+    if (index >= termsData.length)
+      return;
+    autoBtn.textContent = 'Dừng tự chạy';
+    runStep();
+    timer = window.setInterval(function () {
+      if (index >= termsData.length) {
+        finishAuto();
+        return;
+      }
+      runStep();
+    }, 900);
+  }
+
+  function reset() {
+    finishAuto();
+    if (pendingTimeout !== null) {
+      window.clearTimeout(pendingTimeout);
+      pendingTimeout = null;
+    }
+    busy = false;
+    index = 0;
+    total = 0;
+    stepBtn.disabled = false;
+    messageEl.textContent = 'Nhấn “Chạy một bước” để bắt đầu từ i = 0.';
+    resultEl.textContent = 'Kết quả hiện tại: 0';
+    renderTerms();
+  }
+
+  renderTerms();
+  stepBtn.addEventListener('click', runStep);
+  autoBtn.addEventListener('click', toggleAuto);
+  resetBtn.addEventListener('click', reset);
+})();
+</script>
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<!--/cv-foot-->
+</body>
+</html>
