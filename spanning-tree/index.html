@@ -202,7 +202,6 @@
       <path d="M 88 138 L 122 42" class="fsel"></path>
       <path d="M 238 42 L 298 58" class="fsel"></path>
       <path d="M 238 42 L 272 138" class="fsel"></path>
-      <path d="M 272 138 L 298 58" class="fsel"></path>
 
       <path d="M 122 42 L 238 42" class="fcross"></path>
       <path d="M 122 42 L 272 138" class="fweak"></path>
@@ -223,10 +222,10 @@
       <circle cx="122" cy="42" r="18" class="fnodeA"></circle>
       <text x="122" y="42" class="ftext">2</text>
       <circle cx="88" cy="138" r="18" class="fnodeA"></circle>
-      <text x="88" y="138" class="ftext">4</text>
+      <text x="88" y="138" class="ftext">3</text>
 
       <circle cx="238" cy="42" r="18" class="fnodeB"></circle>
-      <text x="238" y="42" class="ftext">3</text>
+      <text x="238" y="42" class="ftext">4</text>
       <circle cx="298" cy="58" r="18" class="fnodeB"></circle>
       <text x="298" y="58" class="ftext">5</text>
       <circle cx="272" cy="138" r="18" class="fnodeB"></circle>
@@ -246,7 +245,6 @@
       <path d="M 88 138 L 122 42" class="fsel"></path>
       <path d="M 238 42 L 298 58" class="fsel"></path>
       <path d="M 238 42 L 272 138" class="fsel"></path>
-      <path d="M 272 138 L 298 58" class="fsel"></path>
 
       <path d="M 122 42 L 238 42" class="fcross"></path>
       <path d="M 122 42 L 272 138" class="fweak"></path>
@@ -261,17 +259,17 @@
       <text x="158" y="91" class="flabel">9</text>
       <rect x="169" y="127" width="26" height="22" rx="7" class="flabelbg"></rect>
       <text x="182" y="138" class="flabel">8</text>
-      <text x="200" y="170" class="fsmall">cạnh 4 là nhỏ nhất trong các cạnh cắt qua ranh giới</text>
+      <text x="10" y="210" class="fsmall">Trọng số 4 là cạnh nhẹ nhất đi qua lát cắt.</text>
 
       <circle cx="62" cy="58" r="18" class="fnodeA"></circle>
       <text x="62" y="58" class="ftext">1</text>
       <circle cx="122" cy="42" r="18" class="fnodeA"></circle>
       <text x="122" y="42" class="ftext">2</text>
       <circle cx="88" cy="138" r="18" class="fnodeA"></circle>
-      <text x="88" y="138" class="ftext">4</text>
+      <text x="88" y="138" class="ftext">3</text>
 
       <circle cx="238" cy="42" r="18" class="fnodeB"></circle>
-      <text x="238" y="42" class="ftext">3</text>
+      <text x="238" y="42" class="ftext">4</text>
       <circle cx="298" cy="58" r="18" class="fnodeB"></circle>
       <text x="298" y="58" class="ftext">5</text>
       <circle cx="272" cy="138" r="18" class="fnodeB"></circle>
@@ -328,8 +326,8 @@
     </p>
   </div>
   <div class="figcard">
-    <svg viewBox="0 0 360 200" role="img" aria-label="So sánh cây đường đi ngắn nhất từ đỉnh 1 và MST">
-      <text x="88" y="24" class="fsmall">cây đường đi ngắn nhất từ 1</text>
+    <svg viewBox="0 -22 360 222" role="img" aria-label="So sánh cây đường đi ngắn nhất từ đỉnh 1 và MST">
+      <text x="10" y="-6" class="fsmall">cây đường đi ngắn nhất từ 1</text>
       <path d="M 60 60 L 150 35" class="fsel"></path>
       <path d="M 60 60 L 150 120" class="fsel"></path>
       <path d="M 150 35 L 250 60" class="fsel"></path>
@@ -356,8 +354,8 @@
     </p>
   </div>
   <div class="figcard">
-    <svg viewBox="0 0 360 200" role="img" aria-label="MST có thể khác cây đường đi ngắn nhất">
-      <text x="120" y="24" class="fsmall">một cây khung nhỏ nhất</text>
+    <svg viewBox="0 -22 360 222" role="img" aria-label="MST có thể khác cây đường đi ngắn nhất">
+      <text x="10" y="-6" class="fsmall">một cây khung nhỏ nhất</text>
       <path d="M 60 60 L 150 35" class="fsel"></path>
       <path d="M 150 35 L 150 120" class="fsel"></path>
       <path d="M 150 35 L 250 60" class="fsel"></path>
@@ -802,25 +800,27 @@ int main() {
 
 <script>
 (function () {
+  // Bố cục lăng trụ tam giác (planar): tam giác ngoài 1-2-3, tam giác trong 4-5-6,
+  // ba nan hoa 3-4, 2-5, 1-6. Không cạnh nào cắt nhau nên mọi cạnh vẽ thẳng.
   var edges = [
-    {u:1,v:2,w:1, lx:118, ly:46},
-    {u:2,v:3,w:2, lx:241, ly:48},
-    {u:1,v:3,w:3, lx:180, ly:78, curve:-16},
-    {u:4,v:5,w:4, lx:118, ly:203},
-    {u:5,v:6,w:5, lx:241, ly:203},
-    {u:4,v:6,w:6, lx:180, ly:184, curve:16},
-    {u:3,v:4,w:7, lx:135, ly:116, curve:24},
-    {u:2,v:5,w:8, lx:198, ly:125},
-    {u:1,v:6,w:9, lx:160, ly:150, curve:-24}
+    {u:1,v:2,w:1, lx:95,  ly:112},
+    {u:2,v:3,w:2, lx:265, ly:112},
+    {u:1,v:3,w:3, lx:180, ly:212},
+    {u:4,v:5,w:4, lx:220, ly:130},
+    {u:5,v:6,w:5, lx:137, ly:130},
+    {u:4,v:6,w:6, lx:180, ly:165},
+    {u:3,v:4,w:7, lx:277, ly:190},
+    {u:2,v:5,w:8, lx:180, ly:68},
+    {u:1,v:6,w:9, lx:82,  ly:190}
   ];
 
   var positions = {
-    1:[65,55],
-    2:[180,35],
-    3:[295,60],
-    4:[65,190],
-    5:[180,215],
-    6:[295,185]
+    1:[45,212],
+    2:[180,28],
+    3:[315,212],
+    4:[240,165],
+    5:[180,108],
+    6:[120,165]
   };
 
   var stepIndex = 0;
