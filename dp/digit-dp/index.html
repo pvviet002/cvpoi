@@ -360,7 +360,7 @@
   <ul>
     <li>Cận đến 10<sup>18</sup> có tối đa 19 chữ số, nhưng số lượng trạng thái phụ có thể lớn hơn nhiều nếu theo dõi số dư hoặc mặt nạ.</li>
     <li>Dùng <code class="inl">long long</code> tường minh; kiểu <code class="inl">long</code> chỉ có 4 byte trên MinGW 32-bit.</li>
-    <li>Ở điều kiện dừng <code class="inl">pos == digits.size()</code>, chỉ kiểm tra thuộc tính cuối cùng; không sinh thêm chữ số.</li>
+    <li>Ở điều kiện dừng <code class="inl">pos == s.size()</code>, chỉ kiểm tra thuộc tính cuối cùng; không sinh thêm chữ số.</li>
     <li>Trạng thái phụ phải có miền giá trị hữu hạn. Không lưu nguyên tổng hoặc tích nếu nó có thể tăng quá lớn mà đề chỉ cần số dư, dấu hoặc so sánh ngưỡng.</li>
   </ul>
 </div>
@@ -370,33 +370,31 @@
 <h3>Khuôn A — hàm đếm từ 0 đến <span class="mathv">X</span></h3>
 <p>Phần giữ nguyên gồm việc chuyển cận thành chuỗi, duyệt vị trí từ trái sang phải, xác định chữ số tối đa bằng <code class="inl">tight</code> và ghi nhớ trạng thái. Phần thay đổi là trạng thái phụ, cách cập nhật trạng thái phụ và điều kiện nhận ở cuối.</p>
 
-<div class="codewrap noname"><pre><code>long long dfs(int pos, bool tight, bool started, int state) {
-    if (pos == (int)digits.size())
-        return validFinalState(started, state);
+<div class="codewrap noname"><pre><code>long long dp(int pos, bool tight, bool started, int state) {
+    if (pos == (int)s.size())
+        return ok(started, state);             // trạng thái cuối có hợp lệ?
 
-    if (visited[pos][tight][started][state])
+    if (vs[pos][tight][started][state])
         return memo[pos][tight][started][state];
 
-    visited[pos][tight][started][state] = true;
-    long long answer = 0;
-    int limit = tight ? digits[pos] - '0' : 9;
+    vs[pos][tight][started][state] = true;
+    long long res = 0;
+    int hi = tight ? s[pos] - '0' : 9;         // chữ số lớn nhất được phép
 
-    for (int digit = 0; digit &lt;= limit; digit++) {
-        bool nextTight = tight &amp;&amp; digit == limit;
-        bool nextStarted = started || digit != 0;
-        int nextState = transition(state, digit, started, nextStarted);
-        if (nextState == INVALID_STATE)
-            continue;
-        answer += dfs(pos + 1, nextTight, nextStarted, nextState);
+    for (int c = 0; c &lt;= hi; c++) {
+        bool nt = tight &amp;&amp; c == hi;             // bước sau còn bám cận?
+        bool ns = started || c != 0;           // số đã bắt đầu?
+        int st = trans(state, c, started, ns); // chuyển trạng thái phụ
+        if (st == BAD) continue;               // chuyển không hợp lệ thì bỏ
+        res += dp(pos + 1, nt, ns, st);
     }
 
-    memo[pos][tight][started][state] = answer;
-    return answer;
+    return memo[pos][tight][started][state] = res;
 }</code></pre></div>
 
 <div class="box warn">
-  <div class="t">CHI TIẾT VỀ <code class="inl">nextTight</code></div>
-  <p>Trong khuôn trên, <code class="inl">limit</code> bằng chữ số cận khi <code class="inl">tight = 1</code>, nên điều kiện <code class="inl">digit == limit</code> là đúng. Khi viết lại theo biến <code class="inl">boundDigit</code>, công thức rõ hơn là <code class="inl">nextTight = tight &amp;&amp; digit == boundDigit</code>.</p>
+  <div class="t">CHI TIẾT VỀ <code class="inl">nt</code></div>
+  <p><code class="inl">hi</code> là chữ số lớn nhất được phép: bằng chữ số của cận khi <code class="inl">tight = 1</code>, bằng 9 khi tiền tố đã nhỏ hơn cận. Nhờ vậy <code class="inl">nt = tight &amp;&amp; c == hi</code> đọc thẳng ra ý: chỉ khi đang bám cận mà lại chọn đúng chữ số lớn nhất thì bước sau mới còn bám cận; đã nhỏ hơn cận rồi thì <code class="inl">nt</code> luôn bằng 0.</p>
 </div>
 
 <h3>Chương trình hoàn chỉnh — đếm chữ số <span class="mathv">d</span> xuất hiện đúng <span class="mathv">k</span> lần</h3>
@@ -405,71 +403,45 @@
 <div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
 using namespace std;
 
-string digits;
-int targetDigit, needCount;
+string s;                            // các chữ số của cận
+int d, k;                            // đếm chữ số d xuất hiện đúng k lần
 long long memo[20][2][2][20];
-bool visited[20][2][2][20];
+bool vs[20][2][2][20];
 
-long long digitDp(int pos, bool tight, bool started, int countTarget) {
-    if (pos == (int)digits.size()) {
-        int finalCount = countTarget;
-        if (!started &amp;&amp; targetDigit == 0)
-            finalCount = 1;
-        return finalCount == needCount;
+long long dp(int pos, bool tight, bool started, int cnt) {
+    if (pos == (int)s.size()) {
+        if (!started &amp;&amp; d == 0) cnt = 1;       // số 0 gồm đúng một chữ số 0
+        return cnt == k;
     }
+    if (vs[pos][tight][started][cnt])
+        return memo[pos][tight][started][cnt];
+    vs[pos][tight][started][cnt] = true;
 
-    long long &amp;answer = memo[pos][tight][started][countTarget];
-    if (visited[pos][tight][started][countTarget])
-        return answer;
-
-    visited[pos][tight][started][countTarget] = true;
-    answer = 0;
-    int boundDigit = digits[pos] - '0';
-    int limit = tight ? boundDigit : 9;
-
-    for (int digit = 0; digit &lt;= limit; digit++) {
-        bool nextTight = tight &amp;&amp; digit == boundDigit;
-        bool nextStarted = started || digit != 0;
-        int nextCount = countTarget;
-
-        if (nextStarted &amp;&amp; digit == targetDigit)
-            nextCount++;
-        if (nextCount &gt; needCount)
-            continue;
-
-        answer += digitDp(pos + 1, nextTight, nextStarted, nextCount);
+    long long res = 0;
+    int hi = tight ? s[pos] - '0' : 9;         // chữ số lớn nhất được phép
+    for (int c = 0; c &lt;= hi; c++) {
+        bool nt = tight &amp;&amp; c == hi;             // bước sau còn bám cận?
+        bool ns = started || c != 0;           // số đã bắt đầu?
+        int nc = cnt + (ns &amp;&amp; c == d);         // gặp chữ số d thì tăng đếm
+        if (nc &gt; k) continue;                  // vượt k lần thì bỏ nhánh
+        res += dp(pos + 1, nt, ns, nc);
     }
-
-    return answer;
+    return memo[pos][tight][started][cnt] = res;
 }
 
-long long countUpTo(long long x, int digit, int need) {
-    if (x &lt; 0)
-        return 0;
-    if (need &lt; 0 || need &gt; 19)
-        return 0;
-
-    digits = to_string(x);
-    targetDigit = digit;
-    needCount = need;
-    memset(visited, 0, sizeof(visited));
-    return digitDp(0, true, false, 0);
+long long F(long long x) {                     // đếm số hợp lệ trong [0, x]
+    if (x &lt; 0) return 0;
+    s = to_string(x);
+    memset(vs, 0, sizeof(vs));
+    return dp(0, true, false, 0);
 }
 
 int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
-
-    long long leftBound, rightBound;
-    int digit, need;
-    cin &gt;&gt; leftBound &gt;&gt; rightBound &gt;&gt; digit &gt;&gt; need;
-
-    if (leftBound &gt; rightBound)
-        swap(leftBound, rightBound);
-
-    long long answer = countUpTo(rightBound, digit, need)
-                     - countUpTo(leftBound - 1, digit, need);
-    cout &lt;&lt; answer &lt;&lt; '\n';
+    long long L, R;
+    cin &gt;&gt; L &gt;&gt; R &gt;&gt; d &gt;&gt; k;
+    cout &lt;&lt; F(R) - F(L - 1) &lt;&lt; '\n';
     return 0;
 }</code></pre></div>
 
@@ -490,12 +462,12 @@ Output
 <h3>Khuôn B — cách thêm trạng thái phụ</h3>
 <div class="tablewrap">
 <table>
-  <thead><tr><th>Điều kiện cần theo dõi</th><th>Trạng thái thêm</th><th>Cập nhật khi chọn chữ số <span class="mathv">digit</span></th></tr></thead>
+  <thead><tr><th>Điều kiện cần theo dõi</th><th>Trạng thái thêm</th><th>Cập nhật khi chọn chữ số <span class="mathv">c</span></th></tr></thead>
   <tbody>
-    <tr><td>Tổng chữ số bằng <span class="mathv">S</span></td><td><code class="inl">sum</code></td><td><code class="inl">nextSum = sum + digit</code></td></tr>
-    <tr><td>Số chia hết cho <span class="mathv">m</span></td><td><code class="inl">remainder</code></td><td><code class="inl">nextRemainder = (remainder * 10 + digit) % m</code></td></tr>
-    <tr><td>Không có hai chữ số kề nhau bằng nhau</td><td><code class="inl">previousDigit</code></td><td>Loại chuyển nếu số đã bắt đầu và <code class="inl">digit == previousDigit</code>.</td></tr>
-    <tr><td>Đã dùng những chữ số nào</td><td><code class="inl">mask</code></td><td><code class="inl">nextMask = mask | (1 &lt;&lt; digit)</code> sau khi số bắt đầu.</td></tr>
+    <tr><td>Tổng chữ số bằng <span class="mathv">S</span></td><td><code class="inl">sum</code></td><td><code class="inl">nsum = sum + c</code></td></tr>
+    <tr><td>Số chia hết cho <span class="mathv">m</span></td><td><code class="inl">rem</code></td><td><code class="inl">nrem = (rem * 10 + c) % m</code></td></tr>
+    <tr><td>Không có hai chữ số kề nhau bằng nhau</td><td><code class="inl">prev</code></td><td>Loại chuyển nếu số đã bắt đầu và <code class="inl">c == prev</code>.</td></tr>
+    <tr><td>Đã dùng những chữ số nào</td><td><code class="inl">mask</code></td><td><code class="inl">nmask = mask | (1 &lt;&lt; c)</code> sau khi số bắt đầu.</td></tr>
     <tr><td>Ràng buộc theo vị trí</td><td>Thường đã có <code class="inl">pos</code></td><td>Kiểm tra chẵn lẻ hoặc lớp vị trí trước khi nhận chữ số.</td></tr>
   </tbody>
 </table>
