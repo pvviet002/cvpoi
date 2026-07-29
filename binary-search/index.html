@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tìm kiếm nhị phân | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<style>
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{overflow-x:hidden}
+  .lead{font-size:1.06rem;line-height:1.75}
+  .meta-grid,.two-col,.practice-grid,.template-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .meta-card,.figure-card,.sim-room,.practice-card,.template-card{min-width:0;border:1px solid var(--border);border-radius:14px;background:var(--card);padding:16px}
+  .meta-card b,.practice-card h3,.template-card h3{color:var(--blue)}
+  .source-line{border-left:4px solid var(--blue);padding:10px 14px;background:var(--blue-bg);border-radius:0 12px 12px 0}
+  .source-line a{overflow-wrap:anywhere}
+  .figure-card{overflow:hidden;margin:16px 0}
+  .figure-title{margin:0 0 10px;font-weight:700;color:var(--blue)}
+  .figure-scroll{overflow-x:auto;padding-bottom:4px}
+  .figure-scroll svg{display:block;width:100%;min-width:720px;height:auto}
+  .figcap{margin:10px 0 0;color:var(--muted);font-size:.94rem;line-height:1.55}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:10px;color:var(--muted);font-size:.92rem}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .swatch{width:13px;height:13px;border-radius:4px;border:1px solid var(--border);display:inline-block}
+  .sw-blue{background:var(--blue-bg);border-color:var(--blue)}
+  .sw-green{background:var(--green-bg);border-color:var(--green)}
+  .sw-red{background:var(--red-bg);border-color:var(--red)}
+  .sw-amber{background:var(--amber-bg);border-color:var(--amber)}
+  .sw-muted{background:var(--bg);border-color:var(--edge)}
+  .formula{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--code-bg);color:var(--code-fg);padding:14px 16px;margin:14px 0;font-size:1.02rem;line-height:1.65;white-space:nowrap}
+  .mathv{font-style:italic}
+  .steps{counter-reset:step;list-style:none;padding:0;margin:14px 0}
+  .steps li{counter-increment:step;position:relative;padding:0 0 14px 42px;line-height:1.65}
+  .steps li::before{content:counter(step);position:absolute;left:0;top:1px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue);font-weight:700}
+  .tablewrap{max-width:100%;overflow-x:auto}
+  .tablewrap table{min-width:820px}
+  .codewrap{max-width:100%;overflow-x:auto}
+  .codewrap pre{margin:0}
+  .tag{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:3px 9px;margin:2px 4px 2px 0;background:var(--bg);color:var(--muted);font-size:.88rem}
+  .mini-note{font-size:.93rem;color:var(--muted)}
+  .checklist{margin:10px 0 0;padding-left:22px}
+  .checklist li{margin:7px 0}
+
+  /* Phòng mô phỏng */
+  .sim-room h3{margin-top:0;color:var(--blue)}
+  .sim-form{display:grid;grid-template-columns:minmax(0,2fr) minmax(140px,.7fr) minmax(190px,1fr);gap:10px;align-items:end;margin:12px 0}
+  .sim-field label{display:block;font-size:.86rem;color:var(--muted);margin-bottom:5px;font-weight:700}
+  .sim-field input,.sim-field select{width:100%;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--fg);padding:10px 11px;font:inherit}
+  .sim-field input:focus,.sim-field select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-bg)}
+  .sim-check{display:flex;align-items:center;gap:8px;margin:7px 0 3px;font-size:.9rem;color:var(--muted)}
+  .sim-controls{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+  .sim-controls button{appearance:none;border:1px solid var(--border);border-radius:10px;padding:9px 13px;background:var(--blue-bg);color:var(--blue);font:inherit;font-weight:700;cursor:pointer}
+  .sim-controls button:hover{border-color:var(--blue)}
+  .sim-controls button:disabled{cursor:not-allowed;opacity:.55}
+  .array-strip{display:flex;gap:8px;align-items:flex-end;overflow-x:auto;padding:20px 4px 12px;min-height:102px}
+  .array-item{position:relative;min-width:58px;height:56px;border:1px solid var(--edge);border-radius:10px;display:grid;place-items:center;background:var(--bg);font-weight:700;transition:.2s}
+  .array-item .idx{position:absolute;top:-22px;font-size:.75rem;color:var(--muted);font-weight:500}
+  .array-item.active{border-color:var(--blue);background:var(--blue-bg);color:var(--blue)}
+  .array-item.mid{border-color:var(--amber);background:var(--amber-bg);color:var(--amber);box-shadow:0 0 0 2px var(--amber-bg)}
+  .array-item.found{border-color:var(--green);background:var(--green-bg);color:var(--green);box-shadow:0 0 0 2px var(--green-bg)}
+  .array-item.eliminated{opacity:.42;filter:saturate(.45)}
+  .array-item.match::after{content:'= x';position:absolute;bottom:-20px;font-size:.7rem;color:var(--green);white-space:nowrap}
+  .state-grid{display:grid;grid-template-columns:repeat(4,minmax(130px,1fr));gap:10px;margin:8px 0 12px}
+  .state-card{min-width:0;border:1px solid var(--edge);border-radius:12px;background:var(--bg);padding:10px;line-height:1.45}
+  .state-card b{display:block;color:var(--blue);margin-bottom:3px}
+  .sim-message{min-height:78px;border:1px solid var(--border);border-radius:12px;background:var(--bg);padding:12px;line-height:1.6}
+  .sim-result{margin-top:10px;font-weight:700;color:var(--green)}
+  .history{margin-top:12px;max-height:260px;overflow:auto;border:1px solid var(--border);border-radius:12px}
+  .history table{width:100%;min-width:660px;margin:0}
+  .history td,.history th{padding:8px 10px;font-size:.88rem}
+  .sim-error{color:var(--red);font-weight:700}
+
+  /* SVG */
+  .svg-label{font-size:15px;fill:var(--fg)}
+  .svg-small{font-size:13px;fill:var(--muted)}
+  .svg-strong{font-size:16px;font-weight:700;fill:var(--fg)}
+  .svg-edge{fill:none;stroke:var(--edge);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .svg-blue{fill:var(--blue-bg);stroke:var(--blue);stroke-width:2}
+  .svg-green{fill:var(--green-bg);stroke:var(--green);stroke-width:2}
+  .svg-red{fill:var(--red-bg);stroke:var(--red);stroke-width:2}
+  .svg-amber{fill:var(--amber-bg);stroke:var(--amber);stroke-width:2}
+  .svg-muted{fill:var(--bg);stroke:var(--edge);stroke-width:1.7}
+
+  @media (max-width:900px){
+    .meta-grid,.two-col,.practice-grid,.template-grid{grid-template-columns:1fr}
+    .sim-form{grid-template-columns:1fr 1fr}
+    .sim-form .wide{grid-column:1/-1}
+    .state-grid{grid-template-columns:repeat(2,minmax(130px,1fr))}
+  }
+  @media (max-width:560px){
+    .meta-card,.figure-card,.sim-room,.practice-card,.template-card{padding:12px}
+    .sim-form{grid-template-columns:1fr}
+    .sim-controls button{flex:1 1 125px}
+    .state-grid{grid-template-columns:1fr 1fr}
+    .lead{font-size:1rem}.formula{font-size:.94rem}.tablewrap table{min-width:760px}
+    .array-item{min-width:50px;height:50px}
+  }
+
+  /*cv-fix-nen-sang*/
+  :root{--c-cmt:#5f6672}
+  @media (prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+  :root[data-theme="light"]{--c-cmt:#5f6672}
+  :root[data-theme="dark"]{--c-cmt:#8b949e}
+  .box th,.tablewrap th,table th{color:var(--blue)!important}
+  .box td,.tablewrap td,table td{color:var(--fg)}
+  /*/cv-fix-nen-sang*/
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Tìm kiếm nhị phân trên dãy đã sắp xếp, lower_bound, upper_bound, first true, last true và tìm kiếm nhị phân trên đáp án.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Tìm kiếm nhị phân | Lý thuyết CP">
+<meta property="og:description" content="Tìm kiếm nhị phân trên dãy đã sắp xếp, STL và trên đáp án với mô phỏng tương tác.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">TÌM KIẾM NHỊ PHÂN</div>
+  <a href="#s1">1. Dãy tuyến tính</a>
+  <a href="#s2">2. Vì sao đúng</a>
+  <a href="#s3">3. Phòng mô phỏng</a>
+  <a href="#s4">4. STL tìm biên</a>
+  <a href="#s5">5. Phép đếm bằng STL</a>
+  <a href="#s6">6. First true / Last true</a>
+  <a href="#s7">7. Nhị phân đáp án</a>
+  <a href="#s8">8. Nhị phân số thực</a>
+  <a href="#s9">9. Nhận dạng và bẫy</a>
+  <a href="#s10">10. Bài luyện</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../index.html">Kỹ thuật</a><span class="cv-sep">/</span><span class="cv-here">Tìm kiếm nhị phân</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>TÌM KIẾM NHỊ PHÂN</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p class="lead">Tìm kiếm nhị phân không chỉ dùng để tìm một giá trị trong mảng đã sắp xếp. Cốt lõi của kỹ thuật là nhận ra một miền có tính đơn điệu, kiểm tra điểm giữa rồi loại bỏ chắc chắn một nửa miền còn lại. Từ đó hình thành ba nhóm công cụ: tìm trên dãy tuyến tính, tìm biên bằng STL và tìm kiếm nhị phân trên đáp án.</p>
+
+<div class="meta-grid">
+  <div class="meta-card"><b>Kiến thức nền</b><br>Mảng một chiều, sắp xếp, vòng lặp, hàm, iterator, kiểu <code class="inl">long long</code>, sai số số thực và đánh giá độ phức tạp.</div>
+  <div class="meta-card"><b>Trọng tâm</b><br>Bất biến đoạn tìm kiếm, <code class="inl">lower_bound</code>, <code class="inl">upper_bound</code>, first true, last true, thiết kế hàm <code class="inl">check</code> và chống tràn số.</div>
+</div>
+
+<p class="source-line"><b>Nguồn nội dung:</b> bộ lý thuyết và 10 bài thực hành tìm kiếm nhị phân do tác giả biên soạn; các bài 1–8 dựa trên lộ trình Binary Search của Codeforces EDU.</p>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Từ tìm kiếm tuần tự đến tìm kiếm nhị phân trên dãy</a></li>
+    <li><a href="#s2">Vì sao thuật toán đúng và chạy nhanh</a></li>
+    <li><a href="#s3">Phòng mô phỏng tương tác</a></li>
+    <li><a href="#s4">binary_search, lower_bound, upper_bound và equal_range</a></li>
+    <li><a href="#s5">Các phép đếm và truy vấn biên bằng STL</a></li>
+    <li><a href="#s6">Hai khuôn tổng quát: first true và last true</a></li>
+    <li><a href="#s7">Tìm kiếm nhị phân trên đáp án nguyên</a></li>
+    <li><a href="#s8">Tìm kiếm nhị phân trên số thực</a></li>
+    <li><a href="#s9">Nhận dạng và bẫy thường gặp</a></li>
+    <li><a href="#s10">Lộ trình 10 bài luyện</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Từ tìm kiếm tuần tự đến tìm kiếm nhị phân trên dãy</h2>
+
+<p>Cho dãy đã sắp xếp tăng <code class="inl">a = [2, 5, 8, 12, 16, 23, 38, 56, 72]</code> và cần tìm giá trị <code class="inl">x = 23</code>. Tìm kiếm tuần tự kiểm tra từ trái sang phải, còn tìm kiếm nhị phân kiểm tra phần tử giữa rồi dùng thứ tự của dãy để loại bỏ một nửa.</p>
+
+<div class="two-col">
+  <div class="box warn">
+    <div class="t">TÌM KIẾM TUẦN TỰ</div>
+    <p>Không cần dãy được sắp xếp, nhưng trường hợp xấu nhất phải kiểm tra đủ <span class="mathv">n</span> phần tử. Với nhiều truy vấn trên một dãy cố định, chi phí O(<span class="mathv">nq</span>) có thể quá lớn.</p>
+  </div>
+  <div class="box ex">
+    <div class="t">TÌM KIẾM NHỊ PHÂN</div>
+    <p>Cần dãy được sắp xếp theo đúng quan hệ thứ tự đang dùng. Mỗi lần so sánh với phần tử giữa sẽ loại được khoảng một nửa đoạn, nên chỉ cần O(log <span class="mathv">n</span>) bước.</p>
+  </div>
+</div>
+
+<div class="figure-card">
+  <p class="figure-title">Hình 1. Mỗi bước thu hẹp một nửa đoạn tìm kiếm</p>
+  <div class="figure-scroll">
+    <svg viewBox="0 0 940 430" role="img" aria-label="Ba bước tìm giá trị 23 trong mảng tăng bằng tìm kiếm nhị phân">
+      <defs><marker id="arrow-bs" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="var(--edge)"></path></marker></defs>
+      <rect x="18" y="18" width="904" height="394" rx="18" class="svg-muted"></rect>
+      <text x="70" y="62" class="svg-strong">Bước 1</text>
+      <text x="70" y="190" class="svg-strong">Bước 2</text>
+      <text x="70" y="318" class="svg-strong">Bước 3</text>
+      <g transform="translate(155,35)">
+        <rect x="0" y="0" width="72" height="56" rx="10" class="svg-blue"></rect><text x="36" y="34" text-anchor="middle" class="svg-strong">2</text>
+        <rect x="78" y="0" width="72" height="56" rx="10" class="svg-blue"></rect><text x="114" y="34" text-anchor="middle" class="svg-strong">5</text>
+        <rect x="156" y="0" width="72" height="56" rx="10" class="svg-blue"></rect><text x="192" y="34" text-anchor="middle" class="svg-strong">8</text>
+        <rect x="234" y="0" width="72" height="56" rx="10" class="svg-blue"></rect><text x="270" y="34" text-anchor="middle" class="svg-strong">12</text>
+        <rect x="312" y="0" width="72" height="56" rx="10" class="svg-amber"></rect><text x="348" y="34" text-anchor="middle" class="svg-strong">16</text>
+        <rect x="390" y="0" width="72" height="56" rx="10" class="svg-blue"></rect><text x="426" y="34" text-anchor="middle" class="svg-strong">23</text>
+        <rect x="468" y="0" width="72" height="56" rx="10" class="svg-blue"></rect><text x="504" y="34" text-anchor="middle" class="svg-strong">38</text>
+        <rect x="546" y="0" width="72" height="56" rx="10" class="svg-blue"></rect><text x="582" y="34" text-anchor="middle" class="svg-strong">56</text>
+        <rect x="624" y="0" width="72" height="56" rx="10" class="svg-blue"></rect><text x="660" y="34" text-anchor="middle" class="svg-strong">72</text>
+        <text x="348" y="82" text-anchor="middle" class="svg-small">16 &lt; 23 ⇒ loại [0, 4]</text>
+      </g>
+      <path d="M500 116 C500 135, 545 145, 570 153" class="svg-edge" marker-end="url(#arrow-bs)"></path>
+      <g transform="translate(545,163)">
+        <rect x="0" y="0" width="72" height="56" rx="10" class="svg-blue"></rect><text x="36" y="34" text-anchor="middle" class="svg-strong">23</text>
+        <rect x="78" y="0" width="72" height="56" rx="10" class="svg-amber"></rect><text x="114" y="34" text-anchor="middle" class="svg-strong">38</text>
+        <rect x="156" y="0" width="72" height="56" rx="10" class="svg-blue"></rect><text x="192" y="34" text-anchor="middle" class="svg-strong">56</text>
+        <rect x="234" y="0" width="72" height="56" rx="10" class="svg-blue"></rect><text x="270" y="34" text-anchor="middle" class="svg-strong">72</text>
+        <text x="114" y="82" text-anchor="middle" class="svg-small">38 &gt; 23 ⇒ loại [6, 8]</text>
+      </g>
+      <path d="M660 244 C650 266, 615 276, 596 283" class="svg-edge" marker-end="url(#arrow-bs)"></path>
+      <g transform="translate(545,291)">
+        <rect x="0" y="0" width="72" height="56" rx="10" class="svg-green"></rect><text x="36" y="34" text-anchor="middle" class="svg-strong">23</text>
+        <text x="36" y="82" text-anchor="middle" class="svg-small">Tìm thấy tại chỉ số 5</text>
+      </g>
+    </svg>
+  </div>
+  <div class="legend"><span><i class="swatch sw-blue"></i>Đoạn còn xét</span><span><i class="swatch sw-amber"></i>Phần tử giữa</span><span><i class="swatch sw-green"></i>Kết quả</span><span><i class="swatch sw-muted"></i>Phần đã loại</span></div>
+</div>
+
+<div class="box tech">
+  <div class="t">ĐIỀU KIỆN TIÊN QUYẾT</div>
+  <p>Dãy phải được sắp xếp theo đúng comparator dùng khi tìm kiếm. Nếu dãy tăng thì dùng quan hệ mặc định; nếu dãy giảm bằng <code class="inl">greater&lt;int&gt;()</code>, thao tác tìm kiếm cũng phải dùng comparator tương ứng.</p>
+</div>
+
+<h3>Khuôn tìm một phần tử bằng <span class="mathv">x</span></h3>
+<div class="codewrap noname"><pre><code>int binarySearch(const vector&lt;int&gt;&amp; a, int x) {
+    int left = 0;
+    int right = (int)a.size() - 1;
+
+    while (left &lt;= right) {
+        int mid = left + (right - left) / 2;
+
+        if (a[mid] == x)
+            return mid;
+
+        if (a[mid] &lt; x)
+            left = mid + 1;
+        else
+            right = mid - 1;
+    }
+
+    return -1;
+}</code></pre></div>
+
+<h2 id="s2"><span class="num">2.</span>Vì sao thuật toán đúng và chạy nhanh</h2>
+
+<div class="box def">
+  <div class="t">BẤT BIẾN ĐOẠN TÌM KIẾM</div>
+  <p>Ở đầu mỗi vòng lặp, nếu <span class="mathv">x</span> có xuất hiện thì vẫn tồn tại ít nhất một vị trí chứa <span class="mathv">x</span> trong đoạn đóng <code class="inl">[left, right]</code>.</p>
+</div>
+
+<ol class="steps">
+  <li>Nếu <code class="inl">a[mid] == x</code>, ta đã tìm được một vị trí hợp lệ.</li>
+  <li>Nếu <code class="inl">a[mid] &lt; x</code>, do dãy tăng nên mọi phần tử từ <code class="inl">left</code> đến <code class="inl">mid</code> đều nhỏ hơn <span class="mathv">x</span>. Cập nhật <code class="inl">left = mid + 1</code>.</li>
+  <li>Nếu <code class="inl">a[mid] &gt; x</code>, mọi phần tử từ <code class="inl">mid</code> đến <code class="inl">right</code> đều lớn hơn <span class="mathv">x</span>. Cập nhật <code class="inl">right = mid - 1</code>.</li>
+  <li>Khi <code class="inl">left &gt; right</code>, đoạn rỗng; theo bất biến, <span class="mathv">x</span> không xuất hiện.</li>
+</ol>
+
+<div class="two-col">
+  <div class="box cmplx">
+    <div class="t">ĐỘ PHỨC TẠP</div>
+    <p>Sau <span class="mathv">k</span> bước, độ dài đoạn còn khoảng <span class="mathv">n/2<sup>k</sup></span>. Khi đoạn chỉ còn một phần tử, <span class="mathv">2<sup>k</sup> ≥ n</span>, nên <span class="mathv">k = O(log n)</span>.</p>
+  </div>
+  <div class="box warn">
+    <div class="t">TÍNH MID AN TOÀN</div>
+    <p>Dùng <code class="inl">mid = left + (right - left) / 2</code> thay cho <code class="inl">(left + right) / 2</code> để tránh tổng <code class="inl">left + right</code> vượt miền kiểu số.</p>
+  </div>
+</div>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Quy ước</th><th>Đoạn đang xét</th><th>Điều kiện lặp</th><th>Khi loại <code>mid</code></th><th>Kết thúc</th></tr></thead>
+  <tbody>
+    <tr><td>Đoạn đóng</td><td><code class="inl">[left, right]</code></td><td><code class="inl">left &lt;= right</code></td><td><code class="inl">mid + 1</code> hoặc <code class="inl">mid - 1</code></td><td><code class="inl">left &gt; right</code></td></tr>
+    <tr><td>Đoạn nửa mở</td><td><code class="inl">[left, right)</code></td><td><code class="inl">left &lt; right</code></td><td><code class="inl">left = mid + 1</code> hoặc <code class="inl">right = mid</code></td><td><code class="inl">left == right</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="s3"><span class="num">3.</span>Phòng mô phỏng tương tác</h2>
+
+<div class="sim-room" id="binary-room">
+  <h3>Tìm kiếm trên dãy tuyến tính đã sắp xếp</h3>
+  <p class="mini-note">Nhập các số cách nhau bởi khoảng trắng hoặc dấu phẩy. Chế độ “đầu tiên bằng” được mô phỏng bằng <code class="inl">lower_bound</code>; “cuối cùng bằng” dùng <code class="inl">upper_bound - 1</code>.</p>
+  <div class="sim-form">
+    <div class="sim-field wide">
+      <label for="array-input">Dãy số</label>
+      <input id="array-input" value="2 5 8 12 16 23 38 56 72" inputmode="text">
+      <label class="sim-check"><input type="checkbox" id="auto-sort" checked> Tự sắp xếp tăng trước khi chạy</label>
+    </div>
+    <div class="sim-field">
+      <label for="target-input">Giá trị x</label>
+      <input id="target-input" type="number" value="23">
+    </div>
+    <div class="sim-field">
+      <label for="mode-select">Kiểu tìm kiếm</label>
+      <select id="mode-select">
+        <option value="exact">Một vị trí bằng x</option>
+        <option value="firstEq">Vị trí đầu tiên bằng x</option>
+        <option value="lastEq">Vị trí cuối cùng bằng x</option>
+        <option value="lower">Phần tử đầu tiên ≥ x</option>
+        <option value="upper">Phần tử đầu tiên &gt; x</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="array-strip" id="array-strip" aria-label="Mảng dùng trong mô phỏng"></div>
+  <div class="state-grid">
+    <div class="state-card"><b>left</b><span id="st-left">—</span></div>
+    <div class="state-card"><b>right</b><span id="st-right">—</span></div>
+    <div class="state-card"><b>mid</b><span id="st-mid">—</span></div>
+    <div class="state-card"><b>a[mid]</b><span id="st-value">—</span></div>
+  </div>
+  <div class="sim-controls">
+    <button type="button" id="bs-reset">Nạp dữ liệu</button>
+    <button type="button" id="bs-step">Chạy một bước</button>
+    <button type="button" id="bs-auto">Tự chạy</button>
+  </div>
+  <div class="sim-message" id="bs-message" aria-live="polite">Nhấn “Nạp dữ liệu” để bắt đầu.</div>
+  <div class="sim-result" id="bs-result">Kết quả cuối cùng: chưa hoàn tất</div>
+  <div class="history tablewrap" id="bs-history-wrap" hidden>
+    <table>
+      <thead><tr><th>Bước</th><th>left</th><th>right</th><th>mid</th><th>a[mid]</th><th>Quyết định</th></tr></thead>
+      <tbody id="bs-history"></tbody>
+    </table>
+  </div>
+  <div class="legend"><span><i class="swatch sw-blue"></i>Đoạn còn xét</span><span><i class="swatch sw-amber"></i>Phần tử giữa</span><span><i class="swatch sw-green"></i>Kết quả</span><span><i class="swatch sw-muted"></i>Đã bị loại</span></div>
+</div>
+
+<h2 id="s4"><span class="num">4.</span>STL: <code class="inl">binary_search</code>, <code class="inl">lower_bound</code>, <code class="inl">upper_bound</code></h2>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Công cụ</th><th>Kết quả</th><th>Kiểu trả về</th><th>Dùng khi</th></tr></thead>
+  <tbody>
+    <tr><td><code class="inl">binary_search(first, last, x)</code></td><td>Có tồn tại phần tử bằng <span class="mathv">x</span> hay không</td><td><code class="inl">bool</code></td><td>Chỉ cần câu trả lời có/không</td></tr>
+    <tr><td><code class="inl">lower_bound(first, last, x)</code></td><td>Phần tử đầu tiên <b>≥ x</b></td><td>Iterator</td><td>Tìm biên trái hoặc vị trí chèn</td></tr>
+    <tr><td><code class="inl">upper_bound(first, last, x)</code></td><td>Phần tử đầu tiên <b>&gt; x</b></td><td>Iterator</td><td>Tìm biên phải sau nhóm bằng <span class="mathv">x</span></td></tr>
+    <tr><td><code class="inl">equal_range(first, last, x)</code></td><td>Cặp <code class="inl">{lower_bound, upper_bound}</code></td><td><code class="inl">pair&lt;iterator, iterator&gt;</code></td><td>Lấy toàn bộ đoạn các phần tử bằng <span class="mathv">x</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="figure-card">
+  <p class="figure-title">Hình 2. Phân biệt lower_bound và upper_bound</p>
+  <div class="figure-scroll">
+    <svg viewBox="0 0 940 330" role="img" aria-label="lower_bound 8 ở chỉ số 2 và upper_bound 8 ở chỉ số 5 trong mảng 3 6 8 8 8 10 11">
+      <defs><marker id="arrow-bound2" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="var(--edge)"></path></marker></defs>
+      <rect x="18" y="18" width="904" height="294" rx="18" class="svg-muted"></rect>
+      <text x="470" y="55" text-anchor="middle" class="svg-strong">A = {3, 6, 8, 8, 8, 10, 11}, val = 8</text>
+      <g transform="translate(140,130)">
+        <rect x="0" y="0" width="82" height="58" rx="10" class="svg-muted"></rect><text x="41" y="35" text-anchor="middle" class="svg-strong">3</text><text x="41" y="82" text-anchor="middle" class="svg-small">0</text>
+        <rect x="88" y="0" width="82" height="58" rx="10" class="svg-muted"></rect><text x="129" y="35" text-anchor="middle" class="svg-strong">6</text><text x="129" y="82" text-anchor="middle" class="svg-small">1</text>
+        <rect x="176" y="0" width="82" height="58" rx="10" class="svg-green"></rect><text x="217" y="35" text-anchor="middle" class="svg-strong">8</text><text x="217" y="82" text-anchor="middle" class="svg-small">2</text>
+        <rect x="264" y="0" width="82" height="58" rx="10" class="svg-green"></rect><text x="305" y="35" text-anchor="middle" class="svg-strong">8</text><text x="305" y="82" text-anchor="middle" class="svg-small">3</text>
+        <rect x="352" y="0" width="82" height="58" rx="10" class="svg-green"></rect><text x="393" y="35" text-anchor="middle" class="svg-strong">8</text><text x="393" y="82" text-anchor="middle" class="svg-small">4</text>
+        <rect x="440" y="0" width="82" height="58" rx="10" class="svg-amber"></rect><text x="481" y="35" text-anchor="middle" class="svg-strong">10</text><text x="481" y="82" text-anchor="middle" class="svg-small">5</text>
+        <rect x="528" y="0" width="82" height="58" rx="10" class="svg-muted"></rect><text x="569" y="35" text-anchor="middle" class="svg-strong">11</text><text x="569" y="82" text-anchor="middle" class="svg-small">6</text>
+        <text x="217" y="-48" text-anchor="middle" class="svg-label">lower_bound(8)</text><path d="M217 -38 L217 -5" class="svg-edge" marker-end="url(#arrow-bound2)"></path>
+        <text x="481" y="-48" text-anchor="middle" class="svg-label">upper_bound(8)</text><path d="M481 -38 L481 -5" class="svg-edge" marker-end="url(#arrow-bound2)"></path>
+      </g>
+      <text x="470" y="280" text-anchor="middle" class="svg-small">Đoạn [lower_bound, upper_bound) chứa đúng ba phần tử bằng 8.</text>
+    </svg>
+  </div>
+  <div class="legend"><span><i class="swatch sw-green"></i>Các phần tử bằng val</span><span><i class="swatch sw-amber"></i>Phần tử đầu tiên &gt; val</span></div>
+</div>
+
+<div class="codewrap noname"><pre><code>vector&lt;int&gt; a = {3, 6, 8, 8, 8, 10, 11};
+int x = 8;
+
+bool exists = binary_search(a.begin(), a.end(), x);
+int firstGE = lower_bound(a.begin(), a.end(), x) - a.begin();
+int firstGT = upper_bound(a.begin(), a.end(), x) - a.begin();
+auto range = equal_range(a.begin(), a.end(), x);
+int frequency = range.second - range.first;</code></pre></div>
+
+<div class="box warn">
+  <div class="t">ITERATOR CÓ THỂ BẰNG END()</div>
+  <p>Khi không có phần tử thỏa điều kiện, <code class="inl">lower_bound</code> hoặc <code class="inl">upper_bound</code> trả về <code class="inl">a.end()</code>. Không được lấy <code class="inl">*it</code> trước khi kiểm tra.</p>
+</div>
+
+<h3>Tìm trên đoạn con và dãy giảm</h3>
+<div class="codewrap noname"><pre><code>// Tìm trong đoạn chỉ số [left, right]
+auto it = lower_bound(a.begin() + left, a.begin() + right + 1, x);
+
+// Dãy đã sắp xếp giảm
+sort(a.begin(), a.end(), greater&lt;int&gt;());
+auto it2 = lower_bound(a.begin(), a.end(), x, greater&lt;int&gt;());</code></pre></div>
+
+<h2 id="s5"><span class="num">5.</span>Các phép đếm và truy vấn biên bằng STL</h2>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Yêu cầu</th><th>Biểu thức</th><th>Ghi chú</th></tr></thead>
+  <tbody>
+    <tr><td>Số phần tử <span class="mathv">&lt; x</span></td><td><code class="inl">lower_bound(a.begin(), a.end(), x) - a.begin()</code></td><td>Vị trí đầu tiên ≥ <span class="mathv">x</span></td></tr>
+    <tr><td>Số phần tử <span class="mathv">≤ x</span></td><td><code class="inl">upper_bound(a.begin(), a.end(), x) - a.begin()</code></td><td>Vị trí đầu tiên &gt; <span class="mathv">x</span></td></tr>
+    <tr><td>Số phần tử <span class="mathv">= x</span></td><td><code class="inl">upper_bound(x) - lower_bound(x)</code></td><td>Độ dài đoạn bằng <span class="mathv">x</span></td></tr>
+    <tr><td>Số phần tử trong <span class="mathv">[L, R]</span></td><td><code class="inl">upper_bound(R) - lower_bound(L)</code></td><td>Biên trái đóng, biên phải đóng</td></tr>
+    <tr><td>Phần tử nhỏ nhất ≥ <span class="mathv">x</span></td><td><code class="inl">*lower_bound(x)</code></td><td>Phải kiểm tra khác <code class="inl">end()</code></td></tr>
+    <tr><td>Phần tử lớn nhất ≤ <span class="mathv">x</span></td><td><code class="inl">*(upper_bound(x) - 1)</code></td><td>Phải kiểm tra iterator khác <code class="inl">begin()</code></td></tr>
+    <tr><td>Vị trí đầu tiên bằng <span class="mathv">x</span></td><td><code class="inl">lower_bound(x)</code>, rồi kiểm tra giá trị</td><td>Có thể không tồn tại</td></tr>
+    <tr><td>Vị trí cuối cùng bằng <span class="mathv">x</span></td><td><code class="inl">upper_bound(x) - 1</code>, rồi kiểm tra</td><td>Cẩn thận khi mọi phần tử đều &gt; <span class="mathv">x</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box ex">
+  <div class="t">VÍ DỤ: MUA NƯỚC NGỌT</div>
+  <p>Mảng <span class="mathv">x</span> chứa giá bán và mỗi truy vấn cho số tiền <span class="mathv">m</span>. Sau khi sắp xếp, số sản phẩm có giá không vượt <span class="mathv">m</span> chính là vị trí phần tử đầu tiên lớn hơn <span class="mathv">m</span>.</p>
+</div>
+
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, q;
+    cin &gt;&gt; n;
+    vector&lt;int&gt; price(n);
+    for (int&amp; value : price)
+        cin &gt;&gt; value;
+
+    sort(price.begin(), price.end());
+
+    cin &gt;&gt; q;
+    while (q--) {
+        int money;
+        cin &gt;&gt; money;
+        cout &lt;&lt; upper_bound(price.begin(), price.end(), money)
+                    - price.begin() &lt;&lt; '\n';
+    }
+}</code></pre></div>
+
+<div class="box cmplx">
+  <div class="t">ĐỘ PHỨC TẠP CỦA BÀI NHIỀU TRUY VẤN</div>
+  <p>Sắp xếp một lần tốn O(<span class="mathv">n log n</span>), mỗi truy vấn tốn O(log <span class="mathv">n</span>). Tổng thời gian O(<span class="mathv">n log n + q log n</span>), thay cho O(<span class="mathv">nq</span>) nếu duyệt lại toàn bộ mảng.</p>
+</div>
+
+<h2 id="s6"><span class="num">6.</span>Hai khuôn tổng quát: first true và last true</h2>
+
+<p>Nhiều bài không yêu cầu tìm một giá trị có sẵn trong mảng. Ta xét một mệnh đề <code class="inl">check(x)</code>. Nếu kết quả của mệnh đề thay đổi đúng một lần trên miền tìm kiếm, ta có thể tìm biên chuyển trạng thái.</p>
+
+<div class="figure-card">
+  <p class="figure-title">Hình 3. Hai dạng đơn điệu cơ bản</p>
+  <div class="figure-scroll">
+    <svg viewBox="0 0 940 300" role="img" aria-label="Dãy false false false true true và true true true false false">
+      <rect x="18" y="18" width="904" height="264" rx="18" class="svg-muted"></rect>
+      <text x="110" y="78" class="svg-strong">First true</text>
+      <text x="110" y="205" class="svg-strong">Last true</text>
+      <g transform="translate(260,48)">
+        <rect x="0" y="0" width="92" height="56" rx="10" class="svg-red"></rect><text x="46" y="34" text-anchor="middle" class="svg-label">false</text>
+        <rect x="98" y="0" width="92" height="56" rx="10" class="svg-red"></rect><text x="144" y="34" text-anchor="middle" class="svg-label">false</text>
+        <rect x="196" y="0" width="92" height="56" rx="10" class="svg-red"></rect><text x="242" y="34" text-anchor="middle" class="svg-label">false</text>
+        <rect x="294" y="0" width="92" height="56" rx="10" class="svg-green"></rect><text x="340" y="34" text-anchor="middle" class="svg-label">true</text>
+        <rect x="392" y="0" width="92" height="56" rx="10" class="svg-green"></rect><text x="438" y="34" text-anchor="middle" class="svg-label">true</text>
+        <rect x="490" y="0" width="92" height="56" rx="10" class="svg-green"></rect><text x="536" y="34" text-anchor="middle" class="svg-label">true</text>
+        <text x="340" y="83" text-anchor="middle" class="svg-small">biên cần tìm</text>
+      </g>
+      <g transform="translate(260,175)">
+        <rect x="0" y="0" width="92" height="56" rx="10" class="svg-green"></rect><text x="46" y="34" text-anchor="middle" class="svg-label">true</text>
+        <rect x="98" y="0" width="92" height="56" rx="10" class="svg-green"></rect><text x="144" y="34" text-anchor="middle" class="svg-label">true</text>
+        <rect x="196" y="0" width="92" height="56" rx="10" class="svg-green"></rect><text x="242" y="34" text-anchor="middle" class="svg-label">true</text>
+        <rect x="294" y="0" width="92" height="56" rx="10" class="svg-green"></rect><text x="340" y="34" text-anchor="middle" class="svg-label">true</text>
+        <rect x="392" y="0" width="92" height="56" rx="10" class="svg-red"></rect><text x="438" y="34" text-anchor="middle" class="svg-label">false</text>
+        <rect x="490" y="0" width="92" height="56" rx="10" class="svg-red"></rect><text x="536" y="34" text-anchor="middle" class="svg-label">false</text>
+        <text x="340" y="83" text-anchor="middle" class="svg-small">biên cần tìm</text>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<div class="template-grid">
+  <div class="template-card">
+    <h3>First true — giá trị nhỏ nhất thỏa</h3>
+    <div class="codewrap noname"><pre><code>long long firstTrue(long long low, long long high) {
+    while (low &lt; high) {
+        long long mid = low + (high - low) / 2;
+        if (check(mid))
+            high = mid;
+        else
+            low = mid + 1;
+    }
+    return low;
+}</code></pre></div>
+    <p class="mini-note">Dùng cho “thời gian nhỏ nhất”, “kích thước nhỏ nhất”, “chi phí nhỏ nhất”.</p>
+  </div>
+  <div class="template-card">
+    <h3>Last true — giá trị lớn nhất thỏa</h3>
+    <div class="codewrap noname"><pre><code>long long lastTrue(long long low, long long high) {
+    while (low &lt; high) {
+        long long mid = low + (high - low + 1) / 2;
+        if (check(mid))
+            low = mid;
+        else
+            high = mid - 1;
+    }
+    return low;
+}</code></pre></div>
+    <p class="mini-note">Dùng cho “độ dài lớn nhất”, “số sản phẩm tối đa”, “độ cao lớn nhất”.</p>
+  </div>
+</div>
+
+<div class="box warn">
+  <div class="t">VÌ SAO LAST TRUE DÙNG MID LỆCH PHẢI?</div>
+  <p>Nếu chỉ còn hai giá trị <code class="inl">low</code> và <code class="inl">high = low + 1</code>, phép chia lệch trái cho <code class="inl">mid = low</code>. Nếu <code class="inl">check(mid)</code> đúng và cập nhật <code class="inl">low = mid</code>, trạng thái không đổi và vòng lặp vô hạn. Thêm <code class="inl">+1</code> trước khi chia 2 làm <code class="inl">mid = high</code>.</p>
+</div>
+
+<h2 id="s7"><span class="num">7.</span>Tìm kiếm nhị phân trên đáp án nguyên</h2>
+
+<p>Quy trình thiết kế nên được thực hiện theo đúng thứ tự sau:</p>
+<ol class="steps">
+  <li>Xác định đại lượng cần tối ưu và kiểu đáp án: nhỏ nhất hay lớn nhất.</li>
+  <li>Chọn miền <code class="inl">[LOW, HIGH]</code> chắc chắn chứa đáp án.</li>
+  <li>Viết <code class="inl">check(mid)</code>: chỉ trả lời có thể đạt mục tiêu với giá trị <code class="inl">mid</code> hay không.</li>
+  <li>Chứng minh <code class="inl">check</code> đơn điệu và xác định first true hay last true.</li>
+  <li>Ước lượng O(log miền × chi phí check), kiểm tra tràn số và trường hợp biên.</li>
+</ol>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Bài mẫu</th><th>Đáp án nhị phân</th><th><code>check(mid)</code></th><th>Dạng</th></tr></thead>
+  <tbody>
+    <tr><td>Xếp hình chữ nhật</td><td>Cạnh hình vuông</td><td><code class="inl">(mid / w) * (mid / h) &gt;= n</code></td><td>First true</td></tr>
+    <tr><td>Phô-tô</td><td>Thời gian</td><td>Hai máy tạo đủ số bản trong thời gian đó</td><td>First true</td></tr>
+    <tr><td>Bóng bay</td><td>Thời gian</td><td>Tổng số bóng các trợ lý bơm được ≥ <span class="mathv">m</span></td><td>First true</td></tr>
+    <tr><td>Trò chơi chuỗi</td><td>Số ký tự xóa</td><td>Sau khi xóa <span class="mathv">mid</span> ký tự, <span class="mathv">p</span> vẫn là dãy con</td><td>Last true</td></tr>
+    <tr><td>Câu lạc bộ</td><td>Số câu lạc bộ</td><td><span class="mathv">Σ min(a<sub>i</sub>, mid) ≥ k·mid</span></td><td>Last true</td></tr>
+    <tr><td>Hamburger</td><td>Số bánh</td><td>Chi phí mua phần nguyên liệu thiếu không vượt số tiền</td><td>Last true</td></tr>
+    <tr><td>Chặt cây</td><td>Độ cao lưỡi cưa</td><td>Tổng gỗ thu được ≥ <span class="mathv">M</span></td><td>Last true</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Ví dụ 1 — cạnh hình vuông nhỏ nhất</h3>
+<p>Với hình vuông cạnh <span class="mathv">s</span>, số hình chữ nhật <span class="mathv">w × h</span> xếp được là <span class="mathv">⌊s/w⌋·⌊s/h⌋</span>. Khi tăng <span class="mathv">s</span>, số hình xếp được không giảm, nên đây là first true.</p>
+<div class="codewrap noname"><pre><code>long long w, h, n;
+
+bool check(long long side) {
+    return (__int128)(side / w) * (side / h) &gt;= n;
+}
+
+long long solve() {
+    long long low = 0;
+    long long high = 1;
+    while (!check(high))
+        high *= 2;
+
+    while (low &lt; high) {
+        long long mid = low + (high - low) / 2;
+        if (check(mid)) high = mid;
+        else low = mid + 1;
+    }
+    return low;
+}</code></pre></div>
+
+<h3>Ví dụ 2 — số hamburger tối đa</h3>
+<p>Giả sử mỗi bánh cần <span class="mathv">needB, needX, needP</span>. Với <span class="mathv">cnt</span> bánh, chỉ mua phần thiếu so với kho. Nếu làm được <span class="mathv">cnt</span> bánh thì mọi số nhỏ hơn cũng làm được.</p>
+<div class="codewrap noname"><pre><code>bool canMake(long long cnt) {
+    __int128 cost = 0;
+    cost += (__int128)max(0LL, needB * cnt - haveB) * priceB;
+    cost += (__int128)max(0LL, needX * cnt - haveX) * priceX;
+    cost += (__int128)max(0LL, needP * cnt - haveP) * priceP;
+    return cost &lt;= money;
+}</code></pre></div>
+
+<h3>Ví dụ 3 — chặt cây</h3>
+<div class="codewrap noname"><pre><code>bool enoughWood(long long height) {
+    long long wood = 0;
+    for (long long tree : trees) {
+        if (tree &gt; height) {
+            wood += tree - height;
+            if (wood &gt;= need) return true; // dừng sớm
+        }
+    }
+    return false;
+}</code></pre></div>
+
+<div class="box tech">
+  <div class="t">THIẾT KẾ CHECK HIỆU QUẢ</div>
+  <ul>
+    <li>Không cần tính chính xác sau khi đã biết kết quả; có thể dừng sớm khi tổng đã đạt ngưỡng.</li>
+    <li>Dùng <code class="inl">__int128</code> cho phép nhân có thể vượt <code class="inl">long long</code>.</li>
+    <li>Không thay đổi dữ liệu gốc theo cách khiến lần gọi <code class="inl">check</code> sau phụ thuộc lần trước.</li>
+    <li>Nếu chưa biết cận trên, có thể bắt đầu từ 1 và nhân đôi đến khi gặp trạng thái chắc chắn thỏa.</li>
+  </ul>
+</div>
+
+<h2 id="s8"><span class="num">8.</span>Tìm kiếm nhị phân trên số thực</h2>
+
+<p>Với số thực, không có bước “cộng 1” hay “trừ 1”. Ta thu hẹp đoạn bằng cách gán một đầu bằng <code class="inl">mid</code>. Trong thi đấu, lặp cố định 80–100 lần thường dễ kiểm soát hơn điều kiện dừng bằng epsilon.</p>
+
+<div class="codewrap noname"><pre><code>double left = LOW;
+double right = HIGH;
+
+for (int step = 0; step &lt; 100; ++step) {
+    double mid = (left + right) / 2.0;
+    if (check(mid))
+        left = mid;      // đang tìm giá trị lớn nhất thỏa
+    else
+        right = mid;
+}
+
+cout &lt;&lt; fixed &lt;&lt; setprecision(10) &lt;&lt; left;</code></pre></div>
+
+<div class="two-col">
+  <div class="box ex">
+    <div class="t">CẮT DÂY</div>
+    <p>Với độ dài đoạn <span class="mathv">len</span>, số đoạn cắt được là <span class="mathv">Σ⌊a<sub>i</sub>/len⌋</span>. Độ dài càng lớn thì số đoạn không tăng. Tìm độ dài lớn nhất vẫn cắt được ít nhất <span class="mathv">k</span> đoạn.</p>
+  </div>
+  <div class="box ex">
+    <div class="t">PHƯƠNG TRÌNH x² + √x = c</div>
+    <p>Hàm <span class="mathv">f(x)=x²+√x</span> tăng trên <span class="mathv">x ≥ 0</span>. Nếu <span class="mathv">f(mid) &lt; c</span> thì nghiệm ở bên phải; ngược lại nghiệm ở bên trái.</p>
+  </div>
+</div>
+
+<div class="box warn">
+  <div class="t">PHƯƠNG TRÌNH BẬC BA KHÔNG ĐƠN ĐIỆU TRÊN TOÀN ĐOẠN</div>
+  <p>Không được nhị phân trực tiếp trên <code class="inl">[-100, 100]</code> chỉ dựa vào dấu của đa thức, vì hàm bậc ba có thể đổi chiều. Với giả thiết ba nghiệm phân biệt cách nhau ít nhất 1, có thể quét các đoạn đơn vị để tìm đoạn đổi dấu, rồi nhị phân riêng từng đoạn chứa nghiệm.</p>
+</div>
+
+<div class="codewrap noname"><pre><code>double f(double x) {
+    return ((a * x + b) * x + c) * x + d;
+}
+
+vector&lt;double&gt; roots;
+for (int integer = -100; integer &lt; 100; ++integer) {
+    double left = integer;
+    double right = integer + 1;
+    if (fabs(f(left)) &lt; 1e-10) {
+        roots.push_back(left);
+        continue;
+    }
+    if (f(left) * f(right) &gt; 0) continue;
+
+    for (int step = 0; step &lt; 100; ++step) {
+        double mid = (left + right) / 2;
+        if (f(left) * f(mid) &lt;= 0) right = mid;
+        else left = mid;
+    }
+    roots.push_back((left + right) / 2);
+}</code></pre></div>
+
+<h2 id="s9"><span class="num">9.</span>Nhận dạng và bẫy thường gặp</h2>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Dấu hiệu trong đề</th><th>Nên nghĩ tới</th><th>Câu hỏi tự kiểm tra</th></tr></thead>
+  <tbody>
+    <tr><td>Mảng đã sắp xếp, nhiều truy vấn</td><td><code class="inl">lower_bound</code>, <code class="inl">upper_bound</code></td><td>Đề cần biên nào: ≥, &gt;, ≤ hay &lt;?</td></tr>
+    <tr><td>Giá trị nhỏ nhất để “đủ”, “kịp”, “chứa được”</td><td>First true</td><td>Nếu giá trị này làm được thì mọi giá trị lớn hơn có làm được không?</td></tr>
+    <tr><td>Giá trị lớn nhất vẫn “hợp lệ”, “đủ”, “không vượt”</td><td>Last true</td><td>Nếu giá trị này làm được thì mọi giá trị nhỏ hơn có làm được không?</td></tr>
+    <tr><td>Tối thiểu hóa giá trị lớn nhất</td><td>Nhị phân đáp án + check tham lam</td><td>Miền đáp án và chi phí check là gì?</td></tr>
+    <tr><td>Tối đa hóa giá trị nhỏ nhất</td><td>Nhị phân đáp án</td><td>Điều kiện khả thi có thật sự đơn điệu không?</td></tr>
+    <tr><td>Đáp án là số thực, yêu cầu sai số</td><td>Nhị phân số thực</td><td>Hàm có đơn điệu trên đoạn đang xét không?</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box warn">
+  <div class="t">BẪY 1 — “CÓ HÀM CHECK LÀ NHỊ PHÂN ĐƯỢC”</div>
+  <p><b>Nhận định sai:</b> chỉ cần viết được một hàm kiểm tra là có thể chặt đôi miền đáp án.</p>
+  <p><b>Lý do sai:</b> nếu dãy kết quả của <code class="inl">check</code> đổi đúng–sai nhiều lần, quyết định bỏ một nửa không còn an toàn.</p>
+  <p><b>Cách phòng tránh:</b> chứng minh rõ dạng <code class="inl">false…false true…true</code> hoặc <code class="inl">true…true false…false</code> trước khi viết vòng lặp.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">BẪY 2 — NHẦM LOWER_BOUND VÀ UPPER_BOUND</div>
+  <p><b>Nhận định sai:</b> <code class="inl">upper_bound(x)</code> trả về phần tử cuối cùng bằng <span class="mathv">x</span>.</p>
+  <p><b>Lý do sai:</b> hàm trả về phần tử đầu tiên <b>lớn hơn</b> <span class="mathv">x</span>; phần tử cuối cùng ≤ <span class="mathv">x</span> nằm ngay trước iterator đó.</p>
+  <p><b>Cách phòng tránh:</b> ghi nhớ: lower = đầu tiên ≥; upper = đầu tiên &gt;.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">BẪY 3 — VÒNG LẶP VÔ HẠN</div>
+  <p><b>Nhận định sai:</b> dùng <code class="inl">mid = (left + right) / 2</code> và <code class="inl">left = mid</code> luôn làm đoạn nhỏ đi.</p>
+  <p><b>Lý do sai:</b> khi <code class="inl">right = left + 1</code>, <code class="inl">mid</code> bằng <code class="inl">left</code>.</p>
+  <p><b>Cách phòng tránh:</b> last true phải tính mid lệch phải hoặc dùng khuôn lính canh đã kiểm chứng.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">BẪY 4 — TRÀN SỐ TRONG CHECK</div>
+  <p><b>Nhận định sai:</b> các biến đầu vào vừa <code class="inl">long long</code> thì mọi phép nhân của chúng cũng vừa.</p>
+  <p><b>Lý do sai:</b> tích trung gian có thể vượt 9·10<sup>18</sup> dù kết quả cuối chỉ cần so với một ngưỡng nhỏ hơn.</p>
+  <p><b>Cách phòng tránh:</b> ép sang <code class="inl">__int128</code>, biến phép nhân thành phép chia an toàn hoặc dừng sớm khi vượt ngưỡng.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">BẪY 5 — TRUY CẬP ITERATOR KHÔNG HỢP LỆ</div>
+  <p><b>Nhận định sai:</b> kết quả STL luôn trỏ vào một phần tử của mảng.</p>
+  <p><b>Lý do sai:</b> có thể nhận <code class="inl">end()</code>; phép lùi từ <code class="inl">begin()</code> cũng không hợp lệ.</p>
+  <p><b>Cách phòng tránh:</b> kiểm tra biên iterator trước khi lấy giá trị hoặc lùi một bước.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">BẪY 6 — CẬN ĐÁP ÁN KHÔNG BAO PHỦ NGHIỆM</div>
+  <p><b>Nhận định sai:</b> chọn một cận phải “có vẻ đủ lớn” mà không chứng minh.</p>
+  <p><b>Lý do sai:</b> thuật toán chỉ tìm trong miền được cấp; nghiệm nằm ngoài miền sẽ không bao giờ xuất hiện.</p>
+  <p><b>Cách phòng tránh:</b> suy ra cận từ ràng buộc hoặc nhân đôi cận đến khi đạt trạng thái chắc chắn.</p>
+</div>
+
+<div class="box def">
+  <div class="t">TỰ KIỂM TRƯỚC KHI NỘP</div>
+  <ul class="checklist">
+    <li>Dãy đã được sắp xếp và comparator tìm kiếm khớp với comparator sắp xếp.</li>
+    <li>Đã xác định chính xác đoạn đóng hay nửa mở.</li>
+    <li>Đã thử các trường hợp dãy rỗng, một phần tử, không có đáp án và mọi phần tử đều bằng nhau.</li>
+    <li>Đã chứng minh tính đơn điệu của <code class="inl">check</code>.</li>
+    <li>Đã kiểm tra cận trái, cận phải và phép nhân trung gian.</li>
+    <li>Với số thực, đã in đủ độ chính xác và kiểm tra hàm đơn điệu trên từng đoạn.</li>
+  </ul>
+</div>
+
+<h2 id="s10"><span class="num">10.</span>Lộ trình 10 bài luyện</h2>
+
+<p>Bộ bài dưới đây đi từ first true cơ bản, nhị phân số thực đến các hàm <code class="inl">check</code> có mô phỏng và khôi phục phương án.</p>
+
+<div class="practice-grid">
+  <div class="practice-card">
+    <h3>Chặng 1 — First true cơ bản</h3>
+    <p><span class="tag">Số nguyên</span><span class="tag">Cận nhân đôi</span></p>
+    <ol>
+      <li><a href="https://codeforces.com/edu/course/2/lesson/6/2/practice/contest/283932/problem/A" target="_blank" rel="noopener">Bài 1 — Xếp hình chữ nhật</a>: cạnh hình vuông nhỏ nhất chứa đủ <span class="mathv">n</span> hình. <b>Check:</b> số hàng × số cột đủ hay chưa.</li>
+      <li><a href="https://codeforces.com/edu/course/2/lesson/6/2/practice/contest/283932/problem/C" target="_blank" rel="noopener">Bài 3 — Phô-tô</a>: thời gian nhỏ nhất để hai máy tạo đủ bản sao. Chú ý bản sao đầu tiên chỉ có thể được tạo bởi một máy.</li>
+    </ol>
+  </div>
+
+  <div class="practice-card">
+    <h3>Chặng 2 — Nhị phân số thực</h3>
+    <p><span class="tag">Sai số</span><span class="tag">100 vòng lặp</span></p>
+    <ol>
+      <li><a href="https://codeforces.com/edu/course/2/lesson/6/2/practice/contest/283932/problem/B" target="_blank" rel="noopener">Bài 2 — Cắt dây</a>: độ dài lớn nhất để cắt đủ <span class="mathv">k</span> đoạn.</li>
+      <li><a href="https://codeforces.com/edu/course/2/lesson/6/2/practice/contest/283932/problem/E" target="_blank" rel="noopener">Bài 5 — Phương trình</a>: tìm nghiệm của <span class="mathv">x² + √x = c</span> trên miền không âm.</li>
+    </ol>
+  </div>
+
+  <div class="practice-card">
+    <h3>Chặng 3 — Mô phỏng trong check</h3>
+    <p><span class="tag">Chu kỳ</span><span class="tag">Dãy con</span></p>
+    <ol>
+      <li><a href="https://codeforces.com/edu/course/2/lesson/6/2/practice/contest/283932/problem/D" target="_blank" rel="noopener">Bài 4 — Bóng bay</a>: tính số bóng mỗi trợ lý làm trong thời gian <span class="mathv">T</span>, sau đó khôi phục phân công.</li>
+      <li><a href="https://codeforces.com/edu/course/2/lesson/6/2/practice/contest/283932/problem/F" target="_blank" rel="noopener">Bài 6 — Trò chơi chuỗi</a>: xóa <span class="mathv">mid</span> ký tự rồi kiểm tra <span class="mathv">p</span> còn là dãy con của <span class="mathv">t</span>.</li>
+    </ol>
+  </div>
+
+  <div class="practice-card">
+    <h3>Chặng 4 — Tối đa hóa đáp án nguyên</h3>
+    <p><span class="tag">Last true</span><span class="tag">Chống tràn</span></p>
+    <ol>
+      <li><a href="https://codeforces.com/edu/course/2/lesson/6/2/practice/contest/283932/problem/G" target="_blank" rel="noopener">Bài 7 — Câu lạc bộ</a>: kiểm tra <span class="mathv">Σmin(a<sub>i</sub>, x) ≥ kx</span>.</li>
+      <li><a href="https://codeforces.com/edu/course/2/lesson/6/2/practice/contest/283932/problem/H" target="_blank" rel="noopener">Bài 8 — Làm Hamburger</a>: tính tiền mua phần nguyên liệu thiếu cho <span class="mathv">x</span> bánh.</li>
+      <li><b>Bài 9 — Chặt cây:</b> tìm độ cao lưỡi cưa lớn nhất vẫn thu ít nhất <span class="mathv">M</span> mét gỗ.</li>
+    </ol>
+  </div>
+
+  <div class="practice-card">
+    <h3>Chặng 5 — Số thực nâng cao</h3>
+    <p><span class="tag">Đổi dấu</span><span class="tag">Chia miền</span></p>
+    <ol>
+      <li><b>Bài 10 — Giải phương trình bậc ba:</b> quét các đoạn đơn vị trong <span class="mathv">[-100,100]</span>, nhận diện đoạn chứa nghiệm rồi nhị phân riêng từng đoạn; in ba nghiệm tăng dần với hai chữ số thập phân.</li>
+    </ol>
+  </div>
+
+  <div class="practice-card">
+    <h3>Bài dẫn nhập STL — Mua nước ngọt</h3>
+    <p><span class="tag">upper_bound</span><span class="tag">Nhiều truy vấn</span></p>
+    <p>Sắp xếp mảng giá một lần. Với mỗi số tiền <span class="mathv">m</span>, dùng <code class="inl">upper_bound(m)</code> để đếm số sản phẩm có giá ≤ <span class="mathv">m</span>. Đây là bài nên làm trước 10 bài nhị phân đáp án.</p>
+  </div>
+</div>
+
+</div>
+</div>
+
+<script>
+(function () {
+  const arrayInput = document.getElementById('array-input');
+  const targetInput = document.getElementById('target-input');
+  const modeSelect = document.getElementById('mode-select');
+  const autoSort = document.getElementById('auto-sort');
+  const strip = document.getElementById('array-strip');
+  const message = document.getElementById('bs-message');
+  const resultBox = document.getElementById('bs-result');
+  const resetButton = document.getElementById('bs-reset');
+  const stepButton = document.getElementById('bs-step');
+  const autoButton = document.getElementById('bs-auto');
+  const historyBody = document.getElementById('bs-history');
+  const historyWrap = document.getElementById('bs-history-wrap');
+  const stLeft = document.getElementById('st-left');
+  const stRight = document.getElementById('st-right');
+  const stMid = document.getElementById('st-mid');
+  const stValue = document.getElementById('st-value');
+
+  let values = [];
+  let target = 0;
+  let mode = 'exact';
+  let left = 0;
+  let right = -1;
+  let mid = null;
+  let answer = null;
+  let done = false;
+  let stepNo = 0;
+  let timer = null;
+  let error = '';
+
+  const modeNames = {
+    exact: 'tìm một vị trí bằng x',
+    firstEq: 'tìm vị trí đầu tiên bằng x',
+    lastEq: 'tìm vị trí cuối cùng bằng x',
+    lower: 'tìm phần tử đầu tiên ≥ x',
+    upper: 'tìm phần tử đầu tiên > x'
+  };
+
+  function isHalfOpen() {
+    return mode !== 'exact';
+  }
+
+  function parseArray(text) {
+    const parts = text.trim().split(/[\s,;]+/).filter(Boolean);
+    if (!parts.length) throw new Error('Dãy không được để trống.');
+    const parsed = parts.map(function (item) {
+      const number = Number(item);
+      if (!Number.isFinite(number) || !Number.isInteger(number))
+        throw new Error('Dãy chỉ nhận các số nguyên hợp lệ.');
+      return number;
+    });
+    return parsed;
+  }
+
+  function sortedAscending(a) {
+    for (let i = 1; i < a.length; ++i)
+      if (a[i - 1] > a[i]) return false;
+    return true;
+  }
+
+  function stopAuto() {
+    if (timer !== null) {
+      clearInterval(timer);
+      timer = null;
+    }
+    autoButton.textContent = 'Tự chạy';
+  }
+
+  function reset() {
+    stopAuto();
+    error = '';
+    try {
+      values = parseArray(arrayInput.value);
+      target = Number(targetInput.value);
+      if (!Number.isFinite(target) || !Number.isInteger(target))
+        throw new Error('Giá trị x phải là số nguyên.');
+      if (autoSort.checked) {
+        values.sort(function (a, b) { return a - b; });
+        arrayInput.value = values.join(' ');
+      } else if (!sortedAscending(values)) {
+        throw new Error('Dãy chưa tăng. Hãy sắp xếp hoặc bật “Tự sắp xếp”.');
+      }
+    } catch (e) {
+      error = e.message;
+      values = [];
+    }
+
+    mode = modeSelect.value;
+    left = 0;
+    right = mode === 'exact' ? values.length - 1 : values.length;
+    mid = null;
+    answer = null;
+    done = error !== '';
+    stepNo = 0;
+    historyBody.innerHTML = '';
+    historyWrap.hidden = true;
+    stepButton.disabled = done;
+    autoButton.disabled = done;
+
+    if (error) {
+      message.innerHTML = '<span class="sim-error">' + error + '</span>';
+      resultBox.textContent = 'Kết quả cuối cùng: dữ liệu không hợp lệ';
+    } else {
+      message.textContent = 'Đã nạp ' + values.length + ' phần tử. Chế độ: ' + modeNames[mode] + '. Nhấn “Chạy một bước”.';
+      resultBox.textContent = 'Kết quả cuối cùng: chưa hoàn tất';
+    }
+    render();
+  }
+
+  function inActiveRange(index) {
+    if (done) return false;
+    return isHalfOpen() ? index >= left && index < right : index >= left && index <= right;
+  }
+
+  function render() {
+    strip.innerHTML = '';
+    values.forEach(function (value, index) {
+      const item = document.createElement('div');
+      item.className = 'array-item';
+      if (inActiveRange(index)) item.classList.add('active');
+      else item.classList.add('eliminated');
+      if (index === mid && !done) item.classList.add('mid');
+      if (answer === index && done) {
+        item.classList.remove('eliminated');
+        item.classList.add('found');
+      }
+      if (value === target) item.classList.add('match');
+      item.innerHTML = '<span class="idx">' + index + '</span><span>' + value + '</span>';
+      strip.appendChild(item);
+    });
+
+    stLeft.textContent = values.length ? left : '—';
+    stRight.textContent = values.length ? right + (isHalfOpen() ? ' (loại)' : '') : '—';
+    stMid.textContent = mid === null ? '—' : mid;
+    stValue.textContent = mid === null ? '—' : values[mid];
+  }
+
+  function addHistory(oldLeft, oldRight, oldMid, decision) {
+    const row = document.createElement('tr');
+    row.innerHTML = '<td>' + stepNo + '</td><td>' + oldLeft + '</td><td>' + oldRight
+      + (isHalfOpen() ? ' (loại)' : '') + '</td><td>' + oldMid + '</td><td>'
+      + values[oldMid] + '</td><td>' + decision + '</td>';
+    historyBody.appendChild(row);
+    historyWrap.hidden = false;
+  }
+
+  function finishBoundary() {
+    let description = '';
+    if (mode === 'lower') {
+      answer = left < values.length ? left : null;
+      description = answer === null
+        ? 'Không có phần tử nào ≥ ' + target + '; iterator bằng end().'
+        : 'Phần tử đầu tiên ≥ ' + target + ' ở chỉ số ' + answer + ', giá trị ' + values[answer] + '.';
+    } else if (mode === 'upper') {
+      answer = left < values.length ? left : null;
+      description = answer === null
+        ? 'Không có phần tử nào > ' + target + '; iterator bằng end().'
+        : 'Phần tử đầu tiên > ' + target + ' ở chỉ số ' + answer + ', giá trị ' + values[answer] + '.';
+    } else if (mode === 'firstEq') {
+      answer = left < values.length && values[left] === target ? left : null;
+      description = answer === null
+        ? 'Không có phần tử bằng ' + target + '.'
+        : 'Vị trí đầu tiên bằng ' + target + ' là chỉ số ' + answer + '.';
+    } else if (mode === 'lastEq') {
+      const candidate = left - 1;
+      answer = candidate >= 0 && values[candidate] === target ? candidate : null;
+      description = answer === null
+        ? 'Không có phần tử bằng ' + target + '.'
+        : 'Vị trí cuối cùng bằng ' + target + ' là chỉ số ' + answer + '.';
+    }
+    done = true;
+    mid = null;
+    stepButton.disabled = true;
+    autoButton.disabled = true;
+    stopAuto();
+    message.textContent = 'Đoạn nửa mở đã co về một vị trí: left = right = ' + left + '.';
+    resultBox.textContent = 'Kết quả cuối cùng: ' + description;
+    render();
+  }
+
+  function finishExactNotFound() {
+    done = true;
+    answer = null;
+    mid = null;
+    stepButton.disabled = true;
+    autoButton.disabled = true;
+    stopAuto();
+    message.textContent = 'left > right nên đoạn tìm kiếm đã rỗng.';
+    resultBox.textContent = 'Kết quả cuối cùng: không có phần tử bằng ' + target + '.';
+    render();
+  }
+
+  function runStep() {
+    if (done || error) return;
+
+    if (mode === 'exact' && left > right) {
+      finishExactNotFound();
+      return;
+    }
+    if (mode !== 'exact' && left >= right) {
+      finishBoundary();
+      return;
+    }
+
+    const oldLeft = left;
+    const oldRight = right;
+    mid = mode === 'exact'
+      ? left + Math.floor((right - left) / 2)
+      : left + Math.floor((right - left) / 2);
+    const value = values[mid];
+    stepNo++;
+    let decision = '';
+
+    if (mode === 'exact') {
+      if (value === target) {
+        answer = mid;
+        decision = 'a[mid] = x, tìm thấy.';
+        addHistory(oldLeft, oldRight, mid, decision);
+        done = true;
+        stepButton.disabled = true;
+        autoButton.disabled = true;
+        stopAuto();
+        message.textContent = 'a[' + mid + '] = ' + value + ' bằng x.';
+        resultBox.textContent = 'Kết quả cuối cùng: tìm thấy ' + target + ' tại chỉ số ' + mid + '.';
+        render();
+        return;
+      }
+      if (value < target) {
+        left = mid + 1;
+        decision = value + ' < ' + target + ', đặt left = mid + 1.';
+      } else {
+        right = mid - 1;
+        decision = value + ' > ' + target + ', đặt right = mid - 1.';
+      }
+    } else {
+      let goLeft;
+      if (mode === 'upper' || mode === 'lastEq')
+        goLeft = value > target;
+      else
+        goLeft = value >= target;
+
+      if (goLeft) {
+        right = mid;
+        decision = mode === 'upper' || mode === 'lastEq'
+          ? value + ' > ' + target + ', giữ mid bằng right = mid.'
+          : value + ' ≥ ' + target + ', giữ mid bằng right = mid.';
+      } else {
+        left = mid + 1;
+        decision = mode === 'upper' || mode === 'lastEq'
+          ? value + ' ≤ ' + target + ', đặt left = mid + 1.'
+          : value + ' < ' + target + ', đặt left = mid + 1.';
+      }
+    }
+
+    addHistory(oldLeft, oldRight, mid, decision);
+    message.textContent = 'Bước ' + stepNo + ': mid = ' + mid + ', a[mid] = ' + value + '. ' + decision;
+    render();
+
+    if (mode === 'exact' && left > right)
+      setTimeout(finishExactNotFound, 180);
+    else if (mode !== 'exact' && left >= right)
+      setTimeout(finishBoundary, 180);
+  }
+
+  function toggleAuto() {
+    if (timer !== null) {
+      stopAuto();
+      return;
+    }
+    if (done) return;
+    autoButton.textContent = 'Dừng';
+    timer = setInterval(function () {
+      runStep();
+      if (done) stopAuto();
+    }, 900);
+  }
+
+  resetButton.addEventListener('click', reset);
+  stepButton.addEventListener('click', runStep);
+  autoButton.addEventListener('click', toggleAuto);
+  modeSelect.addEventListener('change', reset);
+  reset();
+})();
+</script>
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>
