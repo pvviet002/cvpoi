@@ -536,7 +536,7 @@ int main() {
 <table>
   <thead><tr><th>Bài mẫu</th><th>Đáp án nhị phân</th><th><code>check(mid)</code></th><th>Dạng</th></tr></thead>
   <tbody>
-    <tr><td>Xếp hình chữ nhật</td><td>Cạnh hình vuông</td><td><code class="inl">(mid / w) * (mid / h) &gt;= n</code></td><td>First true</td></tr>
+    <tr><td>Xếp hình chữ nhật</td><td>Cạnh hình vuông</td><td>So sánh bằng phép chia làm tròn lên, không nhân hai thương</td><td>First true</td></tr>
     <tr><td>Phô-tô</td><td>Thời gian</td><td>Hai máy tạo đủ số bản trong thời gian đó</td><td>First true</td></tr>
     <tr><td>Bóng bay</td><td>Thời gian</td><td>Tổng số bóng các trợ lý bơm được ≥ <span class="mathv">m</span></td><td>First true</td></tr>
     <tr><td>Trò chơi chuỗi</td><td>Số ký tự xóa</td><td>Sau khi xóa <span class="mathv">mid</span> ký tự, <span class="mathv">p</span> vẫn là dãy con</td><td>Last true</td></tr>
@@ -551,15 +551,31 @@ int main() {
 <p>Với hình vuông cạnh <span class="mathv">s</span>, số hình chữ nhật <span class="mathv">w × h</span> xếp được là <span class="mathv">⌊s/w⌋·⌊s/h⌋</span>. Khi tăng <span class="mathv">s</span>, số hình xếp được không giảm, nên đây là first true.</p>
 <div class="codewrap noname"><pre><code>long long w, h, n;
 
+long long ceilDiv(long long a, long long b) {
+    return a / b + (a % b != 0);
+}
+
 bool check(long long side) {
-    return (__int128)(side / w) * (side / h) &gt;= n;
+    long long rows = side / w;
+    long long cols = side / h;
+    if (rows == 0 || cols == 0) return false;
+
+    // rows * cols &gt;= n  &lt;=&gt;  cols &gt;= ceil(n / rows)
+    return cols &gt;= ceilDiv(n, rows);
 }
 
 long long solve() {
     long long low = 0;
     long long high = 1;
-    while (!check(high))
+
+    while (!check(high)) {
+        if (high &gt; LLONG_MAX / 2) {
+            high = LLONG_MAX;
+            break;
+        }
         high *= 2;
+    }
+    if (!check(high)) return -1; // không có đáp án trong long long
 
     while (low &lt; high) {
         long long mid = low + (high - low) / 2;
@@ -571,12 +587,35 @@ long long solve() {
 
 <h3>Ví dụ 2 — số hamburger tối đa</h3>
 <p>Giả sử mỗi bánh cần <span class="mathv">needB, needX, needP</span>. Với <span class="mathv">cnt</span> bánh, chỉ mua phần thiếu so với kho. Nếu làm được <span class="mathv">cnt</span> bánh thì mọi số nhỏ hơn cũng làm được.</p>
-<div class="codewrap noname"><pre><code>bool canMake(long long cnt) {
-    __int128 cost = 0;
-    cost += (__int128)max(0LL, needB * cnt - haveB) * priceB;
-    cost += (__int128)max(0LL, needX * cnt - haveX) * priceX;
-    cost += (__int128)max(0LL, needP * cnt - haveP) * priceP;
-    return cost &lt;= money;
+<div class="codewrap noname"><pre><code>bool payIngredient(long long need, long long have, long long price,
+                   long long cnt, long long &amp;moneyLeft) {
+    if (need == 0 || cnt &lt;= have / need) return true;
+    if (price == 0) return true;
+
+    // Tách kho hiện có thành số bánh đủ nguyên liệu và phần dư.
+    long long complete = have / need;
+    long long remainder = have % need;
+    long long batches = cnt - complete;       // batches &gt;= 1
+    long long firstMissing = need - remainder;
+
+    // Chỉ cần biết số nguyên liệu tối đa còn mua được.
+    long long maxCanBuy = moneyLeft / price;
+    if (firstMissing &gt; maxCanBuy) return false;
+
+    long long afterFirst = maxCanBuy - firstMissing;
+    if (batches - 1 &gt; afterFirst / need) return false;
+
+    // Đến đây tích bên dưới chắc chắn không vượt moneyLeft.
+    long long missing = firstMissing + (batches - 1) * need;
+    moneyLeft -= missing * price;
+    return true;
+}
+
+bool canMake(long long cnt) {
+    long long moneyLeft = money;
+    return payIngredient(needB, haveB, priceB, cnt, moneyLeft)
+        &amp;&amp; payIngredient(needX, haveX, priceX, cnt, moneyLeft)
+        &amp;&amp; payIngredient(needP, haveP, priceP, cnt, moneyLeft);
 }</code></pre></div>
 
 <h3>Ví dụ 3 — chặt cây</h3>
@@ -595,7 +634,7 @@ long long solve() {
   <div class="t">THIẾT KẾ CHECK HIỆU QUẢ</div>
   <ul>
     <li>Không cần tính chính xác sau khi đã biết kết quả; có thể dừng sớm khi tổng đã đạt ngưỡng.</li>
-    <li>Dùng <code class="inl">__int128</code> cho phép nhân có thể vượt <code class="inl">long long</code>.</li>
+    <li>Tránh tạo tích lớn: đổi phép so sánh tích thành phép chia, kiểm tra <code class="inl">a &gt; limit / b</code> trước khi nhân hoặc dừng sớm khi tổng đã đạt ngưỡng.</li>
     <li>Không thay đổi dữ liệu gốc theo cách khiến lần gọi <code class="inl">check</code> sau phụ thuộc lần trước.</li>
     <li>Nếu chưa biết cận trên, có thể bắt đầu từ 1 và nhân đôi đến khi gặp trạng thái chắc chắn thỏa.</li>
   </ul>
@@ -697,7 +736,7 @@ for (int integer = -100; integer &lt; 100; ++integer) {
   <div class="t">BẪY 4 — TRÀN SỐ TRONG CHECK</div>
   <p><b>Nhận định sai:</b> các biến đầu vào vừa <code class="inl">long long</code> thì mọi phép nhân của chúng cũng vừa.</p>
   <p><b>Lý do sai:</b> tích trung gian có thể vượt 9·10<sup>18</sup> dù kết quả cuối chỉ cần so với một ngưỡng nhỏ hơn.</p>
-  <p><b>Cách phòng tránh:</b> ép sang <code class="inl">__int128</code>, biến phép nhân thành phép chia an toàn hoặc dừng sớm khi vượt ngưỡng.</p>
+  <p><b>Cách phòng tránh:</b> biến phép nhân thành phép chia an toàn, kiểm tra trước bằng <code class="inl">a &gt; limit / b</code>, giới hạn tổng ở ngưỡng cần so sánh hoặc dừng sớm khi đã đủ kết luận.</p>
 </div>
 
 <div class="box warn">
