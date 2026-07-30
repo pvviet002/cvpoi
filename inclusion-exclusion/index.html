@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đếm bao hàm loại trừ | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<style>
+  /* CSS riêng của phòng mô phỏng — CHỈ dùng biến màu của chuan.css */
+  .formula{
+    margin:1rem 0;
+    padding:.9rem 1rem;
+    overflow-x:auto;
+    border:1px solid var(--border);
+    border-left:4px solid var(--blue);
+    border-radius:.7rem;
+    background:var(--blue-bg);
+    color:var(--fg);
+    font-weight:600;
+    white-space:nowrap;
+  }
+  .sim{
+    margin:1.25rem 0;
+    padding:1rem;
+    border:1px solid var(--border);
+    border-radius:.85rem;
+    background:var(--card);
+    overflow:hidden;
+  }
+  .sim h3{margin-top:0;color:var(--blue)}
+  .simgrid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:.9rem;
+  }
+  .simcard{
+    min-width:0;
+    padding:.9rem;
+    border:1px solid var(--border);
+    border-radius:.7rem;
+    background:var(--bg);
+  }
+  .simcontrols{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.65rem;
+    margin:.8rem 0;
+  }
+  .sim button{
+    max-width:100%;
+    padding:.65rem .85rem;
+    border:1px solid var(--blue);
+    border-radius:.65rem;
+    background:var(--blue-bg);
+    color:var(--blue);
+    cursor:pointer;
+    font:inherit;
+    font-weight:700;
+  }
+  .sim button[data-on="true"]{
+    border-color:var(--green);
+    background:var(--green-bg);
+    color:var(--green);
+  }
+  .sim button:focus-visible{
+    outline:3px solid var(--amber);
+    outline-offset:2px;
+  }
+  .simresult{
+    margin-top:.7rem;
+    padding:.75rem;
+    border:1px solid var(--border);
+    border-radius:.65rem;
+    overflow-wrap:anywhere;
+  }
+  .simresult.ok{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+  .simresult.bad{border-color:var(--red);background:var(--red-bg);color:var(--red)}
+  .mutedline{color:var(--muted)}
+  .checklist li{margin:.35rem 0}
+  @media (max-width:720px){
+    .simgrid{grid-template-columns:1fr}
+  }
+
+/*cv-fix-nen-sang*/
+:root{--c-cmt:#5f6672}
+@media (prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+:root[data-theme="light"]{--c-cmt:#5f6672}
+:root[data-theme="dark"]{--c-cmt:#8b949e}
+.box th, .tablewrap th, table th{color:var(--blue) !important}
+.box td, .tablewrap td, table td{color:var(--fg)}
+/*/cv-fix-nen-sang*/
+</style>
+<!--cv-head-->
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Bao hàm–loại trừ</div>
+  <a href="#s1">1. Một dữ liệu, hai kết quả</a>
+  <a href="#s2">2. Vì sao phải cộng trừ luân phiên</a>
+  <a href="#s3">3. Những chỗ C++ dễ làm lệch luật</a>
+  <a href="#s4">4. Các khuôn cài đặt</a>
+  <a href="#s5">5. Biến thể và cách rút gọn</a>
+  <a href="#s6">6. Nhận dạng và bẫy</a>
+  <a href="#s7">7. Lộ trình bài luyện</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Đếm bao hàm loại trừ</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p>Đếm từng điều kiện riêng thường dễ; khó nằm ở những đối tượng thỏa nhiều điều kiện cùng lúc. Sợi chỉ đỏ của chuyên đề là: <strong>Mỗi đối tượng phải nhận tổng hệ số bằng 1 nếu cần giữ, và bằng 0 nếu cần loại.</strong> Từ câu này, dấu cộng trừ, cách duyệt tập con và các biến thể đều có thể được suy ra thay vì học thuộc.</p>
+
+<nav class="toc"><b>Nội dung</b><ol>
+  <li><a href="#s1">1. Một dữ liệu, hai kết quả</a></li>
+  <li><a href="#s2">2. Vì sao phải cộng trừ luân phiên</a></li>
+  <li><a href="#s3">3. Những chỗ C++ dễ làm lệch luật</a></li>
+  <li><a href="#s4">4. Các khuôn cài đặt</a></li>
+  <li><a href="#s5">5. Biến thể và cách rút gọn</a></li>
+  <li><a href="#s6">6. Nhận dạng và bẫy</a></li>
+  <li><a href="#s7">7. Lộ trình bài luyện</a></li>
+</ol></nav>
+
+<h2 id="s1"><span class="num">1.</span>Một dữ liệu, hai kết quả</h2>
+<p>Xét bài toán cụ thể: trong các số nguyên từ <span class="mathv">1</span> đến <span class="mathv">30</span>, có bao nhiêu số chia hết cho ít nhất một trong ba số <span class="mathv">2</span>, <span class="mathv">3</span>, <span class="mathv">5</span>?</p>
+
+<div class="box ex">
+  <div class="t">Hai cách nghĩ trên cùng dữ liệu</div>
+  <p><b>Cách cộng riêng:</b> có <span class="mathv">15</span> bội của <span class="mathv">2</span>, <span class="mathv">10</span> bội của <span class="mathv">3</span> và <span class="mathv">6</span> bội của <span class="mathv">5</span>. Cộng lại được <span class="mathv">31</span>.</p>
+  <p><b>Cách đánh dấu trực tiếp:</b> duyệt từng số, chỉ đánh dấu một lần nếu nó chia hết cho ít nhất một số đã cho. Kết quả là <span class="mathv">22</span>.</p>
+  <p>Hai kết quả khác nhau vì những số như bội của <span class="mathv">6</span> đã bị cộng nhiều lần.</p>
+</div>
+
+<div class="tablewrap"><table>
+  <thead><tr><th>Phần được đếm</th><th>Số lượng</th><th>Vai trò</th></tr></thead>
+  <tbody>
+    <tr><td>Bội của <span class="mathv">2</span>, <span class="mathv">3</span>, <span class="mathv">5</span></td><td><span class="mathv">15 + 10 + 6</span></td><td>Cộng từng tập</td></tr>
+    <tr><td>Bội chung của từng cặp</td><td><span class="mathv">5 + 3 + 2</span></td><td>Trừ phần đã bị cộng hai lần</td></tr>
+    <tr><td>Bội chung của cả ba</td><td><span class="mathv">1</span></td><td>Cộng lại phần vừa bị trừ quá tay</td></tr>
+    <tr><td>Kết quả</td><td><span class="mathv">15 + 10 + 6 − 5 − 3 − 2 + 1 = 22</span></td><td>Mỗi số hợp lệ còn đúng một lần</td></tr>
+  </tbody>
+</table></div>
+
+<div class="sim" aria-labelledby="sim-title">
+  <h3 id="sim-title">Phòng mô phỏng: bật một lỗi và nhìn hai cách chạy lệch nhau</h3>
+  <p class="mutedline">Dữ liệu cố định: đoạn <span class="mathv">[1, 30]</span>, các ước <span class="mathv">2</span>, <span class="mathv">3</span>, <span class="mathv">5</span>.</p>
+  <div class="simcontrols">
+    <button type="button" id="pair-toggle" data-on="true" aria-pressed="true">Trừ các giao đôi: Có</button>
+    <button type="button" id="triple-toggle" data-on="true" aria-pressed="true">Cộng giao ba: Có</button>
+    <button type="button" id="reset-sim">Khôi phục luật đúng</button>
+  </div>
+  <div class="simgrid">
+    <div class="simcard">
+      <b>Cách chạy theo công thức</b>
+      <p>Đơn: <span id="single-value"></span></p>
+      <p>Giao đôi được dùng: <span id="pair-value"></span></p>
+      <p>Giao ba được dùng: <span id="triple-value"></span></p>
+      <p><b>Kết quả: <span id="formula-value"></span></b></p>
+    </div>
+    <div class="simcard">
+      <b>Cách duyệt từng số</b>
+      <p>Số phần tử được đánh dấu: <b><span id="brute-value"></span></b></p>
+      <p class="mutedline">Mỗi số chỉ tăng bộ đếm một lần, dù thỏa nhiều điều kiện.</p>
+    </div>
+  </div>
+  <div id="sim-status" class="simresult" aria-live="polite"></div>
+</div>
+
+<p><b>Câu hỏi còn lại:</b> Vì sao phép cộng–trừ này luôn đưa mỗi số cần đếm về đúng một lần?</p>
+
+<h2 id="s2"><span class="num">2.</span>Vì sao phải cộng trừ luân phiên</h2>
+<p>Gọi <span class="mathv">A<sub>i</sub></span> là tập các đối tượng thỏa điều kiện thứ <span class="mathv">i</span>. Ta cần đếm kích thước của hợp các tập.</p>
+
+<div class="formula" role="math" aria-label="Công thức bao hàm loại trừ cho nhiều tập">
+|A<sub>1</sub> ∪ ⋯ ∪ A<sub>n</sub>| = Σ<sub>∅ ≠ S ⊆ {1,⋯,n}</sub> (−1)<sup>|S|−1</sup> · |⋂<sub>i∈S</sub>A<sub>i</sub>|
+</div>
+
+<p>Nói bằng lời: cộng các giao của một tập, trừ các giao của hai tập, cộng các giao của ba tập, rồi tiếp tục đổi dấu theo số tập được chọn.</p>
+
+<div class="box def">
+  <div class="t">Luật được đặt tên</div>
+  <p>Đó là <b>nguyên lý bao hàm–loại trừ</b>. <strong>Mỗi đối tượng phải nhận tổng hệ số bằng 1 nếu cần giữ, và bằng 0 nếu cần loại.</strong></p>
+</div>
+
+<p>Xét một đối tượng nằm trong đúng <span class="mathv">k</span> tập. Nó xuất hiện trong <span class="mathv">C(k,1)</span> giao một tập, <span class="mathv">C(k,2)</span> giao hai tập, và cứ thế. Tổng hệ số của nó là:</p>
+
+<div class="formula" role="math" aria-label="Tổng hệ số của một phần tử nằm trong k tập">
+C(k,1) − C(k,2) + C(k,3) − ⋯ + (−1)<sup>k−1</sup>C(k,k) = 1
+</div>
+
+<p>Vì vậy, đối tượng nằm trong hợp được giữ đúng một lần. Đối tượng không nằm trong tập nào không xuất hiện ở bất kỳ giao khác rỗng nào nên nhận hệ số bằng <span class="mathv">0</span>. Đây là lý do cách làm đúng, không chỉ là một mẹo sửa đếm trùng.</p>
+
+<div class="box tech">
+  <div class="t">Cách chuyển sang mặt nạ bit</div>
+  <p>Mỗi mặt nạ khác rỗng biểu diễn một tập con điều kiện. Nếu số bit bật là lẻ thì cộng số phần tử của giao; nếu số bit bật là chẵn thì trừ. Trong phần toán, điều kiện được đánh số từ <span class="mathv">1</span>; riêng vị trí bit trong mã bắt đầu từ <span class="mathv">0</span>.</p>
+</div>
+
+<p><b>Câu hỏi tiếp theo:</b> Khi chuyển luật này thành mặt nạ bit, phép toán nào của C++ dễ làm hệ số bị sai?</p>
+
+<h2 id="s3"><span class="num">3.</span>Những chỗ C++ dễ làm lệch luật</h2>
+<p>Công thức ngắn nhưng chương trình có thể sai vì phép toán của máy không giống ký hiệu toán học.</p>
+
+<div class="box warn">
+  <div class="t">Bẫy dấu và kiểu dữ liệu</div>
+  <ul>
+    <li>Dấu phụ thuộc vào <b>số bit bật</b>, không phụ thuộc mặt nạ là số lẻ hay số chẵn. Dùng <code class="inl">__builtin_popcountll(mask)</code> hoặc tự đếm bit.</li>
+    <li>Biến đáp án phải là <code class="inl">long long</code> vì trong quá trình tính có cả cộng và trừ.</li>
+    <li>Với C++14, không dựa vào <code class="inl">std::gcd</code> hay <code class="inl">std::lcm</code>; viết hàm ước chung lớn nhất riêng.</li>
+    <li>Phép <code class="inl">1LL &lt;&lt; n</code> chỉ phù hợp khi giới hạn <span class="mathv">n</span> đủ nhỏ cho duyệt tập con và phép dịch bit hợp lệ.</li>
+  </ul>
+</div>
+
+<div class="box warn">
+  <div class="t">Giao của các điều kiện phải được tính đúng nghĩa</div>
+  <p>Với điều kiện “chia hết cho <span class="mathv">a<sub>i</sub></span>”, giao của một tập con là các số chia hết cho <b>bội chung nhỏ nhất</b> của các <span class="mathv">a<sub>i</sub></span> đã chọn. Không thay bằng tích nếu các số không đôi một nguyên tố cùng nhau.</p>
+  <p>Để tránh tràn trước khi biết bội chung đã vượt <span class="mathv">r</span>, sau khi chia phần ước chung, kiểm tra <code class="inl">lcmValue &gt; r / part</code> rồi mới nhân.</p>
+</div>
+
+<div class="box ex">
+  <div class="t">Rút gọn trước khi duyệt</div>
+  <p>Nếu hai số bằng nhau, giữ một số. Nếu một số là bội của một số nhỏ hơn đã giữ, điều kiện của nó không thêm phần tử mới vào hợp nên có thể bỏ. Sắp xếp tăng dần giúp thực hiện bước này trực tiếp.</p>
+</div>
+
+<p><b>Câu hỏi tiếp theo:</b> Sau khi tránh các bẫy của máy, đâu là những khuôn cài đặt có thể dùng lại?</p>
+
+<h2 id="s4"><span class="num">4.</span>Các khuôn cài đặt</h2>
+<h3>Khuôn A — Đếm hợp bằng tập con</h3>
+<p>Dùng khi số điều kiện nhỏ và số phần tử của giao một tập con tính được nhanh. Chương trình dưới đây giải trọn bài minh họa: cho <span class="mathv">n</span> số nguyên dương <span class="mathv">a<sub>i</sub></span> và số nguyên dương <span class="mathv">r</span>, đếm các số trong <span class="mathv">[1,r]</span> chia hết cho ít nhất một <span class="mathv">a<sub>i</sub></span>. Khuôn này giả sử <span class="mathv">n ≤ 20</span> và <span class="mathv">r ≤ 10<sup>12</sup></span>.</p>
+
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int n, i, j, bits;
+long long r, mask, limitMask, g, part, lcmValue, cur, ans;
+bool redundant, valid;
+vector&lt;long long&gt; a, b;
+
+long long gcdll(long long x, long long y) {
+    while (y != 0) {
+        x %= y;
+        swap(x, y);
+    }
+    return x;
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    cin &gt;&gt; n &gt;&gt; r;
+    a.resize(n);
+    for (i = 0; i &lt; n; i++)
+        cin &gt;&gt; a[i];
+
+    sort(a.begin(), a.end());
+
+    for (i = 0; i &lt; n; i++) {
+        if (a[i] &gt; r)
+            continue;
+
+        redundant = false;
+        for (j = 0; j &lt; (int)b.size(); j++)
+            if (a[i] % b[j] == 0) {
+                redundant = true;
+                break;
+            }
+
+        if (!redundant)
+            b.push_back(a[i]);
+    }
+
+    n = (int)b.size();
+    limitMask = 1LL &lt;&lt; n;
+
+    for (mask = 1; mask &lt; limitMask; mask++) {
+        lcmValue = 1;
+        bits = 0;
+        valid = true;
+
+        for (i = 0; i &lt; n; i++) {
+            if (((mask &gt;&gt; i) &amp; 1LL) == 0)
+                continue;
+
+            bits++;
+            g = gcdll(lcmValue, b[i]);
+            part = b[i] / g;
+
+            if (lcmValue &gt; r / part) {
+                valid = false;
+                break;
+            }
+
+            lcmValue *= part;
+        }
+
+        if (!valid)
+            continue;
+
+        cur = r / lcmValue;
+        if (bits % 2 == 1)
+            ans += cur;
+        else
+            ans -= cur;
+    }
+
+    cout &lt;&lt; ans &lt;&lt; '\n';
+    return 0;
+}</code></pre></div>
+
+<div class="box cmplx">
+  <div class="t">Độ phức tạp</div>
+  <p>Sau bước rút gọn, nếu còn <span class="mathv">m</span> điều kiện thì thời gian là <span class="mathv">O(2<sup>m</sup> · m)</span>; bộ nhớ phụ ngoài mảng đầu vào là <span class="mathv">O(m)</span>.</p>
+</div>
+
+<h3>Khuôn B — Đếm phần tốt bằng cách trừ phần xấu</h3>
+<p>Nếu đề hỏi “không vi phạm điều kiện nào”, hãy gọi mỗi vi phạm là một tập xấu, tính kích thước hợp các tập xấu rồi lấy tổng số đối tượng trừ đi. Ví dụ, số nguyên tố cùng nhau với <span class="mathv">n</span> trong một đoạn có thể được đếm bằng cách loại các số chia hết cho ít nhất một thừa số nguyên tố phân biệt của <span class="mathv">n</span>.</p>
+
+<h3>Khuôn C — Đếm đúng số điều kiện</h3>
+<p>Giả sử <span class="mathv">f(S)</span> là số đối tượng thỏa đồng thời mọi điều kiện trong <span class="mathv">S</span>. Khi cần đếm đối tượng thỏa đúng <span class="mathv">q</span> điều kiện, một giao có kích thước <span class="mathv">t ≥ q</span> nhận hệ số <span class="mathv">(−1)<sup>t−q</sup> · C(t,q)</span>. Đây vẫn là sợi chỉ đỏ cũ: <strong>Mỗi đối tượng phải nhận tổng hệ số bằng 1 nếu cần giữ, và bằng 0 nếu cần loại.</strong></p>
+
+<p><b>Câu hỏi tiếp theo:</b> Nếu đề đổi từ “ít nhất một” sang đếm bù, đếm đúng số điều kiện hoặc thêm cấu trúc khác, khuôn phải đổi phần nào?</p>
+
+<h2 id="s5"><span class="num">5.</span>Biến thể và cách rút gọn</h2>
+<p>Khuôn không thay đổi hoàn toàn; thường chỉ thay cách định nghĩa tập xấu hoặc cách tính một giao.</p>
+
+<div class="tablewrap"><table>
+  <thead><tr><th>Đề đòi thêm gì</th><th>Đổi gì trong khuôn</th></tr></thead>
+  <tbody>
+    <tr><td>Không thuộc bất kỳ tập xấu nào</td><td>Tính hợp các tập xấu rồi lấy tổng trừ kết quả đó.</td></tr>
+    <tr><td>Chia hết cho ít nhất một <span class="mathv">a<sub>i</sub></span></td><td>Giao của tập con được đếm bằng <span class="mathv">⌊r / lcm⌋</span>.</td></tr>
+    <tr><td>Nguyên tố cùng nhau với <span class="mathv">n</span></td><td>Chỉ lấy các thừa số nguyên tố phân biệt của <span class="mathv">n</span> làm điều kiện xấu.</td></tr>
+    <tr><td>Nghiệm không âm có chặn trên</td><td>Gọi <span class="mathv">A<sub>i</sub></span> là biến thứ <span class="mathv">i</span> vượt chặn; với mỗi giao, dịch các biến đã chọn rồi dùng công thức chia kẹo.</td></tr>
+    <tr><td>Khớp đúng <span class="mathv">q</span> mẫu</td><td>Nhân <span class="mathv">f(S)</span> với hệ số phụ thuộc <span class="mathv">|S|</span> và <span class="mathv">q</span>, không chỉ dùng dấu lẻ–chẵn.</td></tr>
+    <tr><td>Nhiều vật cản trên lưới</td><td>Nếu duyệt mọi tập con quá lớn, sắp các vật cản và dùng quy hoạch động: tổng đường đi trừ các đường đi qua vật cản trước đó.</td></tr>
+    <tr><td>Có điều kiện trùng hoặc bị bao bởi điều kiện khác</td><td>Xóa điều kiện thừa trước khi tạo mặt nạ để giảm số tập con.</td></tr>
+  </tbody>
+</table></div>
+
+<div class="box tech">
+  <div class="t">Khi nào “bỏ bớt” không làm đổi đáp án?</div>
+  <p>Chỉ bỏ một điều kiện khi tập của nó nằm hoàn toàn trong hợp các điều kiện còn lại. Với bài chia hết, nếu <span class="mathv">a<sub>j</sub></span> là bội của <span class="mathv">a<sub>i</sub></span>, mọi bội của <span class="mathv">a<sub>j</sub></span> đã là bội của <span class="mathv">a<sub>i</sub></span>.</p>
+</div>
+
+<p><b>Câu hỏi tiếp theo:</b> Trước một đề mới, dấu hiệu nào cho biết nên nghĩ tới bao hàm–loại trừ và bẫy nào cần loại sớm?</p>
+
+<h2 id="s6"><span class="num">6.</span>Nhận dạng và bẫy</h2>
+<div class="tablewrap"><table>
+  <thead><tr><th>Đề nói gì</th><th>Nghĩ tới gì</th></tr></thead>
+  <tbody>
+    <tr><td>Ít nhất một điều kiện đúng</td><td>Đếm hợp các tập.</td></tr>
+    <tr><td>Không có điều kiện xấu nào đúng</td><td>Đếm bù: tổng trừ hợp tập xấu.</td></tr>
+    <tr><td>Số điều kiện nhỏ, giao của một nhóm dễ đếm</td><td>Duyệt mặt nạ và bao hàm–loại trừ.</td></tr>
+    <tr><td>Đúng <span class="mathv">q</span> điều kiện</td><td>Bao hàm–loại trừ có hệ số tổ hợp.</td></tr>
+    <tr><td>Điều kiện là chia hết</td><td>Giao tương ứng với bội chung nhỏ nhất.</td></tr>
+    <tr><td>Duyệt tập con không qua giới hạn</td><td>Tìm cấu trúc khác: quy hoạch động, sàng hoặc gom các giao giống nhau.</td></tr>
+  </tbody>
+</table></div>
+
+<div class="box warn">
+  <div class="t">Các bẫy nên kiểm bằng phản ví dụ nhỏ</div>
+  <ul>
+    <li>Cộng từng tập mà không sửa đếm trùng.</li>
+    <li>Trừ giao đôi nhưng quên cộng lại giao ba.</li>
+    <li>Dùng tích thay cho bội chung nhỏ nhất.</li>
+    <li>Tính bội chung rồi mới kiểm tra tràn.</li>
+    <li>Đưa tập con rỗng vào công thức đếm hợp dù không chủ ý đếm phần bù.</li>
+    <li>Giữ các điều kiện trùng làm số mặt nạ tăng vô ích.</li>
+    <li>Dùng mặt nạ nhỏ hơn kiểu của phép dịch hoặc đếm bit bằng hàm không khớp kiểu.</li>
+  </ul>
+</div>
+
+<div class="box ex">
+  <div class="t">Cách tự bắt lỗi</div>
+  <p>Với dữ liệu nhỏ, viết thêm một lời giải duyệt từng đối tượng. So sánh hai kết quả trên nhiều bộ sinh ngẫu nhiên. Nếu lệch, in từng tập con, số bit, giao và lượng cộng hoặc trừ. Việc này kiểm trực tiếp sợi chỉ đỏ: <strong>Mỗi đối tượng phải nhận tổng hệ số bằng 1 nếu cần giữ, và bằng 0 nếu cần loại.</strong></p>
+</div>
+
+<p><b>Câu hỏi cuối:</b> Nên luyện các dạng trên theo thứ tự nào để mỗi bài củng cố đúng một lớp ý tưởng?</p>
+
+<h2 id="s7"><span class="num">7.</span>Lộ trình bài luyện</h2>
+<p>Các bài dưới đây được xếp từ nhận dạng hợp đơn giản đến biến thể cần thay cách tính giao. Mã CVPOI chưa có trong nguyên liệu được cung cấp nên đang để nhãn cần điền trước khi xuất bản.</p>
+
+<div class="tablewrap"><table>
+  <thead><tr><th>Chặng</th><th>Bài luyện</th><th>Trọng tâm</th><th>Đọc mục nào</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Khởi động</td>
+      <td><a href="https://cvpoi.id.vn/problem/CAN_DIEN_UVA10325" target="_blank" rel="noopener">Xổ số — mã nguồn UVA 10325</a></td>
+      <td>Đếm số chia hết cho ít nhất một số đã cho.</td>
+      <td>Mục 1, 2, 4</td>
+    </tr>
+    <tr>
+      <td>Khởi động</td>
+      <td><a href="https://cvpoi.id.vn/problem/CAN_DIEN_SPOJ_NGM2" target="_blank" rel="noopener">Trò chơi với các số — mã nguồn SPOJ NGM2</a></td>
+      <td>Đếm bù và duyệt tập con.</td>
+      <td>Mục 2, 4, 6</td>
+    </tr>
+    <tr>
+      <td>Mở rộng</td>
+      <td><a href="https://cvpoi.id.vn/problem/CAN_DIEN_ATCODER_DP_Y" target="_blank" rel="noopener">Lưới có vật cản — mã nguồn AtCoder DP Y</a></td>
+      <td>Chuyển từ bao hàm–loại trừ mũ sang quy hoạch động theo vật cản.</td>
+      <td>Mục 5, 6</td>
+    </tr>
+    <tr>
+      <td>Mở rộng</td>
+      <td><a href="https://cvpoi.id.vn/problem/CAN_DIEN_TOPCODER_SETOFPATTERNS" target="_blank" rel="noopener">Khớp mẫu — mã nguồn TopCoder SetOfPatterns</a></td>
+      <td>Đếm khớp đúng số mẫu bằng hệ số tổ hợp.</td>
+      <td>Mục 2, 5</td>
+    </tr>
+    <tr>
+      <td>Nâng cao</td>
+      <td><a href="https://cvpoi.id.vn/problem/CAN_DIEN_SPOJ_MSKYCODE" target="_blank" rel="noopener">Bộ bốn nguyên tố cùng nhau — mã nguồn SPOJ MSKYCODE</a></td>
+      <td>Gom theo ước và đếm tổ hợp.</td>
+      <td>Mục 5, 6</td>
+    </tr>
+    <tr>
+      <td>Nâng cao</td>
+      <td><a href="https://cvpoi.id.vn/problem/CAN_DIEN_SPOJ_SQFREE" target="_blank" rel="noopener">Số không chứa bình phương — mã nguồn SPOJ SQFREE</a></td>
+      <td>Bao hàm–loại trừ trên các bình phương nguyên tố.</td>
+      <td>Mục 5, 6</td>
+    </tr>
+  </tbody>
+</table></div>
+
+<div class="box def">
+  <div class="t">Tự kiểm trước khi nộp</div>
+  <ul class="checklist">
+    <li>Đã xác định rõ tập toàn bộ và các tập xấu.</li>
+    <li>Đã viết được cách đếm giao của một tập con.</li>
+    <li>Đã kiểm dấu theo số điều kiện được chọn.</li>
+    <li>Đã quyết định tập con rỗng có tham gia hay không.</li>
+    <li>Đã chặn phép nhân khi dựng bội chung nhỏ nhất.</li>
+    <li>Đã dùng <code class="inl">long long</code> cho đáp án và giá trị giao.</li>
+    <li>Đã xóa điều kiện trùng hoặc bị bao nếu có thể.</li>
+    <li>Đã so với lời giải vét cạn trên dữ liệu nhỏ.</li>
+  </ul>
+</div>
+
+</div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var R = 30;
+  var divisors = [2, 3, 5];
+  var pairOn = true;
+  var tripleOn = true;
+
+  var pairButton = document.getElementById('pair-toggle');
+  var tripleButton = document.getElementById('triple-toggle');
+  var resetButton = document.getElementById('reset-sim');
+  var singleValue = document.getElementById('single-value');
+  var pairValue = document.getElementById('pair-value');
+  var tripleValue = document.getElementById('triple-value');
+  var formulaValue = document.getElementById('formula-value');
+  var bruteValue = document.getElementById('brute-value');
+  var status = document.getElementById('sim-status');
+
+  function gcd(a, b) {
+    while (b !== 0) {
+      var t = a % b;
+      a = b;
+      b = t;
+    }
+    return a;
+  }
+
+  function lcm(a, b) {
+    return a / gcd(a, b) * b;
+  }
+
+  function countMultiples(d) {
+    return Math.floor(R / d);
+  }
+
+  function countBrute() {
+    var count = 0;
+    var x;
+    var i;
+    for (x = 1; x <= R; x++) {
+      for (i = 0; i < divisors.length; i++)
+        if (x % divisors[i] === 0) {
+          count++;
+          break;
+        }
+    }
+    return count;
+  }
+
+  function render() {
+    var singles = countMultiples(divisors[0]) + countMultiples(divisors[1]) + countMultiples(divisors[2]);
+    var pairs = countMultiples(lcm(divisors[0], divisors[1])) + countMultiples(lcm(divisors[0], divisors[2])) + countMultiples(lcm(divisors[1], divisors[2]));
+    var triple = countMultiples(lcm(lcm(divisors[0], divisors[1]), divisors[2]));
+    var formula = singles - (pairOn ? pairs : 0) + (tripleOn ? triple : 0);
+    var brute = countBrute();
+
+    pairButton.dataset.on = String(pairOn);
+    pairButton.setAttribute('aria-pressed', String(pairOn));
+    pairButton.textContent = 'Trừ các giao đôi: ' + (pairOn ? 'Có' : 'Không');
+
+    tripleButton.dataset.on = String(tripleOn);
+    tripleButton.setAttribute('aria-pressed', String(tripleOn));
+    tripleButton.textContent = 'Cộng giao ba: ' + (tripleOn ? 'Có' : 'Không');
+
+    singleValue.textContent = String(singles);
+    pairValue.textContent = pairOn ? '− ' + pairs : '0';
+    tripleValue.textContent = tripleOn ? '+ ' + triple : '0';
+    formulaValue.textContent = String(formula);
+    bruteValue.textContent = String(brute);
+
+    status.className = 'simresult ' + (formula === brute ? 'ok' : 'bad');
+    status.textContent = formula === brute
+      ? 'Hai cách trùng nhau: mỗi số hợp lệ được giữ đúng một lần.'
+      : 'Hai cách đang lệch nhau. Hãy nhìn phần giao vừa bị tắt để tìm đối tượng bị đếm thừa hoặc thiếu.';
+  }
+
+  pairButton.addEventListener('click', function () {
+    pairOn = !pairOn;
+    render();
+  });
+
+  tripleButton.addEventListener('click', function () {
+    tripleOn = !tripleOn;
+    render();
+  });
+
+  resetButton.addEventListener('click', function () {
+    pairOn = true;
+    tripleOn = true;
+    render();
+  });
+
+  render();
+})();
+</script>
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<!--/cv-foot-->
+</body>
+</html>
