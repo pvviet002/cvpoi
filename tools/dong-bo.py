@@ -53,6 +53,9 @@ TRANG = {
  'sqrt-decomposition/index.html': dict(
     nhom='Cấu trúc dữ liệu', nhan='Chia căn', tieude='Chia căn (Sqrt Decomposition)',
     mota='Chia mảng thành khối cỡ căn N để truy vấn và cập nhật cùng nhanh.'),
+ 'segment-tree/index.html': dict(
+    nhom='Cấu trúc dữ liệu', nhan='Segment tree', tieude='Segment tree (Cây phân đoạn)',
+    mota='Cây phân đoạn cho truy vấn đoạn và cập nhật: phân rã mọi đoạn thành O(log N) nút chuẩn, cây đệ quy, cây lặp và lazy propagation.'),
  'tree/index.html': dict(
     nhom='Đồ thị & cây', nhan='Cây & LCA', tieude='Cây & LCA — nâng nhị phân',
     mota='Duyệt cây bằng DFS và tìm tổ tiên chung gần nhất bằng nâng nhị phân.'),
@@ -300,6 +303,7 @@ CO_THANH_BEN = {
     'prefix-sum/prefix-sum-1d/index.html',
     'sieve/index.html',
     'sqrt-decomposition/index.html',
+    'segment-tree/index.html',
     'string/index.html',
     'tree/euler-tour/index.html',
     'tree/index.html',

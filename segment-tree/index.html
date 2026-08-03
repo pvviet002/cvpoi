@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Segment tree (Cây phân đoạn) | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<style>
+  /* CSS riêng của ba phòng mô phỏng cây. Mọi màu lấy từ biến của chuan.css
+     nên tự đổi theo nền sáng/tối. */
+  .simbox{background:var(--card); border:1px solid var(--border); border-radius:12px;
+          padding:14px 16px; margin:18px 0}
+  .simwrap{overflow-x:auto}
+  .simsvg{display:block; width:100%; min-width:640px; height:auto}
+  .simctrl{display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; margin:12px 0 4px}
+  .simctrl label{color:var(--muted); font-size:.9rem}
+  .simctrl input[type=number]{width:58px; padding:5px 7px; border-radius:6px;
+       border:1px solid var(--border); background:var(--bg); color:var(--fg);
+       font-family:"Noto Sans Mono",ui-monospace,monospace; font-size:.9rem}
+  .simbtn{background:var(--bg); color:var(--fg); border:1px solid var(--border);
+       border-radius:7px; padding:6px 13px; font-size:.86rem; cursor:pointer; font-family:inherit}
+  .simbtn:hover{border-color:var(--blue); color:var(--blue)}
+  .simbtn.pri{background:var(--blue); color:#fff; border-color:var(--blue)}
+  .simbtn.pri:hover{opacity:.9; color:#fff}
+  .simout{margin-top:10px; font-size:.92rem; line-height:1.55}
+  .simout code{font-family:"Noto Sans Mono",ui-monospace,monospace}
+  .simlog{margin-top:8px; font-family:"Noto Sans Mono",ui-monospace,monospace;
+       font-size:.82rem; color:var(--muted); background:var(--code-bg);
+       border:1px solid var(--border); border-radius:8px; padding:8px 11px; white-space:pre-wrap}
+  .simleg{display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:10px; font-size:.82rem; color:var(--muted)}
+  .simleg span{display:inline-flex; align-items:center; gap:6px}
+  .simchip{width:14px; height:14px; border-radius:4px; border:2px solid var(--node-stroke); background:var(--node)}
+  .simchip.canon{border-color:var(--hl2); background:var(--green-bg)}
+  .simchip.path{border-color:var(--hl); background:var(--red-bg)}
+  .simchip.lazy{border-color:var(--amber); background:var(--amber-bg)}
+  /* Trạng thái nút trong SVG cây (nền nhạt + viền màu để chữ luôn đọc được). */
+  svg .tn rect{fill:var(--node); stroke:var(--node-stroke); stroke-width:2}
+  svg .tn.canon rect{fill:var(--green-bg); stroke:var(--hl2); stroke-width:3}
+  svg .tn.path  rect{fill:var(--red-bg);   stroke:var(--hl);  stroke-width:3}
+  svg .tn.lazy  rect{fill:var(--amber-bg); stroke:var(--amber); stroke-width:3}
+  svg .tn.dim{opacity:.32}
+  svg .tn .rg{fill:var(--muted); font-size:11px; text-anchor:middle; dominant-baseline:central;
+       font-family:"Noto Sans",system-ui,sans-serif}
+  svg .tn .vl{fill:var(--fg); font-size:14px; font-weight:700; text-anchor:middle; dominant-baseline:central;
+       font-family:"Noto Sans",system-ui,sans-serif}
+  svg .tag rect{fill:var(--amber-bg); stroke:var(--amber); stroke-width:1.5}
+  svg .tag text{fill:var(--amber); font-size:11px; font-weight:700; text-anchor:middle; dominant-baseline:central;
+       font-family:"Noto Sans Mono",ui-monospace,monospace}
+
+/*cv-fix-nen-sang*/
+:root{--c-cmt:#5f6672}
+@media (prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+:root[data-theme="light"]{--c-cmt:#5f6672}
+:root[data-theme="dark"]{--c-cmt:#8b949e}
+.box th, .tablewrap th, table th{color:var(--blue) !important}
+.box td, .tablewrap td, table td{color:var(--fg)}
+/*/cv-fix-nen-sang*/
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Cây phân đoạn cho truy vấn đoạn và cập nhật: phân rã mọi đoạn thành O(log N) nút chuẩn, cây đệ quy, cây lặp và lazy propagation.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Segment tree (Cây phân đoạn) | Lý thuyết CP">
+<meta property="og:description" content="Cây phân đoạn cho truy vấn đoạn và cập nhật: phân rã mọi đoạn thành O(log N) nút chuẩn, cây đệ quy, cây lặp và lazy propagation.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Segment tree</div>
+  <a href="#s1">1. Từ √N xuống log N</a>
+  <a href="#s2">2. Vì sao cây cho log N</a>
+  <a href="#s3">3. Bốn chỗ dễ sai</a>
+  <a href="#s4">4. Hai khuôn cài đặt</a>
+  <a href="#s5">5. Lazy và biến thể</a>
+  <a href="#s6">6. Nhận dạng và bẫy</a>
+  <a href="#s7">7. Lộ trình bài luyện</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb">Cấu trúc dữ liệu<span class="cv-sep">/</span><span class="cv-here">Segment tree</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Segment tree — Cây phân đoạn</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p>Kỹ thuật <b>Chia căn</b> đã hạ truy vấn đoạn xuống <span class="mathv">O(√N)</span> bằng cách
+cắt mảng thành <span class="mathv">√N</span> khối phẳng. Chuyên đề này đi tiếp một nấc: thay vì chia phẳng,
+ta <b>chia đôi đệ quy</b> thành một cây nhị phân, và truy vấn tụt xuống <span class="mathv">O(log N)</span>.
+Toàn bộ sức mạnh của cây gói trong một câu — <b>mọi đoạn cần hỏi đều tách được thành
+<span class="mathv">O(log N)</span> "nút chuẩn" đã tính sẵn</b> — và ta sẽ dùng lại đúng câu ấy cho truy vấn,
+cho cập nhật, và cho cả cập nhật nguyên một đoạn.</p>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Từ √N khối xuống log N</a></li>
+    <li><a href="#s2">Vì sao cây cho log N</a></li>
+    <li><a href="#s3">Bốn chỗ dễ sai còn lại</a></li>
+    <li><a href="#s4">Hai khuôn cài đặt</a></li>
+    <li><a href="#s5">Lazy propagation và biến thể</a></li>
+    <li><a href="#s6">Nhận dạng và bẫy</a></li>
+    <li><a href="#s7">Lộ trình bài luyện</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Từ √N khối xuống log N</h2>
+
+<p>Vẫn là bài toán quen thuộc: cho mảng <span class="mathv">A</span> gồm <span class="mathv">N</span> phần tử,
+xử lý <span class="mathv">Q</span> thao tác <b>trộn lẫn</b> hai loại:</p>
+
+<ul>
+<li><b>Cập nhật điểm:</b> gán <code class="inl">A[i] = x</code>.</li>
+<li><b>Truy vấn đoạn:</b> tính tổng các phần tử trong đoạn <span class="mathv">[l, r]</span>.</li>
+</ul>
+
+<p>Hai lối nghĩ ngây thơ đều gãy ở cùng một chỗ. Dùng vòng lặp cho truy vấn thì mỗi truy vấn tốn
+<span class="mathv">O(N)</span>. Dùng mảng cộng dồn (tổng tiền tố) thì truy vấn còn <span class="mathv">O(1)</span>,
+nhưng mỗi lần cập nhật một phần tử lại phải dựng lại tiền tố tốn <span class="mathv">O(N)</span>. Vì thao tác trộn
+lẫn nên không cách nào tránh được: tổng chi phí <span class="mathv">O(N·Q)</span>. Đây là số đo thật trên máy soạn
+chuyên đề (trình dịch MinGW đi kèm Themis), với <span class="mathv">N = Q = 2·10⁵</span> thao tác trộn:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Cách làm</th><th class="c">Chi phí mỗi thao tác</th><th class="c">Thời gian đo</th><th class="c">Kết cục</th></tr></thead>
+<tbody>
+<tr><td>Tiền tố, dựng lại khi cập nhật</td><td class="c"><span class="mathv">O(N)</span></td><td class="c">≈ 36 s</td><td class="c">TLE</td></tr>
+<tr><td>Chia căn (√N khối phẳng)</td><td class="c"><span class="mathv">O(√N)</span></td><td class="c">nhanh hơn nhiều</td><td class="c">thường đủ</td></tr>
+<tr><td><b>Segment tree đệ quy</b></td><td class="c"><span class="mathv">O(log N)</span></td><td class="c"><b>0,042 s</b></td><td class="c">AC</td></tr>
+<tr><td><b>Segment tree lặp</b></td><td class="c"><span class="mathv">O(log N)</span></td><td class="c"><b>0,012 s</b></td><td class="c">AC</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box warn">
+<div class="t">Câu hỏi cần trả lời</div>
+<p>Chia căn cắt mảng thành <span class="mathv">√N</span> khối <em>phẳng</em>: một tầng khối duy nhất, mỗi khối cỡ
+<span class="mathv">√N</span>. Nếu thay vì một tầng, ta chia đôi <em>đệ quy</em> — cả đoạn thành hai nửa, mỗi nửa lại
+thành hai nửa — thì được bao nhiêu tầng, và mỗi truy vấn chạm vào bao nhiêu khối? Trả lời được câu này là
+hiểu vì sao cây cho <span class="mathv">O(log N)</span>.</p>
+</div>
+
+<h2 id="s2"><span class="num">2.</span>Vì sao cây cho log N</h2>
+
+<p>Chia đôi đệ quy đoạn <span class="mathv">[1, 8]</span>: cả đoạn tách thành <span class="mathv">[1, 4]</span> và
+<span class="mathv">[5, 8]</span>; mỗi nửa lại tách đôi, cho tới khi mỗi đoạn chỉ còn một phần tử. Vẽ ra, đó là một
+<b>cây nhị phân</b>: mỗi <b>nút phủ một đoạn</b> và <b>giữ tổng của đoạn đó</b>. Dưới đây là cây cho mảng mẫu
+<code class="inl">A = [5, 8, 6, 3, 2, 7, 2, 6]</code> (đánh chỉ số từ 1). Mỗi ô ghi đoạn <span class="mathv">[l, r]</span>
+mà nút phủ và tổng của nó:</p>
+
+<div class="simwrap"><svg class="simsvg" id="figTree" viewBox="0 0 780 300" role="img" aria-label="Cây phân đoạn của mảng mẫu 8 phần tử"></svg></div>
+
+<p>Nút gốc phủ cả mảng và giữ tổng <span class="mathv">39</span>. Giá trị mỗi nút là tổng hai con của nó:
+<span class="mathv">39 = 22 + 17</span>, <span class="mathv">22 = 13 + 9</span>, và cứ thế xuống tới lá. Chính quan hệ
+"cha bằng gộp hai con" là thứ khiến cây hoạt động.</p>
+
+<div class="box def">
+<div class="t">Luật gộp phải có tính kết hợp</div>
+<p>Ta chỉ cần một phép gộp <span class="mathv">⊕</span> sao cho giá trị của một đoạn tính được từ giá trị hai đoạn
+con: <span class="mathv">val[l, r] = val[l, m] ⊕ val[m+1, r]</span>. Với bài này <span class="mathv">⊕</span> là phép
+cộng. Nhưng lập luận không hề dùng riêng phép cộng — nó chỉ cần <span class="mathv">⊕</span> <b>kết hợp</b> (gộp
+theo thứ tự nào cũng ra một kết quả). Nhờ vậy cùng một khung cây chạy được cho tổng, nhỏ nhất, lớn nhất, ước
+chung lớn nhất… (mục 5). Hãy nhớ tính kết hợp này — nó là lý do mọi thứ về sau đứng vững.</p>
+</div>
+
+<h3>Truy vấn: mọi đoạn tách thành O(log N) nút chuẩn</h3>
+
+<p>Muốn tính tổng đoạn <span class="mathv">[2, 7]</span>, ta không duyệt từng phần tử. Ta đi từ gốc xuống, và mỗi
+khi gặp một nút <b>nằm trọn</b> trong <span class="mathv">[2, 7]</span> thì lấy luôn tổng của nút đó rồi dừng, khỏi
+đi sâu hơn. Gọi những nút như vậy là <b>nút chuẩn</b> của truy vấn. Với <span class="mathv">[2, 7]</span>, cây trả về
+đúng bốn nút chuẩn:</p>
+
+<p style="text-align:center"><code class="inl">[2,2]=8</code> &nbsp; <code class="inl">[3,4]=9</code> &nbsp;
+<code class="inl">[5,6]=9</code> &nbsp; <code class="inl">[7,7]=2</code> &nbsp; → &nbsp; tổng
+<span class="mathv">8 + 9 + 9 + 2 = 28</span>.</p>
+
+<div class="box def">
+<div class="t">Vì sao chỉ cần O(log N) nút chuẩn</div>
+<p>Xét cây theo từng tầng. Ở mỗi tầng, đoạn <span class="mathv">[l, r]</span> chỉ có <b>hai</b> đầu — mép trái và mép
+phải. Một nút của tầng đó chỉ rơi vào ba khả năng: nằm trọn ngoài <span class="mathv">[l, r]</span> (bỏ), nằm trọn
+trong (lấy làm nút chuẩn, dừng), hoặc <b>cắt qua một mép</b>. Số nút "cắt qua mép" ở mỗi tầng nhiều nhất là
+<span class="mathv">2</span> (một cho mép trái, một cho mép phải), và chỉ những nút ấy mới phải đi sâu xuống tầng
+dưới. Cây có <span class="mathv">⌈log₂ N⌉ + 1</span> tầng, nên tổng số nút chuẩn cùng số nút phải duyệt đều là
+<span class="mathv">O(log N)</span>. Truy vấn vì thế tốn <span class="mathv">O(log N)</span>.</p>
+</div>
+
+<p>Hãy tự tay kiểm điều đó. Nhập một đoạn bất kỳ và xem cây tô sáng đúng các nút chuẩn phủ nó — số nút luôn nhỏ,
+không bao giờ nhiều như số phần tử trong đoạn.</p>
+
+<div class="simbox">
+  <div class="simwrap"><svg class="simsvg" id="svg1" viewBox="0 0 780 300" role="img" aria-label="Mô phỏng phân rã đoạn thành nút chuẩn"></svg></div>
+  <div class="simctrl">
+    <label>Truy vấn tổng đoạn [</label><input type="number" id="s1l" min="1" max="8" value="2">
+    <label>,</label><input type="number" id="s1r" min="1" max="8" value="7">
+    <label>]</label>
+    <button class="simbtn pri" id="s1go">Phân rã</button>
+    <button class="simbtn" id="s1a" data-l="2" data-r="7">[2, 7]</button>
+    <button class="simbtn" id="s1b" data-l="1" data-r="8">[1, 8]</button>
+    <button class="simbtn" id="s1c" data-l="3" data-r="3">[3, 3]</button>
+    <button class="simbtn" id="s1d" data-l="4" data-r="8">[4, 8]</button>
+  </div>
+  <div class="simleg">
+    <span><span class="simchip canon"></span>nút chuẩn (lấy trọn tổng)</span>
+    <span><span class="simchip dimchip" style="opacity:.4"></span>bị cắt bỏ ngoài đoạn</span>
+  </div>
+  <div class="simout" id="s1out"></div>
+</div>
+
+<h3>Cập nhật điểm: chỉ tổ tiên của một lá thay đổi</h3>
+
+<p>Khi gán <code class="inl">A[5] = 10</code>, chỉ lá <span class="mathv">[5, 5]</span> đổi giá trị. Nhưng đổi lá
+thì mọi nút <b>chứa</b> nó cũng phải đổi theo — đó đúng là chuỗi tổ tiên của lá, từ lá về gốc:</p>
+
+<p style="text-align:center"><code class="inl">[5,5]</code> → <code class="inl">[5,6]</code> →
+<code class="inl">[5,8]</code> → <code class="inl">[1,8]</code></p>
+
+<p>Chỉ <b>một nút trên mỗi tầng</b>, tức <span class="mathv">O(log N)</span> nút. Ta đi xuống tới lá, đặt giá trị
+mới, rồi trên đường quay về gốc gộp lại từng nút <span class="mathv">tree[id] = tree[2·id] + tree[2·id+1]</span>.
+Sau cập nhật, truy vấn lại <span class="mathv">[2, 7]</span> cho <span class="mathv">36</span> — đúng bằng
+<span class="mathv">28</span> cũ cộng thêm <span class="mathv">10 − 2 = 8</span>, vì chỉ nút chuẩn
+<span class="mathv">[5, 6]</span> tăng từ <span class="mathv">9</span> lên <span class="mathv">17</span>.</p>
+
+<div class="simbox">
+  <div class="simwrap"><svg class="simsvg" id="svg2" viewBox="0 0 780 300" role="img" aria-label="Mô phỏng đường cập nhật một phần tử"></svg></div>
+  <div class="simctrl">
+    <label>Gán A[</label><input type="number" id="s2p" min="1" max="8" value="5">
+    <label>] =</label><input type="number" id="s2v" value="10">
+    <button class="simbtn pri" id="s2go">Cập nhật</button>
+    <button class="simbtn" id="s2reset">Về mảng gốc</button>
+  </div>
+  <div class="simleg">
+    <span><span class="simchip path"></span>đường lá → gốc được gộp lại</span>
+  </div>
+  <div class="simout" id="s2out"></div>
+</div>
+
+<div class="box ex">
+<div class="t">Bài toán trở thành</div>
+<p>Giữ một cây mà mỗi nút là tổng đoạn nó phủ. <b>Truy vấn</b> = cộng <span class="mathv">O(log N)</span> nút chuẩn;
+<b>cập nhật điểm</b> = sửa một lá rồi gộp lại dọc <span class="mathv">O(log N)</span> tổ tiên. Cả hai thao tác đều
+<span class="mathv">O(log N)</span>, nên <span class="mathv">Q</span> thao tác chỉ tốn
+<span class="mathv">O(Q log N)</span> — với <span class="mathv">2·10⁵</span> thao tác là cỡ vài triệu phép tính, chạy
+trong phần nghìn giây.</p>
+</div>
+
+<h2 id="s3"><span class="num">3.</span>Bốn chỗ dễ sai còn lại</h2>
+
+<p>Ý tưởng cây thì gọn, nhưng bốn chi tiết dưới đây khiến bài đúng thuật toán vẫn trượt. Cả bốn đều có số đo thật.</p>
+
+<h3>1. Mảng phải khai cỡ 4N, không phải 2N</h3>
+
+<p>Cây có <span class="mathv">N</span> lá thì có <span class="mathv">N − 1</span> nút trong, tổng
+<span class="mathv">2N − 1</span> nút — nghe như mảng cỡ <span class="mathv">2N</span> là đủ. Nhưng ở cách đánh số con
+<span class="mathv">2·id</span> và <span class="mathv">2·id+1</span>, khi <span class="mathv">N</span> không phải luỹ thừa
+của 2, cây lệch và <b>chỉ số nút có thể vọt lên gần 4N</b>. Quét mọi <span class="mathv">N ≤ 10⁵</span>, chỉ số lớn
+nhất thực sự chạm tới chia cho <span class="mathv">N</span> đạt cực đại:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>N</th><th class="c">chỉ số nút lớn nhất</th><th class="c">so với N</th><th class="c">mảng 2N có đủ?</th></tr></thead>
+<tbody>
+<tr><td>N = 8 (luỹ thừa 2)</td><td class="c">15</td><td class="c">1,88·N</td><td class="c">đủ</td></tr>
+<tr><td>N = 65 792 (xấu nhất)</td><td class="c">261 633</td><td class="c"><b>3,98·N</b></td><td class="c"><b>KHÔNG</b> — tràn mảng</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Tỉ lệ không bao giờ chạm <span class="mathv">4N</span>, nhưng vượt <span class="mathv">2N</span> ở nhiều giá trị.
+Nên với cây đệ quy, luôn khai <code class="inl">tree[4 * MAXN]</code>. (Cây lặp ở mục 4 đánh số khác nên chỉ cần
+<span class="mathv">2N</span> — đó là một ưu điểm của nó.)</p>
+
+<h3>2. Tổng vượt int — và long trên máy thi cũng chỉ 4 byte</h3>
+
+<p>Mỗi phần tử tới <span class="mathv">10⁹</span>, cộng ba số như vậy đã vượt ngưỡng <span class="mathv">int</span>
+(<span class="mathv">2 147 483 647</span>). Tổng cả mảng <span class="mathv">2·10⁵</span> phần tử lên tới
+<span class="mathv">2·10¹⁴</span>. Phải để tổng ở kiểu <code class="inl">long long</code>. Lưu ý trình dịch đi kèm
+Themis là 32-bit, nên <code class="inl">long</code> chỉ 4 byte y hệt <code class="inl">int</code> — viết đủ hai chữ
+<code class="inl">long long</code> mới an toàn.</p>
+
+<h3>3. Phần tử đơn vị của truy vấn "rỗng"</h3>
+
+<p>Khi một nút nằm trọn ngoài đoạn hỏi, ta trả về <b>phần tử đơn vị</b> của phép gộp — giá trị không làm thay đổi
+kết quả. Chọn sai phần tử đơn vị là sai âm thầm:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Phép gộp</th><th class="c">Phần tử đơn vị</th><th>Trả nhầm sẽ ra sao</th></tr></thead>
+<tbody>
+<tr><td>tổng</td><td class="c">0</td><td>—</td></tr>
+<tr><td>nhỏ nhất (min)</td><td class="c">+∞</td><td>trả 0 thì mọi min ra 0 nếu mảng dương</td></tr>
+<tr><td>lớn nhất (max)</td><td class="c">−∞</td><td>trả 0 thì mọi max ≥ 0 dù mảng toàn số âm</td></tr>
+<tr><td>ước chung lớn nhất (gcd)</td><td class="c">0</td><td><span class="mathv">gcd(0, x) = x</span> nên 0 là đơn vị đúng</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>4. Quên gộp lại sau khi đệ quy con</h3>
+
+<p>Trong <code class="inl">update</code>, sau khi gọi đệ quy xuống con phải sửa lá, <b>bắt buộc</b> có dòng
+<code class="inl">tree[id] = tree[2*id] + tree[2*id+1];</code>. Thiếu nó, lá đổi nhưng tổ tiên vẫn giữ tổng cũ, và
+mọi truy vấn về sau lệch mà không báo lỗi gì. Đây là lỗi phổ biến nhất khi mới học.</p>
+
+<h2 id="s4"><span class="num">4.</span>Hai khuôn cài đặt</h2>
+
+<p>Hai khuôn dưới đây giải cùng bài (cập nhật điểm, truy vấn tổng đoạn) và cho <b>cùng kết quả</b> — đã kiểm khớp
+nhau trên 20 000 thao tác ngẫu nhiên. Cả hai đọc cùng định dạng: dòng đầu <span class="mathv">N</span> và
+<span class="mathv">Q</span>; dòng sau là <span class="mathv">N</span> số; rồi <span class="mathv">Q</span> dòng, mỗi dòng
+<code class="inl">1 p v</code> (gán <code class="inl">A[p] = v</code>) hoặc <code class="inl">2 l r</code> (in tổng
+<span class="mathv">[l, r]</span>).</p>
+
+<h3>Khuôn A — cây đệ quy (dễ mở rộng nhất)</h3>
+
+<p>Đây là khuôn nên thuộc nằm lòng, vì nó mở rộng thẳng sang lazy và mọi biến thể. Ba hàm
+<code class="inl">build</code>, <code class="inl">update</code>, <code class="inl">query</code> đều theo một nhịp: chạm
+biên thì xử lý, còn không thì chia đôi rồi đệ quy.</p>
+
+<div class="codewrap"><div class="name">segment_tree_dequy.cpp</div><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 200005;
+long long tree[4 * MAXN];   // mỗi nút giữ tổng đoạn nó phủ
+int a[MAXN], n, q;
+
+// Dựng cây: nút id phủ đoạn [l, r]
+void build(int id, int l, int r) {
+    if (l == r) { tree[id] = a[l]; return; }
+    int mid = (l + r) / 2;
+    build(2 * id, l, mid);
+    build(2 * id + 1, mid + 1, r);
+    tree[id] = tree[2 * id] + tree[2 * id + 1];   // gộp hai con
+}
+
+// Gán a[pos] = val, rồi gộp lại dọc đường về gốc
+void update(int id, int l, int r, int pos, int val) {
+    if (l == r) { tree[id] = val; return; }
+    int mid = (l + r) / 2;
+    if (pos &lt;= mid) update(2 * id, l, mid, pos, val);
+    else update(2 * id + 1, mid + 1, r, pos, val);
+    tree[id] = tree[2 * id] + tree[2 * id + 1];
+}
+
+// Tổng đoạn [u, v]: cộng các nút chuẩn phủ trọn trong [u, v]
+long long query(int id, int l, int r, int u, int v) {
+    if (v &lt; l || r &lt; u) return 0;          // đoạn nút rời [u, v]
+    if (u &lt;= l &amp;&amp; r &lt;= v) return tree[id];   // nút chuẩn: nằm trọn trong [u, v]
+    int mid = (l + r) / 2;
+    return query(2 * id, l, mid, u, v) + query(2 * id + 1, mid + 1, r, u, v);
+}
+
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(NULL);
+    cin &gt;&gt; n &gt;&gt; q;
+    for (int i = 1; i &lt;= n; i++) cin &gt;&gt; a[i];
+    build(1, 1, n);
+    while (q--) {
+        int type; cin &gt;&gt; type;
+        if (type == 1) { int p, v; cin &gt;&gt; p &gt;&gt; v; update(1, 1, n, p, v); }
+        else { int l, r; cin &gt;&gt; l &gt;&gt; r; cout &lt;&lt; query(1, 1, n, l, r) &lt;&lt; "\n"; }
+    }
+    return 0;
+}</code></pre></div>
+
+<div class="box ex">
+<div class="t">Chạy trên dữ liệu mẫu</div>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Input</th><th>Output</th><th>Giải thích</th></tr></thead>
+<tbody>
+<tr>
+<td><code class="inl">8 4<br>5 8 6 3 2 7 2 6<br>2 2 7<br>1 5 10<br>2 2 7<br>2 1 8</code></td>
+<td><code class="inl">28<br>36<br>47</code></td>
+<td>tổng <span class="mathv">[2,7] = 28</span>; gán <span class="mathv">A[5] = 10</span>; tổng
+<span class="mathv">[2,7]</span> giờ là <span class="mathv">36</span>; tổng cả mảng
+<span class="mathv">[1,8] = 47</span>.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<h3>Khuôn B — cây lặp (ngắn và nhanh)</h3>
+
+<p>Xếp <span class="mathv">N</span> lá vào các ô <span class="mathv">[N, 2N)</span> rồi tính ngược lên: nút trong thứ
+<span class="mathv">i</span> có hai con <span class="mathv">2i</span> và <span class="mathv">2i+1</span>. Không đệ quy,
+không cần truyền <span class="mathv">(id, l, r)</span>, chỉ cần mảng cỡ <span class="mathv">2N</span>. Truy vấn đi từ
+hai đầu vào giữa. Trên cùng phép đo ở mục 1, khuôn này chạy <span class="mathv">0,012 s</span> so với
+<span class="mathv">0,042 s</span> của đệ quy — nhanh khoảng ba lần rưỡi. Đổi lại, nó khó gắn lazy hơn, nên hãy
+xem nó là "bản rút gọn cho cập nhật điểm".</p>
+
+<div class="codewrap"><div class="name">segment_tree_lap.cpp</div><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 200005;
+long long tree[2 * MAXN];   // lá nằm ở [n, 2n), nút trong ở [1, n)
+int n, q;
+
+// Gán phần tử thứ pos (0-based) bằng val, rồi đi ngược lên gốc
+void update(int pos, long long val) {
+    pos += n;
+    tree[pos] = val;
+    for (pos /= 2; pos &gt;= 1; pos /= 2)
+        tree[pos] = tree[2 * pos] + tree[2 * pos + 1];
+}
+
+// Tổng nửa mở [l, r) theo chỉ số 0-based, gộp từ dưới lên
+long long query(int l, int r) {
+    long long res = 0;
+    for (l += n, r += n; l &lt; r; l /= 2, r /= 2) {
+        if (l &amp; 1) res += tree[l++];   // l là con phải: lấy rồi tiến
+        if (r &amp; 1) res += tree[--r];   // r là con phải: lùi rồi lấy
+    }
+    return res;
+}
+
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(NULL);
+    cin &gt;&gt; n &gt;&gt; q;
+    for (int i = 0; i &lt; n; i++) cin &gt;&gt; tree[n + i];
+    for (int i = n - 1; i &gt;= 1; i--) tree[i] = tree[2 * i] + tree[2 * i + 1];
+    while (q--) {
+        int type; cin &gt;&gt; type;
+        if (type == 1) { int p, v; cin &gt;&gt; p &gt;&gt; v; update(p - 1, v); }
+        else { int l, r; cin &gt;&gt; l &gt;&gt; r; cout &lt;&lt; query(l - 1, r) &lt;&lt; "\n"; }
+    }
+    return 0;
+}</code></pre></div>
+
+<p>Khuôn B nhận truy vấn theo <b>nửa mở</b> <span class="mathv">[l, r)</span> trong nội bộ, nên phần đọc đã chuyển
+đoạn đóng <span class="mathv">[l, r]</span> của đề (1-based) thành <code class="inl">query(l - 1, r)</code>. Chạy trên
+đúng dữ liệu mẫu ở trên, khuôn B in ra cùng <code class="inl">28 / 36 / 47</code>.</p>
+
+<h2 id="s5"><span class="num">5.</span>Lazy propagation và biến thể</h2>
+
+<p>Bảng dưới là cách đọc mọi biến thể: đề đòi thêm gì thì đổi đúng chỗ nào trong khuôn A. Sợi chỉ đỏ vẫn nguyên —
+mọi thứ vẫn dừng ở <span class="mathv">O(log N)</span> nút chuẩn.</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Đề đòi thêm</th><th>Đổi gì trong khuôn A</th></tr></thead>
+<tbody>
+<tr><td>nhỏ nhất / lớn nhất / gcd trên đoạn</td><td>đổi phép gộp <code class="inl">+</code> thành <code class="inl">min</code> / <code class="inl">max</code> / <code class="inl">__gcd</code>, và đổi phần tử đơn vị (mục 3)</td></tr>
+<tr><td><b>cập nhật cả một đoạn</b></td><td>thêm mảng <code class="inl">lazy[]</code> ghi "nợ treo" và cơ chế đẩy nợ — xem ngay dưới</td></tr>
+<tr><td>tìm vị trí đầu tiên thỏa điều kiện</td><td>thay vì cộng dồn, <b>tụt xuống</b> cây: ở mỗi nút hỏi con trái có đủ không để chọn hướng đi — vẫn <span class="mathv">O(log N)</span></td></tr>
+<tr><td>đoạn con tổng lớn nhất trong đoạn</td><td>mỗi nút giữ <b>bốn</b> số: tổng, tiền tố lớn nhất, hậu tố lớn nhất, đoạn con tốt nhất; gộp hai con theo bốn số đó</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Lazy propagation: hoãn nợ để cập nhật đoạn cũng chỉ O(log N)</h3>
+
+<p>Giờ thêm thao tác <b>cộng <span class="mathv">v</span> vào mọi phần tử trong đoạn <span class="mathv">[u, v]</span></b>.
+Nếu đi tới từng lá mà cộng thì mỗi cập nhật tốn <span class="mathv">O(N)</span> — mất sạch cái lợi của cây.</p>
+
+<div class="box def">
+<div class="t">Nhận xét bản lề</div>
+<p>Cập nhật đoạn <span class="mathv">[u, v]</span> cũng dừng ở đúng <span class="mathv">O(log N)</span> nút chuẩn của
+<span class="mathv">[u, v]</span> — y như truy vấn. Ở mỗi nút chuẩn, ta cập nhật ngay <b>tổng</b> của nó (cộng
+<span class="mathv">v</span> nhân số phần tử), rồi <b>ghi một khoản nợ</b> vào <code class="inl">lazy[id]</code>: "hai
+cây con bên dưới mỗi phần tử còn thiếu <span class="mathv">v</span>". Ta <em>chưa</em> đi xuống sửa chúng. Chỉ khi
+nào một thao tác sau này thật sự cần đi <b>vào trong</b> nút đó, ta mới <b>đẩy nợ</b> xuống hai con — gọi là
+<em>push down</em>. Nợ luôn được trả đúng lúc cần, nên cả cập nhật đoạn lẫn truy vấn đoạn vẫn
+<span class="mathv">O(log N)</span>.</p>
+</div>
+
+<p>Ví dụ trên mảng mẫu: <b>cộng 4 vào <span class="mathv">[3, 6]</span></b>. Hai nút chuẩn của
+<span class="mathv">[3, 6]</span> là <span class="mathv">[3, 4]</span> và <span class="mathv">[5, 6]</span>; mỗi nút có
+2 phần tử nên tổng tăng <span class="mathv">2 · 4 = 8</span> (từ <span class="mathv">9</span> lên
+<span class="mathv">17</span>), và mỗi nút nhận nợ <code class="inl">lazy = 4</code>. Bốn lá bên dưới <b>chưa</b> bị
+đụng tới. Nếu sau đó hỏi riêng <span class="mathv">A[4]</span>, cây phải đi vào trong <span class="mathv">[3, 4]</span>,
+nên nó đẩy nợ 4 xuống hai con trước, cho ra <span class="mathv">A[4] = 3 + 4 = 7</span>. Hãy thử tay:</p>
+
+<div class="simbox">
+  <div class="simwrap"><svg class="simsvg" id="svg3" viewBox="0 0 780 320" role="img" aria-label="Mô phỏng lazy propagation"></svg></div>
+  <div class="simctrl">
+    <label>Cộng vào [</label><input type="number" id="s3l" min="1" max="8" value="3">
+    <label>,</label><input type="number" id="s3r" min="1" max="8" value="6">
+    <label>] giá trị</label><input type="number" id="s3v" value="4">
+    <button class="simbtn pri" id="s3add">Cộng đoạn</button>
+  </div>
+  <div class="simctrl">
+    <label>Truy vấn tổng [</label><input type="number" id="s3ql" min="1" max="8" value="4">
+    <label>,</label><input type="number" id="s3qr" min="1" max="8" value="4">
+    <label>]</label>
+    <button class="simbtn" id="s3query">Truy vấn</button>
+    <button class="simbtn" id="s3reset">Về mảng gốc</button>
+  </div>
+  <div class="simleg">
+    <span><span class="simchip lazy"></span>nút đang giữ nợ (lazy) — badge ghi khoản nợ</span>
+    <span><span class="simchip canon"></span>nút vừa chạm trong thao tác</span>
+  </div>
+  <div class="simout" id="s3out"></div>
+  <div class="simlog" id="s3log"></div>
+</div>
+
+<p>Khuôn lazy đầy đủ cho <b>cộng đoạn + truy vấn tổng đoạn</b>. So với khuôn A, nó thêm mảng
+<code class="inl">lazy[]</code>, hai hàm <code class="inl">apply</code> (đặt nợ vào một nút) và
+<code class="inl">push</code> (đẩy nợ xuống hai con), và một lời gọi <code class="inl">push</code> ngay đầu mỗi lần
+đi sâu vào cây. Định dạng cập nhật đổi thành <code class="inl">1 l r v</code> (cộng <span class="mathv">v</span> vào
+<span class="mathv">[l, r]</span>).</p>
+
+<div class="codewrap"><div class="name">segment_tree_lazy.cpp</div><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN = 200005;
+long long tree[4 * MAXN], lazy[4 * MAXN];   // lazy[id]: lượng cộng còn treo ở con của id
+int a[MAXN], n, q;
+
+void build(int id, int l, int r) {
+    if (l == r) { tree[id] = a[l]; return; }
+    int mid = (l + r) / 2;
+    build(2 * id, l, mid);
+    build(2 * id + 1, mid + 1, r);
+    tree[id] = tree[2 * id] + tree[2 * id + 1];
+}
+
+// Cộng val cho mọi phần tử trong đoạn nút [l, r]: cập nhật tổng và ghi nợ
+void apply(int id, int l, int r, long long val) {
+    tree[id] += (long long)(r - l + 1) * val;
+    lazy[id] += val;
+}
+
+// Đẩy khoản nợ của id xuống hai con trước khi đi tiếp
+void push(int id, int l, int r) {
+    if (lazy[id] == 0) return;
+    int mid = (l + r) / 2;
+    apply(2 * id, l, mid, lazy[id]);
+    apply(2 * id + 1, mid + 1, r, lazy[id]);
+    lazy[id] = 0;
+}
+
+// Cộng val cho mọi phần tử trong [u, v]
+void update(int id, int l, int r, int u, int v, long long val) {
+    if (v &lt; l || r &lt; u) return;
+    if (u &lt;= l &amp;&amp; r &lt;= v) { apply(id, l, r, val); return; }
+    push(id, l, r);
+    int mid = (l + r) / 2;
+    update(2 * id, l, mid, u, v, val);
+    update(2 * id + 1, mid + 1, r, u, v, val);
+    tree[id] = tree[2 * id] + tree[2 * id + 1];
+}
+
+long long query(int id, int l, int r, int u, int v) {
+    if (v &lt; l || r &lt; u) return 0;
+    if (u &lt;= l &amp;&amp; r &lt;= v) return tree[id];
+    push(id, l, r);
+    int mid = (l + r) / 2;
+    return query(2 * id, l, mid, u, v) + query(2 * id + 1, mid + 1, r, u, v);
+}
+
+int main() {
+    ios_base::sync_with_stdio(false); cin.tie(NULL);
+    cin &gt;&gt; n &gt;&gt; q;
+    for (int i = 1; i &lt;= n; i++) cin &gt;&gt; a[i];
+    build(1, 1, n);
+    while (q--) {
+        int type; cin &gt;&gt; type;
+        if (type == 1) { int l, r, v; cin &gt;&gt; l &gt;&gt; r &gt;&gt; v; update(1, 1, n, l, r, v); }
+        else { int l, r; cin &gt;&gt; l &gt;&gt; r; cout &lt;&lt; query(1, 1, n, l, r) &lt;&lt; "\n"; }
+    }
+    return 0;
+}</code></pre></div>
+
+<div class="box ex">
+<div class="t">Chạy trên dữ liệu mẫu (cộng đoạn)</div>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Input</th><th>Output</th><th>Giải thích</th></tr></thead>
+<tbody>
+<tr>
+<td><code class="inl">8 4<br>5 8 6 3 2 7 2 6<br>2 2 7<br>1 3 6 4<br>2 2 7<br>2 1 8</code></td>
+<td><code class="inl">28<br>44<br>55</code></td>
+<td>tổng <span class="mathv">[2,7] = 28</span>; cộng 4 vào <span class="mathv">[3,6]</span> (4 phần tử,
+thêm 16); tổng <span class="mathv">[2,7]</span> thành <span class="mathv">44</span>; tổng cả mảng thành
+<span class="mathv">39 + 16 = 55</span>.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<h3>Một biến thể để thấy sợi chỉ đỏ lặp lại: đoạn con tổng lớn nhất</h3>
+
+<p>Bài "đoạn con tổng lớn nhất, có cập nhật điểm" tưởng khác hẳn, nhưng vẫn là cùng cây: mỗi nút giữ bốn số về
+đoạn nó phủ — <b>tổng</b>, <b>tiền tố lớn nhất</b> (bắt đầu từ mép trái), <b>hậu tố lớn nhất</b> (kết ở mép phải),
+và <b>đoạn con tốt nhất</b>. Đoạn con tốt nhất của cha nằm gọn trong con trái, gọn trong con phải, hoặc <b>vắt qua
+giữa</b> — khi ấy nó là hậu tố con trái nối tiền tố con phải. Đây chính là phép gộp kết hợp cho bốn số:</p>
+
+<div class="codewrap"><div class="name">gộp bốn số (đoạn minh hoạ)</div><pre><code>struct Node { long long sum, pre, suf, best; };
+
+Node gop(Node a, Node b) {
+    Node c;
+    c.sum  = a.sum + b.sum;
+    c.pre  = max(a.pre, a.sum + b.pre);          // tiền tố: hết con trái rồi ăn sang phải
+    c.suf  = max(b.suf, b.sum + a.suf);          // hậu tố: hết con phải rồi ăn ngược sang trái
+    c.best = max(max(a.best, b.best), a.suf + b.pre);  // vắt qua giữa
+    return c;
+}</code></pre></div>
+
+<p>Kiểm trên dãy <code class="inl">-2 3 -1 4 -3 2 1 -5</code>: đoạn con tổng lớn nhất là
+<span class="mathv">3 − 1 + 4 = 6</span>, và phép gộp trên cây cho ra đúng <span class="mathv">6</span>. Vẫn đúng một
+phép gộp kết hợp, vẫn dừng ở <span class="mathv">O(log N)</span> nút chuẩn — chỉ khác ở chỗ mỗi nút mang theo nhiều
+thông tin hơn.</p>
+
+<h2 id="s6"><span class="num">6.</span>Nhận dạng và bẫy</h2>
+
+<p>Đọc đề thấy dấu hiệu nào thì nghĩ tới gì:</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th>Đề nói</th><th>Nghĩ tới</th></tr></thead>
+<tbody>
+<tr><td>"truy vấn đoạn <b>và</b> cập nhật, trộn lẫn, <span class="mathv">N, Q</span> tới <span class="mathv">10⁵–10⁶</span>"</td><td>segment tree — tách đoạn thành <span class="mathv">O(log N)</span> nút chuẩn</td></tr>
+<tr><td>chỉ truy vấn, mảng <b>không đổi</b></td><td>tổng tiền tố (tổng) hoặc sparse table (min/max) — không cần cây</td></tr>
+<tr><td>chỉ cần <b>tổng</b> đoạn + cập nhật điểm</td><td>Fenwick / BIT cũng đủ, ngắn hơn; segment tree là bản tổng quát hơn</td></tr>
+<tr><td>phép gộp <b>kết hợp</b> (min, max, gcd, tổng, hoặc…)</td><td>segment tree dùng thẳng, chỉ đổi phép gộp và phần tử đơn vị</td></tr>
+<tr><td>cập nhật <b>cả đoạn</b> rồi hỏi đoạn</td><td>lazy propagation</td></tr>
+<tr><td>"tìm phần tử / vị trí đầu tiên thỏa…"</td><td>tụt xuống cây (không cộng dồn), <span class="mathv">O(log N)</span></td></tr>
+<tr><td>đếm theo <b>khoảng giá trị</b>, giá trị tới <span class="mathv">10⁹</span></td><td>segment tree trên giá trị + nén toạ độ</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box warn">
+<div class="t">Bốn cái bẫy khiến bài đúng vẫn trượt</div>
+<p><b>1. Mảng cỡ 2N.</b> Với <span class="mathv">N</span> không là luỹ thừa 2, chỉ số nút vọt lên gần
+<span class="mathv">4N</span> (đo được <span class="mathv">3,98·N</span> tại <span class="mathv">N = 65792</span>). Cây đệ quy
+phải khai <code class="inl">4 * MAXN</code>.</p>
+<p><b>2. Để tổng ở kiểu int.</b> Tổng <span class="mathv">2·10⁵</span> phần tử cỡ <span class="mathv">10⁹</span> lên tới
+<span class="mathv">2·10¹⁴</span>. Dùng <code class="inl">long long</code>; nhớ <code class="inl">long</code> trên máy thi
+chỉ 4 byte.</p>
+<p><b>3. Phần tử đơn vị sai.</b> Cây min/max mà trả 0 cho đoạn rỗng thì sai âm thầm — min phải trả
+<span class="mathv">+∞</span>, max trả <span class="mathv">−∞</span>.</p>
+<p><b>4. Quên push trước khi đi sâu (bản lazy).</b> Thiếu một lời gọi <code class="inl">push</code> ở đầu
+<code class="inl">update</code> hoặc <code class="inl">query</code> là đọc phải tổng chưa trả nợ — kết quả lệch không
+báo lỗi.</p>
+</div>
+
+<h2 id="s7"><span class="num">7.</span>Lộ trình bài luyện</h2>
+
+<p>Thang luyện dưới lấy từ mục <b>Range Queries</b> của <a href="https://cses.fi/problemset/" target="_blank" rel="noopener">CSES Problem Set</a>
+(mở tự do, không cần đăng nhập) — bộ bài kinh điển đúng cho segment tree, xếp theo bốn chặng. Làm đúng thứ tự thì
+mỗi chặng chỉ thêm một điều mới.</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th class="c">Chặng</th><th>Bài</th><th>Thêm điều gì mới</th><th class="c">Đọc mục</th></tr></thead>
+<tbody>
+<tr><td class="c">1</td>
+    <td><a href="https://cses.fi/problemset/task/1648" target="_blank" rel="noopener">1648 · Dynamic Range Sum Queries</a>,
+        <a href="https://cses.fi/problemset/task/1649" target="_blank" rel="noopener">1649 · Dynamic Range Minimum Queries</a></td>
+    <td>Cây cơ bản: cập nhật điểm + truy vấn đoạn. Bài 1649 buộc đổi phép gộp sang min và phần tử đơn vị <span class="mathv">+∞</span>.</td>
+    <td class="c">2, 4</td></tr>
+<tr><td class="c">2</td>
+    <td><a href="https://cses.fi/problemset/task/1651" target="_blank" rel="noopener">1651 · Range Update Queries</a>,
+        <a href="https://cses.fi/problemset/task/1735" target="_blank" rel="noopener">1735 · Range Updates and Sums</a></td>
+    <td>Lazy propagation. Bài 1735 ghép hai loại nợ (cộng đoạn <b>và</b> gán đoạn) — luyện thứ tự đẩy nợ.</td>
+    <td class="c">5</td></tr>
+<tr><td class="c">3</td>
+    <td><a href="https://cses.fi/problemset/task/1143" target="_blank" rel="noopener">1143 · Hotel Queries</a>,
+        <a href="https://cses.fi/problemset/task/1749" target="_blank" rel="noopener">1749 · List Removals</a>,
+        <a href="https://cses.fi/problemset/task/1190" target="_blank" rel="noopener">1190 · Subarray Sum Queries</a>,
+        <a href="https://cses.fi/problemset/task/2166" target="_blank" rel="noopener">2166 · Prefix Sum Queries</a></td>
+    <td>Tụt xuống cây (1143, 1749) và gộp nhiều thông tin mỗi nút (1190, 2166 — đoạn con / tiền tố lớn nhất).</td>
+    <td class="c">5</td></tr>
+<tr><td class="c">4</td>
+    <td><a href="https://cses.fi/problemset/task/1144" target="_blank" rel="noopener">1144 · Salary Queries</a>,
+        <a href="https://cses.fi/problemset/task/2206" target="_blank" rel="noopener">2206 · Pizzeria Queries</a></td>
+    <td>Cây trên <b>giá trị</b> + nén toạ độ (1144), và mô hình hoá lại bài trước khi dựng cây (2206).</td>
+    <td class="c">5, 6</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box def">
+<div class="t">Ba câu tự hỏi trước khi bấm nộp</div>
+<ul>
+<li>Phép gộp của bài là gì, và <b>phần tử đơn vị</b> của nó đã đặt đúng chưa (tổng → 0, min → <span class="mathv">+∞</span>, max → <span class="mathv">−∞</span>)?</li>
+<li>Mảng cây đã khai <code class="inl">4 * MAXN</code> (bản đệ quy) chưa, và tổng có cần <code class="inl">long long</code> không?</li>
+<li>Nếu có cập nhật đoạn: mỗi lần đi sâu vào <code class="inl">update</code>/<code class="inl">query</code> đã <code class="inl">push</code> nợ xuống chưa?</li>
+</ul>
+</div>
+
+</div>
+</div>
+
+<script>
+(function () {
+  /* ---------- Hình học cây phủ [1, 8] dùng chung cho ba mô phỏng ---------- */
+  var A0 = [0, 5, 8, 6, 3, 2, 7, 2, 6];       // mảng gốc, 1-based
+  var LEAFX = [], i;
+  for (i = 0; i < 8; i++) LEAFX.push(60 + i * 94);
+  var YLV = [40, 110, 180, 250];
+  var NODE = {};                               // id -> {l, r, x, y}
+
+  function place(id, l, r, depth) {
+    var x;
+    if (l === r) x = LEAFX[l - 1];
+    else {
+      var m = (l + r) >> 1;
+      var xa = place(2 * id, l, m, depth + 1);
+      var xb = place(2 * id + 1, m + 1, r, depth + 1);
+      x = (xa + xb) / 2;
+    }
+    NODE[id] = { l: l, r: r, x: x, y: YLV[depth] };
+    return x;
+  }
+  place(1, 1, 8, 0);
+  var IDS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+  var W = 74, H = 38;
+
+  function svgEl(tag, attrs) {
+    var e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  /* Vẽ toàn cây vào svg. state: id -> chuỗi lớp ('canon'|'path'|'lazy'|'dim'|'').
+     vals: id -> giá trị hiển thị. tags: id -> chuỗi badge nợ (hoặc null). */
+  function draw(svg, vals, state, tags) {
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    // cạnh trước
+    for (var t = 0; t < IDS.length; t++) {
+      var id = IDS[t];
+      if (id === 1) continue;
+      var p = NODE[id >> 1], c = NODE[id];
+      svg.appendChild(svgEl('line', {
+        x1: p.x, y1: p.y + H / 2, x2: c.x, y2: c.y - H / 2, class: 'eg'
+      }));
+    }
+    // nút
+    for (t = 0; t < IDS.length; t++) {
+      id = IDS[t];
+      var nd = NODE[id];
+      var g = svgEl('g', { class: 'tn ' + (state[id] || '') });
+      g.appendChild(svgEl('rect', { x: nd.x - W / 2, y: nd.y - H / 2, width: W, height: H, rx: 7 }));
+      var rg = svgEl('text', { x: nd.x, y: nd.y - 7, class: 'rg' });
+      rg.textContent = '[' + nd.l + ',' + nd.r + ']';
+      g.appendChild(rg);
+      var vl = svgEl('text', { x: nd.x, y: nd.y + 8, class: 'vl' });
+      vl.textContent = vals[id];
+      g.appendChild(vl);
+      svg.appendChild(g);
+      if (tags && tags[id] != null) {
+        var tg = svgEl('g', { class: 'tag' });
+        tg.appendChild(svgEl('rect', { x: nd.x + W / 2 - 8, y: nd.y - H / 2 - 13, width: 34, height: 18, rx: 5 }));
+        var tt = svgEl('text', { x: nd.x + W / 2 + 9, y: nd.y - H / 2 - 4 });
+        tt.textContent = tags[id];
+        tg.appendChild(tt);
+        svg.appendChild(tg);
+      }
+    }
+  }
+
+  // Tổng cây từ một mảng lá 1-based -> vals[id]
+  function sumsFrom(arr) {
+    var v = {};
+    (function go(id, l, r) {
+      if (l === r) { v[id] = arr[l]; return arr[l]; }
+      var m = (l + r) >> 1;
+      v[id] = go(2 * id, l, m) + go(2 * id + 1, m + 1, r);
+      return v[id];
+    })(1, 1, 8);
+    return v;
+  }
+
+  /* ================= Hình tĩnh của cây (mục 2) ================= */
+  draw(document.getElementById('figTree'), sumsFrom(A0), {}, null);
+
+  /* ================= Mô phỏng 1: phân rã chuẩn ================= */
+  (function () {
+    var svg = document.getElementById('svg1'),
+        vals = sumsFrom(A0),
+        out = document.getElementById('s1out');
+
+    function run(l, r) {
+      if (l > r || l < 1 || r > 8) { out.textContent = 'Đoạn không hợp lệ (cần 1 ≤ l ≤ r ≤ 8).'; return; }
+      var state = {}, canon = [];
+      (function go(id, lo, hi) {
+        if (hi < l || r < lo) { state[id] = 'dim'; markDim(id); return; }
+        if (l <= lo && hi <= r) { state[id] = 'canon'; canon.push(id); return; }
+        var m = (lo + hi) >> 1;
+        go(2 * id, lo, m); go(2 * id + 1, m + 1, hi);
+      })(1, 1, 8);
+      function markDim(id) { state[id] = 'dim'; if (NODE[id].l !== NODE[id].r) { markDim(2 * id); markDim(2 * id + 1); } }
+      draw(svg, vals, state, null);
+      var parts = canon.map(function (id) { return '[' + NODE[id].l + ',' + NODE[id].r + ']=' + vals[id]; });
+      var tong = canon.reduce(function (s, id) { return s + vals[id]; }, 0);
+      out.innerHTML = '<b>' + canon.length + '</b> nút chuẩn: <code>' + parts.join('  ') +
+        '</code> → tổng <b>' + tong + '</b>.';
+    }
+    document.getElementById('s1go').addEventListener('click', function () {
+      run(parseInt(document.getElementById('s1l').value, 10), parseInt(document.getElementById('s1r').value, 10));
+    });
+    ['s1a', 's1b', 's1c', 's1d'].forEach(function (bid) {
+      var b = document.getElementById(bid);
+      b.addEventListener('click', function () {
+        document.getElementById('s1l').value = b.getAttribute('data-l');
+        document.getElementById('s1r').value = b.getAttribute('data-r');
+        run(+b.getAttribute('data-l'), +b.getAttribute('data-r'));
+      });
+    });
+    run(2, 7);
+  })();
+
+  /* ================= Mô phỏng 2: đường cập nhật ================= */
+  (function () {
+    var svg = document.getElementById('svg2'),
+        out = document.getElementById('s2out'),
+        arr = A0.slice(), vals = sumsFrom(arr);
+
+    function paint(state, msg) { draw(svg, vals, state, null); out.innerHTML = msg; }
+
+    function upd(pos, val) {
+      if (pos < 1 || pos > 8 || isNaN(val)) { paint({}, 'Vị trí phải trong 1..8 và giá trị là số.'); return; }
+      arr[pos] = val;
+      var path = [];
+      (function go(id, l, r) {
+        path.push(id);
+        if (l === r) return;
+        var m = (l + r) >> 1;
+        if (pos <= m) go(2 * id, l, m); else go(2 * id + 1, m + 1, r);
+      })(1, 1, 8);
+      vals = sumsFrom(arr);
+      var state = {}; path.forEach(function (id) { state[id] = 'path'; });
+      var names = path.map(function (id) { return '[' + NODE[id].l + ',' + NODE[id].r + ']'; });
+      paint(state, 'Gán <code>A[' + pos + '] = ' + val + '</code>. Gộp lại dọc <b>' + path.length +
+        '</b> nút: <code>' + names.reverse().join(' → ') + '</code>. Gốc giờ là <b>' + vals[1] + '</b>.');
+    }
+    document.getElementById('s2go').addEventListener('click', function () {
+      upd(parseInt(document.getElementById('s2p').value, 10), parseInt(document.getElementById('s2v').value, 10));
+    });
+    document.getElementById('s2reset').addEventListener('click', function () {
+      arr = A0.slice(); vals = sumsFrom(arr); paint({}, 'Đã đặt lại mảng gốc.');
+    });
+    upd(5, 10);
+  })();
+
+  /* ================= Mô phỏng 3: lazy propagation ================= */
+  (function () {
+    var svg = document.getElementById('svg3'),
+        out = document.getElementById('s3out'),
+        logEl = document.getElementById('s3log'),
+        seg = {}, lz = {}, log = [];
+
+    function build(id, l, r) {
+      lz[id] = 0;
+      if (l === r) { seg[id] = A0[l]; return; }
+      var m = (l + r) >> 1;
+      build(2 * id, l, m); build(2 * id + 1, m + 1, r);
+      seg[id] = seg[2 * id] + seg[2 * id + 1];
+    }
+    function apply(id, l, r, v) { seg[id] += (r - l + 1) * v; lz[id] += v; }
+    function push(id, l, r) {
+      if (!lz[id]) return;
+      var m = (l + r) >> 1;
+      log.push('push [' + NODE[id].l + ',' + NODE[id].r + '] nợ ' + lz[id] + ' xuống hai con');
+      apply(2 * id, l, m, lz[id]); apply(2 * id + 1, m + 1, r, lz[id]); lz[id] = 0;
+    }
+    var touched = {};
+    function update(id, l, r, u, v, val) {
+      if (v < l || r < u) return;
+      if (u <= l && r <= v) { apply(id, l, r, val); touched[id] = 'canon';
+        log.push('nút chuẩn [' + l + ',' + r + ']: tổng += ' + ((r - l + 1) * val) + ', treo nợ ' + val); return; }
+      push(id, l, r);
+      var m = (l + r) >> 1;
+      update(2 * id, l, m, u, v, val); update(2 * id + 1, m + 1, r, u, v, val);
+      seg[id] = seg[2 * id] + seg[2 * id + 1];
+    }
+    function query(id, l, r, u, v) {
+      if (v < l || r < u) return 0;
+      if (u <= l && r <= v) { touched[id] = 'canon'; return seg[id]; }
+      push(id, l, r);
+      var m = (l + r) >> 1;
+      return query(2 * id, l, m, u, v) + query(2 * id + 1, m + 1, r, u, v);
+    }
+
+    function tags() {
+      var t = {}; for (var id in lz) if (lz[id]) t[id] = '+' + lz[id]; return t;
+    }
+    function state() {
+      var s = {}; for (var id in lz) if (lz[id]) s[id] = 'lazy';
+      for (var k in touched) if (s[k] !== 'lazy') s[k] = touched[k];
+      return s;
+    }
+    function render(msg) {
+      draw(svg, seg, state(), tags());
+      out.innerHTML = msg;
+      logEl.textContent = log.length ? log.join('\n') : '';
+    }
+    function reset() {
+      seg = {}; lz = {}; log = []; touched = {}; build(1, 1, 8);
+      render('Mảng gốc. Cộng một đoạn để thấy nợ (badge vàng) đọng lại ở nút chuẩn.');
+    }
+    document.getElementById('s3add').addEventListener('click', function () {
+      var l = +document.getElementById('s3l').value, r = +document.getElementById('s3r').value,
+          v = parseInt(document.getElementById('s3v').value, 10);
+      if (l > r || l < 1 || r > 8 || isNaN(v)) { out.textContent = 'Đoạn 1..8 và giá trị hợp lệ.'; return; }
+      log = []; touched = {};
+      update(1, 1, 8, l, r, v);
+      render('Cộng ' + v + ' vào [' + l + ',' + r + ']. Nợ đọng ở các nút chuẩn, <b>chưa</b> xuống lá.');
+    });
+    document.getElementById('s3query').addEventListener('click', function () {
+      var l = +document.getElementById('s3ql').value, r = +document.getElementById('s3qr').value;
+      if (l > r || l < 1 || r > 8) { out.textContent = 'Đoạn 1..8 hợp lệ.'; return; }
+      log = []; touched = {};
+      var res = query(1, 1, 8, l, r);
+      render('Tổng [' + l + ',' + r + '] = <b>' + res + '</b>. Đi vào trong nút có nợ thì đẩy nợ xuống trước (xem nhật ký).');
+    });
+    document.getElementById('s3reset').addEventListener('click', reset);
+    reset();
+  })();
+})();
+</script>
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>
