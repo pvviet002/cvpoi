@@ -110,11 +110,11 @@
 <!--cv-head-->
 <link rel="stylesheet" href="../assets/site.css">
 <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
-<meta name="description" content="Tìm kiếm nhị phân trên dãy đã sắp xếp, lower_bound, upper_bound, first true, last true và tìm kiếm nhị phân trên đáp án.">
+<meta name="description" content="Tìm kiếm nhị phân trên dãy đã sắp xếp, lower_bound/upper_bound, first true / last true và nhị phân trên đáp án.">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Lý thuyết CP">
 <meta property="og:title" content="Tìm kiếm nhị phân | Lý thuyết CP">
-<meta property="og:description" content="Tìm kiếm nhị phân trên dãy đã sắp xếp, STL và trên đáp án với mô phỏng tương tác.">
+<meta property="og:description" content="Tìm kiếm nhị phân trên dãy đã sắp xếp, lower_bound/upper_bound, first true / last true và nhị phân trên đáp án.">
 <!--/cv-head-->
 </head>
 <body class="cv-side">
@@ -140,7 +140,7 @@
 <nav class="cv-nav">
   <div class="cv-nav-in">
     <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
-    <span class="cv-crumb"><a href="../index.html">Kỹ thuật</a><span class="cv-sep">/</span><span class="cv-here">Tìm kiếm nhị phân</span></span>
+    <span class="cv-crumb">Kỹ thuật<span class="cv-sep">/</span><span class="cv-here">Tìm kiếm nhị phân</span></span>
   </div>
 </nav>
 <!--/cv-nav-->
@@ -678,14 +678,16 @@ cout &lt;&lt; fixed &lt;&lt; setprecision(10) &lt;&lt; left;</code></pre></div>
 }
 
 vector&lt;double&gt; roots;
-for (int integer = -100; integer &lt; 100; ++integer) {
+for (int integer = -100; integer &lt;= 100; ++integer) {
     double left = integer;
     double right = integer + 1;
     if (fabs(f(left)) &lt; 1e-10) {
-        roots.push_back(left);
+        roots.push_back(left);        // nghiệm rơi đúng điểm nguyên
         continue;
     }
-    if (f(left) * f(right) &gt; 0) continue;
+    // Chỉ nhị phân khi đổi dấu thật; đầu mút là nghiệm đã được xét ở trên,
+    // nên bỏ qua để không đếm trùng.
+    if (integer == 100 || f(left) * f(right) &gt;= 0) continue;
 
     for (int step = 0; step &lt; 100; ++step) {
         double mid = (left + right) / 2;

@@ -87,6 +87,9 @@ TRANG = {
  'huffman/index.html': dict(
     nhom='Kỹ thuật', nhan='Thuật toán Huffman', tieude='Thuật toán Huffman và mã tiền tố',
     mota='Gộp hai đống nhẹ nhất để dựng mã tiền tố có tổng độ dài nhỏ nhất.'),
+ 'binary-search/index.html': dict(
+    nhom='Kỹ thuật', nhan='Tìm kiếm nhị phân', tieude='Tìm kiếm nhị phân',
+    mota='Tìm kiếm nhị phân trên dãy đã sắp xếp, lower_bound/upper_bound, first true / last true và nhị phân trên đáp án.'),
  'number-theory/index.html': dict(
     nhom='Toán', nhan='Số học cơ bản', tieude='Số học cơ bản',
     mota='Số học cho thi đấu: ước và chia hết, số nguyên tố, ƯCLN Euclid, đồng dư, luỹ thừa nhanh, nghịch đảo modulo, hệ cơ số.'),
@@ -280,6 +283,7 @@ TRANG = {
 CO_THANH_BEN = {
     'array-1d/index.html',
     'array-2d/index.html',
+    'binary-search/index.html',
     'dsu/index.html',
     'euler-circuit/index.html',
     'huffman/index.html',
