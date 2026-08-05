@@ -65,6 +65,10 @@ TRANG = {
  'euler-circuit/index.html': dict(
     nhom='Đồ thị & cây', nhan='Chu trình Euler', tieude='Chu trình Euler',
     mota='Điều kiện tồn tại chu trình Euler và thuật toán Hierholzer.'),
+ 'shortest-path/index.html': dict(
+    nhom='Đồ thị & cây', nhan='Đường đi ngắn nhất',
+    tieude='Đường đi ngắn nhất: Dijkstra, Bellman-Ford, Floyd',
+    mota='Nới lỏng và ba thuật toán đường đi ngắn nhất: Dijkstra (heap), Bellman-Ford/SPFA (cạnh âm, chu trình âm) và Floyd-Warshall. Kèm ba phòng mô phỏng.'),
  'dp/index.html': dict(
     nhom='Quy hoạch động', nhan='Quy hoạch động', tieude='Quy hoạch động',
     mota='Quy hoạch động trên đoạn, kèm bài luyện có hướng dẫn giải.'),
@@ -308,6 +312,7 @@ CO_THANH_BEN = {
     'sieve/index.html',
     'sqrt-decomposition/index.html',
     'segment-tree/index.html',
+    'shortest-path/index.html',
     'string/index.html',
     'tree/euler-tour/index.html',
     'tree/index.html',

@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đường đi ngắn nhất: Dijkstra, Bellman-Ford, Floyd | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<style>
+  /* Ba phòng mô phỏng. Màu lấy từ chuan.css để tự đổi theo nền sáng/tối. */
+  .sim{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin:20px 0}
+  .sim-hang{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;margin-bottom:12px}
+  .sim-o{display:flex;align-items:center;gap:8px;font-size:.92rem}
+  .sim-o label{color:var(--muted)}
+  .sim input[type=number],.sim input[type=text],.sim select{padding:6px 9px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--fg);font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;font-size:.9rem}
+  .sim input[type=number]{width:78px}
+  .sim-nhan{font-size:.8rem;color:var(--muted);margin:10px 0 4px}
+  .sim-nut{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .sim-nut button{background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:7px;padding:5px 11px;font-size:.84rem;cursor:pointer;font-family:inherit}
+  .sim-nut button:hover{border-color:var(--blue);color:var(--blue)}
+  .sim-nut button:disabled{opacity:.45;cursor:not-allowed}
+  .sim-ra{margin-top:10px;font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;background:var(--code-bg);color:var(--code-fg);border:1px solid var(--border);border-left:4px solid var(--green);border-radius:8px;padding:9px 13px;white-space:pre-wrap;overflow-x:auto}
+  .sim-canh{margin-top:10px;font-size:.88rem;color:var(--amber);min-height:1.2em}
+  .haicot{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.haicot{grid-template-columns:1fr}}
+  .cot-ten{font-size:.84rem;color:var(--muted);margin-bottom:5px}
+  .statebar{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+  .state{padding:7px 10px;border-radius:7px;border:1px solid var(--border);background:var(--bg);font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;font-size:.86rem}
+  .state b{color:var(--blue)}
+  .graphbox{border:1px solid var(--border);border-radius:9px;background:var(--bg);padding:8px;overflow-x:auto}
+  .graphbox svg{display:block;margin:auto;min-width:520px}
+  .g-edge{stroke:var(--edge);stroke-width:2}
+  .g-edge.on{stroke:var(--blue);stroke-width:3.5}
+  .g-node{fill:var(--card);stroke:var(--edge);stroke-width:2}
+  .g-node.seen{fill:var(--blue-bg);stroke:var(--blue)}
+  .g-node.active{fill:var(--amber-bg);stroke:var(--amber);stroke-width:3}
+  .g-node.done{fill:var(--green-bg);stroke:var(--green)}
+  .g-label{fill:var(--fg);font-size:14px;font-weight:700;text-anchor:middle;dominant-baseline:middle}
+  .g-wt{fill:var(--purple);font-size:13px;font-weight:700;text-anchor:middle;dominant-baseline:middle}
+  .g-wtbg{fill:var(--bg);opacity:.9}
+  .dcells{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .dcell{min-width:70px;padding:5px 8px;border:1px solid var(--border);border-radius:7px;background:var(--bg);font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;font-size:.86rem;text-align:center}
+  .dcell.fin{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+  .dcell.cur{border-color:var(--amber);color:var(--amber);background:var(--amber-bg)}
+  .dcell small{display:block;color:var(--muted);font-size:.72rem}
+  .pq{display:flex;gap:5px;flex-wrap:wrap;min-height:34px;align-items:center}
+  .pq span{display:inline-block;padding:5px 9px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;font-size:.85rem}
+  .pq span:first-child{border-color:var(--amber);color:var(--amber)}
+  .badge{display:inline-block;padding:2px 7px;border-radius:999px;font-size:.78rem;border:1px solid var(--border);background:var(--bg);color:var(--muted)}
+  .khop{margin-top:12px;padding:9px 13px;border-radius:8px;font-size:.9rem;background:var(--green-bg);color:var(--green);border:1px solid var(--green)}
+  .lech{margin-top:12px;padding:9px 13px;border-radius:8px;font-size:.9rem;background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+  .matrix{border-collapse:collapse;font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;font-size:.85rem}
+  .matrix th,.matrix td{border:1px solid var(--border);padding:6px 10px;text-align:center;min-width:34px}
+  .matrix th{background:var(--bg);color:var(--blue)}
+  .matrix td.upd{background:var(--green-bg);color:var(--green);font-weight:700}
+  .matrix td.diag{color:var(--muted)}
+  .matrix tr.kk th:first-child,.matrix th.kk{background:var(--amber-bg);color:var(--amber)}
+
+/*cv-fix-nen-sang*/
+:root{--c-cmt:#5f6672}
+@media(prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+:root[data-theme="light"]{--c-cmt:#5f6672}
+:root[data-theme="dark"]{--c-cmt:#8b949e}
+.box th,.tablewrap th,table th{color:var(--blue)!important}
+.box td,.tablewrap td,table td{color:var(--fg)}
+/*/cv-fix-nen-sang*/
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Nới lỏng và ba thuật toán đường đi ngắn nhất: Dijkstra (heap), Bellman-Ford/SPFA (cạnh âm, chu trình âm) và Floyd-Warshall. Kèm ba phòng mô phỏng.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Đường đi ngắn nhất: Dijkstra, Bellman-Ford, Floyd | Lý thuyết CP">
+<meta property="og:description" content="Nới lỏng và ba thuật toán đường đi ngắn nhất: Dijkstra (heap), Bellman-Ford/SPFA (cạnh âm, chu trình âm) và Floyd-Warshall. Kèm ba phòng mô phỏng.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">Đường đi ngắn nhất</div>
+  <a href="#s1">1. “Ngắn nhất” theo cái gì?</a>
+  <a href="#s2">2. Nới lỏng và Dijkstra</a>
+  <a href="#s3">3. Khi có cạnh âm</a>
+  <a href="#s4">4. Ba khuôn mẫu</a>
+  <a href="#s5">5. Biến thể và bỏ bớt</a>
+  <a href="#s6">6. Nhận dạng và bẫy</a>
+  <a href="#s7">7. Lộ trình luyện tập</a>
+</aside>
+
+<div class="main"><div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb">Đồ thị &amp; cây<span class="cv-sep">/</span><span class="cv-here">Đường đi ngắn nhất</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>Đường đi ngắn nhất: Dijkstra, Bellman-Ford, Floyd</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p>Ở chuyên đề <a href="../graph-basic/index.html">Đồ thị cơ bản</a>, mọi cạnh đều dài như
+nhau nên <code class="inl">BFS</code> đếm số cạnh là đủ để tìm đường ngắn nhất. Nhưng bản đồ
+thật thì mỗi con đường một độ dài, mỗi tuyến bay một mức phí. Khi cạnh <b>có trọng số</b>,
+“đường ít cạnh nhất” và “đường tổng trọng số nhỏ nhất” là hai đường khác nhau — và đề gần
+như luôn hỏi cái thứ hai.</p>
+
+<div class="box def"><div class="t">Sợi chỉ đỏ</div>
+<p>Mọi thuật toán trong bài đều xoay quanh đúng một phép toán — <b>nới lỏng</b>: nếu đi qua
+<span class="mathv">u</span> rồi sang <span class="mathv">v</span> mà rẻ hơn con đường tới
+<span class="mathv">v</span> đang biết, thì cập nhật lại. Ba thuật toán chỉ khác nhau ở
+<b>thứ tự nới lỏng</b>, và thứ tự ấy phải hợp với tính chất đồ thị: <b>Dijkstra</b> nới lỏng
+theo đỉnh gần nhất (trọng số không âm); <b>Bellman-Ford</b> nới lỏng mọi cạnh nhiều vòng
+(có cạnh âm); <b>Floyd</b> nới lỏng qua từng đỉnh trung gian (mọi cặp, <span class="mathv">n</span>
+nhỏ).</p></div>
+
+<nav class="toc"><b>Nội dung</b><ol>
+<li><a href="#s1">“Ngắn nhất” theo cái gì?</a></li>
+<li><a href="#s2">Nới lỏng và thuật toán Dijkstra</a></li>
+<li><a href="#s3">Khi có cạnh âm: Bellman-Ford và SPFA</a></li>
+<li><a href="#s4">Ba khuôn mẫu chuẩn</a></li>
+<li><a href="#s5">Biến thể và cách bỏ bớt</a></li>
+<li><a href="#s6">Nhận dạng đề và các bẫy</a></li>
+<li><a href="#s7">Lộ trình luyện tập</a></li>
+</ol></nav>
+
+<h2 id="s1"><span class="num">1.</span>“Ngắn nhất” theo cái gì?</h2>
+
+<p>Xét một mạng đường một chiều gồm bốn nút, đi từ nút <span class="mathv">1</span>. Con số
+trên mỗi cung là độ dài của nó.</p>
+
+<div class="graphbox"><svg viewBox="0 0 560 300" width="100%" aria-label="Đồ thị bốn nút có trọng số, đi từ nút 1">
+  <defs><marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--edge)"/></marker></defs>
+  <g class="g-edge" marker-end="url(#arw)" fill="none">
+    <line x1="95" y1="150" x2="255" y2="70"/><line x1="95" y1="150" x2="255" y2="230"/>
+    <line x1="110" y1="140" x2="475" y2="140"/><line x1="280" y1="90" x2="280" y2="210"/>
+    <line x1="300" y1="70" x2="460" y2="140"/><line x1="300" y1="230" x2="460" y2="160"/>
+  </g>
+  <g class="g-wtbg"><rect x="160" y="95" width="22" height="18"/><rect x="160" y="185" width="22" height="18"/><rect x="270" y="112" width="22" height="18"/><rect x="285" y="140" width="22" height="18"/><rect x="378" y="90" width="22" height="18"/><rect x="378" y="188" width="22" height="18"/></g>
+  <g class="g-wt"><text x="171" y="105">2</text><text x="171" y="195">5</text><text x="281" y="122">4</text><text x="296" y="150">2</text><text x="389" y="100">1</text><text x="389" y="198">3</text></g>
+  <g><circle class="g-node" cx="80" cy="150" r="26"/><circle class="g-node" cx="280" cy="70" r="26"/><circle class="g-node" cx="280" cy="230" r="26"/><circle class="g-node" cx="490" cy="150" r="26"/></g>
+  <g class="g-label"><text x="80" y="150">1</text><text x="280" y="70">2</text><text x="280" y="230">3</text><text x="490" y="150">4</text></g>
+</svg></div>
+
+<p>Muốn tới nút <span class="mathv">3</span>, có hai lối nghĩ:</p>
+
+<div class="haicot"><div>
+<div class="cot-ten">Ít cung nhất (kiểu BFS)</div>
+<p>Cung <code class="inl">1 → 3</code> đi thẳng, chỉ <b>một</b> cung. Nếu chỉ đếm số cung thì
+đây là đường “gần nhất”. Nhưng độ dài của nó là <b>5</b>.</p>
+</div><div>
+<div class="cot-ten">Tổng trọng số nhỏ nhất</div>
+<p>Đường <code class="inl">1 → 2 → 3</code> dùng <b>hai</b> cung nhưng tổng độ dài chỉ
+<span class="mathv">2 + 2 = <b>4</b></span> — rẻ hơn đường một cung ở trên.</p>
+</div></div>
+
+<div class="box ex"><div class="t">Hai cách nghĩ, hai kết quả</div>
+<p>Trên cùng đồ thị này, đếm số cung nói đường tốt nhất tới <span class="mathv">3</span> là
+<code class="inl">1 → 3</code> (dài 5); tính tổng trọng số nói đó là
+<code class="inl">1 → 2 → 3</code> (dài 4). Khoảng cách ngắn nhất từ <span class="mathv">1</span>
+tới bốn nút lần lượt là <code class="inl">0 2 4 3</code>. <code class="inl">BFS</code> thường
+tối ưu <i>số cạnh</i>, không tối ưu <i>tổng trọng số</i>; ta cần một cách làm khác. Câu hỏi
+của cả bài: <b>làm sao tính tổng trọng số nhỏ nhất một cách có hệ thống?</b></p></div>
+
+<h2 id="s2"><span class="num">2.</span>Nới lỏng và thuật toán Dijkstra</h2>
+
+<p>Gọi <code class="inl">d[v]</code> là <b>độ dài đường đi ngắn nhất đang biết</b> từ nguồn
+<span class="mathv">s</span> tới <span class="mathv">v</span>. Ban đầu chưa biết gì:
+<code class="inl">d[s] = 0</code>, mọi <code class="inl">d[v]</code> khác bằng vô cực. Suốt
+thuật toán, ta chỉ làm đi làm lại một việc.</p>
+
+<div class="box def"><div class="t">Phép nới lỏng (relaxation)</div>
+<p>Xét một cung <span class="mathv">u → v</span> trọng số <span class="mathv">w</span>. Nếu đi
+tới <span class="mathv">u</span> rồi men theo cung này mà ngắn hơn đường tới
+<span class="mathv">v</span> đang biết, thì cập nhật:</p>
+<div class="codewrap noname"><pre><code>if (d[u] + w &lt; d[v])
+    d[v] = d[u] + w;</code></pre></div>
+<p>Toàn bộ ba thuật toán bên dưới chỉ là <b>chọn thứ tự</b> gọi phép nới lỏng này cho hiệu quả.</p></div>
+
+<h3>Vì sao được phép tham lam khi trọng số không âm</h3>
+
+<p>Ý tưởng của Dijkstra: trong các đỉnh <b>chưa chốt</b>, lấy đỉnh
+<span class="mathv">u</span> có <code class="inl">d[u]</code> nhỏ nhất và tuyên bố
+<code class="inl">d[u]</code> đã là đáp án cuối cùng. Vì sao đúng? Mọi đường khác đi tới
+<span class="mathv">u</span> đều phải rời khỏi vùng đã chốt qua một đỉnh chưa chốt nào đó
+<span class="mathv">x</span>, mà <code class="inl">d[x] ≥ d[u]</code> (vì
+<span class="mathv">u</span> là nhỏ nhất). Các cạnh còn lại <b>không âm</b> nên không thể kéo
+tổng xuống dưới <code class="inl">d[u]</code>. Vậy không đường nào ngắn hơn — chốt
+<span class="mathv">u</span> là an toàn. Chốt xong, ta nới lỏng các cung ra từ
+<span class="mathv">u</span> rồi lặp lại.</p>
+
+<div class="box warn"><div class="t">Chỗ dựa duy nhất là “không âm”</div>
+<p>Lập luận trên gãy ngay khi có cạnh âm: một cạnh âm phía sau có thể kéo tổng xuống dưới
+<code class="inl">d[u]</code>, nên chốt sớm là sai. Ta quay lại điểm này ở mục 3.</p></div>
+
+<h3>Bản ngây thơ O(n²) và bản dùng heap</h3>
+
+<p>Bản trực tiếp: mỗi vòng quét cả mảng để tìm đỉnh chưa chốt có <code class="inl">d</code>
+nhỏ nhất. Có <span class="mathv">n</span> vòng, mỗi vòng quét
+<span class="mathv">O(n)</span>, tổng <span class="mathv">O(n²)</span>.</p>
+
+<div class="codewrap noname"><pre><code>for (int it = 0; it &lt; n; it++) {
+    int u = -1;
+    for (int i = 1; i &lt;= n; i++)          // tìm đỉnh chưa chốt, d nhỏ nhất
+        if (!done[i] &amp;&amp; (u == -1 || d[i] &lt; d[u]))
+            u = i;
+    if (u == -1 || d[u] == INF) break;
+    done[u] = true;
+    for (auto [v, w] : adj[u])             // nới lỏng các cung ra từ u
+        if (d[u] + w &lt; d[v])
+            d[v] = d[u] + w;
+}</code></pre></div>
+
+<p>Với đồ thị thưa (<span class="mathv">m</span> nhỏ hơn nhiều
+<span class="mathv">n²</span>), việc tìm đỉnh nhỏ nhất nên giao cho một
+<b>hàng đợi ưu tiên</b> (<code class="inl">priority_queue</code>). Mỗi lần nới lỏng thành công
+ta đẩy cặp <code class="inl">(d[v], v)</code> vào heap; khi lấy ra, nếu giá trị đã cũ thì bỏ
+qua. Cách “đẩy bản mới, bỏ bản cũ” này gọi là <i>lazy deletion</i>, đơn giản hơn nhiều so với
+sửa khoá trong heap.</p>
+
+<div class="codewrap noname"><pre><code>priority_queue&lt;pair&lt;long long,int&gt;,
+               vector&lt;pair&lt;long long,int&gt;&gt;,
+               greater&lt;&gt;&gt; pq;
+d[s] = 0;
+pq.push({0, s});
+
+while (!pq.empty()) {
+    auto [du, u] = pq.top();
+    pq.pop();
+    if (du &gt; d[u]) continue;              // bản cũ, bỏ qua (lazy deletion)
+    for (auto [v, w] : adj[u])
+        if (d[u] + w &lt; d[v]) {
+            d[v] = d[u] + w;
+            pq.push({d[v], v});
+        }
+}</code></pre></div>
+
+<div class="box cmplx"><div class="t">Độ phức tạp</div>
+<p>Bản heap chạy trong <span class="mathv">O((n + m) log n)</span>: mỗi cạnh đẩy vào heap tối
+đa một lần. Đo thật trên máy chấm (MinGW 32-bit) với
+<span class="mathv">n = 10<sup>5</sup></span>, <span class="mathv">m = 2·10<sup>5</sup></span>:
+bản heap xong trong khoảng <b>20–40 ms</b>. Bản ngây thơ <span class="mathv">O(n²)</span> ở
+<span class="mathv">n = 10<sup>5</sup></span> cần cỡ <b>15 giây</b> (đo <span class="mathv">n = 5000</span>
+mất ~39 ms rồi nhân theo <span class="mathv">n²</span>) — quá chậm. Với
+<span class="mathv">n</span> tới trăm nghìn, phải dùng heap.</p></div>
+
+<h3>Thử tay: Dijkstra chốt đỉnh gần nhất trước</h3>
+
+<p>Đồ thị vô hướng sáu đỉnh, nguồn là đỉnh <span class="mathv">1</span>. Bấm từng bước để thấy
+Dijkstra luôn lấy ra đỉnh có <code class="inl">d</code> nhỏ nhất trong số chưa chốt (ô màu cam),
+chốt nó (xanh lá), rồi nới lỏng các cạnh kề.</p>
+
+<div class="sim">
+  <div class="sim-hang"><span class="badge">đồ thị cố định 6 đỉnh, vô hướng, nguồn = 1</span></div>
+  <div class="graphbox"><svg id="dijSvg" viewBox="0 0 720 330" width="100%" aria-label="Mô phỏng Dijkstra trên đồ thị sáu đỉnh"></svg></div>
+  <div class="sim-nhan">Hàng đợi ưu tiên — các đỉnh chưa chốt, đỉnh có d nhỏ nhất đứng đầu</div>
+  <div class="pq" id="dijPq"></div>
+  <div class="statebar"><div class="state">đang chốt: <b id="dijU">—</b></div><div class="state">thứ tự chốt: <b id="dijOrder">∅</b></div></div>
+  <div class="sim-nhan">Khoảng cách d[] (xanh lá = đã chốt)</div>
+  <div class="dcells" id="dijDist"></div>
+  <div class="sim-canh" id="dijMsg"></div>
+  <div class="sim-nut"><button id="dijNext">Bước tiếp</button><button id="dijRun">Chạy hết</button><button id="dijReset">Làm lại</button></div>
+</div>
+
+<p>Kết quả cuối: <code class="inl">d = [0, 7, 9, 20, 20, 11]</code>. Thứ tự chốt là
+<code class="inl">1, 2, 3, 6, 4, 5</code> — đúng theo <code class="inl">d</code> tăng dần, đó
+chính là nghĩa của “nới lỏng theo đỉnh gần nhất”.</p>
+
+<h2 id="s3"><span class="num">3.</span>Khi có cạnh âm: Bellman-Ford và SPFA</h2>
+
+<p>Tính tham lam của Dijkstra dựa hẳn vào giả thiết trọng số không âm. Hãy xem nó sai thế nào
+trên một đồ thị nhỏ có một cung âm (nguồn <span class="mathv">1</span>):</p>
+
+<div class="tablewrap"><table><thead><tr><th>Cung</th><th>1 → 2</th><th>1 → 3</th><th>3 → 2</th><th>2 → 4</th></tr></thead>
+<tbody><tr><td>Trọng số</td><td>1</td><td>2</td><td><b>−3</b></td><td>0</td></tr></tbody></table></div>
+
+<p>Dijkstra chốt đỉnh <span class="mathv">2</span> sớm với
+<code class="inl">d[2] = 1</code> (qua cung <code class="inl">1 → 2</code>), rồi <b>đóng băng</b>
+giá trị đó. Nhưng sau đấy nó mới xét tới đỉnh <span class="mathv">3</span>, nơi cung âm
+<code class="inl">3 → 2</code> lẽ ra kéo <code class="inl">d[2]</code> xuống
+<span class="mathv">2 + (−3) = −1</span>. Vì <span class="mathv">2</span> đã bị đóng băng, cải
+thiện ấy không bao giờ xảy ra, và lỗi lan tiếp sang <span class="mathv">4</span>.</p>
+
+<div class="tablewrap"><table><thead><tr><th></th><th>d[1]</th><th>d[2]</th><th>d[3]</th><th>d[4]</th></tr></thead><tbody>
+<tr><td>Dijkstra (đóng băng đỉnh đã chốt)</td><td>0</td><td class="" style="color:var(--red)"><b>1</b></td><td>2</td><td style="color:var(--red)"><b>1</b></td></tr>
+<tr><td>Đáp án đúng (qua 1 → 3 → 2)</td><td>0</td><td style="color:var(--green)"><b>−1</b></td><td>2</td><td style="color:var(--green)"><b>−1</b></td></tr>
+</tbody></table></div>
+
+<h3>Bellman-Ford: nới lỏng mọi cạnh, đủ nhiều vòng</h3>
+
+<p>Bỏ tham lam đi. Một đường đi ngắn nhất (không có chu trình âm) dùng nhiều nhất
+<span class="mathv">n − 1</span> cạnh. Vậy chỉ cần <b>nới lỏng lần lượt mọi cạnh</b>, lặp lại
+<span class="mathv">n − 1</span> vòng: sau vòng thứ <span class="mathv">k</span>, mọi đường đi
+ngắn nhất dùng <span class="mathv">≤ k</span> cạnh đã đúng.</p>
+
+<div class="codewrap noname"><pre><code>for (int i = 1; i &lt;= n - 1; i++)
+    for (auto [u, v, w] : edges)          // duyệt mọi cạnh
+        if (d[u] != INF &amp;&amp; d[u] + w &lt; d[v])
+            d[v] = d[u] + w;</code></pre></div>
+
+<p>Độ phức tạp <span class="mathv">O(n·m)</span>. Bù lại, nó không cần giả thiết gì về dấu
+trọng số.</p>
+
+<div class="box tech"><div class="t">Phát hiện chu trình âm</div>
+<p>Nếu sau <span class="mathv">n − 1</span> vòng mà vòng thứ <span class="mathv">n</span>
+<b>vẫn còn</b> nới lỏng được một cạnh nào đó, thì tồn tại một chu trình âm đi tới được từ nguồn
+— khoảng cách có thể giảm vô hạn.</p>
+<div class="codewrap noname"><pre><code>bool coChuTrinhAm = false;
+for (auto [u, v, w] : edges)
+    if (d[u] != INF &amp;&amp; d[u] + w &lt; d[v])
+        coChuTrinhAm = true;</code></pre></div></div>
+
+<h3>SPFA: Bellman-Ford có hàng đợi — và một lời cảnh báo</h3>
+
+<p>Bellman-Ford lặp cả những cạnh mà đầu mút chưa đổi gì. <b>SPFA</b> khắc phục bằng một hàng
+đợi: chỉ những đỉnh vừa được nới lỏng mới cần đưa lại vào để lan tiếp. Trên dữ liệu thường,
+SPFA nhanh — đo trên một lưới <span class="mathv">300 × 300</span> ngẫu nhiên, nó nới lỏng đúng
+<span class="mathv">m</span> lần (mỗi cạnh một lần).</p>
+
+<div class="box warn"><div class="t">Đừng phụ thuộc SPFA khi trọng số không âm</div>
+<p>SPFA có <b>trường hợp xấu <span class="mathv">O(n·m)</span></b>, và người ta cố tình dựng dữ
+liệu để ép nó chạm ngưỡng ấy. Bài “bản chuẩn” của đường đi ngắn nhất (Luogu P4779) ra đời
+đúng vì lý do này: dữ liệu của nó chặn SPFA đến mức một thí sinh dùng SPFA đã tụt từ 100 xuống
+60 điểm, huy chương bạc thành đồng. <b>Kết luận:</b> trọng số không âm thì dùng Dijkstra + heap
+cho chắc; SPFA/Bellman-Ford chỉ dùng khi <i>buộc phải</i> xử lý cạnh âm.</p></div>
+
+<h3>Thử tay: cạnh âm phá Dijkstra ở đâu</h3>
+
+<p>Vẫn đồ thị bốn nút ở trên. Kéo trọng số của cung <code class="inl">3 → 2</code> và xem lúc
+nào kết quả của Dijkstra lệch khỏi đáp án đúng (Bellman-Ford). Khi cung đó đủ âm, đường vòng
+<code class="inl">1 → 3 → 2</code> trở nên rẻ hơn nhưng Dijkstra đã đóng băng đỉnh
+<span class="mathv">2</span> mất rồi.</p>
+
+<div class="sim">
+  <div class="sim-hang"><div class="sim-o"><label for="negW">Trọng số cung 3 → 2</label><input type="number" id="negW" min="-5" max="5" value="-3"></div><span class="badge">cung 1→2 = 1, 1→3 = 2, 2→4 = 0</span></div>
+  <div class="haicot">
+    <div><div class="cot-ten">Dijkstra (chốt rồi đóng băng)</div><div class="sim-ra" id="negDij"></div></div>
+    <div><div class="cot-ten">Bellman-Ford (đáp án đúng)</div><div class="sim-ra" id="negBel"></div></div>
+  </div>
+  <div id="negVerdict"></div>
+</div>
+
+<h2 id="s4"><span class="num">4.</span>Ba khuôn mẫu chuẩn</h2>
+
+<h3>Khuôn 1 — Dijkstra + heap (trọng số không âm, một nguồn)</h3>
+
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+const long long INF = 0x3f3f3f3f3f3f3f3fLL;   // ~4.6e18, cộng thêm w vẫn an toàn
+int n, m, s, u, v;
+long long w;
+vector&lt;pair&lt;int,long long&gt;&gt; adj[100005];       // (đỉnh kề, trọng số)
+long long d[100005];
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    cin &gt;&gt; n &gt;&gt; m &gt;&gt; s;
+    for (int i = 0; i &lt; m; i++) {
+        cin &gt;&gt; u &gt;&gt; v &gt;&gt; w;
+        adj[u].push_back({v, w});             // đồ thị vô hướng: thêm cả {u} vào adj[v]
+    }
+
+    for (int i = 1; i &lt;= n; i++) d[i] = INF;
+    d[s] = 0;
+    priority_queue&lt;pair&lt;long long,int&gt;,
+                   vector&lt;pair&lt;long long,int&gt;&gt;,
+                   greater&lt;&gt;&gt; pq;
+    pq.push({0, s});
+
+    while (!pq.empty()) {
+        long long du = pq.top().first;
+        int x = pq.top().second;
+        pq.pop();
+        if (du &gt; d[x]) continue;
+        for (auto &amp;e : adj[x]) {
+            int y = e.first;
+            long long nw = e.second;
+            if (d[x] + nw &lt; d[y]) {
+                d[y] = d[x] + nw;
+                pq.push({d[y], y});
+            }
+        }
+    }
+
+    for (int i = 1; i &lt;= n; i++)
+        cout &lt;&lt; d[i] &lt;&lt; " \n"[i == n];
+}</code></pre></div>
+
+<h3>Khuôn 2 — Bellman-Ford / SPFA (có cạnh âm, phát hiện chu trình âm)</h3>
+
+<div class="codewrap noname"><pre><code>const long long INF = 0x3f3f3f3f3f3f3f3fLL;
+int n, m, u, v;
+long long w;
+struct Canh { int u, v; long long w; } e[500005];
+long long d[100005];
+
+// trả về true nếu có chu trình âm đi tới được từ nguồn s
+bool bellmanFord(int s) {
+    for (int i = 1; i &lt;= n; i++) d[i] = INF;
+    d[s] = 0;
+    for (int i = 1; i &lt;= n - 1; i++)
+        for (int j = 0; j &lt; m; j++)
+            if (d[e[j].u] != INF &amp;&amp; d[e[j].u] + e[j].w &lt; d[e[j].v])
+                d[e[j].v] = d[e[j].u] + e[j].w;
+
+    for (int j = 0; j &lt; m; j++)
+        if (d[e[j].u] != INF &amp;&amp; d[e[j].u] + e[j].w &lt; d[e[j].v])
+            return true;                      // vòng thứ n vẫn giảm ⇒ chu trình âm
+    return false;
+}</code></pre></div>
+
+<p>Bản SPFA dùng chung mảng <code class="inl">d[]</code>, thay hai vòng lặp bằng một hàng đợi
+các đỉnh vừa đổi:</p>
+
+<div class="codewrap noname"><pre><code>vector&lt;pair&lt;int,long long&gt;&gt; adj[100005];
+bool trongHang[100005];
+int demVao[100005];                            // số lần một đỉnh vào hàng
+
+bool spfa(int s) {
+    for (int i = 1; i &lt;= n; i++) d[i] = INF;
+    d[s] = 0;
+    queue&lt;int&gt; q;
+    q.push(s); trongHang[s] = true;
+    while (!q.empty()) {
+        int x = q.front(); q.pop();
+        trongHang[x] = false;
+        for (auto &amp;it : adj[x]) {
+            int y = it.first;
+            long long nw = it.second;
+            if (d[x] + nw &lt; d[y]) {
+                d[y] = d[x] + nw;
+                if (!trongHang[y]) {
+                    q.push(y); trongHang[y] = true;
+                    if (++demVao[y] &gt;= n) return true;   // vào ≥ n lần ⇒ chu trình âm
+                }
+            }
+        }
+    }
+    return false;
+}</code></pre></div>
+
+<h3>Khuôn 3 — Floyd-Warshall (mọi cặp, n nhỏ)</h3>
+
+<p>Khi cần khoảng cách giữa <b>mọi cặp đỉnh</b> và <span class="mathv">n</span> nhỏ, có một
+cách rất gọn: cho phép các đường đi lần lượt được dùng đỉnh <span class="mathv">1</span>, rồi
+<span class="mathv">1, 2</span>, rồi <span class="mathv">1, 2, 3</span>… làm <b>đỉnh trung
+gian</b>. Đó chính là nới lỏng qua đỉnh <span class="mathv">k</span>:</p>
+
+<div class="codewrap noname"><pre><code>long long d[505][505];        // d[i][j] = INF nếu chưa có cạnh; d[i][i] = 0
+
+for (int k = 1; k &lt;= n; k++)            // k = đỉnh trung gian, PHẢI ở vòng ngoài cùng
+    for (int i = 1; i &lt;= n; i++)
+        for (int j = 1; j &lt;= n; j++)
+            if (d[i][k] + d[k][j] &lt; d[i][j])
+                d[i][j] = d[i][k] + d[k][j];</code></pre></div>
+
+<div class="box warn"><div class="t">Thứ tự vòng lặp: k ngoài cùng</div>
+<p>Vòng <span class="mathv">k</span> phải bọc ngoài hai vòng <span class="mathv">i, j</span>.
+Ý nghĩa: sau khi xử lý xong đỉnh trung gian <span class="mathv">k</span>, bảng
+<code class="inl">d</code> đã tính đúng mọi đường chỉ dùng các đỉnh trung gian trong
+<span class="mathv">{1..k}</span>. Đảo <span class="mathv">k</span> vào trong là sai.</p></div>
+
+<div class="box cmplx"><div class="t">Độ phức tạp</div>
+<p>Ba vòng lồng nhau: <span class="mathv">O(n³)</span> thời gian,
+<span class="mathv">O(n²)</span> bộ nhớ. Đo thật: <span class="mathv">n = 500</span> mất
+~150 ms; <span class="mathv">n = 1000</span> gấp tám, ~1,2 s. Vì vậy Floyd hợp với
+<span class="mathv">n</span> cỡ <b>≤ 500</b>; lớn hơn thì chạy Dijkstra từ mỗi đỉnh còn
+nhanh hơn.</p></div>
+
+<h3>Thử tay: bảng Floyd lớn dần theo đỉnh trung gian</h3>
+
+<p>Đồ thị vô hướng bốn đỉnh. Bấm để tăng đỉnh trung gian <span class="mathv">k</span>; các ô
+được nới lỏng ở bước đó tô xanh. Chú ý lúc <span class="mathv">k = 2</span>:
+<code class="inl">d[1][3]</code> tụt từ 8 xuống 5 nhờ đi vòng <code class="inl">1 → 2 → 3</code>.</p>
+
+<div class="sim">
+  <div class="sim-hang"><span class="badge">cạnh: 1-2 = 3, 1-3 = 8, 2-3 = 2, 2-4 = 5, 3-4 = 1</span></div>
+  <div class="statebar"><div class="state">đỉnh trung gian đang xét: <b id="floK">k = 0 (chưa dùng đỉnh nào)</b></div></div>
+  <div style="overflow-x:auto"><div id="floTab"></div></div>
+  <div class="sim-canh" id="floMsg"></div>
+  <div class="sim-nut"><button id="floNext">Tăng k</button><button id="floRun">Chạy hết</button><button id="floReset">Làm lại</button></div>
+</div>
+
+<h2 id="s5"><span class="num">5.</span>Biến thể và cách bỏ bớt</h2>
+
+<p>Ba khuôn trên là bộ xương. Phần lớn đề chỉ thêm hoặc bớt một chi tiết. Bảng sau ghép “đề đòi
+gì” với “đổi gì trong khuôn”.</p>
+
+<div class="tablewrap"><table><thead><tr><th>Đề đòi thêm gì</th><th>Đổi gì trong khuôn</th></tr></thead><tbody>
+<tr><td>Đồ thị vô hướng</td><td>Mỗi cạnh thêm cả hai chiều: <code class="inl">adj[u].push_back({v,w})</code> và <code class="inl">adj[v].push_back({u,w})</code></td></tr>
+<tr><td>Mọi trọng số bằng 1</td><td>Bỏ heap, dùng <code class="inl">BFS</code> thường — <span class="mathv">O(n + m)</span></td></tr>
+<tr><td>Trọng số chỉ gồm 0 và 1</td><td>0–1 BFS bằng <code class="inl">deque</code>: cạnh 0 đẩy đầu, cạnh 1 đẩy cuối</td></tr>
+<tr><td>In ra một đường đi ngắn nhất</td><td>Thêm mảng <code class="inl">truoc[v]</code>; khi nới lỏng <code class="inl">d[v]</code> thì gán <code class="inl">truoc[v] = u</code>, rồi truy vết ngược từ đích</td></tr>
+<tr><td>Nhiều nguồn cùng lúc</td><td>Đưa mọi nguồn vào heap với <code class="inl">d = 0</code> (tương đương một “siêu nguồn” nối 0 tới mọi nguồn)</td></tr>
+<tr><td>Khoảng cách mọi cặp, <span class="mathv">n</span> nhỏ (≤ 500)</td><td>Floyd-Warshall</td></tr>
+<tr><td>Khoảng cách mọi cặp, đồ thị thưa lớn</td><td>Chạy Dijkstra từ mỗi đỉnh: <span class="mathv">O(n·(n + m) log n)</span></td></tr>
+<tr><td>Chỉ hỏi “tới được hay không”, không cần độ dài</td><td>Floyd với phép <b>hoặc</b> (bao đóng bắc cầu): <code class="inl">d[i][j] |= d[i][k] &amp; d[k][j]</code></td></tr>
+</tbody></table></div>
+
+<div class="box tech"><div class="t">Nới lỏng vẫn là một</div>
+<p>Mọi dòng trong bảng đều không đụng tới phép nới lỏng — chỉ đổi <i>thứ tự</i> hoặc <i>cấu
+trúc chứa</i> các đỉnh chờ xử lý. Nắm chắc “nới lỏng” rồi thì mỗi biến thể chỉ là một chỉnh
+nhỏ.</p></div>
+
+<h2 id="s6"><span class="num">6.</span>Nhận dạng đề và các bẫy</h2>
+
+<h3>Đề nói gì → nghĩ tới gì</h3>
+
+<div class="tablewrap"><table><thead><tr><th>Dấu hiệu trong đề</th><th>Nghĩ tới</th></tr></thead><tbody>
+<tr><td>Trọng số không âm, một nguồn, <span class="mathv">n, m</span> lớn</td><td>Dijkstra + heap</td></tr>
+<tr><td>Có cạnh âm, hoặc hỏi “có chu trình âm không”</td><td>Bellman-Ford (hoặc SPFA)</td></tr>
+<tr><td>Hỏi khoảng cách mọi cặp, <span class="mathv">n ≤ 500</span></td><td>Floyd-Warshall</td></tr>
+<tr><td>Đồ thị/lưới, mỗi bước như nhau (dài 1)</td><td>BFS thường</td></tr>
+<tr><td>Trọng số chỉ 0 và 1</td><td>0–1 BFS với <code class="inl">deque</code></td></tr>
+<tr><td>“Tới được hay không”, quan hệ bắc cầu, <span class="mathv">n</span> nhỏ</td><td>Bao đóng bắc cầu bằng Floyd</td></tr>
+</tbody></table></div>
+
+<h3>Bốn bẫy có số đo</h3>
+
+<div class="box warn"><div class="t">1. Khoảng cách tràn kiểu số — phải <code class="inl">long long</code></div>
+<p>Với <span class="mathv">m</span> tới <span class="mathv">2·10<sup>5</sup></span> cạnh, mỗi
+cạnh nặng tới <span class="mathv">10<sup>9</sup></span>, một đường đi có thể dài tới cỡ
+<span class="mathv">2·10<sup>14</sup></span> — vượt xa
+<code class="inl">INT_MAX ≈ 2,15·10<sup>9</sup></code>. Đo trên một đồ thị ngẫu nhiên
+<span class="mathv">n = 10<sup>5</sup>, m = 2·10<sup>5</sup></span>, khoảng cách xa nhất đã là
+<span class="mathv">≈ 1,29·10<sup>10</sup></span> (gấp sáu lần <code class="inl">INT_MAX</code>).
+Trên máy chấm (MinGW 32-bit) <code class="inl">long</code> cũng chỉ 4 byte —
+<b>phải khai <code class="inl">long long</code></b> cho <code class="inl">d[]</code> và trọng số.</p></div>
+
+<div class="box warn"><div class="t">2. Cộng vào vô cực bị tràn</div>
+<p>Nếu đặt <code class="inl">INF = LLONG_MAX</code> rồi tính <code class="inl">d[u] + w</code>
+khi <code class="inl">d[u]</code> đang là <code class="inl">INF</code>, tổng tràn xuống số âm và
+phá thuật toán. Hai cách an toàn: đặt <code class="inl">INF = 0x3f3f3f3f3f3f3f3f</code>
+(<span class="mathv">≈ 4,6·10<sup>18</sup></span>, cộng thêm trọng số vẫn dương), <b>hoặc</b>
+luôn kiểm <code class="inl">d[u] != INF</code> trước khi nới lỏng.</p></div>
+
+<div class="box warn"><div class="t">3. Dùng Dijkstra khi có cạnh âm</div>
+<p>Như mục 3 đã đo: trên đồ thị có cung âm, Dijkstra báo <code class="inl">d = 0 1 2 1</code>
+trong khi đáp án đúng là <code class="inl">0 −1 2 −1</code>. Thấy cạnh âm là phải chuyển sang
+Bellman-Ford.</p></div>
+
+<div class="box tech"><div class="t">4. Hai thứ trông như bẫy mà không phải</div>
+<ul>
+<li><b>“Cẩn thận sai số thực.”</b> Trọng số và mọi khoảng cách ở các bài này đều là
+<b>số nguyên</b>, không có phép chia hay căn, nên không có epsilon nào để lo. Cái đáng lo là
+tràn <code class="inl">long long</code>, không phải sai số.</li>
+<li><b>“Dijkstra cần heap sửa được khoá (decrease-key).”</b> Không cần. Cứ đẩy bản mới rồi bỏ
+bản cũ bằng <code class="inl">if (du &gt; d[u]) continue;</code> — đo trên
+<span class="mathv">n = 10<sup>5</sup>, m = 2·10<sup>5</sup></span> vẫn chỉ 20–40 ms.</li>
+</ul></div>
+
+<h2 id="s7"><span class="num">7.</span>Lộ trình luyện tập</h2>
+
+<p>Dưới đây là tuyển tập <b>19 bài “Đường đi ngắn nhất”</b> (nguồn Luogu), xếp thành ba chặng
+theo ba thuật toán, và một nhóm nâng cao dùng đường đi ngắn nhất làm công cụ cho bài toán
+khác. Cột <i>đọc mục</i> chỉ phần lý thuyết cần trước khi làm. (Các bài sẽ được gắn liên kết
+trực tiếp khi đưa lên <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a>.)</p>
+
+<h3>Chặng 1 — Dijkstra</h3>
+<div class="tablewrap"><table><thead><tr><th class="c">Nhãn</th><th>Bài</th><th>Nguồn</th><th>Đọc mục</th></tr></thead><tbody>
+<tr><td class="c">A</td><td>Đường đi ngắn nhất từ một đỉnh nguồn</td><td>Luogu P4779 (bản chuẩn)</td><td>Mục 2, khuôn 1</td></tr>
+<tr><td class="c">J</td><td>Lộ trình có phí trạm lớn nhất nhỏ nhất</td><td>Thông tới Orgrimmar</td><td>Mục 2 + nhị phân đáp án</td></tr>
+<tr><td class="c">B</td><td>Chặng bay ưu đãi (được miễn phí k cạnh)</td><td>JLOI2011 — Đường bay</td><td>Mục 2 + đồ thị phân tầng</td></tr>
+</tbody></table></div>
+
+<h3>Chặng 2 — Bellman-Ford, SPFA, chu trình âm</h3>
+<div class="tablewrap"><table><thead><tr><th class="c">Nhãn</th><th>Bài</th><th>Nguồn</th><th>Đọc mục</th></tr></thead><tbody>
+<tr><td class="c">C</td><td>Phát hiện chu trình âm</td><td>Luogu — Chu trình âm (bản mẫu)</td><td>Mục 3, khuôn 2</td></tr>
+<tr><td class="c">D</td><td>Hệ bất phương trình hiệu</td><td>Luogu — Ràng buộc hiệu (bản mẫu)</td><td>Mục 3 + hệ ràng buộc hiệu</td></tr>
+<tr><td class="c">L</td><td>Trang trại và các ràng buộc</td><td>Luogu — Nông trại của K</td><td>Mục 3 + ràng buộc hiệu</td></tr>
+<tr><td class="c">M</td><td>Chia kẹo (ràng buộc thứ tự)</td><td>SCOI2011 — Kẹo</td><td>Mục 3 + ràng buộc hiệu</td></tr>
+</tbody></table></div>
+
+<h3>Chặng 3 — Floyd-Warshall</h3>
+<div class="tablewrap"><table><thead><tr><th class="c">Nhãn</th><th>Bài</th><th>Nguồn</th><th>Đọc mục</th></tr></thead><tbody>
+<tr><td class="c">F</td><td>Hành trình theo lịch trình bắt buộc</td><td>USACO08OPEN — Clear And Present Danger</td><td>Khuôn 3</td></tr>
+<tr><td class="c">G</td><td>Bao đóng bắc cầu</td><td>Luogu — Bao đóng bắc cầu (bản mẫu)</td><td>Khuôn 3 + phép hoặc</td></tr>
+<tr><td class="c">Q</td><td>Các số sinh ra được</td><td>NOIP 2002 — Sinh số</td><td>Khuôn 3 (bao đóng)</td></tr>
+<tr><td class="c">R</td><td>Xác định thứ hạng</td><td>USACO08JAN — Cow Contest</td><td>Khuôn 3 (bao đóng)</td></tr>
+<tr><td class="c">P</td><td>Tái thiết sau thảm hoạ (đỉnh mở dần theo thời gian)</td><td>Luogu — Tái thiết sau thảm hoạ</td><td>Khuôn 3 (thêm k dần)</td></tr>
+</tbody></table></div>
+
+<h3>Nhóm nâng cao — đường đi ngắn nhất làm công cụ</h3>
+<p class="mini">Các bài này vượt phạm vi ba thuật toán lõi; nêu ra để biết đường đi ngắn nhất
+còn ghép được với đếm, đồng dư, thành phần liên thông…</p>
+<div class="tablewrap"><table><thead><tr><th class="c">Nhãn</th><th>Bài</th><th>Ý mở rộng</th></tr></thead><tbody>
+<tr><td class="c">E</td><td>Đường đi ngắn nhì</td><td>Giữ hai giá trị tốt nhất khi nới lỏng</td></tr>
+<tr><td class="c">H</td><td>Đếm số đường đi ngắn nhất</td><td>Cộng số cách khi nới lỏng bằng nhau</td></tr>
+<tr><td class="c">I</td><td>Pha chế thuốc</td><td>Thứ tự xử lý kiểu Dijkstra trên trạng thái</td></tr>
+<tr><td class="c">K</td><td>Giao thương tối ưu</td><td>Đường đi ngắn nhất trên đồ thị rút gọn theo thành phần liên thông mạnh</td></tr>
+<tr><td class="c">N</td><td>Cổng dịch chuyển</td><td>Floyd kết hợp thêm đỉnh động</td></tr>
+<tr><td class="c">O</td><td>Thang máy đặc biệt</td><td>Đường đi ngắn nhất đồng dư (theo số dư)</td></tr>
+<tr><td class="c">S</td><td>Mạng xã hội</td><td>Floyd kèm đếm số đường đi ngắn nhất</td></tr>
+</tbody></table></div>
+
+<div class="box def"><div class="t">Sáu câu tự hỏi trước khi nộp</div><ul>
+<li>Trọng số có âm không? Không âm thì Dijkstra; có âm thì Bellman-Ford.</li>
+<li><code class="inl">d[]</code> và <code class="inl">INF</code> đã là <code class="inl">long long</code> chưa? (Trên máy chấm <code class="inl">long</code> chỉ 4 byte.)</li>
+<li><code class="inl">INF</code> có cộng thêm trọng số mà không tràn không? Đã kiểm <code class="inl">d[u] != INF</code> chưa?</li>
+<li>Đồ thị vô hướng đã thêm cạnh cả hai chiều chưa?</li>
+<li>Nguồn <span class="mathv">s</span> lấy đúng theo đề chưa (nhiều bài <span class="mathv">s = 1</span>, nhưng không phải tất cả)?</li>
+<li>Chỉ dùng Floyd khi <span class="mathv">n</span> đủ nhỏ (≈ ≤ 500) chứ?</li>
+</ul></div>
+
+</div></div>
+
+<script>
+(function(){
+  function mk(tag,cls){var e=document.createElementNS('http://www.w3.org/2000/svg',tag);if(cls)e.setAttribute('class',cls);return e;}
+  var INF=Infinity;
+
+  /* ============ Mô phỏng 1: Dijkstra từng bước ============ */
+  var d1pos={1:[60,175],2:[235,70],3:[210,285],6:[400,185],4:[475,70],5:[655,190]};
+  var d1edges=[[1,2,7],[1,3,9],[1,6,14],[2,3,10],[2,4,15],[3,4,11],[3,6,2],[4,5,6],[5,6,9]];
+  var d1adj={};for(var z=1;z<=6;z++)d1adj[z]=[];
+  d1edges.forEach(function(e){d1adj[e[0]].push([e[1],e[2]]);d1adj[e[1]].push([e[0],e[2]]);});
+  var dijSvg=document.getElementById('dijSvg'),dijPq=document.getElementById('dijPq'),dijU=document.getElementById('dijU'),dijOrder=document.getElementById('dijOrder'),dijDist=document.getElementById('dijDist'),dijMsg=document.getElementById('dijMsg');
+  var D1;
+  function d1draw(activeEdge){
+    var h='';
+    d1edges.forEach(function(e){
+      var a=d1pos[e[0]],b=d1pos[e[1]];
+      var on=activeEdge&&((activeEdge[0]===e[0]&&activeEdge[1]===e[1])||(activeEdge[0]===e[1]&&activeEdge[1]===e[0]));
+      h+='<line class="g-edge'+(on?' on':'')+'" x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'"/>';
+      var mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2;
+      h+='<rect class="g-wtbg" x="'+(mx-11)+'" y="'+(my-10)+'" width="22" height="18"/><text class="g-wt" x="'+mx+'" y="'+(my+1)+'">'+e[2]+'</text>';
+    });
+    for(var i=1;i<=6;i++){
+      var p=d1pos[i],cl='';
+      if(D1.done[i])cl='done';else if(i===D1.u)cl='active';else if(D1.d[i]!==INF)cl='seen';
+      h+='<circle class="g-node '+cl+'" cx="'+p[0]+'" cy="'+p[1]+'" r="25"/><text class="g-label" x="'+p[0]+'" y="'+p[1]+'">'+i+'</text>';
+    }
+    dijSvg.innerHTML=h;
+  }
+  function d1render(msg){
+    d1draw(D1.edge);
+    var fr=[];for(var i=1;i<=6;i++)if(!D1.done[i]&&D1.d[i]!==INF)fr.push([D1.d[i],i]);
+    fr.sort(function(a,b){return a[0]-b[0]||a[1]-b[1];});
+    dijPq.innerHTML=fr.length?fr.map(function(x){return'<span>'+x[1]+' · d='+x[0]+'</span>';}).join(''):'<span>∅</span>';
+    dijU.textContent=D1.u===null?'—':D1.u;
+    dijOrder.textContent=D1.order.length?D1.order.join(' → '):'∅';
+    var c='';for(i=1;i<=6;i++){var cls='dcell';if(D1.done[i])cls+=' fin';else if(i===D1.u)cls+=' cur';c+='<div class="'+cls+'">'+i+'<small>d='+(D1.d[i]===INF?'∞':D1.d[i])+'</small></div>';}
+    dijDist.innerHTML=c;
+    dijMsg.textContent=msg||'';
+    document.getElementById('dijNext').disabled=D1.done2;
+  }
+  function d1reset(){D1={d:{},done:{},order:[],u:null,edge:null,phase:'extract',nb:[],ni:0,done2:false};for(var i=1;i<=6;i++){D1.d[i]=INF;D1.done[i]=false;}D1.d[1]=0;d1render('d[1] = 0, các đỉnh khác = ∞. Bấm “Bước tiếp”.');}
+  function d1one(){
+    if(D1.done2)return;
+    if(D1.phase==='extract'){
+      var u=-1;for(var i=1;i<=6;i++)if(!D1.done[i]&&D1.d[i]!==INF&&(u===-1||D1.d[i]<D1.d[u]))u=i;
+      if(u===-1){D1.done2=true;D1.u=null;D1.edge=null;d1render('Không còn đỉnh để chốt. Dijkstra kết thúc.');return;}
+      D1.u=u;D1.done[u]=true;D1.order.push(u);D1.nb=d1adj[u].slice();D1.ni=0;D1.phase='scan';D1.edge=null;
+      d1render('Chốt đỉnh '+u+' với d['+u+'] = '+D1.d[u]+' (nhỏ nhất trong các đỉnh chưa chốt).');return;
+    }
+    if(D1.ni<D1.nb.length){
+      var e=D1.nb[D1.ni++],v=e[0],w=e[1];D1.edge=[D1.u,v];
+      if(D1.done[v]){d1render('Đỉnh '+v+' đã chốt, bỏ qua cạnh '+D1.u+'–'+v+'.');return;}
+      if(D1.d[D1.u]+w<D1.d[v]){D1.d[v]=D1.d[D1.u]+w;d1render('Nới lỏng '+D1.u+'→'+v+' (w='+w+'): d['+v+'] = '+D1.d[v]+'.');}
+      else d1render('Cạnh '+D1.u+'–'+v+' (w='+w+') không cải thiện d['+v+'].');
+      return;
+    }
+    D1.phase='extract';D1.edge=null;d1render('Đã xét hết cạnh của '+D1.u+'. Quay lại chọn đỉnh gần nhất tiếp theo.');
+  }
+  document.getElementById('dijNext').addEventListener('click',d1one);
+  document.getElementById('dijRun').addEventListener('click',function(){var g=300;while(!D1.done2&&g--)d1one();});
+  document.getElementById('dijReset').addEventListener('click',d1reset);
+  d1reset();
+
+  /* ============ Mô phỏng 2: Dijkstra vs Bellman-Ford ============ */
+  // đỉnh 1..4; cung cố định + cung 3->2 chỉnh được
+  var negW=document.getElementById('negW'),negDij=document.getElementById('negDij'),negBel=document.getElementById('negBel'),negVerdict=document.getElementById('negVerdict');
+  function baseEdges(w32){return[[1,2,1],[1,3,2],[3,2,w32],[2,4,0]];}
+  function runDijkstra(edges){
+    var adj={1:[],2:[],3:[],4:[]};edges.forEach(function(e){adj[e[0]].push([e[1],e[2]]);});
+    var d={1:0,2:INF,3:INF,4:INF},done={};
+    for(var it=0;it<4;it++){
+      var u=-1;for(var i=1;i<=4;i++)if(!done[i]&&d[i]!==INF&&(u===-1||d[i]<d[u]))u=i;
+      if(u===-1)break;done[u]=true;
+      adj[u].forEach(function(e){var v=e[0],w=e[1];if(done[v])return;if(d[u]+w<d[v])d[v]=d[u]+w;});
+    }
+    return d;
+  }
+  function runBellman(edges){
+    var d={1:0,2:INF,3:INF,4:INF};
+    for(var it=0;it<3;it++)edges.forEach(function(e){if(d[e[0]]!==INF&&d[e[0]]+e[2]<d[e[1]])d[e[1]]=d[e[0]]+e[2];});
+    return d;
+  }
+  function fmt(d){var a=[];for(var i=1;i<=4;i++)a.push('d['+i+']='+(d[i]===INF?'∞':d[i]));return a.join('   ');}
+  function negRun(){
+    var w=parseInt(negW.value,10);if(isNaN(w))w=-3;w=Math.max(-5,Math.min(5,w));negW.value=w;
+    var e=baseEdges(w),dd=runDijkstra(e),db=runBellman(e);
+    negDij.textContent=fmt(dd);negBel.textContent=fmt(db);
+    var lech=false;for(var i=1;i<=4;i++)if(dd[i]!==db[i])lech=true;
+    if(lech)negVerdict.innerHTML='<div class="lech">Lệch: Dijkstra đóng băng đỉnh 2 quá sớm nên bỏ lỡ đường vòng 1→3→2 (rẻ hơn nhờ cung âm). Bellman-Ford nới lỏng lại mọi cạnh nên ra đúng.</div>';
+    else negVerdict.innerHTML='<div class="khop">Khớp: với trọng số này, đường vòng 1→3→2 không rẻ hơn đường thẳng, nên tính tham lam của Dijkstra vẫn đúng.</div>';
+  }
+  negW.addEventListener('input',negRun);negRun();
+
+  /* ============ Mô phỏng 3: bảng Floyd ============ */
+  var floTab=document.getElementById('floTab'),floK=document.getElementById('floK'),floMsg=document.getElementById('floMsg');
+  var floInit=[[0,3,8,INF],[3,0,2,5],[8,2,0,1],[INF,5,1,0]];
+  var F;
+  function floReset(){F={k:0,d:floInit.map(function(r){return r.slice();}),upd:{}};floShow('Ma trận ban đầu: chỉ có các cạnh trực tiếp (∞ = chưa có đường).');}
+  function floShow(msg){
+    var h='<table class="matrix"><thead><tr><th class="'+(F.k>0?'kk':'')+'">d</th>';
+    for(var j=1;j<=4;j++)h+='<th>'+j+'</th>';h+='</tr></thead><tbody>';
+    for(var i=0;i<4;i++){h+='<tr><th>'+(i+1)+'</th>';
+      for(var j=0;j<4;j++){var val=F.d[i][j],cls=i===j?'diag':(F.upd[i+'_'+j]?'upd':'');h+='<td class="'+cls+'">'+(val===INF?'∞':val)+'</td>';}
+      h+='</tr>';}
+    h+='</tbody></table>';floTab.innerHTML=h;
+    floK.textContent=F.k===0?'k = 0 (chưa dùng đỉnh nào)':'k = '+F.k+' (cho phép đi qua đỉnh 1..'+F.k+')';
+    floMsg.textContent=msg||'';
+    document.getElementById('floNext').disabled=F.k>=4;
+  }
+  function floStep(){
+    if(F.k>=4)return;F.k++;var k=F.k-1;F.upd={};var changed=[];
+    for(var i=0;i<4;i++)for(var j=0;j<4;j++){
+      if(F.d[i][k]!==INF&&F.d[k][j]!==INF&&F.d[i][k]+F.d[k][j]<F.d[i][j]){F.d[i][j]=F.d[i][k]+F.d[k][j];F.upd[i+'_'+j]=1;changed.push('d['+(i+1)+']['+(j+1)+']='+F.d[i][j]);}
+    }
+    floShow(changed.length?'Qua đỉnh trung gian '+F.k+', cập nhật: '+changed.join(', ')+'.':'Qua đỉnh trung gian '+F.k+': không ô nào cải thiện.');
+  }
+  document.getElementById('floNext').addEventListener('click',floStep);
+  document.getElementById('floRun').addEventListener('click',function(){while(F.k<4)floStep();});
+  document.getElementById('floReset').addEventListener('click',floReset);
+  floReset();
+})();
+</script>
+<script src="../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>
