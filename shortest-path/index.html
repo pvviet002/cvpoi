@@ -29,29 +29,31 @@
   .graphbox{border:1px solid var(--border);border-radius:9px;background:var(--bg);padding:8px;overflow-x:auto}
   .graphbox svg{display:block;margin:auto;min-width:520px}
   .g-edge{stroke:var(--edge);stroke-width:2}
-  .g-edge.on{stroke:var(--blue);stroke-width:3.5}
+  .g-edge.on{stroke:var(--amber);stroke-width:4.5;filter:drop-shadow(0 0 3px var(--amber))}
   .g-node{fill:var(--card);stroke:var(--edge);stroke-width:2}
-  .g-node.seen{fill:var(--blue-bg);stroke:var(--blue)}
-  .g-node.active{fill:var(--amber-bg);stroke:var(--amber);stroke-width:3}
-  .g-node.done{fill:var(--green-bg);stroke:var(--green)}
+  .g-node.seen{fill:color-mix(in srgb,var(--blue) 26%,var(--bg));stroke:var(--blue);stroke-width:2.5}
+  .g-node.done{fill:color-mix(in srgb,var(--green) 32%,var(--bg));stroke:var(--green);stroke-width:2.5}
+  .g-node.active{fill:color-mix(in srgb,var(--amber) 40%,var(--bg));stroke:var(--amber);stroke-width:4.5;filter:drop-shadow(0 0 5px var(--amber));animation:cvpulse 1.2s ease-in-out infinite}
+  @keyframes cvpulse{0%,100%{filter:drop-shadow(0 0 2px var(--amber))}50%{filter:drop-shadow(0 0 9px var(--amber))}}
+  @media(prefers-reduced-motion:reduce){.g-node.active{animation:none}}
   .g-label{fill:var(--fg);font-size:14px;font-weight:700;text-anchor:middle;dominant-baseline:middle}
   .g-wt{fill:var(--purple);font-size:13px;font-weight:700;text-anchor:middle;dominant-baseline:middle}
   .g-wtbg{fill:var(--bg);opacity:.9}
   .dcells{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
   .dcell{min-width:70px;padding:5px 8px;border:1px solid var(--border);border-radius:7px;background:var(--bg);font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;font-size:.86rem;text-align:center}
-  .dcell.fin{border-color:var(--green);color:var(--green);background:var(--green-bg)}
-  .dcell.cur{border-color:var(--amber);color:var(--amber);background:var(--amber-bg)}
-  .dcell small{display:block;color:var(--muted);font-size:.72rem}
+  .dcell.fin{border-color:var(--green);background:color-mix(in srgb,var(--green) 20%,var(--bg))}
+  .dcell.cur{border-color:var(--amber);background:color-mix(in srgb,var(--amber) 26%,var(--bg));box-shadow:0 0 0 2px var(--amber)}
+  .dcell small{display:block;color:var(--fg);opacity:.75;font-size:.72rem}
   .pq{display:flex;gap:5px;flex-wrap:wrap;min-height:34px;align-items:center}
   .pq span{display:inline-block;padding:5px 9px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;font-size:.85rem}
-  .pq span:first-child{border-color:var(--amber);color:var(--amber)}
+  .pq span:first-child{border-color:var(--amber);background:color-mix(in srgb,var(--amber) 22%,var(--bg));color:var(--fg);font-weight:700}
   .badge{display:inline-block;padding:2px 7px;border-radius:999px;font-size:.78rem;border:1px solid var(--border);background:var(--bg);color:var(--muted)}
   .khop{margin-top:12px;padding:9px 13px;border-radius:8px;font-size:.9rem;background:var(--green-bg);color:var(--green);border:1px solid var(--green)}
   .lech{margin-top:12px;padding:9px 13px;border-radius:8px;font-size:.9rem;background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
   .matrix{border-collapse:collapse;font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;font-size:.85rem}
   .matrix th,.matrix td{border:1px solid var(--border);padding:6px 10px;text-align:center;min-width:34px}
   .matrix th{background:var(--bg);color:var(--blue)}
-  .matrix td.upd{background:var(--green-bg);color:var(--green);font-weight:700}
+  .matrix td.upd{background:color-mix(in srgb,var(--green) 26%,var(--bg));color:var(--fg);font-weight:700;box-shadow:inset 0 0 0 2px var(--green)}
   .matrix td.diag{color:var(--muted)}
   .matrix tr.kk th:first-child,.matrix th.kk{background:var(--amber-bg);color:var(--amber)}
 
@@ -636,7 +638,7 @@ còn ghép được với đếm, đồng dư, thành phần liên thông…</p>
     });
     for(var i=1;i<=6;i++){
       var p=d1pos[i],cl='';
-      if(D1.done[i])cl='done';else if(i===D1.u)cl='active';else if(D1.d[i]!==INF)cl='seen';
+      if(i===D1.active)cl='active';else if(D1.done[i])cl='done';else if(D1.d[i]!==INF)cl='seen';
       h+='<circle class="g-node '+cl+'" cx="'+p[0]+'" cy="'+p[1]+'" r="25"/><text class="g-label" x="'+p[0]+'" y="'+p[1]+'">'+i+'</text>';
     }
     dijSvg.innerHTML=h;
@@ -648,19 +650,19 @@ còn ghép được với đếm, đồng dư, thành phần liên thông…</p>
     dijPq.innerHTML=fr.length?fr.map(function(x){return'<span>'+x[1]+' · d='+x[0]+'</span>';}).join(''):'<span>∅</span>';
     dijU.textContent=D1.u===null?'—':D1.u;
     dijOrder.textContent=D1.order.length?D1.order.join(' → '):'∅';
-    var c='';for(i=1;i<=6;i++){var cls='dcell';if(D1.done[i])cls+=' fin';else if(i===D1.u)cls+=' cur';c+='<div class="'+cls+'">'+i+'<small>d='+(D1.d[i]===INF?'∞':D1.d[i])+'</small></div>';}
+    var c='';for(i=1;i<=6;i++){var cls='dcell';if(i===D1.active)cls+=' cur';else if(D1.done[i])cls+=' fin';c+='<div class="'+cls+'">'+i+'<small>d='+(D1.d[i]===INF?'∞':D1.d[i])+'</small></div>';}
     dijDist.innerHTML=c;
     dijMsg.textContent=msg||'';
     document.getElementById('dijNext').disabled=D1.done2;
   }
-  function d1reset(){D1={d:{},done:{},order:[],u:null,edge:null,phase:'extract',nb:[],ni:0,done2:false};for(var i=1;i<=6;i++){D1.d[i]=INF;D1.done[i]=false;}D1.d[1]=0;d1render('d[1] = 0, các đỉnh khác = ∞. Bấm “Bước tiếp”.');}
+  function d1reset(){D1={d:{},done:{},order:[],u:null,active:null,edge:null,phase:'extract',nb:[],ni:0,done2:false};for(var i=1;i<=6;i++){D1.d[i]=INF;D1.done[i]=false;}D1.d[1]=0;d1render('d[1] = 0, các đỉnh khác = ∞. Bấm “Bước tiếp”.');}
   function d1one(){
     if(D1.done2)return;
     if(D1.phase==='extract'){
       var u=-1;for(var i=1;i<=6;i++)if(!D1.done[i]&&D1.d[i]!==INF&&(u===-1||D1.d[i]<D1.d[u]))u=i;
-      if(u===-1){D1.done2=true;D1.u=null;D1.edge=null;d1render('Không còn đỉnh để chốt. Dijkstra kết thúc.');return;}
-      D1.u=u;D1.done[u]=true;D1.order.push(u);D1.nb=d1adj[u].slice();D1.ni=0;D1.phase='scan';D1.edge=null;
-      d1render('Chốt đỉnh '+u+' với d['+u+'] = '+D1.d[u]+' (nhỏ nhất trong các đỉnh chưa chốt).');return;
+      if(u===-1){D1.done2=true;D1.u=null;D1.active=null;D1.edge=null;d1render('Không còn đỉnh để chốt. Dijkstra kết thúc.');return;}
+      D1.u=u;D1.active=u;D1.done[u]=true;D1.order.push(u);D1.nb=d1adj[u].slice();D1.ni=0;D1.phase='scan';D1.edge=null;
+      d1render('Lấy đỉnh '+u+' ra (d nhỏ nhất trong các đỉnh chưa chốt): d['+u+'] = '+D1.d[u]+' là đáp án cuối. Đang nới lỏng các cạnh của nó — đỉnh cam là đỉnh đang xét.');return;
     }
     if(D1.ni<D1.nb.length){
       var e=D1.nb[D1.ni++],v=e[0],w=e[1];D1.edge=[D1.u,v];
@@ -669,7 +671,7 @@ còn ghép được với đếm, đồng dư, thành phần liên thông…</p>
       else d1render('Cạnh '+D1.u+'–'+v+' (w='+w+') không cải thiện d['+v+'].');
       return;
     }
-    D1.phase='extract';D1.edge=null;d1render('Đã xét hết cạnh của '+D1.u+'. Quay lại chọn đỉnh gần nhất tiếp theo.');
+    D1.phase='extract';D1.active=null;D1.edge=null;d1render('Đã xét hết cạnh của '+D1.u+' — tô xanh (đã chốt xong). Quay lại chọn đỉnh gần nhất tiếp theo.');
   }
   document.getElementById('dijNext').addEventListener('click',d1one);
   document.getElementById('dijRun').addEventListener('click',function(){var g=300;while(!D1.done2&&g--)d1one();});
