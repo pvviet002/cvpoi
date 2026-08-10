@@ -42,9 +42,9 @@
 
     /* ---- sidebar ---- */
     var brand =
-      '<div class="cv-brand"><div class="cv-logo">CP</div><div>' +
+      '<a class="cv-brand" href="/" title="Trang chủ"><div class="cv-logo">CP</div><div>' +
       '<b>' + esc(opts.brand || 'Lý thuyết CP') + '</b>' +
-      '<span>' + esc(opts.sub || 'CPH · Cẩm nang thi đấu') + '</span></div></div>' +
+      '<span>' + esc(opts.sub || 'CPH · Cẩm nang thi đấu') + '</span></div></a>' +
       '<div class="cv-filter"><input id="cvnavq" type="text" placeholder="Lọc chương…" autocomplete="off"></div>';
 
     var body = map.parts.map(function(pt){
@@ -84,6 +84,8 @@
         c += '<span>' + esc(loc.part.label) + '</span><span class="sep">&rsaquo;</span>' +
              '<span>Chương ' + loc.ch.n + ' · ' + esc(loc.ch.title) + '</span>';
         if (loc.page) c += '<span class="sep">&rsaquo;</span><b>' + esc(loc.page.title) + '</b>';
+      } else {
+        c = '<b>Trang chủ</b>';
       }
       crumbEl.innerHTML =
         '<button class="cv-menu" id="cvmenu">&#9776; Mục lục</button>' +

@@ -1,315 +1,60 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lý thuyết CP — Thầy Việt</title>
-<style>
-  /* Phông hệ thống, không tải tài nguyên ngoài — trang chủ mở được cả khi
-     không có mạng. Ba biến dưới đây thay cho Space Grotesk / Inter /
-     JetBrains Mono trước đây: chữ thường và tiêu đề cùng dùng --font-ui
-     (Noto Sans nếu máy có, không thì phông hệ thống), phần đơn cách dùng
-     --font-mono. Đổi ở đây là cả trang đổi theo. */
-  :root{
-    --font-ui:"Noto Sans","Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
-    --font-mono:"Cascadia Mono","Noto Sans Mono",Consolas,ui-monospace,"Courier New",monospace;
-  }
-  :root{
-    --bg:#0B1220; --bg2:#0F1A2E; --panel:#111E36;
-    --line:#20304C; --line2:#2C3E5E;
-    --ink:#E9EEF8; --ink-soft:#93A4C6; --ink-dim:#7C8CB0;
-    --accent:#38D6C4;
-    --accent-soft:rgba(56,214,196,.12);
-    --shadow:0 18px 50px -30px rgba(0,0,0,.85);
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{
-    background:radial-gradient(1100px 620px at 82% -12%, rgba(56,214,196,.08), transparent 62%), var(--bg);
-    color:var(--ink);
-    font-family:var(--font-ui);
-    font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh;
-  }
-  .wrap{max-width:1000px;margin:0 auto;padding:0 24px 90px}
-
-  /* ---------- Nav ---------- */
-  .topbar{position:sticky;top:0;z-index:50;background:rgba(11,18,32,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-  .topbar-in{max-width:1000px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-  .brand{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-ui);font-weight:600;font-size:.98rem;color:var(--ink);text-decoration:none}
-  .brand .logo{width:28px;height:28px;border-radius:7px;background:var(--accent);display:grid;place-items:center;color:#052b27;font-family:var(--font-mono);font-weight:700;font-size:.78rem}
-  .spacer{flex:1}
-  .ext-btn{display:inline-flex;align-items:center;gap:7px;text-decoration:none;border:1px solid var(--line2);border-radius:8px;padding:7px 13px;color:var(--ink-soft);font-weight:500;font-size:.84rem;transition:.18s}
-  .ext-btn:hover{border-color:var(--accent);color:var(--ink)}
-  .ext-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
-
-  /* ---------- Hero ---------- */
-  header{padding:64px 0 8px;max-width:640px}
-  .eyebrow{font-family:var(--font-mono);font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:20px}
-  h1{font-family:var(--font-ui);font-size:clamp(2.1rem,5.5vw,3.4rem);font-weight:700;line-height:1.1;letter-spacing:-.025em}
-  .sub{margin-top:16px;font-size:1.06rem;color:var(--ink-soft)}
-  .meta{margin-top:22px;font-family:var(--font-mono);font-size:.8rem;color:var(--ink-dim)}
-  .meta b{color:var(--accent);font-weight:700}
-  .meta span{margin:0 10px;opacity:.4}
-
-  /* ---------- Search ---------- */
-  .search{position:relative;margin:44px 0 8px;max-width:420px}
-  .search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--ink-dim);fill:none;stroke-width:2}
-  .search input{width:100%;background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:11px 14px 11px 42px;color:var(--ink);font-family:inherit;font-size:.92rem;transition:.2s}
-  .search input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-  .search input::placeholder{color:var(--ink-dim)}
-
-  /* ---------- Nhóm ---------- */
-  .group{margin-top:40px}
-  .group-head{display:flex;align-items:center;gap:14px;margin-bottom:16px}
-  .group-head h2{font-family:var(--font-mono);font-size:.76rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);white-space:nowrap}
-  .group-head .rule{flex:1;height:1px;background:var(--line)}
-  .group-head .cnt{font-family:var(--font-mono);font-size:.72rem;color:var(--ink-dim)}
-  .group.hidden{display:none}
-
-  /* ---------- Phần / Chương (mục lục theo sách) ---------- */
-  .part{margin-top:44px}
-  .part.hidden{display:none}
-  .chapter{margin:16px 0 22px}
-  .chapter.hidden{display:none}
-  .chapter-head{display:flex;align-items:center;gap:11px;margin:0 0 11px}
-  .chnum{font-family:var(--font-mono);font-size:.72rem;font-weight:700;color:var(--accent);border:1px solid var(--line2);border-radius:6px;padding:2px 7px;flex:none}
-  .chapter-head h3{font-family:var(--font-ui);font-size:.98rem;font-weight:600;color:var(--ink);white-space:nowrap}
-  .chapter-head .rule{flex:1;height:1px;background:var(--line)}
-
-  /* ---------- Thẻ ---------- */
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
-  .card{
-    display:flex;align-items:center;gap:14px;
-    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 16px;
-    text-decoration:none;color:inherit;transition:border-color .18s,transform .18s,background .18s;
-  }
-  a.card:hover{border-color:var(--accent);transform:translateY(-2px);background:#132241}
-  .ico{width:40px;height:40px;flex:none;border-radius:10px;display:grid;place-items:center;background:var(--bg2);border:1px solid var(--line2);transition:.18s}
-  .ico svg{width:21px;height:21px;stroke:var(--ink-soft);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:.18s}
-  a.card:hover .ico{border-color:var(--accent);background:var(--accent-soft)}
-  a.card:hover .ico svg{stroke:var(--accent)}
-  .body{flex:1;min-width:0}
-  .body h3{font-family:var(--font-ui);font-size:1.02rem;font-weight:600;letter-spacing:-.01em;color:var(--ink);display:flex;align-items:center;gap:8px}
-  .body .desc{font-size:.82rem;color:var(--ink-soft);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .arrow{flex:none;width:18px;height:18px;stroke:var(--ink-dim);fill:none;stroke-width:2;transition:.18s}
-  a.card:hover .arrow{stroke:var(--accent);transform:translateX(3px)}
-  .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none;box-shadow:0 0 8px var(--accent)}
-
-  .card.soon{opacity:.55}
-  .card.soon .body .desc{color:var(--ink-dim)}
-  .tag-soon{font-family:var(--font-mono);font-size:.6rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-dim);border:1px solid var(--line2);border-radius:5px;padding:2px 6px;flex:none}
-  .card.hidden{display:none}
-
-  .empty{text-align:center;padding:60px 0;color:var(--ink-dim);font-family:var(--font-mono);font-size:.9rem;display:none}
-  .empty.show{display:block}
-
-  footer{border-top:1px solid var(--line);margin-top:64px;padding:24px 0 0;color:var(--ink-dim);font-size:.82rem;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-  footer b{color:var(--ink-soft);font-weight:500}
-  footer a{color:var(--accent);text-decoration:none}
-
-  @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}html{scroll-behavior:auto}}
-</style>
-
-<!--cv-head-->
-<link rel="stylesheet" href="assets/site.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lý thuyết Lập trình thi đấu</title>
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-<meta name="description" content="Tuyển tập chuyên đề lập trình thi đấu: lý thuyết, mô phỏng từng bước và bài luyện có lời giải.">
-<meta property="og:type" content="article">
-<meta property="og:site_name" content="Lý thuyết CP">
-<meta property="og:title" content="Lý thuyết CP — Thầy Việt">
-<meta property="og:description" content="Tuyển tập chuyên đề lập trình thi đấu: lý thuyết, mô phỏng từng bước và bài luyện có lời giải.">
-<!--/cv-head-->
+<meta name="description" content="Lý thuyết lập trình thi đấu theo Cẩm nang Lập trình thi đấu — ba phần, 31 chương, mỗi trang có mô phỏng chạy tay từng bước.">
+<link rel="stylesheet" href="assets/chuan.css">
+<link rel="stylesheet" href="assets/nav.css">
 </head>
-<body>
-<!--cv-nav-->
-<nav class="cv-nav">
-  <div class="cv-nav-in">
-    <a class="cv-btn cv-phu" href="sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
-  </div>
-</nav>
-<!--/cv-nav-->
+<body class="cv-shell" data-nav="home">
 
-<div class="wrap">
-  <header>
-    <span class="eyebrow">Phan Văn Việt · THPT Chuyên Vĩnh Phúc</span>
-    <h1>Lý thuyết CP</h1>
-    <p class="sub">Mỗi chuyên đề là một trang bài học tương tác: lý thuyết, mô phỏng từng bước, code mẫu và bài luyện.</p>
-    <p class="meta"><b id="stTotal">0</b> chương <span>·</span> <b id="stReady">0</b> bài đã có <span>·</span> <b>39</b> bài luyện có lời giải</p>
-  </header>
+<button class="themebtn" id="tg">Nền sáng / tối</button>
 
-  <div class="search">
-    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-    <input id="q" type="text" placeholder="Tìm chuyên đề…" autocomplete="off">
-  </div>
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
 
-  <div id="groups"></div>
-  <div class="empty" id="empty">Không tìm thấy chuyên đề nào khớp.</div>
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
 
-  
+    <div class="wrap">
+      <header>
+        <div class="kicker">Cẩm nang Lập trình thi đấu · 3 phần · 31 chương</div>
+        <h1>Lý thuyết Lập trình thi đấu</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p>Toàn bộ lý thuyết được sắp xếp theo cấu trúc của <em>Cẩm nang Lập trình thi đấu</em>: ba phần,
+      ba mươi mốt chương. Mỗi chương là một trang bài học gồm lý thuyết cô đọng, <b>mô phỏng chạy tay</b> từng
+      bước và ví dụ số cụ thể. Chọn một chương ở <b>mục lục bên trái</b> để bắt đầu.</p>
+
+      <h2 id="p1"><span class="num">1.</span>Các kỹ thuật cơ bản</h2>
+      <p>Ngôn ngữ C++, độ phức tạp thời gian, sắp xếp và tìm kiếm nhị phân, cấu trúc dữ liệu (STL) và cây tìm
+      kiếm nhị phân, tìm kiếm hoàn chỉnh, giải thuật tham lam, quy hoạch động, phân tích chi phí bình quân,
+      truy vấn phạm vi, và xử lý bit.</p>
+
+      <h2 id="p2"><span class="num">2.</span>Thuật toán đồ thị</h2>
+      <p>Biểu diễn và duyệt đồ thị, đường đi ngắn nhất, thuật toán trên cây, cây khung, đồ thị có hướng, liên
+      thông hai chiều, truy vấn trên cây, đường đi và chu trình Euler, luồng và lát cắt.</p>
+
+      <h2 id="p3"><span class="num">3.</span>Chủ đề nâng cao</h2>
+      <p>Lý thuyết số, tổ hợp, ma trận, xác suất, lý thuyết trò chơi, thuật toán trên chuỗi, thuật toán căn bậc
+      hai, cây phân đoạn nâng cao, hình học, và thuật toán đường quét.</p>
+
+      <p>Ngoài lý thuyết còn có <a href="/sols/">kho bài luyện</a> gồm nhiều bài tập kèm hướng dẫn giải, xếp
+      theo chuyên đề.</p>
+
+      <footer>Lý thuyết Lập trình thi đấu — biên soạn theo <em>Cẩm nang Lập trình thi đấu</em>.</footer>
+    </div>
+  </main>
 </div>
 
 <script src="assets/sitemap.js"></script>
-<script>
-/* =====================================================================
-   Trang chủ đọc "xương sống" từ assets/sitemap.js (CVSITEMAP): Phần → Chương →
-   trang bài. META bổ sung mô tả + icon cho từng bài (theo slug). Thêm bài mới:
-   khai trong sitemap.js, rồi thêm một dòng mô tả/icon vào META bên dưới.
-   ===================================================================== */
-const META = {
-  io:{desc:'cin/cout, định dạng số thực, chia nguyên và lấy dư, ký tự thoát.', icon:'terminal'},
-  ifelse:{desc:'if/else là phép chia tập: phủ kín, không chồng, đúng thứ tự.', icon:'branch'},
-  'for-loop':{desc:'for, while, vòng lặp lồng nhau và quy tắc luôn đúng của vòng lặp.', icon:'repeat'},
-  'array-1d':{desc:'Duyệt, tìm kiếm tuyến tính, lính canh, hai con trỏ.', icon:'row'},
-  'array-2d':{desc:'Lưới hàng × cột, cờ hiệu, lính canh max1/max2.', icon:'grid'},
-  string:{desc:'char và string, đọc và tách dữ liệu, xâu con và dãy con, số lớn dạng xâu.', icon:'text'},
-  'binary-search':{desc:'Chặt nhị phân trên mảng và trên đáp số.', icon:'target'},
-  bst:{desc:'Tìm, chèn theo quy tắc thứ tự; mô phỏng từng bước.', icon:'tree'},
-  huffman:{desc:'Gộp hai đống nhẹ nhất, mã tiền tố tối ưu.', icon:'huff'},
-  dp:{desc:'Quy hoạch động trên đoạn — kèm bài luyện có lời giải.', icon:'chart'},
-  'digit-dp':{desc:'Đếm số trên đoạn rất lớn bằng cách dựng số từ trái sang phải.', icon:'binary'},
-  'monotonic-stack':{desc:'Tìm phần tử lớn/nhỏ gần nhất bằng ngăn xếp giữ thứ tự.', icon:'stack'},
-  'prefix-sum':{desc:'Cộng dồn 1D và 2D, mảng hiệu, kết hợp bảng băm.', icon:'sigma'},
-  'sqrt-decomposition':{desc:'Chia mảng thành khối để truy vấn và cập nhật nhanh.', icon:'blocks'},
-  'segment-tree':{desc:'Mọi đoạn tách thành O(log N) nút chuẩn; cây đệ quy, cây lặp, lazy.', icon:'tree'},
-  'graph-basic':{desc:'Biểu diễn đồ thị, BFS, DFS, liên thông.', icon:'graph'},
-  'flood-fill':{desc:'Tô loang trên lưới, đếm vùng liên thông.', icon:'drop'},
-  'shortest-path':{desc:'Nới lỏng, Dijkstra, Bellman-Ford/SPFA, Floyd.', icon:'target'},
-  tree:{desc:'DFS, tổ tiên chung gần nhất bằng nâng nhị phân.', icon:'tree'},
-  dsu:{desc:'Hợp nhất hai tập, tìm gốc, nén đường đi.', icon:'branch'},
-  'euler-tour':{desc:'Đưa cây về mảng để dùng được truy vấn đoạn.', icon:'repeat'},
-  'euler-circuit':{desc:'Điều kiện tồn tại và thuật toán Hierholzer.', icon:'circuit'},
-  'number-theory':{desc:'Ước chung, số nguyên tố, tính theo số dư, lũy thừa nhanh.', icon:'hash'},
-  sieve:{desc:'Sàng Eratosthenes, ước nguyên tố nhỏ nhất.', icon:'hash'},
-  combinatoric:{desc:'Quy tắc cộng — nhân, hoán vị, chỉnh hợp, tổ hợp và kỹ thuật đếm.', icon:'sigma'},
-  'in-exclusive':{desc:'Đếm phần tử thỏa ít nhất một điều kiện.', icon:'sets'},
-  'time-complexity':{desc:'Ký hiệu O-lớn, các lớp phức tạp, và bài đoạn con tổng lớn nhất (Kadane).', icon:'chart'},
-  introduction:{desc:'Khung C++, nhập xuất, bẫy tràn số, số học phần dư, rút gọn mã, công thức toán.', icon:'book'},
-  'data-structures':{desc:'vector, set, map, iterator, stack/queue/heap, và khi nào nên sắp xếp.', icon:'blocks'},
-  'complete-search':{desc:'Sinh tập con, hoán vị, quay lui (N quân hậu), cắt tỉa, gặp nhau ở giữa.', icon:'branch'},
-  'bit-manipulation':{desc:'Biểu diễn bit, AND/OR/XOR, mẹo bit, tập bằng mặt nạ, tối ưu popcount.', icon:'binary'},
-  'directed-graphs':{desc:'Sắp xếp tô-pô, QHĐ trên DAG, đồ thị kế tiếp, phát hiện chu trình (Floyd).', icon:'graph'},
-  'strong-connectivity':{desc:'Thành phần liên thông hai chiều, thuật toán Kosaraju, bài toán 2SAT.', icon:'graph'},
-  'max-flow':{desc:'Luồng cực đại = lát cắt nhỏ nhất, Ford–Fulkerson, đường đi rời nhau, ghép cặp hai phía.', icon:'graph'},
-  matrices:{desc:'Nhân ma trận, luỹ thừa nhanh cho truy hồi tuyến tính (Fibonacci), đếm đường đi.', icon:'grid'},
-  probability:{desc:'Biến cố, kỳ vọng & tính tuyến tính, phân phối, xích Markov, thuật toán ngẫu nhiên.', icon:'chart'},
-  'game-theory':{desc:'Trạng thái thắng/thua, trò Nim và tổng nim, số Grundy và định lý Sprague–Grundy.', icon:'branch'},
-  'string-algorithms':{desc:'Cây tiền tố, băm chuỗi đa thức, thuật toán Z và so khớp mẫu tuyến tính.', icon:'text'},
-  'sqrt-algorithms':{desc:'Chia khối √n, kết hợp hai thuật toán, phân hoạch số nguyên, thuật toán Mo.', icon:'blocks'},
-  'segment-tree-advanced':{desc:'Truy vấn đệ quy từ trên xuống, lan truyền lười, cây động/thưa/bền vững.', icon:'tree'},
-  geometry:{desc:'Số phức làm điểm, tích có hướng, diện tích dây giày & Pick, khoảng cách Manhattan.', icon:'grid'},
-  'sweep-line':{desc:'Sự kiện theo thời gian, đếm giao điểm, cặp điểm gần nhất, bao lồi Andrew.', icon:'chart'},
-  sols:{desc:'39 bài tập có hướng dẫn giải, xếp theo chuyên đề.', icon:'book'}
-};
+<script src="assets/nav.js"></script>
+<script>CVNav.mount({ current: 'home' });</script>
 
-const ICONS = {
-  grid:    '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
-  row:     '<rect x="2" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/><rect x="16" y="9" width="6" height="6" rx="1"/>',
-  tree:    '<circle cx="12" cy="5" r="2.4"/><circle cx="6" cy="14" r="2.4"/><circle cx="18" cy="14" r="2.4"/><circle cx="18" cy="20" r="1.8"/><path d="M12 7.4l-4.4 4.4M12 7.4l4.4 4.4M18 16.4v1.4"/>',
-  coin:    '<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
-  hash:    '<path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/>',
-  target:  '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/>',
-  branch:  '<circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="12" r="2.4"/><path d="M6 8.4v7.2M8.4 6h4.2a3 3 0 0 1 3 3v.6M8 18h4.6a3 3 0 0 0 3-3v-.6"/>',
-  binary:  '<rect x="3" y="4" width="8" height="7" rx="1"/><rect x="13" y="4" width="8" height="7" rx="1"/><rect x="3" y="13" width="8" height="7" rx="1"/><rect x="13" y="13" width="8" height="7" rx="1"/>',
-  drop:    '<path d="M12 3s6 6.5 6 10.5a6 6 0 0 1-12 0C6 9.5 12 3 12 3z"/><path d="M9 14a3 3 0 0 0 3 3"/>',
-  graph:   '<circle cx="6" cy="7" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="17" cy="18" r="2.2"/><circle cx="6" cy="17" r="2.2"/><path d="M8 8l8-1M7 9l9 7M8 16l7 1M6.5 9v6"/>',
-  terminal:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/>',
-  stack:   '<rect x="4" y="4" width="16" height="4" rx="1"/><rect x="4" y="10" width="16" height="4" rx="1"/><rect x="4" y="16" width="16" height="4" rx="1"/>',
-  repeat:  '<path d="M17 2l3 3-3 3"/><path d="M20 5H9a5 5 0 0 0-5 5v1"/><path d="M7 22l-3-3 3-3"/><path d="M4 19h11a5 5 0 0 0 5-5v-1"/>',
-  chart:   '<path d="M3 3v18h18"/><path d="M6 15l4-5 3 3 5-7"/>',
-  sigma:   '<path d="M6 4h12M6 4l7 8-7 8h12"/>',
-  blocks:  '<rect x="2" y="8" width="20" height="8" rx="1.5"/><path d="M8.7 8v8M15.3 8v8"/>',
-  circuit: '<path d="M4 12a8 8 0 0 1 13.7-5.6"/><path d="M20 12a8 8 0 0 1-13.7 5.6"/><path d="M18 3v4h-4"/><path d="M6 21v-4h4"/>',
-  huff:    '<circle cx="12" cy="5" r="2.2"/><rect x="3.5" y="12" width="6" height="6" rx="1"/><rect x="14.5" y="12" width="6" height="6" rx="1"/><path d="M10.7 6.6L8.4 11.6M13.3 6.6l2.3 5"/>',
-  sets:    '<circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/>',
-  book:    '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M8 7.5h7M8 11h5"/>',
-  text:    '<path d="M4 6h16M4 10h16M4 14h11M4 18h14"/>',
-  dot:     '<circle cx="12" cy="12" r="8"/>',
-};
-
-const groupsBox=document.getElementById('groups');
-const empty=document.getElementById('empty');
-const qInput=document.getElementById('q');
-
-function cardHTML(p){
-  const m=META[p.slug]||{};
-  const icon=ICONS[m.icon]||ICONS.dot;
-  const desc=m.desc||'';
-  const href=p.href||('/'+p.slug+'/');
-  const key=(p.title+' '+p.slug+' '+desc).toLowerCase();
-  return `<a class="card" href="${href}" data-key="${key}">
-    <div class="ico"><svg viewBox="0 0 24 24">${icon}</svg></div>
-    <div class="body"><h3><span class="dot"></span>${p.title}</h3><div class="desc">${desc}</div></div>
-    <svg class="arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`;
-}
-
-function chapterHTML(ch){
-  const has=ch.pages&&ch.pages.length;
-  const key=(ch.title+' chương '+ch.n).toLowerCase();
-  const cards=has?`<div class="grid">${ch.pages.map(cardHTML).join('')}</div>`:'';
-  const soon=has?'':'<span class="tag-soon">Sắp có</span>';
-  return `<div class="chapter" data-ch="${ch.n}" data-key="${key}">
-    <div class="chapter-head"><span class="chnum">${ch.n}</span><h3>${ch.title}</h3><div class="rule"></div>${soon}</div>
-    ${cards}</div>`;
-}
-
-function partHTML(pt){
-  return `<section class="part" data-part="${pt.id}">
-    <div class="group-head"><h2>${pt.label}</h2><div class="rule"></div><span class="cnt">${pt.chapters.length} chương</span></div>
-    ${pt.chapters.map(chapterHTML).join('')}</section>`;
-}
-
-function extraHTML(){
-  return `<section class="part" data-part="extra">
-    <div class="group-head"><h2>Bài luyện</h2><div class="rule"></div></div>
-    <div class="grid">${cardHTML({slug:'sols', title:'Kho lời giải', href:'/sols/'})}</div></section>`;
-}
-
-function render(){
-  groupsBox.innerHTML=CVSITEMAP.parts.map(partHTML).join('')+extraHTML();
-}
-
-function applyFilter(query){
-  let shown=0;
-  groupsBox.querySelectorAll('.part').forEach(part=>{
-    let pv=0;
-    part.querySelectorAll('.chapter').forEach(ch=>{
-      const chMatch=!query||ch.dataset.key.includes(query);
-      let cv=0;
-      ch.querySelectorAll('.card').forEach(c=>{
-        const ok=!query||chMatch||c.dataset.key.includes(query);
-        c.classList.toggle('hidden',!ok);
-        if(ok)cv++;
-      });
-      const hasCards=!!ch.querySelector('.card');
-      const chVis=hasCards?cv>0:chMatch;
-      ch.classList.toggle('hidden',!chVis);
-      if(chVis){pv++; shown+=hasCards?cv:1;}
-    });
-    part.querySelectorAll(':scope > .grid .card').forEach(c=>{
-      const ok=!query||c.dataset.key.includes(query);
-      c.classList.toggle('hidden',!ok);
-      if(ok){pv++;shown++;}
-    });
-    part.classList.toggle('hidden',pv===0);
-  });
-  empty.classList.toggle('show',shown===0);
-}
-
-qInput.addEventListener('input',()=>applyFilter(qInput.value.trim().toLowerCase()));
-
-/* Thống kê: số chương và số bài đã có (không tính "Kho lời giải"). */
-let nCh=0,nPage=0;
-CVSITEMAP.parts.forEach(pt=>pt.chapters.forEach(ch=>{nCh++; if(ch.pages)nPage+=ch.pages.length;}));
-document.getElementById('stTotal').textContent=nCh;
-document.getElementById('stReady').textContent=nPage;
-render();
-</script>
-
-<!--cv-foot-->
-<footer class="cv-footer">
-  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
-  <span>SĐT 0987072896 &middot; <a href="index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
-</footer>
-<!--/cv-foot-->
+<script src="assets/chuan.js"></script>
 </body>
 </html>
