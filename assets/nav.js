@@ -71,7 +71,11 @@
         '<div class="cv-chs">' + chs + '</div></div>';
     }).join('');
 
-    navEl.innerHTML = brand + body;
+    var collapseBtn = '<button class="cv-collapse" id="cvcollapse" type="button" ' +
+      'title="Thu gọn mục lục" aria-label="Thu gọn hoặc mở mục lục" aria-expanded="true"></button>';
+    navEl.innerHTML =
+      '<div class="cv-top">' + collapseBtn + brand + '</div>' +
+      '<div class="cv-scroll">' + body + '</div>';
 
     /* ---- breadcrumb ---- */
     if (crumbEl){
@@ -82,7 +86,6 @@
         if (loc.page) c += '<span class="sep">&rsaquo;</span><b>' + esc(loc.page.title) + '</b>';
       }
       crumbEl.innerHTML =
-        '<button class="cv-collapse" id="cvcollapse" title="Ẩn hoặc hiện mục lục"></button>' +
         '<button class="cv-menu" id="cvmenu">&#9776; Mục lục</button>' +
         '<div class="cv-crumbtext">' + c + '</div><div class="grow"></div>';
     }
@@ -110,7 +113,9 @@
     function updCb(){
       if (!cb) return;
       var col = document.body.classList.contains('cv-navcollapsed');
-      cb.innerHTML = col ? '&#9776;&nbsp;Mục lục' : '&#8249;&nbsp;Thu gọn';
+      cb.innerHTML = col ? '&#187;' : '&#171;';           /* » mở  ·  « thu gọn */
+      cb.setAttribute('aria-expanded', String(!col));
+      cb.title = col ? 'Mở mục lục' : 'Thu gọn mục lục';
     }
     updCb();
     if (cb) cb.addEventListener('click', function(){
