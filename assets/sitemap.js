@@ -32,7 +32,8 @@ window.CVSITEMAP = {
       { n:6, title:'Giải thuật tham lam', pages:[ { slug:'huffman', title:'Thuật toán Huffman' } ] },
       { n:7, title:'Quy hoạch động', pages:[
         { slug:'dp', title:'Quy hoạch động trên đoạn' },
-        { slug:'digit-dp', title:'Quy hoạch động chữ số', href:'/dp/digit-dp/' }
+        { slug:'digit-dp', title:'Quy hoạch động chữ số', href:'/dp/digit-dp/' },
+        { slug:'knapsack', title:'Quy hoạch động cái túi', href:'/dp/knapsack/' }
       ]},
       { n:8, title:'Phân tích chi phí bình quân', pages:[ { slug:'monotonic-stack', title:'Ngăn xếp tăng/giảm dần' } ] },
       { n:9, title:'Truy vấn phạm vi', pages:[

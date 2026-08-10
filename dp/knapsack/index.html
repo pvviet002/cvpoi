@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quy hoạch động cái túi | Lý thuyết CP</title>
+<link rel="stylesheet" href="../../assets/chuan.css">
+<style>
+  /* CSS riêng cho hình minh họa và phòng mô phỏng */
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{overflow-x:hidden}
+  .lead{font-size:1.06rem;line-height:1.75}
+  .meta-grid,.two-col,.practice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .meta-card,.figure-card,.sim-room,.practice-card{min-width:0;border:1px solid var(--border);border-radius:14px;background:var(--card);padding:16px}
+  .meta-card b,.practice-card h3{color:var(--blue)}
+  .source-line{border-left:4px solid var(--blue);padding:10px 14px;background:var(--blue-bg);border-radius:0 12px 12px 0}
+  .source-line a{overflow-wrap:anywhere}
+  .figure-card{overflow:hidden;margin:16px 0}
+  .figure-title{margin:0 0 10px;font-weight:700;color:var(--blue)}
+  .figure-scroll{overflow-x:auto;padding-bottom:4px}
+  .figure-scroll svg{display:block;width:100%;min-width:640px;height:auto}
+  .figcap{margin:10px 0 0;color:var(--muted);font-size:.94rem;line-height:1.55}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:10px;color:var(--muted);font-size:.92rem}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .swatch{width:13px;height:13px;border-radius:4px;border:1px solid var(--border);display:inline-block}
+  .sw-blue{background:var(--blue-bg);border-color:var(--blue)}
+  .sw-green{background:var(--green-bg);border-color:var(--green)}
+  .sw-red{background:var(--red-bg);border-color:var(--red)}
+  .sw-amber{background:var(--amber-bg);border-color:var(--amber)}
+  .sw-muted{background:var(--bg);border-color:var(--edge)}
+  .formula{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--code-bg);color:var(--code-fg);padding:14px 16px;margin:14px 0;font-size:1.02rem;line-height:1.65;white-space:nowrap}
+  .mathv{font-style:italic}
+  .steps{counter-reset:step;list-style:none;padding:0;margin:14px 0}
+  .steps li{counter-increment:step;position:relative;padding:0 0 14px 42px;line-height:1.65}
+  .steps li::before{content:counter(step);position:absolute;left:0;top:1px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue);font-weight:700}
+  .sim-room h3{margin-top:0;color:var(--blue)}
+  .sim-controls{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+  .sim-controls button{appearance:none;border:1px solid var(--border);border-radius:10px;padding:9px 13px;background:var(--blue-bg);color:var(--blue);font:inherit;font-weight:700;cursor:pointer}
+  .sim-controls button:hover{border-color:var(--blue)}
+  .sim-controls button:disabled{cursor:not-allowed;opacity:.55}
+  .sim-message{min-height:64px;border:1px solid var(--border);border-radius:12px;background:var(--bg);padding:12px;line-height:1.6}
+  .sim-result{margin-top:10px;font-weight:700;color:var(--green)}
+  .mini-note{font-size:.93rem;color:var(--muted)}
+  .checklist{margin:10px 0 0;padding-left:22px}
+  .checklist li{margin:7px 0}
+  .tag{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:3px 9px;margin:2px 4px 2px 0;background:var(--bg);color:var(--muted);font-size:.88rem}
+  .tablewrap{max-width:100%;overflow-x:auto}
+  .tablewrap table{min-width:560px}
+  .dp-table{min-width:0;border-collapse:collapse;font-variant-numeric:tabular-nums}
+  .dp-table th,.dp-table td{border:1px solid var(--edge);padding:6px 10px;text-align:center}
+  .dp-table td.rowhead,.dp-table th{color:var(--blue);white-space:nowrap}
+  .dp-table td.ans{background:var(--green-bg);color:var(--green);font-weight:700;border-color:var(--green)}
+  .dp-table td.src{background:var(--amber-bg);border-color:var(--amber)}
+  .codewrap{max-width:100%;overflow-x:auto}
+  .codewrap pre{margin:0}
+  .svg-label{font-size:15px;fill:var(--fg)}
+  .svg-small{font-size:13px;fill:var(--muted)}
+  .svg-strong{font-size:16px;font-weight:700;fill:var(--fg)}
+  .svg-edge{fill:none;stroke:var(--edge);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .svg-blue{fill:var(--blue-bg);stroke:var(--blue);stroke-width:2}
+  .svg-green{fill:var(--green-bg);stroke:var(--green);stroke-width:2}
+  .svg-red{fill:var(--red-bg);stroke:var(--red);stroke-width:2}
+  .svg-amber{fill:var(--amber-bg);stroke:var(--amber);stroke-width:2}
+  .svg-muted{fill:var(--bg);stroke:var(--edge);stroke-width:1.7}
+  /* Phòng mô phỏng cái túi */
+  .knap-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:12px 0}
+  .knap-panel{min-width:0;border:1px solid var(--edge);border-radius:12px;background:var(--bg);padding:12px}
+  .knap-panel h4{margin:0 0 8px;color:var(--fg);font-size:.98rem}
+  .knap-arr{display:flex;gap:5px;overflow-x:auto;padding:4px 1px 8px}
+  .cell{flex:0 0 auto;width:44px;border:1px solid var(--edge);border-radius:9px;background:var(--card);text-align:center;overflow:hidden}
+  .cell .idx{font-size:.72rem;color:var(--muted);padding:2px 0;border-bottom:1px solid var(--edge)}
+  .cell .val{font-weight:700;padding:6px 0}
+  .cell.read{border-color:var(--amber);background:var(--amber-bg)}
+  .cell.write{border-color:var(--blue);background:var(--blue-bg)}
+  .cell.changed{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+  .item-chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+  .item-chip{border:1px solid var(--edge);border-radius:999px;padding:4px 11px;background:var(--card);font-weight:600}
+  .item-chip.active{border-color:var(--blue);background:var(--blue-bg);color:var(--blue)}
+  .item-chip.done{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+  .dirtag{display:inline-block;border-radius:6px;padding:1px 8px;font-size:.82rem;font-weight:700}
+  .dir-back{background:var(--green-bg);color:var(--green);border:1px solid var(--green)}
+  .dir-fwd{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+  @media (max-width:900px){.meta-grid,.two-col,.practice-grid,.knap-two{grid-template-columns:1fr}}
+  @media (max-width:520px){.meta-card,.figure-card,.sim-room,.practice-card{padding:12px}.sim-controls button{flex:1 1 120px}.lead{font-size:1rem}.formula{font-size:.94rem}.cell{width:40px}}
+
+/*cv-fix-nen-sang*/
+:root{--c-cmt:#5f6672}
+@media (prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+:root[data-theme="light"]{--c-cmt:#5f6672}
+:root[data-theme="dark"]{--c-cmt:#8b949e}
+.box th, .tablewrap th, table th{color:var(--blue) !important}
+.box td, .tablewrap td, table td{color:var(--fg)}
+/*/cv-fix-nen-sang*/
+</style>
+
+<!--cv-head-->
+<link rel="stylesheet" href="../../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<meta name="description" content="Bài toán cái túi 0/1: xét từng vật lấy hay bỏ, rút bảng hai chiều về mảng một chiều; hướng quét chiều sức chứa quyết định mỗi vật được dùng mấy lần.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Quy hoạch động cái túi | Lý thuyết CP">
+<meta property="og:description" content="Bài toán cái túi 0/1: xét từng vật lấy hay bỏ, rút bảng hai chiều về mảng một chiều; hướng quét chiều sức chứa quyết định mỗi vật được dùng mấy lần.">
+<!--/cv-head-->
+</head>
+<body class="cv-side">
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<aside class="side">
+  <div class="hd">CÁI TÚI</div>
+  <a href="#s1">1. Tạo vấn đề</a>
+  <a href="#s2">2. Vì sao đúng</a>
+  <a href="#s3">3. Chỗ dễ sai</a>
+  <a href="#s4">4. Khuôn cài đặt</a>
+  <a href="#s5">5. Biến thể</a>
+  <a href="#s6">6. Nhận dạng và bẫy</a>
+  <a href="#s7">7. Lộ trình bài luyện</a>
+</aside>
+
+<div class="main">
+<div class="wrap">
+<!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb"><a href="../index.html">Quy hoạch động</a><span class="cv-sep">/</span><span class="cv-here">Quy hoạch động cái túi</span></span>
+  </div>
+</nav>
+<!--/cv-nav-->
+
+<header>
+  <div class="kicker">Chuyên đề Lập trình thi đấu</div>
+  <h1>QUY HOẠCH ĐỘNG CÁI TÚI</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+</header>
+
+<p class="lead">Bài toán cái túi hỏi: cho một chiếc túi sức chứa <span class="mathv">C</span> và nhiều vật, mỗi vật có trọng lượng và giá trị, hãy chọn một số vật bỏ vào túi sao cho tổng trọng lượng không vượt <span class="mathv">C</span> mà tổng giá trị lớn nhất. Lời giải chuẩn xét từng vật một câu hỏi &mdash; lấy hay bỏ &mdash; rồi rút bảng hai chiều về một mảng. Sợi chỉ đỏ của cả bài: <b>trong bản một chiều, hướng quét chiều sức chứa quyết định mỗi vật được dùng mấy lần.</b></p>
+
+<div class="meta-grid">
+  <div class="meta-card"><b>Kiến thức nền</b><br>Quy hoạch động, mảng một và hai chiều, tư duy lấy/bỏ từng phần tử, độ phức tạp và kiểu <code class="inl">long long</code>.</div>
+  <div class="meta-card"><b>Trọng tâm</b><br>Công thức <code class="inl">f[i][j]</code>, rút về mảng một chiều, hướng quét ngược cho bài 0/1, và các biến thể: không giới hạn, có giới hạn, tổng con, đếm cách.</div>
+</div>
+
+<p class="source-line"><b>Nguồn tham khảo:</b> <a href="https://usaco.guide/gold/knapsack" target="_blank" rel="noopener">USACO Guide &mdash; Knapsack</a>, <a href="https://cp-algorithms.com/dynamic_programming/knapsack.html" target="_blank" rel="noopener">cp-algorithms &mdash; Knapsack</a> và <a href="https://www.geeksforgeeks.org/dsa/0-1-knapsack-problem-dp-10/" target="_blank" rel="noopener">GeeksforGeeks &mdash; 0/1 Knapsack</a>. Trang này viết lại mạch lý thuyết bằng tiếng Việt, gom bản hai chiều, bản một chiều và các biến thể quanh một câu hỏi duy nhất về hướng quét. Mọi con số trong bài đều lấy từ chương trình C++ chạy thật trên bộ dịch MinGW GCC 9.2 (đúng bộ dịch Themis).</p>
+
+<nav class="toc">
+  <b>Nội dung</b>
+  <ol>
+    <li><a href="#s1">Tạo vấn đề: tham lam theo tỉ số bỏ sót phương án tốt</a></li>
+    <li><a href="#s2">Vì sao xét lấy/bỏ từng vật là đúng</a></li>
+    <li><a href="#s3">Chỗ dễ sai: rút về một chiều và hướng quét</a></li>
+    <li><a href="#s4">Khuôn mẫu cài đặt</a></li>
+    <li><a href="#s5">Các biến thể thường gặp</a></li>
+    <li><a href="#s6">Nhận dạng và bẫy</a></li>
+    <li><a href="#s7">Lộ trình bài luyện</a></li>
+  </ol>
+</nav>
+
+<h2 id="s1"><span class="num">1.</span>Tạo vấn đề: tham lam theo tỉ số bỏ sót phương án tốt</h2>
+
+<p>Túi có sức chứa <span class="mathv">C</span> = 6. Có ba vật, ghi theo dạng (trọng lượng, giá trị): vật 1 là (2, 5), vật 2 là (3, 7), vật 3 là (4, 9). Cần chọn một tập vật với tổng trọng lượng không quá 6 sao cho tổng giá trị lớn nhất. Chỉ ba vật nên bài này nhỏ, nhưng nó đủ để tách hai cách nghĩ ra hai kết quả khác nhau.</p>
+
+<div class="two-col">
+  <div class="box warn">
+    <div class="t">CÁCH NGHĨ CHƯA ĐỦ</div>
+    <p>Xếp vật theo tỉ số giá trị trên trọng lượng rồi lấy dần khi còn chỗ. Tỉ số: vật 1 là 2,5; vật 2 là 2,33; vật 3 là 2,25. Lấy vật 1 (còn chỗ 4, giá trị 5), lấy vật 2 (còn chỗ 1, giá trị 12), vật 3 không còn chỗ. Kết quả <b>12</b>.</p>
+  </div>
+  <div class="box ex">
+    <div class="t">CÁCH NGHĨ ĐÚNG</div>
+    <p>Thử mọi tập vật hợp lệ. Tập tốt nhất là lấy vật 1 và vật 3: tổng trọng lượng 2 + 4 = 6 vừa khít túi, tổng giá trị 5 + 9 = <b>14</b>. Tham lam đã tiêu tốn chỗ cho vật 2 tỉ số cao nhưng giá trị nhỏ, đánh mất vật 3 giá trị lớn.</p>
+  </div>
+</div>
+
+<div class="figure-card">
+  <p class="figure-title">Hình 1. Cùng một túi sức chứa 6, hai cách lấp cho hai tổng giá trị</p>
+  <div class="figure-scroll">
+    <svg viewBox="0 0 900 320" role="img" aria-label="Thanh sức chứa 6 đơn vị: cách tham lam lấy vật 1 và vật 2 được 12, cách tối ưu lấy vật 1 và vật 3 được 14">
+      <rect x="18" y="18" width="864" height="284" rx="18" class="svg-muted"></rect>
+      <text x="110" y="70" class="svg-strong">Tham lam theo tỉ số</text>
+      <rect x="110" y="86" width="220" height="58" rx="10" class="svg-blue"></rect>
+      <text x="220" y="112" text-anchor="middle" class="svg-strong">vật 1</text>
+      <text x="220" y="132" text-anchor="middle" class="svg-small">w=2, v=5</text>
+      <rect x="330" y="86" width="330" height="58" rx="10" class="svg-green"></rect>
+      <text x="495" y="112" text-anchor="middle" class="svg-strong">vật 2</text>
+      <text x="495" y="132" text-anchor="middle" class="svg-small">w=3, v=7</text>
+      <rect x="660" y="86" width="110" height="58" rx="10" class="svg-muted" stroke-dasharray="6 5"></rect>
+      <text x="715" y="120" text-anchor="middle" class="svg-small">trống</text>
+      <text x="795" y="120" class="svg-strong">= 12</text>
+
+      <text x="110" y="204" class="svg-strong">Tối ưu</text>
+      <rect x="110" y="220" width="220" height="58" rx="10" class="svg-blue"></rect>
+      <text x="220" y="246" text-anchor="middle" class="svg-strong">vật 1</text>
+      <text x="220" y="266" text-anchor="middle" class="svg-small">w=2, v=5</text>
+      <rect x="330" y="220" width="440" height="58" rx="10" class="svg-amber"></rect>
+      <text x="550" y="246" text-anchor="middle" class="svg-strong">vật 3</text>
+      <text x="550" y="266" text-anchor="middle" class="svg-small">w=4, v=9</text>
+      <text x="795" y="254" class="svg-strong">= 14</text>
+    </svg>
+  </div>
+  <p class="figcap">Bề rộng mỗi khối tỉ lệ với trọng lượng vật; cả hai cách đều dùng vật 1, chỉ khác lựa chọn thứ hai. Tham lam giữ tỉ số cao nên chọn vật 2, tối ưu chịu bỏ tỉ số để lấy trọn giá trị lớn của vật 3.</p>
+</div>
+
+<div class="box def">
+  <div class="t">CÂU HỎI CHUYỂN TIẾP</div>
+  <p>Quyết định lấy hay bỏ một vật không thể dựa vào riêng vật đó, vì nó còn phụ thuộc chỗ trống còn lại dành cho những vật sau. Vậy làm sao xét hết mọi tổ hợp mà không phải liệt kê tất cả 2<sup>n</sup> tập con?</p>
+</div>
+
+<h2 id="s2"><span class="num">2.</span>Vì sao xét lấy/bỏ từng vật là đúng</h2>
+
+<p>Đánh số vật từ 1 đến <span class="mathv">n</span>. Đặt <code class="inl">f[i][j]</code> là tổng giá trị lớn nhất khi chỉ được dùng <span class="mathv">i</span> vật đầu tiên và sức chứa không quá <span class="mathv">j</span>. Xét riêng vật thứ <span class="mathv">i</span>, chỉ có đúng hai khả năng.</p>
+
+<div class="two-col">
+  <div class="box tech">
+    <div class="t">BỎ VẬT i</div>
+    <p>Không lấy vật <span class="mathv">i</span>. Bài toán thu về đúng <code class="inl">f[i-1][j]</code>: vẫn sức chứa <span class="mathv">j</span> nhưng chỉ còn <span class="mathv">i-1</span> vật để chọn.</p>
+  </div>
+  <div class="box tech">
+    <div class="t">LẤY VẬT i</div>
+    <p>Lấy vật <span class="mathv">i</span> (cần <span class="mathv">j</span> &ge; <span class="mathv">w<sub>i</sub></span>). Cộng <span class="mathv">v<sub>i</sub></span>, phần chỗ còn lại <span class="mathv">j - w<sub>i</sub></span> dành cho <span class="mathv">i-1</span> vật đầu: <code class="inl">f[i-1][j-w<sub>i</sub>] + v<sub>i</sub></code>.</p>
+  </div>
+</div>
+
+<div class="box def">
+  <div class="t">CÔNG THỨC TRUY HỒI</div>
+  <div class="formula">f[i][j] = max( f[i-1][j] , f[i-1][j - w<sub>i</sub>] + v<sub>i</sub> )   (khi j &ge; w<sub>i</sub>)</div>
+  <p>Khởi tạo <code class="inl">f[0][j] = 0</code> cho mọi <span class="mathv">j</span>: chưa có vật nào thì giá trị bằng 0. Đáp án là <code class="inl">f[n][C]</code>. Điểm mấu chốt để công thức đúng: sau khi đã cố định lựa chọn cho vật <span class="mathv">i</span>, phần còn lại là <b>đúng một bài toán cái túi nhỏ hơn</b> với <span class="mathv">i-1</span> vật, không dính dáng gì tới vật <span class="mathv">i</span> nữa. Đó là tính chất bài con tối ưu.</p>
+</div>
+
+<p>Vì cả hai nhánh của <code class="inl">f[i][j]</code> chỉ đọc dòng <span class="mathv">i-1</span>, ta điền bảng theo thứ tự <span class="mathv">i</span> tăng dần. Với ví dụ ba vật ở trên, bảng đầy đủ như sau (giá trị lấy từ chương trình chạy thật).</p>
+
+<div class="tablewrap">
+<table class="dp-table">
+  <thead><tr><th>f[i][j]</th><th>j=0</th><th>j=1</th><th>j=2</th><th>j=3</th><th>j=4</th><th>j=5</th><th>j=6</th></tr></thead>
+  <tbody>
+    <tr><td class="rowhead">i=0 (chưa có vật)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+    <tr><td class="rowhead">i=1 thêm (2,5)</td><td>0</td><td>0</td><td>5</td><td>5</td><td>5</td><td>5</td><td>5</td></tr>
+    <tr><td class="rowhead">i=2 thêm (3,7)</td><td>0</td><td>0</td><td>5</td><td>7</td><td>7</td><td>12</td><td>12</td></tr>
+    <tr><td class="rowhead">i=3 thêm (4,9)</td><td>0</td><td>0</td><td>5</td><td>7</td><td>9</td><td>12</td><td class="ans">14</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>Ô đáp án <code class="inl">f[3][6] = 14</code> được chọn giữa hai nhánh: bỏ vật 3 cho <code class="inl">f[2][6] = 12</code>, hoặc lấy vật 3 cho <code class="inl">f[2][6-4] + 9 = f[2][2] + 9 = 5 + 9 = 14</code>. Nhánh lấy thắng, đúng với phương án vật 1 + vật 3 tìm được ở mục 1.</p>
+
+<div class="box tech">
+  <div class="t">GỘP CÁC TỔ HỢP MÀ KHÔNG LIỆT KÊ HẾT</div>
+  <p>Bảng có <span class="mathv">(n+1)(C+1)</span> ô, mỗi ô tính trong thời gian hằng số, nên độ phức tạp là O(<span class="mathv">nC</span>) &mdash; thay cho 2<sup>n</sup> tập con. Mọi tập con dẫn tới cùng một cặp (số vật đã xét, chỗ đã dùng) được gộp về một ô và chỉ giữ lại giá trị lớn nhất. Đây là lý do quy hoạch động thắng vét cạn: nó không phân biệt hai tập con có cùng &ldquo;dấu vết&rdquo; với tương lai.</p>
+</div>
+
+<div class="box def">
+  <div class="t">CÂU HỎI CHUYỂN TIẾP</div>
+  <p>Bảng hai chiều tốn O(<span class="mathv">nC</span>) bộ nhớ. Vì mỗi dòng chỉ đọc dòng ngay trên, liệu có thể chỉ giữ <b>một</b> mảng <code class="inl">f[j]</code> và cập nhật tại chỗ không? Được, nhưng đúng chỗ này ẩn một cái bẫy quyết định cả bài.</p>
+</div>
+
+<h2 id="s3"><span class="num">3.</span>Chỗ dễ sai: rút về một chiều và hướng quét</h2>
+
+<p>Bỏ chỉ số <span class="mathv">i</span>, chỉ giữ một mảng <code class="inl">f[j]</code> và duyệt lần lượt từng vật. Khi xử lý vật <span class="mathv">i</span>, muốn cập nhật <code class="inl">f[j] = max(f[j], f[j - w<sub>i</sub>] + v<sub>i</sub>)</code>. Nhưng <code class="inl">f[j - w<sub>i</sub>]</code> ở vế phải phải là giá trị của dòng <span class="mathv">i-1</span> &mdash; tức trạng thái <b>chưa</b> có vật <span class="mathv">i</span>. Thứ tự cập nhật <span class="mathv">j</span> quyết định điều này.</p>
+
+<div class="two-col">
+  <div class="box ex">
+    <div class="t">QUÉT NGƯỢC <span class="dirtag dir-back">j: C &rarr; w</span></div>
+    <p>Khi ghi <code class="inl">f[j]</code>, ô <code class="inl">f[j - w<sub>i</sub>]</code> nằm bên trái, <b>chưa</b> bị vật <span class="mathv">i</span> đụng tới trong lượt này, nên vẫn là giá trị dòng <span class="mathv">i-1</span>. Mỗi vật góp mặt <b>đúng một lần</b>. Đây là bài toán cái túi 0/1.</p>
+  </div>
+  <div class="box warn">
+    <div class="t">QUÉT XUÔI <span class="dirtag dir-fwd">j: w &rarr; C</span></div>
+    <p>Ô <code class="inl">f[j - w<sub>i</sub>]</code> bên trái đã bị vật <span class="mathv">i</span> cập nhật ngay trong lượt này. Đọc lại nó nghĩa là <b>lấy vật <span class="mathv">i</span> thêm lần nữa</b>. Vô tình biến bài thành cái túi không giới hạn.</p>
+  </div>
+</div>
+
+<div class="figure-card">
+  <p class="figure-title">Hình 2. Quét ngược đọc đúng ô &ldquo;cũ&rdquo; của dòng trên</p>
+  <div class="figure-scroll">
+    <svg viewBox="0 0 900 250" role="img" aria-label="Mảng một chiều: khi ghi f tại j, mũi tên đọc ô j trừ w nằm bên trái, ô này chưa bị cập nhật khi quét ngược">
+      <rect x="18" y="18" width="864" height="214" rx="18" class="svg-muted"></rect>
+      <g>
+        <rect x="70" y="96" width="96" height="60" rx="10" class="svg-muted"></rect><text x="118" y="131" text-anchor="middle" class="svg-label">j=2</text>
+        <rect x="182" y="96" width="96" height="60" rx="10" class="svg-muted"></rect><text x="230" y="131" text-anchor="middle" class="svg-label">j=3</text>
+        <rect x="294" y="96" width="96" height="60" rx="10" class="svg-amber"></rect><text x="342" y="124" text-anchor="middle" class="svg-strong">j&minus;w</text><text x="342" y="144" text-anchor="middle" class="svg-small">ô cũ</text>
+        <rect x="406" y="96" width="96" height="60" rx="10" class="svg-muted"></rect><text x="454" y="131" text-anchor="middle" class="svg-label">j=5</text>
+        <rect x="518" y="96" width="96" height="60" rx="10" class="svg-blue"></rect><text x="566" y="124" text-anchor="middle" class="svg-strong">j</text><text x="566" y="144" text-anchor="middle" class="svg-small">đang ghi</text>
+        <rect x="630" y="96" width="96" height="60" rx="10" class="svg-green"></rect><text x="678" y="131" text-anchor="middle" class="svg-small">đã xong</text>
+        <rect x="742" y="96" width="96" height="60" rx="10" class="svg-green"></rect><text x="790" y="131" text-anchor="middle" class="svg-small">đã xong</text>
+      </g>
+      <path d="M556 92 C500 46, 400 46, 348 90" class="svg-edge" marker-end="url(#arrow-k)"></path>
+      <defs><marker id="arrow-k" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="var(--edge)"></path></marker></defs>
+      <text x="450" y="40" text-anchor="middle" class="svg-small">đọc f[j&minus;w] &mdash; vì quét từ phải sang nên ô này chưa nhận vật i</text>
+      <text x="450" y="196" text-anchor="middle" class="svg-small">Quét ngược: các ô bên phải (xanh lá) đã xong, các ô bên trái vẫn giữ giá trị dòng trên.</text>
+    </svg>
+  </div>
+  <p class="figcap">Nếu đổi sang quét xuôi, ô <span class="mathv">j&minus;w</span> nằm bên trái sẽ đã được tô xanh lá (đã nhận vật <span class="mathv">i</span>), và việc đọc lại nó chính là lấy vật thêm lần nữa.</p>
+</div>
+
+<p>Đo trên chính ví dụ ba vật: quét ngược cho <code class="inl">f[6] = 14</code> (trùng bảng hai chiều), quét xuôi cho <code class="inl">f[6] = 15</code>. Chênh lệch không phải lỗi lập trình mà là <b>hai bài toán khác nhau</b>. Phòng mô phỏng ngay dưới tách một vật ra để thấy rõ cơ chế lấy lại.</p>
+
+<h3>Phòng mô phỏng: một vật, hai chiều quét</h3>
+<div class="sim-room" id="knap-single">
+  <h3>Chỉ vật (w=2, v=5), túi sức chứa 6</h3>
+  <p class="mini-note">Bấm <b>Chạy một bước</b> để quét từng ô. Ô xanh dương là ô đang ghi <code class="inl">f[j]</code>, ô vàng là ô <code class="inl">f[j-2]</code> đang được đọc. Đổi chiều quét rồi đặt lại để so hai kết quả.</p>
+  <div id="ks-dir" class="mini-note" style="margin:6px 0">Chiều hiện tại: <span class="dirtag dir-back">quét ngược (0/1)</span></div>
+  <div class="knap-arr" id="ks-arr" aria-label="Mảng f từ 0 đến 6"></div>
+  <div class="sim-controls">
+    <button type="button" id="ks-step">Chạy một bước</button>
+    <button type="button" id="ks-run">Chạy hết</button>
+    <button type="button" id="ks-toggle">Đổi chiều quét</button>
+    <button type="button" id="ks-reset">Đặt lại</button>
+  </div>
+  <div class="sim-message" id="ks-msg" aria-live="polite">Mảng khởi tạo toàn 0. Chọn chiều quét rồi bấm Chạy một bước.</div>
+  <div class="sim-result" id="ks-res">f[6] = 0</div>
+</div>
+
+<div class="box warn">
+  <div class="t">SỢI CHỈ ĐỎ</div>
+  <p>Trong bản một chiều, <b>hướng quét chiều sức chứa quyết định mỗi vật được dùng mấy lần</b>. Quét ngược (từ <span class="mathv">C</span> về <span class="mathv">w</span>) giữ mỗi vật đúng một lần &mdash; bài 0/1. Quét xuôi (từ <span class="mathv">w</span> lên <span class="mathv">C</span>) cho phép dùng lại &mdash; bài không giới hạn. Nhớ đúng câu này là gần như nhớ cả chuyên đề.</p>
+</div>
+
+<h2 id="s4"><span class="num">4.</span>Khuôn mẫu cài đặt</h2>
+
+<p>Đầu vào quy ước: dòng đầu là <span class="mathv">n</span> và <span class="mathv">C</span>; <span class="mathv">n</span> dòng sau, mỗi dòng là trọng lượng rồi giá trị của một vật. Mọi khuôn dưới đây tuân thủ quy tắc mã của trang: biến toàn cục, gom biến cùng kiểu, <code class="inl">long long</code> tường minh cho giá trị.</p>
+
+<h3>Khuôn A &mdash; bảng hai chiều (dễ đọc, dễ truy vết)</h3>
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+long long f[1005][1005];        // f[i][j]: xét i vật đầu, sức chứa j
+int w[1005], val[1005];
+int n, c, i, j;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cin &gt;&gt; n &gt;&gt; c;
+    for (i = 1; i &lt;= n; i++) cin &gt;&gt; w[i] &gt;&gt; val[i];
+    for (i = 1; i &lt;= n; i++)
+        for (j = 0; j &lt;= c; j++) {
+            f[i][j] = f[i - 1][j];                  // bỏ vật i
+            if (j &gt;= w[i]) f[i][j] = max(f[i][j], f[i - 1][j - w[i]] + val[i]);  // lấy vật i
+        }
+    cout &lt;&lt; f[n][c] &lt;&lt; '\n';
+    return 0;
+}</code></pre></div>
+
+<h3>Khuôn B &mdash; mảng một chiều, quét ngược (bản chuẩn cho 0/1)</h3>
+<p>Cùng đáp án nhưng chỉ O(<span class="mathv">C</span>) bộ nhớ. Đây là bản nên dùng khi <span class="mathv">C</span> lớn &mdash; mảng khai <code class="inl">[100005]</code> để sức chứa tới 10<sup>5</sup> vẫn chạy. Nhớ chỉnh kích thước mảng theo giới hạn đề. Bản hai chiều ở Khuôn A ngược lại chỉ dùng được khi cả <span class="mathv">n</span> và <span class="mathv">C</span> nhỏ (vài nghìn), vì bộ nhớ là O(<span class="mathv">nC</span>).</p>
+<div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+long long f[100005];            // f[j]: giá trị tốt nhất với sức chứa j
+int w[100005], val[100005];
+int n, c, i, j;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    cin &gt;&gt; n &gt;&gt; c;
+    for (i = 1; i &lt;= n; i++) cin &gt;&gt; w[i] &gt;&gt; val[i];
+    for (i = 1; i &lt;= n; i++)
+        for (j = c; j &gt;= w[i]; j--)                 // QUÉT NGƯỢC =&gt; mỗi vật một lần
+            f[j] = max(f[j], f[j - w[i]] + val[i]);
+    cout &lt;&lt; f[c] &lt;&lt; '\n';
+    return 0;
+}</code></pre></div>
+
+<div class="box ex">
+  <div class="t">DỮ LIỆU KIỂM NHANH</div>
+  <div class="codewrap noname"><pre><code>Input
+3 6
+2 5
+3 7
+4 9
+
+Output
+14</code></pre></div>
+</div>
+
+<h3>Khuôn C &mdash; truy vết những vật đã chọn</h3>
+<p>Muốn biết <b>chọn vật nào</b>, giữ bảng hai chiều rồi lần ngược từ <code class="inl">f[n][C]</code>: nếu <code class="inl">f[i][j]</code> khác <code class="inl">f[i-1][j]</code> thì vật <span class="mathv">i</span> đã được lấy.</p>
+<div class="codewrap noname"><pre><code>    // ... đã điền bảng f như Khuôn A ...
+    j = c;
+    for (i = n; i &gt;= 1; i--)
+        if (f[i][j] != f[i - 1][j]) {               // vật i được lấy
+            chon[sochon++] = i;
+            j -= w[i];
+        }
+    cout &lt;&lt; f[n][c] &lt;&lt; '\n';
+    for (i = sochon - 1; i &gt;= 0; i--) cout &lt;&lt; chon[i] &lt;&lt; ' ';
+    cout &lt;&lt; '\n';</code></pre></div>
+<p class="mini-note">Với dữ liệu mẫu, khuôn C in <code class="inl">14</code> rồi <code class="inl">1 3</code> &mdash; đúng phương án vật 1 và vật 3.</p>
+
+<div class="box cmplx">
+  <div class="t">ĐỘ PHỨC TẠP</div>
+  <p>Thời gian O(<span class="mathv">nC</span>), bộ nhớ O(<span class="mathv">nC</span>) cho bản hai chiều hoặc O(<span class="mathv">C</span>) cho bản một chiều. Đo trên máy này (MinGW 9.2, tối ưu <code class="inl">-O2</code>): một vòng cỡ <span class="mathv">nC</span> = 10<sup>8</sup> phép chạy khoảng 45&nbsp;ms, nên <span class="mathv">nC</span> tới khoảng 2&times;10<sup>9</sup> vẫn vừa một giây. Chính vì thời gian và bộ nhớ đều nhân với <span class="mathv">C</span>, giới hạn của <span class="mathv">C</span> là thứ phải soi đầu tiên khi đọc đề.</p>
+</div>
+
+<h2 id="s5"><span class="num">5.</span>Các biến thể thường gặp</h2>
+
+<p>Điểm đẹp của khuôn một chiều: hầu hết biến thể chỉ sửa một hai dòng. Bảng dưới đọc theo cột &ldquo;đề đòi thêm gì &rarr; đổi gì trong khuôn B&rdquo;.</p>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Đề yêu cầu</th><th>Đổi gì trong khuôn</th><th>Ghi chú</th></tr></thead>
+  <tbody>
+    <tr><td>Mỗi vật lấy <b>không giới hạn</b> số lần</td><td>Đổi vòng trong thành <b>quét xuôi</b> <code class="inl">for (j = w[i]; j &lt;= c; j++)</code></td><td>Đúng một chữ: đổi chiều. Sợi chỉ đỏ tại đây.</td></tr>
+    <tr><td>Mỗi vật <b>tối đa k bản</b></td><td>Tách nhị phân vật thành các gói 1, 2, 4, &hellip; rồi coi mỗi gói là một vật 0/1</td><td>O(<span class="mathv">C</span> &middot; &sum; log <span class="mathv">k</span>), tránh nhân số lượng.</td></tr>
+    <tr><td>Có đạt <b>đúng tổng S</b> không</td><td><code class="inl">f[j]</code> kiểu bool; <code class="inl">if (f[j - w[i]]) f[j] = true;</code></td><td>Bỏ giá trị, chỉ hỏi đạt được hay không (tổng con).</td></tr>
+    <tr><td><b>Đếm số cách</b> đạt mỗi tổng</td><td><code class="inl">f[j] += f[j - w[i]];</code>, khởi tạo <code class="inl">f[0] = 1</code></td><td>Cộng thay <code class="inl">max</code>. Ngược = mỗi vật một lần; xuôi = không giới hạn.</td></tr>
+    <tr><td><b>Lấp đầy đúng</b> sức chứa <span class="mathv">C</span></td><td>Khởi tạo <code class="inl">f[0] = 0</code>, <code class="inl">f[1..C] = &minus;&infin;</code>; đáp án <code class="inl">f[C]</code> nếu còn hữu hạn</td><td>Phân biệt &ldquo;không quá <span class="mathv">C</span>&rdquo; với &ldquo;đúng bằng <span class="mathv">C</span>&rdquo;.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Không giới hạn &mdash; chỉ đổi chiều quét</h3>
+<div class="codewrap noname"><pre><code>    for (i = 1; i &lt;= n; i++)
+        for (j = w[i]; j &lt;= c; j++)                 // QUÉT XUÔI =&gt; lấy vật tùy ý
+            f[j] = max(f[j], f[j - w[i]] + val[i]);</code></pre></div>
+<p>So với khuôn B, chỉ khác chiều vòng lặp <code class="inl">j</code>. Trên ví dụ ba vật, bản này cho <code class="inl">f[6] = 15</code> (lấy vật 1 ba lần) thay vì 14. Phòng mô phỏng dưới đặt hai chiều cạnh nhau để thấy chỗ tách nhau.</p>
+
+<h3>Phòng mô phỏng: cùng bộ vật, hai chiều song song</h3>
+<div class="sim-room" id="knap-both">
+  <h3>Ba vật (2,5) (3,7) (4,9), túi sức chứa 6</h3>
+  <p class="mini-note">Mỗi bước xử lý trọn một vật ở <b>cả hai</b> mảng: bên trái quét ngược (bài 0/1), bên phải quét xuôi (không giới hạn). Ô đổi giá trị trong bước được tô xanh lá.</p>
+  <div class="item-chips" id="kb-items"></div>
+  <div class="knap-two">
+    <div class="knap-panel">
+      <h4>Quét ngược <span class="dirtag dir-back">0/1</span></h4>
+      <div class="knap-arr" id="kb-back"></div>
+    </div>
+    <div class="knap-panel">
+      <h4>Quét xuôi <span class="dirtag dir-fwd">không giới hạn</span></h4>
+      <div class="knap-arr" id="kb-fwd"></div>
+    </div>
+  </div>
+  <div class="sim-controls">
+    <button type="button" id="kb-step">Xử lý vật tiếp theo</button>
+    <button type="button" id="kb-run">Chạy hết</button>
+    <button type="button" id="kb-reset">Đặt lại</button>
+  </div>
+  <div class="sim-message" id="kb-msg" aria-live="polite">Cả hai mảng khởi tạo toàn 0. Bấm để xử lý vật đầu tiên.</div>
+  <div class="sim-result" id="kb-res">Ngược f[6] = 0 &nbsp;&middot;&nbsp; Xuôi f[6] = 0</div>
+</div>
+
+<div class="box tech">
+  <div class="t">CHIA NHỊ PHÂN CHO BÀI CÓ GIỚI HẠN</div>
+  <p>Vật <span class="mathv">i</span> có tối đa <span class="mathv">k</span> bản. Tách <span class="mathv">k</span> thành các gói cỡ 1, 2, 4, &hellip; và phần dư; mỗi gói là một vật 0/1 với trọng lượng và giá trị nhân theo cỡ gói. Mọi số bản từ 0 tới <span class="mathv">k</span> đều ghép được từ các gói này.</p>
+  <div class="codewrap noname"><pre><code>    // vật i: trọng lượng w[i], giá trị val[i], tối đa k bản
+    for (int take = 1; k &gt; 0; take &lt;&lt;= 1) {
+        int use = min(take, k);
+        for (j = c; j &gt;= use * w[i]; j--)
+            f[j] = max(f[j], f[j - use * w[i]] + (long long)use * val[i]);
+        k -= use;
+    }</code></pre></div>
+  <p class="mini-note">Đã đối chiếu với vét cạn (mỗi vật 0..k bản) trên ví dụ: hai cách cho cùng đáp án.</p>
+</div>
+
+<h2 id="s6"><span class="num">6.</span>Nhận dạng và bẫy</h2>
+
+<div class="tablewrap">
+<table>
+  <thead><tr><th>Đề nói gì</th><th>Nên nghĩ tới</th><th>Câu hỏi tự kiểm</th></tr></thead>
+  <tbody>
+    <tr><td>Chọn một tập vật, tổng &ldquo;kích thước&rdquo; không quá ngưỡng, tối đa &ldquo;lợi ích&rdquo;</td><td>Cái túi 0/1, quét ngược</td><td>Mỗi vật dùng được mấy lần?</td></tr>
+    <tr><td>Tiền xu mỗi mệnh giá dùng tùy ý, đồ vật vô hạn</td><td>Không giới hạn, quét xuôi</td><td>Có thật sự không giới hạn số lần lấy không?</td></tr>
+    <tr><td>Mỗi loại có số lượng cho trước</td><td>Có giới hạn &rarr; chia nhị phân về 0/1</td><td>&sum; log <span class="mathv">k</span> có đủ nhỏ để nhân với <span class="mathv">C</span> không?</td></tr>
+    <tr><td>Chia đôi/đạt đúng một tổng, &ldquo;có thể hay không&rdquo;</td><td>Tổng con: <code class="inl">f</code> kiểu bool</td><td>Cần giá trị lớn nhất hay chỉ cần đạt được?</td></tr>
+    <tr><td>&ldquo;Đếm số cách&rdquo; tạo thành một tổng</td><td>Cộng thay <code class="inl">max</code></td><td>Thứ tự có phân biệt không (chọn chiều quét)?</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="box warn">
+  <div class="t">BẪY 1 &mdash; TỔNG GIÁ TRỊ TRÀN <code class="inl">int</code></div>
+  <p><b>Nhận định sai:</b> để <code class="inl">f</code> kiểu <code class="inl">int</code> cho gọn.</p>
+  <p><b>Số đo:</b> 2500 vật, mỗi vật giá trị 10<sup>6</sup>, đều lấy được. Đáp án đúng là <b>2&nbsp;500&nbsp;000&nbsp;000</b>, vượt ngưỡng <code class="inl">int</code> là 2&nbsp;147&nbsp;483&nbsp;647. Chạy bản <code class="inl">int</code> ra <b>2&nbsp;147&nbsp;000&nbsp;000</b> &mdash; sai âm thầm, không báo lỗi, chỉ thiếu mất 353 triệu.</p>
+  <p><b>Cách phòng tránh:</b> để <code class="inl">f</code> kiểu <code class="inl">long long</code>. Nhớ trên Themis/MinGW, <code class="inl">long</code> chỉ 4 byte nên phải viết <code class="inl">long long</code> tường minh.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">BẪY 2 &mdash; QUÉT SAI CHIỀU</div>
+  <p><b>Nhận định sai:</b> mảng một chiều thì quét <span class="mathv">j</span> chiều nào cũng như nhau.</p>
+  <p><b>Số đo:</b> trên ví dụ ba vật, quét ngược ra 14 (0/1), quét xuôi ra 15 (vật 1 bị lấy ba lần). Cùng một đoạn mã, khác mỗi chiều <code class="inl">for</code>, ra hai bài toán khác nhau.</p>
+  <p><b>Cách phòng tránh:</b> xác định rõ 0/1 hay không giới hạn trước khi viết vòng lặp; 0/1 luôn quét ngược.</p>
+</div>
+
+<div class="box warn">
+  <div class="t">BẪY 3 &mdash; SỨC CHỨA <span class="mathv">C</span> QUÁ LỚN</div>
+  <p><b>Nhận định sai:</b> cứ dựng mảng theo <span class="mathv">C</span> là xong.</p>
+  <p><b>Lý do sai:</b> mảng và thời gian đều tỉ lệ với <span class="mathv">C</span>. Với <span class="mathv">C</span> = 10<sup>9</sup> thì không có mảng nào chứa nổi, và <span class="mathv">nC</span> = 10<sup>12</sup> phép (theo mốc 10<sup>8</sup> &asymp; 45&nbsp;ms thì mất khoảng 450 giây).</p>
+  <p><b>Cách phòng tránh:</b> khi <span class="mathv">C</span> khổng lồ nhưng tổng giá trị nhỏ, đảo vai &mdash; quy hoạch động theo <b>tổng giá trị</b> (tìm trọng lượng nhỏ nhất đạt mỗi mức giá trị). Đây là hướng mở rộng, xem bài AtCoder &ldquo;Knapsack 2&rdquo; ở lộ trình.</p>
+</div>
+
+<div class="box def">
+  <div class="t">TRÔNG NHƯ BẪY MÀ KHÔNG PHẢI &mdash; THỨ TỰ XỬ LÝ VẬT</div>
+  <p>Nhiều người sắp xếp vật (theo trọng lượng hay tỉ số) trước khi chạy quy hoạch động, tưởng thứ tự ảnh hưởng kết quả. <b>Số đo:</b> chạy khuôn B trên cả 6 hoán vị thứ tự ba vật đều cho đúng <b>14</b>. Với bài 0/1, đáp án <b>không phụ thuộc thứ tự</b> xử lý vật &mdash; khỏi cần sắp xếp. (Việc sắp xếp chỉ có ý nghĩa cho lời giải tham lam sai ở mục 1, không phải cho quy hoạch động.)</p>
+</div>
+
+<h2 id="s7"><span class="num">7.</span>Lộ trình bài luyện</h2>
+
+<p>Ba chặng theo đúng mạch của trang: nắm bài 0/1, rồi bản không giới hạn, rồi các biến thể đếm và mở rộng. Mỗi liên kết dẫn thẳng tới hệ thống chấm gốc; cột &ldquo;đọc lại mục&rdquo; chỉ phần lý thuyết nên xem trước.</p>
+
+<div class="practice-grid">
+  <div class="practice-card">
+    <h3>Chặng 1 &mdash; Cái túi 0/1 nền tảng</h3>
+    <p><span class="tag">Quét ngược</span><span class="tag">long long</span></p>
+    <ol>
+      <li><a href="https://cses.fi/problemset/task/1158" target="_blank" rel="noopener">CSES &mdash; Book Shop</a>: 0/1 kinh điển, mỗi cuốn mua một lần. Đọc lại mục 2, 3, 4.</li>
+      <li><a href="https://atcoder.jp/contests/dp/tasks/dp_d" target="_blank" rel="noopener">AtCoder DP D &mdash; Knapsack 1</a>: 0/1 với <span class="mathv">C</span> tới 10<sup>5</sup>, giá trị lớn buộc dùng <code class="inl">long long</code>. Đọc lại mục 3, 6.</li>
+    </ol>
+  </div>
+
+  <div class="practice-card">
+    <h3>Chặng 2 &mdash; Không giới hạn (quét xuôi)</h3>
+    <p><span class="tag">Quét xuôi</span><span class="tag">Đếm cách</span></p>
+    <ol>
+      <li><a href="https://cses.fi/problemset/task/1634" target="_blank" rel="noopener">CSES &mdash; Minimizing Coins</a>: số xu ít nhất tạo tổng, không giới hạn. Đọc lại mục 5.</li>
+      <li><a href="https://cses.fi/problemset/task/1635" target="_blank" rel="noopener">CSES &mdash; Coin Combinations I</a> và <a href="https://cses.fi/problemset/task/1636" target="_blank" rel="noopener">II</a>: đếm cách có/không phân biệt thứ tự &mdash; đúng chỗ chiều quét đổi vai. Đọc lại mục 5.</li>
+      <li><a href="https://www.spoj.com/problems/PIGBANK/" target="_blank" rel="noopener">SPOJ &mdash; Piggy-Bank</a>: không giới hạn, tìm giá trị nhỏ nhất lấp đầy đúng. Đọc lại mục 5.</li>
+    </ol>
+  </div>
+
+  <div class="practice-card">
+    <h3>Chặng 3 &mdash; Tổng con và mở rộng</h3>
+    <p><span class="tag">Tổng con</span><span class="tag">Đảo vai</span></p>
+    <ol>
+      <li><a href="https://cses.fi/problemset/task/1745" target="_blank" rel="noopener">CSES &mdash; Money Sums</a>: tập các tổng đạt được (0/1 kiểu bool). Đọc lại mục 5.</li>
+      <li><a href="https://atcoder.jp/contests/dp/tasks/dp_e" target="_blank" rel="noopener">AtCoder DP E &mdash; Knapsack 2</a>: <span class="mathv">C</span> tới 10<sup>9</sup>, buộc quy hoạch động theo tổng giá trị. Đọc lại mục 6.</li>
+    </ol>
+  </div>
+</div>
+
+<div class="box def">
+  <div class="t">TỰ KIỂM TRƯỚC KHI NỘP</div>
+  <ul class="checklist">
+    <li>Đã xác định đúng loại: 0/1, không giới hạn hay có giới hạn?</li>
+    <li>Chiều quét khớp loại chưa: ngược cho 0/1, xuôi cho không giới hạn?</li>
+    <li><code class="inl">f</code> đã đủ lớn chưa &mdash; <code class="inl">long long</code> nếu tổng giá trị có thể vượt 2&times;10<sup>9</sup>?</li>
+    <li><span class="mathv">C</span> có nằm trong bộ nhớ và thời gian không (<span class="mathv">nC</span> &lesssim; vài&times;10<sup>8</sup>)? Nếu <span class="mathv">C</span> quá lớn, cân nhắc đảo vai theo giá trị.</li>
+    <li>Bài hỏi &ldquo;không quá <span class="mathv">C</span>&rdquo; hay &ldquo;đúng bằng <span class="mathv">C</span>&rdquo; &mdash; khởi tạo đã đúng chưa?</li>
+    <li>Đã so quy hoạch động với vét cạn trên vài ca nhỏ chưa?</li>
+  </ul>
+</div>
+
+</div>
+</div>
+
+<script>
+/* Phòng 1: một vật, hai chiều quét */
+(function () {
+  var C = 6, w = 2, v = 5;
+  var arr = document.getElementById('ks-arr');
+  var msg = document.getElementById('ks-msg');
+  var res = document.getElementById('ks-res');
+  var dirBox = document.getElementById('ks-dir');
+  var f = [], dir = 'back', order = [], ptr = 0;
+
+  function buildOrder() {
+    order = [];
+    if (dir === 'back') for (var j = C; j >= w; j--) order.push(j);
+    else for (var k = w; k <= C; k++) order.push(k);
+  }
+
+  function render(readIdx, writeIdx, changedIdx) {
+    arr.innerHTML = '';
+    for (var j = 0; j <= C; j++) {
+      var cell = document.createElement('div');
+      cell.className = 'cell';
+      if (j === changedIdx) cell.className += ' changed';
+      else if (j === writeIdx) cell.className += ' write';
+      else if (j === readIdx) cell.className += ' read';
+      cell.innerHTML = '<div class="idx">j=' + j + '</div><div class="val">' + f[j] + '</div>';
+      arr.appendChild(cell);
+    }
+    res.textContent = 'f[6] = ' + f[C];
+  }
+
+  function step() {
+    if (ptr >= order.length) return;
+    var j = order[ptr++];
+    var cand = f[j - w] + v;
+    var changed = cand > f[j];
+    if (changed) f[j] = cand;
+    render(j - w, j, changed ? j : -1);
+    msg.textContent = 'Ghi f[' + j + '] = max(f[' + j + '], f[' + (j - w) + '] + ' + v + ') = '
+      + f[j] + (changed ? ' (tăng lên).' : ' (giữ nguyên).');
+    if (ptr >= order.length) {
+      if (dir === 'back') msg.textContent += ' Xong: f[6] = 5, vật lấy đúng một lần.';
+      else msg.textContent += ' Xong: f[6] = 15, vật (2,5) bị lấy ba lần.';
+    }
+  }
+
+  function runAll() { while (ptr < order.length) step(); }
+
+  function toggle() { dir = (dir === 'back') ? 'fwd' : 'back'; reset(); }
+
+  function reset() {
+    f = []; for (var j = 0; j <= C; j++) f.push(0);
+    buildOrder(); ptr = 0;
+    dirBox.innerHTML = 'Chiều hiện tại: ' + (dir === 'back'
+      ? '<span class="dirtag dir-back">quét ngược (0/1)</span>'
+      : '<span class="dirtag dir-fwd">quét xuôi (không giới hạn)</span>');
+    render(-1, -1, -1);
+    msg.textContent = 'Mảng khởi tạo toàn 0. Bấm Chạy một bước để quét ' +
+      (dir === 'back' ? 'từ j=6 về j=2.' : 'từ j=2 lên j=6.');
+  }
+
+  document.getElementById('ks-step').addEventListener('click', step);
+  document.getElementById('ks-run').addEventListener('click', runAll);
+  document.getElementById('ks-toggle').addEventListener('click', toggle);
+  document.getElementById('ks-reset').addEventListener('click', reset);
+  reset();
+})();
+
+/* Phòng 2: ba vật, hai chiều song song */
+(function () {
+  var C = 6;
+  var items = [{w: 2, v: 5}, {w: 3, v: 7}, {w: 4, v: 9}];
+  var back = document.getElementById('kb-back');
+  var fwd = document.getElementById('kb-fwd');
+  var chips = document.getElementById('kb-items');
+  var msg = document.getElementById('kb-msg');
+  var res = document.getElementById('kb-res');
+  var fB = [], fF = [], done = 0;
+
+  function renderArr(node, f, changed) {
+    node.innerHTML = '';
+    for (var j = 0; j <= C; j++) {
+      var cell = document.createElement('div');
+      cell.className = 'cell' + (changed.indexOf(j) >= 0 ? ' changed' : '');
+      cell.innerHTML = '<div class="idx">j=' + j + '</div><div class="val">' + f[j] + '</div>';
+      node.appendChild(cell);
+    }
+  }
+
+  function renderChips() {
+    chips.innerHTML = '';
+    for (var i = 0; i < items.length; i++) {
+      var c = document.createElement('span');
+      c.className = 'item-chip' + (i < done ? ' done' : (i === done ? ' active' : ''));
+      c.textContent = 'vật ' + (i + 1) + ' (' + items[i].w + ',' + items[i].v + ')';
+      chips.appendChild(c);
+    }
+  }
+
+  function step() {
+    if (done >= items.length) return;
+    var it = items[done], chB = [], chF = [], j;
+    for (j = C; j >= it.w; j--) {
+      var cb = fB[j - it.w] + it.v;
+      if (cb > fB[j]) { fB[j] = cb; chB.push(j); }
+    }
+    for (j = it.w; j <= C; j++) {
+      var cf = fF[j - it.w] + it.v;
+      if (cf > fF[j]) { fF[j] = cf; chF.push(j); }
+    }
+    done++;
+    renderChips();
+    renderArr(back, fB, chB);
+    renderArr(fwd, fF, chF);
+    res.textContent = 'Ngược f[6] = ' + fB[C] + ' · Xuôi f[6] = ' + fF[C];
+    if (done < items.length)
+      msg.textContent = 'Đã xử lý vật ' + done + '. Hai mảng vẫn có thể trùng nhau ở bước này.';
+    else
+      msg.textContent = 'Xong ba vật. Quét ngược = 14 (mỗi vật một lần); quét xuôi = 15 (vật 1 lấy ba lần). '
+        + 'Cùng dữ liệu, khác mỗi hướng quét.';
+  }
+
+  function runAll() { while (done < items.length) step(); }
+
+  function reset() {
+    fB = []; fF = []; done = 0;
+    for (var j = 0; j <= C; j++) { fB.push(0); fF.push(0); }
+    renderChips();
+    renderArr(back, fB, []);
+    renderArr(fwd, fF, []);
+    res.textContent = 'Ngược f[6] = 0 · Xuôi f[6] = 0';
+    msg.textContent = 'Cả hai mảng khởi tạo toàn 0. Bấm để xử lý vật đầu tiên.';
+  }
+
+  document.getElementById('kb-step').addEventListener('click', step);
+  document.getElementById('kb-run').addEventListener('click', runAll);
+  document.getElementById('kb-reset').addEventListener('click', reset);
+  reset();
+})();
+</script>
+<script src="../../assets/chuan.js"></script>
+
+<!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
+<!--/cv-foot-->
+</body>
+</html>
