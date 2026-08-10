@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liên thông hai chiều | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../assets/sim.css">
+<link rel="stylesheet" href="../assets/nav.css">
+</head>
+<body class="cv-shell" data-nav="strong-connectivity">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
+
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
+
+    <div class="wrap">
+      <header>
+        <div class="kicker">Chương 17 · Thuật toán đồ thị</div>
+        <h1>Liên thông hai chiều</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p>Trong đồ thị có hướng, đồ thị liên thông vẫn chưa chắc đi được từ đỉnh này tới đỉnh kia. Ta gọi đồ
+      thị là <b>liên thông hai chiều</b> nếu từ <em>mọi</em> đỉnh đều đi được tới <em>mọi</em> đỉnh khác.</p>
+
+      <h2 id="s1"><span class="num">1.</span>Thành phần liên thông hai chiều</h2>
+      <p>Chia đồ thị thành các nhóm lớn nhất mà bên trong mỗi nhóm hai đỉnh bất kỳ đi được tới nhau — đó là
+      các <b>thành phần liên thông hai chiều</b>. Gộp mỗi thành phần thành một đỉnh, ta được một
+      <b>đồ thị thành phần</b> luôn <em>không chu trình</em> (một DAG), nên xử lý dễ hơn hẳn.</p>
+      <div class="box def">
+        <div class="t">Cùng thành phần ⇔ đi được cả hai chiều</div>
+        Đỉnh <span class="mathv">u</span> và <span class="mathv">v</span> cùng một thành phần khi và chỉ khi
+        đi được từ <span class="mathv">u</span> tới <span class="mathv">v</span> <em>và</em> từ
+        <span class="mathv">v</span> về <span class="mathv">u</span>. Vì thế thành phần chứa
+        <span class="mathv">u</span> = { đỉnh <span class="mathv">u</span> đi tới được } ∩ { đỉnh đi tới được
+        <span class="mathv">u</span> }.
+      </div>
+      <p>Nhập một đỉnh (1–7): bấm <b>Tìm thành phần</b> để xem tập đi <b>xuôi</b> (xanh dương), tập đi
+      <b>ngược</b> (tím), và <b>giao</b> của chúng chính là thành phần liên thông hai chiều (xanh lá).</p>
+
+      <div class="sim" id="scc"></div>
+      <p style="color:var(--muted);font-size:.9rem">Với đồ thị mẫu, các thành phần là
+      <span class="mathv">{1, 2}</span>, <span class="mathv">{3, 6, 7}</span>,
+      <span class="mathv">{4}</span> và <span class="mathv">{5}</span>.</p>
+
+      <h2 id="s2"><span class="num">2.</span>Thuật toán Kosaraju</h2>
+      <p><b>Kosaraju</b> tìm mọi thành phần trong <span class="mathv">O(n + m)</span> bằng hai lượt DFS:</p>
+      <div class="box tech">
+        <div class="t">Hai lượt DFS</div>
+        <ol>
+          <li><b>Lượt 1</b> (trên đồ thị gốc): DFS mọi đỉnh, ghi mỗi đỉnh vào một danh sách <em>khi xử lý
+          xong</em> (theo thời gian kết thúc).</li>
+          <li><b>Đảo chiều</b> mọi cạnh của đồ thị.</li>
+          <li><b>Lượt 2</b> (trên đồ thị đảo): duyệt danh sách theo thứ tự <em>ngược</em>; mỗi đỉnh chưa
+          thuộc thành phần nào khởi tạo một thành phần mới và DFS gom mọi đỉnh tới được vào đó.</li>
+        </ol>
+        Đảo cạnh bảo đảm lượt 2 không "tràn" sang thành phần khác, nên mỗi lần DFS gom đúng một thành phần.
+      </div>
+
+      <h2 id="s3"><span class="num">3.</span>Ứng dụng: bài toán 2SAT</h2>
+      <p>Cho công thức dạng <span class="mathv">(a<sub>1</sub> ∨ b<sub>1</sub>) ∧ (a<sub>2</sub> ∨ b<sub>2</sub>) ∧ …</span>,
+      mỗi <span class="mathv">a<sub>i</sub>, b<sub>i</sub></span> là một biến hoặc phủ định của biến. Cần gán
+      đúng/sai cho các biến để công thức đúng (hoặc báo vô nghiệm).</p>
+      <p>Dựng <b>đồ thị suy diễn</b>: mỗi mệnh đề <span class="mathv">(a ∨ b)</span> thêm hai cung
+      <span class="mathv">¬a → b</span> và <span class="mathv">¬b → a</span> (nếu a sai thì b phải đúng, và
+      ngược lại). Khi đó:</p>
+      <div class="box def">
+        <div class="t">Điều kiện có nghiệm</div>
+        Công thức có nghiệm <b>khi và chỉ khi</b> không có biến <span class="mathv">x<sub>i</sub></span> nào
+        mà <span class="mathv">x<sub>i</sub></span> và <span class="mathv">¬x<sub>i</sub></span> cùng một
+        thành phần liên thông hai chiều. Nếu cùng thành phần thì có đường đi hai chiều giữa chúng, buộc cả
+        hai cùng đúng — vô lý.
+      </div>
+      <p>Có nghiệm thì gán giá trị theo thứ tự tô-pô ngược của đồ thị thành phần. Riêng <b>3SAT</b> (mỗi mệnh
+      đề ba biến) là NP-khó — chưa có thuật toán hiệu quả.</p>
+
+      <footer>Chương 17 — <em>Cẩm nang Lập trình thi đấu</em>. Bài tiếp: Luồng và lát cắt.</footer>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/sitemap.js"></script>
+<script src="../assets/nav.js"></script>
+<script>CVNav.mount({ current: 'strong-connectivity' });</script>
+
+<script src="../assets/sim.js"></script>
+<script>
+/* Thành phần liên thông hai chiều của một đỉnh = giao xuôi ∩ ngược */
+(function(){
+  var EDGES=[[3,7],[7,6],[6,3],[3,2],[6,5],[2,1],[1,2],[2,5],[5,4],[1,4]];
+  var P={1:[60,44],2:[158,44],3:[256,44],4:[60,150],5:[158,150],6:[256,150],7:[338,97]}, R=18, N=7;
+  var ADJ={}, RADJ={};
+  for(var v=1;v<=N;v++){ADJ[v]=[];RADJ[v]=[];}
+  EDGES.forEach(function(e){ ADJ[e[0]].push(e[1]); RADJ[e[1]].push(e[0]); });
+
+  function reach(adj,s){ var vis={}, order=[], q=[s]; vis[s]=true;
+    while(q.length){ var u=q.shift(); order.push(u); adj[u].forEach(function(w){ if(!vis[w]){vis[w]=true;q.push(w);} }); }
+    return order; }
+
+  function sccFrames(start){
+    if(!P[start]) return null;
+    var fwd=reach(ADJ,start), bwd=reach(RADJ,start), fset={}, bset={}, F=[];
+    function snap(line,cur,phase,msg){ F.push({line:line,cur:cur||0,phase:phase,fset:Object.assign({},fset),bset:Object.assign({},bset),msg:msg}); }
+    snap(1,start,'fwd','Xuất phát từ đỉnh '+start+'.');
+    fwd.forEach(function(v){ fset[v]=true; snap(2,v,'fwd','Đi XUÔI: từ '+start+' tới được '+v+'.'); });
+    bwd.forEach(function(v){ bset[v]=true; snap(3,v,'bwd','Đi NGƯỢC: '+v+' tới được '+start+'.'); });
+    var scc=fwd.filter(function(v){return bset[v];}).sort(function(a,b){return a-b;});
+    snap(4,0,'scc','Thành phần của '+start+' = {'+scc.join(', ')+'} (đi được cả hai chiều).');
+    return F;
+  }
+
+  function draw(f,canvas){
+    var s='<svg viewBox="0 0 380 205" xmlns="http://www.w3.org/2000/svg">';
+    s+='<defs><marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 z" fill="var(--edge)"/></marker></defs>';
+    EDGES.forEach(function(e){
+      var u=P[e[0]], v=P[e[1]], dx=v[0]-u[0], dy=v[1]-u[1], L=Math.sqrt(dx*dx+dy*dy), ux=dx/L, uy=dy/L;
+      s+='<line x1="'+(u[0]+ux*R)+'" y1="'+(u[1]+uy*R)+'" x2="'+(v[0]-ux*(R+7))+'" y2="'+(v[1]-uy*(R+7))+'" stroke="var(--edge)" stroke-width="2" marker-end="url(#ah)"/>';
+    });
+    for(var v=1;v<=N;v++){ var p=P[v], inF=f.fset[v], inB=f.bset[v], fill='var(--card)', stroke='var(--border)', op=1;
+      if(f.phase==='scc'){ if(inF&&inB){fill='var(--green-bg)';stroke='var(--hl2)';} else {op=0.4;} }
+      else if(inF&&inB){fill='var(--green-bg)';stroke='var(--hl2)';}
+      else if(inF){fill='var(--blue-bg)';stroke='var(--accent,var(--blue))';}
+      else if(inB){fill='var(--node2)';stroke='var(--accent2,var(--purple))';}
+      var sw=2.4; if(f.cur===v){stroke='var(--accent,var(--blue))';sw=4;}
+      s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+R+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+sw+'" opacity="'+op+'"/>';
+      s+='<text x="'+p[0]+'" y="'+p[1]+'" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="700" fill="var(--fg)" opacity="'+op+'">'+v+'</text>';
+    }
+    s+='</svg>'; canvas.innerHTML=s;
+  }
+
+  var id0=sccFrames(3)[0]; id0.msg='Nhập một đỉnh (1–7) rồi bấm Tìm thành phần.';
+  CVSim.create('#scc', {
+    title:'Thành phần liên thông hai chiều',
+    input:{label:'Đỉnh', type:'number', value:3},
+    code:{ scc:[
+      'chọn đỉnh xuất phát',
+      'đi XUÔI: tập đỉnh tới được từ nó',
+      'đi NGƯỢC: tập đỉnh tới được nó',
+      'thành phần = giao của hai tập' ] },
+    defaultCode:'scc', defaultOpLabel:'hai chiều',
+    ops:[ {label:'Tìm thành phần', code:'scc', run:function(v){ return sccFrames(parseInt(v,10)); }} ],
+    idle:id0,
+    draw:draw
+  });
+})();
+</script>
+
+<script src="../assets/chuan.js"></script>
+</body>
+</html>

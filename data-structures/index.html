@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cấu trúc dữ liệu (STL) | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../assets/sim.css">
+<link rel="stylesheet" href="../assets/nav.css">
+</head>
+<body class="cv-shell" data-nav="data-structures">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
+
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
+
+    <div class="wrap">
+      <header>
+        <div class="kicker">Chương 4 · Các kỹ thuật cơ bản</div>
+        <h1>Cấu trúc dữ liệu (STL)</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p>Chọn đúng cấu trúc dữ liệu là mấu chốt của nhiều bài toán. Thư viện chuẩn C++ (STL) cho sẵn
+      những cấu trúc mạnh; biết ưu — nhược của từng loại giúp ta viết mã nhanh và chạy nhanh.</p>
+
+      <h2 id="s1"><span class="num">1.</span>Mảng động: vector</h2>
+      <p><code class="inl">vector</code> là mảng có thể phình to lúc chạy, dùng gần như mảng thường:</p>
+      <div class="codewrap noname"><pre><code>vector&lt;int&gt; v;
+v.push_back(3);           // [3]
+v.push_back(2);           // [3,2]
+cout &lt;&lt; v[0] &lt;&lt; " " &lt;&lt; v.size() &lt;&lt; "\n";   // 3 2
+for (auto x : v) cout &lt;&lt; x &lt;&lt; "\n";        // duyệt gọn
+v.pop_back();             // bỏ phần tử cuối
+vector&lt;int&gt; a(10, 5);     // 10 phần tử, mỗi phần tử = 5</code></pre></div>
+      <p>Bên trong, khi mảng đầy, vector cấp mảng mới lớn hơn và chép sang — nhưng việc đó hiếm, nên
+      <code class="inl">push_back</code> tốn trung bình <span class="mathv">O(1)</span>.</p>
+
+      <h2 id="s2"><span class="num">2.</span>Tập hợp (set) và bảng tra (map)</h2>
+      <p><code class="inl">set</code> giữ một <em>tập</em> phần tử, hỗ trợ chèn / đếm / xóa; mọi phần tử
+      <b>phân biệt</b> (thêm trùng không tăng số lượng):</p>
+      <div class="codewrap noname"><pre><code>set&lt;int&gt; s;
+s.insert(3); s.insert(2); s.insert(5);
+cout &lt;&lt; s.count(3) &lt;&lt; "\n";   // 1  (có)
+s.erase(3);
+cout &lt;&lt; s.count(3) &lt;&lt; "\n";   // 0  (đã xóa)</code></pre></div>
+      <p><code class="inl">map</code> là “mảng” mà chỉ số (khoá) có thể thuộc kiểu bất kỳ, ánh xạ khoá → giá trị:</p>
+      <div class="codewrap noname"><pre><code>map&lt;string,int&gt; m;
+m["banana"] = 3;
+cout &lt;&lt; m["banana"] &lt;&lt; "\n";      // 3
+if (m.count("apple")) { /* khoá tồn tại? */ }</code></pre></div>
+      <div class="box cmplx">
+        <div class="t">Hai cách cài — chọn theo nhu cầu</div>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Cấu trúc</th><th>Cài bằng</th><th>Mỗi thao tác</th><th>Giữ thứ tự?</th></tr></thead>
+          <tbody>
+            <tr><td><code class="inl">set</code> / <code class="inl">map</code></td><td>cây cân bằng</td><td class="c">O(log n)</td><td class="c">Có</td></tr>
+            <tr><td><code class="inl">unordered_set</code> / <code class="inl">unordered_map</code></td><td>bảng băm</td><td class="c">O(1) trung bình</td><td class="c">Không</td></tr>
+          </tbody>
+        </table></div>
+        Cần duyệt theo thứ tự hoặc dùng <code class="inl">lower_bound</code> thì chọn loại có thứ tự;
+        chỉ cần chèn/tra nhanh thì bản băm nhanh hơn.
+      </div>
+
+      <h2 id="s3"><span class="num">3.</span>Trình lặp và phạm vi</h2>
+      <p><b>Trình lặp</b> là biến trỏ tới một phần tử. Hai trình lặp hay dùng là <code class="inl">begin()</code>
+      (phần tử đầu) và <code class="inl">end()</code> (<em>ngay sau</em> phần tử cuối) — nên phạm vi là
+      <b>nửa mở</b> <span class="mathv">[begin, end)</span>. Rất nhiều hàm nhận một phạm vi như vậy:</p>
+      <div class="codewrap noname"><pre><code>sort(v.begin(), v.end());        // hoặc sort(a, a+n) với mảng thường
+auto it = s.lower_bound(x);      // phần tử nhỏ nhất &gt;= x (chỉ set có thứ tự)</code></pre></div>
+      <p><code class="inl">lower_bound(x)</code> trả trình lặp tới phần tử nhỏ nhất <span class="mathv">≥ x</span>,
+      <code class="inl">upper_bound(x)</code> tới phần tử nhỏ nhất <span class="mathv">&gt; x</span>; nhờ chúng
+      ta tìm nhanh “phần tử gần <span class="mathv">x</span> nhất” trong tập có thứ tự.</p>
+
+      <h2 id="s4"><span class="num">4.</span>Vài cấu trúc thường gặp khác</h2>
+      <ul>
+        <li><b>stack</b> — vào sau ra trước (LIFO): <code class="inl">push</code>, <code class="inl">pop</code>, <code class="inl">top</code>, đều <span class="mathv">O(1)</span>.</li>
+        <li><b>queue</b> — vào trước ra trước (FIFO): <code class="inl">push</code>, <code class="inl">pop</code>, <code class="inl">front</code>, đều <span class="mathv">O(1)</span>.</li>
+        <li><b>priority_queue</b> — luôn lấy ra phần tử lớn nhất (mặc định); chèn/xóa <span class="mathv">O(log n)</span>, xem đỉnh <span class="mathv">O(1)</span>.</li>
+        <li><b>deque</b> — thêm/xóa hiệu quả ở <em>cả hai đầu</em> (<code class="inl">push_front</code>/<code class="inl">push_back</code>).</li>
+        <li><b>bitset</b> — mảng bit, mỗi phần tử đúng 1 bit; tiết kiệm bộ nhớ và làm phép bit hàng loạt.</li>
+      </ul>
+
+      <p>Điểm dễ nhầm nhất là <b>stack và queue lấy phần tử ra theo thứ tự ngược nhau</b>. Nhập một dãy,
+      bấm <b>Chạy</b>: cả hai nhận cùng các phần tử, nhưng thứ tự lấy ra khác hẳn.</p>
+
+      <div class="sim" id="sq"></div>
+
+      <h2 id="s5"><span class="num">5.</span>Cấu trúc dữ liệu hay sắp xếp?</h2>
+      <p>Nhiều bài giải được bằng cấu trúc dữ liệu <em>hoặc</em> bằng sắp xếp; hiệu quả thực tế có thể chênh
+      nhau nhiều dù cùng độ phức tạp. Ví dụ: đếm số phần tử có mặt ở <em>cả hai</em> danh sách
+      <span class="mathv">A</span>, <span class="mathv">B</span> (mỗi danh sách <span class="mathv">n</span> số).</p>
+      <div class="box tech">
+        <div class="t">Ba cách</div>
+        <ul>
+          <li><b>Cách 1</b> — cho <span class="mathv">A</span> vào <code class="inl">set</code>, duyệt <span class="mathv">B</span> tra: <span class="mathv">O(n log n)</span>.</li>
+          <li><b>Cách 2</b> — đổi sang <code class="inl">unordered_set</code>: <span class="mathv">O(n)</span> trung bình.</li>
+          <li><b>Cách 3</b> — sắp xếp cả hai rồi duyệt song song: <span class="mathv">O(n log n)</span>.</li>
+        </ul>
+      </div>
+      <p>Đo thực tế: cách 2 nhanh hơn cách 1 khoảng 4–5 lần; và tuy cách 1 với cách 3 cùng
+      <span class="mathv">O(n log n)</span>, cách 3 vẫn nhanh hơn tới cả chục lần — vì sắp xếp là thủ tục
+      đơn giản chạy một lần, còn cây cân bằng phải duy trì suốt quá trình. <b>Bài học:</b> cùng
+      <span class="mathv">O(·)</span> chưa chắc cùng tốc độ; hệ số hằng rất đáng kể.</p>
+
+      <footer>Chương 4 — <em>Cẩm nang Lập trình thi đấu</em>. Bài tiếp: Tìm kiếm hoàn chỉnh.</footer>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/sitemap.js"></script>
+<script src="../assets/nav.js"></script>
+<script>CVNav.mount({ current: 'data-structures' });</script>
+
+<script src="../assets/sim.js"></script>
+<script>
+/* Ngăn xếp vs Hàng đợi (LIFO vs FIFO) */
+(function(){
+  function parse(str){ return (str||'').trim().split(/[\s,]+/).map(Number).filter(function(x){return !isNaN(x);}); }
+  function framesSQ(str){
+    var a=parse(str); if(!a.length) return null;
+    var F=[], st=[], qu=[], so=[], qo=[];
+    for(var i=0;i<a.length;i++){
+      st.push(a[i]); qu.push(a[i]);
+      F.push({line:1, st:st.slice(), qu:qu.slice(), so:so.slice(), qo:qo.slice(), msg:'Đẩy '+a[i]+' vào cuối cả ngăn xếp và hàng đợi.'});
+    }
+    while(st.length){
+      var sv=st.pop(), qv=qu.shift(); so.push(sv); qo.push(qv);
+      F.push({line:[2,3,4], st:st.slice(), qu:qu.slice(), so:so.slice(), qo:qo.slice(),
+        msg:'Ngăn xếp bỏ '+sv+' (mới nhất) · Hàng đợi bỏ '+qv+' (cũ nhất).'});
+    }
+    F.push({line:0, st:[], qu:[], so:so.slice(), qo:qo.slice(),
+      msg:'Xong. Ngăn xếp lấy ra ĐẢO NGƯỢC thứ tự đẩy vào; hàng đợi GIỮ NGUYÊN thứ tự.'});
+    return F;
+  }
+  function draw(f, canvas){
+    var bw=40,bh=28;
+    function box(x,y,v,cls){ return '<rect class="'+cls+'" x="'+x+'" y="'+y+'" width="'+bw+'" height="'+bh+'" rx="5"/>'+
+      '<text class="clb" x="'+(x+bw/2)+'" y="'+(y+bh/2)+'">'+v+'</text>'; }
+    function row(a,x0,y){ var t=''; for(var k=0;k<a.length;k++) t+=box(x0+k*(bw+3),y,a[k],'cell done'); return t; }
+    var s='<svg viewBox="0 0 560 300" xmlns="http://www.w3.org/2000/svg">';
+    s+='<text x="55" y="16" class="clb" style="font-size:13px;fill:var(--muted);text-anchor:start">Ngăn xếp (LIFO)</text>';
+    s+='<text x="250" y="16" class="clb" style="font-size:13px;fill:var(--muted);text-anchor:start">Hàng đợi (FIFO)</text>';
+    var sx=60, base=185;
+    for(var i=0;i<f.st.length;i++){ var y=base-(i+1)*(bh+3); s+=box(sx,y,f.st[i], i===f.st.length-1?'cell cur':'cell'); }
+    if(f.st.length) s+='<text x="'+(sx+bw+8)+'" y="'+(base-f.st.length*(bh+3)+bh/2)+'" class="clb" style="font-size:11px;fill:var(--muted);text-anchor:start">← đỉnh</text>';
+    var qy=44, qx0=250;
+    for(var j=0;j<f.qu.length;j++){ s+=box(qx0+j*(bw+3),qy,f.qu[j], j===0?'cell cur':'cell'); }
+    if(f.qu.length) s+='<text x="'+(qx0+bw/2)+'" y="'+(qy+bh+13)+'" class="clb" style="font-size:11px;fill:var(--muted)">đầu</text>';
+    s+='<text x="20" y="234" class="clb" style="font-size:12px;fill:var(--fg);text-anchor:start">Ngăn xếp lấy ra:</text>'+row(f.so,150,220);
+    s+='<text x="20" y="276" class="clb" style="font-size:12px;fill:var(--fg);text-anchor:start">Hàng đợi lấy ra:</text>'+row(f.qo,150,262);
+    s+='</svg>'; canvas.innerHTML=s;
+  }
+  CVSim.create('#sq', {
+    title:'Ngăn xếp và hàng đợi',
+    input:{label:'Dãy đẩy vào', type:'text', value:'3 1 4 1 5'},
+    code:{ sq:[
+      'đẩy (push): ngăn xếp và hàng đợi đều thêm vào cuối',
+      'lấy ra (pop):',
+      '  ngăn xếp bỏ phần tử MỚI nhất  (LIFO)',
+      '  hàng đợi bỏ phần tử CŨ nhất   (FIFO)' ] },
+    defaultCode:'sq', defaultOpLabel:'LIFO vs FIFO',
+    ops:[ {label:'Chạy', code:'sq', run:function(v){return framesSQ(v);}} ],
+    idle:{line:0, st:[], qu:[], so:[], qo:[], msg:'Nhập dãy rồi bấm Chạy.'},
+    draw:draw
+  });
+})();
+</script>
+
+<script src="../assets/chuan.js"></script>
+</body>
+</html>

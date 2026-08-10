@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ma trận | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../assets/sim.css">
+<link rel="stylesheet" href="../assets/nav.css">
+</head>
+<body class="cv-shell" data-nav="matrices">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
+
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
+
+    <div class="wrap">
+      <header>
+        <div class="kicker">Chương 23 · Chủ đề nâng cao</div>
+        <h1>Ma trận</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p>Ma trận là mảng hai chiều. Sức mạnh của nó trong thi đấu đến từ <b>phép nhân ma trận</b> và
+      <b>luỹ thừa nhanh</b>: nhiều công thức truy hồi tuyến tính (như Fibonacci) tính được trong
+      <span class="mathv">O(log n)</span>.</p>
+
+      <h2 id="s1"><span class="num">1.</span>Phép nhân ma trận</h2>
+      <p>Cộng ma trận và nhân với một số làm theo từng ô. Còn <b>tích</b> <span class="mathv">AB</span> (khi
+      số cột của A bằng số hàng của B) tính mỗi ô bằng <em>hàng của A gặp cột của B</em>:</p>
+      <div class="box def">
+        <div class="t">Công thức</div>
+        <span class="mathv">AB[i, j] = A[i, 1]·B[1, j] + A[i, 2]·B[2, j] + … + A[i, n]·B[n, j]</span>.
+        Tính hai ma trận <span class="mathv">n×n</span> mất <span class="mathv">O(n<sup>3</sup>)</span>. Phép
+        nhân có tính kết hợp <span class="mathv">A(BC) = (AB)C</span> nhưng <em>không</em> giao hoán.
+      </div>
+      <p>Bấm <b>Nhân</b> để xem từng ô của <span class="mathv">C = A·B</span> được lấp: hàng đang dùng của A
+      tô xanh dương, cột đang dùng của B tô tím, ô kết quả tô xanh lá.</p>
+
+      <div class="sim" id="mm"></div>
+
+      <p>Nhân với <b>ma trận đơn vị</b> <span class="mathv">I</span> (đường chéo 1, còn lại 0) không đổi ma
+      trận: <span class="mathv">A·I = A</span>. <b>Định thức</b> cho biết có ma trận nghịch đảo hay không
+      (<span class="mathv">det ≠ 0</span>); ví dụ <span class="mathv">det[[3,4],[1,6]] = 3·6 − 4·1 = 14</span>.</p>
+
+      <h2 id="s2"><span class="num">2.</span>Luỹ thừa ma trận cho truy hồi tuyến tính</h2>
+      <p><span class="mathv">A<sup>k</sup></span> tính được trong <span class="mathv">O(n<sup>3</sup> log k)</span>
+      bằng luỹ thừa nhị phân (bình phương liên tiếp, như luỹ thừa số). Với một truy hồi tuyến tính
+      <span class="mathv">f(n) = c<sub>1</sub>f(n−1) + … + c<sub>k</sub>f(n−k)</span>, ta dựng một ma trận
+      <span class="mathv">X</span> "đẩy" bộ <span class="mathv">k</span> giá trị liên tiếp lên một bước.</p>
+      <div class="box ex">
+        <div class="t">Fibonacci trong O(log n)</div>
+        Với <span class="mathv">f(n) = f(n−1) + f(n−2)</span>, chọn
+        <span class="mathv">X = [[0, 1], [1, 1]]</span>. Khi đó
+        <span class="mathv">[f(n), f(n+1)] = X<sup>n</sup> · [f(0), f(1)] = X<sup>n</sup> · [0, 1]</span>.
+        Ví dụ <span class="mathv">X<sup>10</sup> · [0, 1] = [55, 89]</span>, đúng
+        <span class="mathv">f(10) = 55</span>, <span class="mathv">f(11) = 89</span>. Vì tính
+        <span class="mathv">X<sup>n</sup></span> tốn <span class="mathv">O(log n)</span> nên
+        <span class="mathv">f(n)</span> cũng vậy.
+      </div>
+
+      <h2 id="s3"><span class="num">3.</span>Đồ thị và ma trận</h2>
+      <p>Cho <span class="mathv">V</span> là ma trận kề của đồ thị (không trọng số). Khi đó
+      <span class="mathv">V<sup>n</sup>[i, j]</span> đúng bằng <b>số đường đi gồm n cạnh</b> từ
+      <span class="mathv">i</span> tới <span class="mathv">j</span>. Ví dụ với đồ thị mẫu,
+      <span class="mathv">V<sup>4</sup>[2, 5] = 2</span> (hai đường 4 cạnh từ 2 tới 5).</p>
+      <p>Đổi phép nhân sang <b>min–cộng</b> (<span class="mathv">AB[i,j] = min<sub>k</sub>(A[i,k] + B[k,j])</span>),
+      luỹ thừa ma trận cho <b>đường đi ngắn nhất đúng n cạnh</b>. Ngoài ra, <b>định lý Kirchhoff</b> đếm số cây
+      khung bằng định thức của ma trận Laplace (bỏ một hàng, một cột) — ví dụ đồ thị 4 đỉnh cho kết quả 3.</p>
+
+      <footer>Chương 23 — <em>Cẩm nang Lập trình thi đấu</em>. Bài tiếp: Xác suất.</footer>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/sitemap.js"></script>
+<script src="../assets/nav.js"></script>
+<script>CVNav.mount({ current: 'matrices' });</script>
+
+<script src="../assets/sim.js"></script>
+<script>
+/* Nhân ma trận A(3x2) · B(2x2) = C(3x2), từng ô */
+(function(){
+  var A=[[1,4],[3,9],[8,6]], B=[[1,6],[2,9]];
+  var C=[[0,0],[0,0],[0,0]];
+  for(var i=0;i<3;i++)for(var j=0;j<2;j++) C[i][j]=A[i][0]*B[0][j]+A[i][1]*B[1][j];
+
+  function frames(){
+    var F=[{line:1,i:-1,j:-1,done:0,msg:'Mỗi ô C[i,j] = hàng i của A nhân cột j của B.'}];
+    for(var i=0;i<3;i++)for(var j=0;j<2;j++){
+      F.push({line:2,i:i,j:j,done:i*2+j,
+        msg:'C['+(i+1)+','+(j+1)+'] = '+A[i][0]+'×'+B[0][j]+' + '+A[i][1]+'×'+B[1][j]+' = '+C[i][j]+'.'});
+    }
+    F.push({line:3,i:-1,j:-1,done:6,msg:'Xong. C = A·B.'});
+    return F;
+  }
+
+  function draw(f, canvas){
+    var cw=36, x0=12, y0=88, xC=108, yB=4;
+    function box(x,y,txt,fill,stroke,dash){
+      var s='<rect x="'+x+'" y="'+y+'" width="'+cw+'" height="'+cw+'" rx="5" fill="'+fill+'" stroke="'+stroke+'" stroke-width="1.6"'+(dash?' stroke-dasharray="4 3"':'')+'/>';
+      if(txt!=null) s+='<text x="'+(x+cw/2)+'" y="'+(y+cw/2)+'" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans Mono,monospace" font-size="13" font-weight="700" fill="var(--fg)">'+txt+'</text>';
+      return s;
+    }
+    function lab(x,y,t){ return '<text x="'+x+'" y="'+y+'" text-anchor="middle" font-size="12" font-weight="700" fill="var(--muted)">'+t+'</text>'; }
+    var s='<svg viewBox="0 0 196 214" xmlns="http://www.w3.org/2000/svg">';
+    // A
+    for(var i=0;i<3;i++)for(var k=0;k<2;k++){
+      var fill=(f.i===i)?'var(--blue-bg)':'var(--card)';
+      s+=box(x0+k*cw, y0+i*cw, A[i][k], fill, (f.i===i)?'var(--accent,var(--blue))':'var(--border)');
+    }
+    // B
+    for(var k=0;k<2;k++)for(var j=0;j<2;j++){
+      var fillB=(f.j===j)?'var(--node2)':'var(--card)';
+      s+=box(xC+j*cw, yB+k*cw, B[k][j], fillB, (f.j===j)?'var(--accent2,var(--purple))':'var(--border)');
+    }
+    // C
+    for(var i=0;i<3;i++)for(var j=0;j<2;j++){
+      var idx=i*2+j, x=xC+j*cw, y=y0+i*cw;
+      if(idx<f.done) s+=box(x,y,C[i][j],'var(--green-bg)','var(--hl2)');
+      else if(idx===f.done && f.done<6) s+=box(x,y,C[i][j],'var(--blue-bg)','var(--accent,var(--blue))');
+      else s+=box(x,y,null,'var(--card)','var(--border)',true);
+    }
+    s+=lab(x0+cw, y0+3*cw+13,'A')+lab(xC+cw, yB-4,'B')+lab(xC+cw, y0+3*cw+13,'C = A·B');
+    s+='</svg>'; canvas.innerHTML=s;
+  }
+
+  var id0=frames()[0];
+  CVSim.create('#mm', {
+    title:'Nhân ma trận (hàng × cột)',
+    code:{ mm:[
+      'duyệt từng ô C[i, j]:',
+      '  C[i,j] = A[i,1]·B[1,j] + A[i,2]·B[2,j]',
+      'hàng i của A gặp cột j của B' ] },
+    defaultCode:'mm', defaultOpLabel:'nhân',
+    ops:[ {label:'Nhân', code:'mm', run:function(){ return frames(); }} ],
+    idle:id0,
+    draw:draw
+  });
+})();
+</script>
+
+<script src="../assets/chuan.js"></script>
+</body>
+</html>

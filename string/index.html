@@ -292,7 +292,7 @@ footer{margin-top:56px; padding-top:18px; border-top:1px solid var(--border); co
   <a href="#s4">4. Đọc và tách dữ liệu</a>
   <a href="#s5">5. Khuôn mẫu quét cụm</a>
   <a href="#s6">6. Bốn khái niệm</a>
-  <a href="#s7">7. Bộ đồ nghề xâu</a>
+  <a href="#s7">7. Các thao tác trên xâu</a>
   <a href="#s8">8. Nhận dạng & bẫy</a>
   <a href="#s9">9. Bài tập</a>
 </aside>
@@ -323,7 +323,7 @@ footer{margin-top:56px; padding-top:18px; border-top:1px solid var(--border); co
     <li><a href="#s4">Đọc và tách dữ liệu vào</a></li>
     <li><a href="#s5">Khuôn mẫu: quét cụm số</a></li>
     <li><a href="#s6">Bốn khái niệm phải phân biệt</a></li>
-    <li><a href="#s7">Bộ đồ nghề xâu</a></li>
+    <li><a href="#s7">Các thao tác trên xâu</a></li>
     <li><a href="#s8">Nhận dạng và những cái bẫy trên Themis</a></li>
     <li><a href="#s9">Bài tập theo lộ trình</a></li>
   </ol>
@@ -384,7 +384,7 @@ footer{margin-top:56px; padding-top:18px; border-top:1px solid var(--border); co
 
 <h3>Điều cốt lõi: <code class="inl">char</code> thực chất là một số nguyên</h3>
 
-<p>Máy tính không lưu hình dáng chữ cái mà lưu <strong>mã ASCII</strong> của nó — một số nguyên. Đây là chìa khoá của gần như mọi bài xâu, vì ba dải ký tự thường gặp có mã <strong>liên tiếp nhau</strong>:</p>
+<p>Máy tính không lưu hình dáng chữ cái mà lưu <strong>mã ASCII</strong> của nó — một số nguyên. Đây là mấu chốt của gần như mọi bài xâu, vì ba dải ký tự thường gặp có mã <strong>liên tiếp nhau</strong>:</p>
 
 <figure>
 <svg viewBox="0 0 620 110" width="620" role="img" aria-label="Ba dải mã ASCII liên tiếp và khoảng cách 32 giữa chữ hoa và chữ thường">
@@ -500,7 +500,7 @@ _ la khoang trang
 <p><strong>Quy tắc chốt cụm.</strong> Đang dựng một cụm số mà gặp ký tự <em>không phải</em> chữ số thì cụm đã hết: cộng <code class="inl">cur</code> vào kết quả rồi đặt lại <code class="inl">cur</code> = 0. Đừng quên cụm số <strong>nằm ở cuối xâu</strong> — lúc ấy không có ký tự nào “đóng” cụm, nên phải chốt thêm một lần sau vòng lặp.</p>
 
 <div class="box ex">
-  <div class="t">Cùng một cỗ máy quét — tách từ chính là tách số</div>
+  <div class="t">Cùng một vòng quét — tách từ chính là tách số</div>
   <p>Đổi điều kiện “ký tự là chữ số” thành “ký tự <em>khác</em> khoảng trắng” thì đúng khuôn ấy <strong>tách được các từ</strong>. Trạng thái “đang ở trong một cụm” giữ nguyên vai trò.</p>
   <figure>
   <svg viewBox="0 0 560 110" width="560" role="img" aria-label="Xâu the cat: mỗi ký tự khác khoảng trắng mang bit 1, khoảng trắng mang bit 0">
@@ -585,7 +585,7 @@ _ la khoang trang
   <tr><td><code class="inl">s.substr(pos, len)</code></td><td>Lấy xâu con từ vị trí <code class="inl">pos</code>, dài <code class="inl">len</code></td></tr>
   <tr><td><code class="inl">s.substr(pos)</code></td><td>Bỏ tham số thứ hai thì lấy tới <strong>hết xâu</strong></td></tr>
   <tr><td><code class="inl">s.find(x)</code></td><td>Vị trí <strong>đầu tiên</strong> của <code class="inl">x</code>, hoặc <code class="inl">string::npos</code> nếu không thấy</td></tr>
-  <tr><td><code class="inl">s.find(x, pos)</code></td><td>Như trên nhưng chỉ tìm từ vị trí <code class="inl">pos</code> trở đi — chìa khoá để đếm số lần xuất hiện</td></tr>
+  <tr><td><code class="inl">s.find(x, pos)</code></td><td>Như trên nhưng chỉ tìm từ vị trí <code class="inl">pos</code> trở đi — mấu chốt để đếm số lần xuất hiện</td></tr>
   <tr><td><code class="inl">s.rfind(x)</code></td><td>Vị trí <strong>cuối cùng</strong> của <code class="inl">x</code></td></tr>
   <tr><td><code class="inl">s.find_first_of(tap)</code></td><td>Vị trí đầu tiên là <strong>một trong</strong> các ký tự của <code class="inl">tap</code></td></tr>
   <tr><td><code class="inl">s.find_first_not_of(tap)</code> / <code class="inl">s.find_last_not_of(tap)</code></td><td>Vị trí đầu / cuối <strong>không thuộc</strong> <code class="inl">tap</code> — dùng để cắt khoảng trắng thừa</td></tr>
@@ -600,7 +600,7 @@ _ la khoang trang
   <p><code class="inl">find</code> trả về kiểu <strong>không dấu</strong>, và <code class="inl">npos</code> là giá trị lớn nhất của kiểu ấy chứ <em>không phải</em> <span class="mathv">−1</span>. Hai cách viết sau đều <strong>sai</strong>, vì một biểu thức không dấu thì luôn <span class="mathv">≥ 0</span>:</p>
   <pre style="border-radius:9px">if (s.find(x) &gt;= 0)   // luôn đúng, kể cả khi không tìm thấy
 if (s.find(x) != -1)  // so sánh lẫn lộn dấu, dễ sinh cảnh báo</pre>
-  <p>Chỉ có <strong>một</strong> cách viết đúng: <code class="inl">if (s.find(x) != string::npos)</code>. Cũng vì lý do này mà <code class="inl">s.size() - 1</code> trên một xâu <strong>rỗng</strong> không cho <span class="mathv">−1</span> mà cho một số khổng lồ; khi cần dùng làm chỉ số hãy ép <code class="inl">(int) s.size() - 1</code>.</p>
+  <p>Chỉ có <strong>một</strong> cách viết đúng: <code class="inl">if (s.find(x) != string::npos)</code>. Cũng vì lý do này mà <code class="inl">s.size() - 1</code> trên một xâu <strong>rỗng</strong> không cho <span class="mathv">−1</span> mà cho một số rất lớn; khi cần dùng làm chỉ số hãy ép <code class="inl">(int) s.size() - 1</code>.</p>
 </div>
 
 <h3>So sánh và thứ tự từ điển</h3>
@@ -745,12 +745,12 @@ sort ds      : An na nam</pre>
     <dt>Cú pháp</dt><dd><code class="inl">size_t size() const;</code> &nbsp; <code class="inl">size_t length() const;</code></dd>
     <dt>Tham số</dt><dd>Không có.</dd>
     <dt>Trả về</dt><dd>Số ký tự đang có, kiểu <strong>không dấu</strong> <code class="inl">size_t</code>. Hai hàm y hệt nhau, chọn tên nào cũng được.</dd>
-    <dt>Bẫy</dt><dd>Vì không dấu nên <code class="inl">s.size() - 1</code> trên xâu <strong>rỗng</strong> không cho <span class="mathv">−1</span> mà cho một số khổng lồ. Dùng làm chỉ số thì phải ép <code class="inl">(int) s.size() - 1</code>.</dd>
+    <dt>Bẫy</dt><dd>Vì không dấu nên <code class="inl">s.size() - 1</code> trên xâu <strong>rỗng</strong> không cho <span class="mathv">−1</span> mà cho một số rất lớn. Dùng làm chỉ số thì phải ép <code class="inl">(int) s.size() - 1</code>.</dd>
   </dl>
 <pre><code>string s = "Hello";
 cout &lt;&lt; s.size() &lt;&lt; ' ' &lt;&lt; s.length();   // 5 5
 string r = "";
-cout &lt;&lt; (int) r.size() - 1;               // -1  (không ép kiểu thì ra số khổng lồ)</code></pre>
+cout &lt;&lt; (int) r.size() - 1;               // -1  (không ép kiểu thì ra số rất lớn)</code></pre>
 </div>
 
 <div class="ham">
@@ -1322,7 +1322,7 @@ int main() {
 </div>
 
 <!-- ============================ 7 ============================ -->
-<h2 id="s7"><span class="num">7</span>Bộ đồ nghề xâu</h2>
+<h2 id="s7"><span class="num">7</span>Các thao tác trên xâu</h2>
 
 <p>Khuôn quét ở Mục 5 và các hàm ở Mục 3 đủ để dựng lời giải cho những dạng bài thường gặp. Bảng dưới là “đề đòi gì thì thêm gì”.</p>
 
@@ -1547,7 +1547,7 @@ int main() {
     <li><strong><code class="inl">cin &gt;&gt; s</code> chỉ đọc một từ.</strong> Tên “Nguyen Van An” bị mất phần sau dấu cách. Cần cả dòng thì dùng <code class="inl">getline</code>.</li>
     <li><strong>Trộn <code class="inl">cin &gt;&gt; n</code> rồi <code class="inl">getline</code> thì phải <code class="inl">cin.ignore()</code></strong>, nếu không <code class="inl">getline</code> đọc phải dòng rỗng.</li>
     <li><strong>So với <code class="inl">string::npos</code>, đừng so với <span class="mathv">−1</span> hay <code class="inl">&gt;= 0</code></strong> — <code class="inl">find</code> trả kiểu không dấu nên hai cách kia luôn cho kết quả đúng, che mất trường hợp không tìm thấy.</li>
-    <li><strong><code class="inl">s.size()</code> cũng không dấu.</strong> Viết <code class="inl">(int) s.size() - 1</code> khi dùng làm chỉ số, kẻo xâu rỗng cho ra một số khổng lồ.</li>
+    <li><strong><code class="inl">s.size()</code> cũng không dấu.</strong> Viết <code class="inl">(int) s.size() - 1</code> khi dùng làm chỉ số, kẻo xâu rỗng cho ra một số rất lớn.</li>
     <li><strong><code class="inl">char</code> có thể mang mã âm</strong> với ký tự ngoài bảng ASCII chuẩn. Khi dùng làm chỉ số mảng đếm phải ép <code class="inl">(unsigned char)c</code>, kẻo tràn ra ngoài mảng.</li>
     <li><strong><code class="inl">long</code> chỉ 4 byte trên Themis</strong> — tổng lớn phải khai <code class="inl">long long</code>, và đổi xâu sang số lớn phải dùng <code class="inl">stoll</code> chứ không phải <code class="inl">stol</code>.</li>
     <li><strong>Chỉ số đếm từ 0</strong>: ký tự cuối là <code class="inl">s[s.size()-1]</code>, không phải <code class="inl">s[s.size()]</code>.</li>
@@ -1588,7 +1588,7 @@ int main() {
 </table>
 </div>
 
-<h3>Nhóm 3 — khái niệm và bộ đồ nghề (Mục 6–7)</h3>
+<h3>Nhóm 3 — khái niệm và công cụ (Mục 6–7)</h3>
 <div class="tablewrap">
 <table>
   <tr><th>Bài</th><th>Mã</th><th>Thêm điều gì mới</th></tr>

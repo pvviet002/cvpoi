@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xử lý bit | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../assets/sim.css">
+<link rel="stylesheet" href="../assets/nav.css">
+</head>
+<body class="cv-shell" data-nav="bit-manipulation">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
+
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
+
+    <div class="wrap">
+      <header>
+        <div class="kicker">Chương 10 · Các kỹ thuật cơ bản</div>
+        <h1>Xử lý bit</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p>Mọi số trong máy tính đều là các bit 0/1. Hiểu biểu diễn bit và các phép toán trên bit cho ta
+      những mẹo gọn, nhanh — và là nền tảng cho quy hoạch động trên tập con.</p>
+
+      <h2 id="s1"><span class="num">1.</span>Biểu diễn bit</h2>
+      <p>Số nguyên <span class="mathv">n</span> bit lưu dưới dạng nhị phân. Ví dụ
+      <code class="inl">int</code> 32 bit; số <span class="mathv">43</span> là
+      <span class="mathv">…0101011</span> vì
+      <span class="mathv">2<sup>5</sup> + 2<sup>3</sup> + 2<sup>1</sup> + 2<sup>0</sup> = 43</span>. Bit đánh số
+      từ phải sang trái.</p>
+      <p><code class="inl">int</code> có dấu chứa <span class="mathv">−2<sup>31</sup> … 2<sup>31</sup>−1</span>;
+      số âm dùng <b>bù hai</b> (đảo mọi bit rồi cộng 1), và <code class="inl">~x = −x − 1</code>. Vượt giới hạn
+      thì <b>tràn</b> — sau <span class="mathv">2<sup>31</sup>−1</span> là <span class="mathv">−2<sup>31</sup></span>:</p>
+      <div class="codewrap noname"><pre><code>int x = 2147483647;   // 2^31 - 1
+x++;                  // -2147483648</code></pre></div>
+
+      <h2 id="s2"><span class="num">2.</span>Các phép toán trên bit</h2>
+      <p>Bốn phép cơ bản làm việc trên từng cột bit: <b>AND</b> <code class="inl">&amp;</code> (cả hai là 1),
+      <b>OR</b> <code class="inl">|</code> (ít nhất một là 1), <b>XOR</b> <code class="inl">^</code> (khác nhau),
+      <b>NOT</b> <code class="inl">~</code> (đảo). Ví dụ <span class="mathv">22 &amp; 26 = 18</span>,
+      <span class="mathv">22 | 26 = 30</span>, <span class="mathv">22 ^ 26 = 12</span>. Bấm một phép để xem
+      từng cột bit được tính:</p>
+
+      <div class="sim" id="bitop"></div>
+
+      <p><b>Dịch bit:</b> <code class="inl">x &lt;&lt; k</code> nhân với <span class="mathv">2<sup>k</sup></span>
+      (thêm k số 0), <code class="inl">x &gt;&gt; k</code> chia cho <span class="mathv">2<sup>k</sup></span>.
+      Ví dụ <span class="mathv">14 &lt;&lt; 2 = 56</span>, <span class="mathv">49 &gt;&gt; 3 = 6</span>. Từ đó có nhiều
+      mẹo dùng mặt nạ <code class="inl">1 &lt;&lt; k</code> (chỉ bật bit thứ k):</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Công thức</th><th>Ý nghĩa</th></tr></thead>
+        <tbody>
+          <tr><td><code class="inl">x &amp; 1</code></td><td>0 nếu x chẵn, 1 nếu x lẻ</td></tr>
+          <tr><td><code class="inl">x &amp; (1 &lt;&lt; k)</code></td><td>lấy bit thứ k (khác 0 ⇔ bit k bật)</td></tr>
+          <tr><td><code class="inl">x | (1 &lt;&lt; k)</code></td><td>bật bit thứ k</td></tr>
+          <tr><td><code class="inl">x &amp; ~(1 &lt;&lt; k)</code></td><td>tắt bit thứ k</td></tr>
+          <tr><td><code class="inl">x ^ (1 &lt;&lt; k)</code></td><td>lật bit thứ k</td></tr>
+          <tr><td><code class="inl">x &amp; (x - 1)</code></td><td>xoá bit 1 thấp nhất</td></tr>
+          <tr><td><code class="inl">x &amp; -x</code></td><td>giữ đúng bit 1 thấp nhất</td></tr>
+          <tr><td><code class="inl">x &amp; (x - 1) == 0</code></td><td>x là luỹ thừa của 2 (x &gt; 0)</td></tr>
+        </tbody>
+      </table></div>
+      <p><b>Hàm đếm bit của g++:</b> <code class="inl">__builtin_popcount(x)</code> đếm số bit 1,
+      <code class="inl">__builtin_ctz</code>/<code class="inl">clz</code> đếm số bit 0 ở cuối/đầu. Ví dụ với
+      <span class="mathv">x = 5328</span>: popcount = <b>5</b>, ctz = 4, clz = 19 (bản
+      <code class="inl">long long</code> thêm hậu tố <code class="inl">ll</code>).</p>
+
+      <h2 id="s3"><span class="num">3.</span>Biểu diễn tập hợp bằng mặt nạ bit</h2>
+      <p>Mỗi tập con của <span class="mathv">{0, 1, …, n−1}</span> là một số <span class="mathv">n</span> bit:
+      bit thứ <span class="mathv">i</span> bật nghĩa là phần tử <span class="mathv">i</span> có mặt. Ví dụ
+      <span class="mathv">{1, 3, 4, 8}</span> ứng với
+      <span class="mathv">2<sup>8</sup> + 2<sup>4</sup> + 2<sup>3</sup> + 2<sup>1</sup> = 282</span>. Các phép trên
+      tập trở thành phép bit:</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Phép tập hợp</th><th>Ký hiệu</th><th>Phép bit</th></tr></thead>
+        <tbody>
+          <tr><td>Giao</td><td class="c">a ∩ b</td><td class="c"><code class="inl">a &amp; b</code></td></tr>
+          <tr><td>Hợp</td><td class="c">a ∪ b</td><td class="c"><code class="inl">a | b</code></td></tr>
+          <tr><td>Bù</td><td class="c">ā</td><td class="c"><code class="inl">~a</code></td></tr>
+          <tr><td>Hiệu</td><td class="c">a ∖ b</td><td class="c"><code class="inl">a &amp; ~b</code></td></tr>
+        </tbody>
+      </table></div>
+      <div class="codewrap noname"><pre><code>for (int b = 0; b &lt; (1 &lt;&lt; n); b++) { /* b là một tập con */ }
+for (int i = 0; i &lt; n; i++)
+    if (x &amp; (1 &lt;&lt; i)) cout &lt;&lt; i &lt;&lt; " ";   // in các phần tử của tập x</code></pre></div>
+
+      <h2 id="s4"><span class="num">4.</span>Tối ưu bằng bit</h2>
+      <p><b>Khoảng cách Hamming</b> giữa hai chuỗi bit (số vị trí khác nhau) tính bằng một dòng: XOR cho ra
+      1 ở đúng các vị trí khác nhau, rồi đếm:</p>
+      <div class="codewrap noname"><pre><code>int hamming(int a, int b) { return __builtin_popcount(a ^ b); }</code></pre></div>
+      <p>Với 10 000 chuỗi dài 30 bit, cách ngây thơ mất <span class="mathv">13,5</span> s, còn cách dùng bit chỉ
+      <span class="mathv">0,5</span> s — nhanh gần <b>30 lần</b>. Cùng ý tưởng "xử lý nhiều bit một lúc" giúp bài
+      đếm lưới con giảm từ <span class="mathv">O(n<sup>3</sup>)</span> xuống
+      <span class="mathv">O(n<sup>3</sup>/N)</span> với N = 32 hoặc 64.</p>
+
+      <h2 id="s5"><span class="num">5.</span>Quy hoạch động trên tập con</h2>
+      <p>Vì trạng thái là một <em>tập con</em> nên lưu được thành một số nguyên, ta thường biến việc duyệt
+      <span class="mathv">n!</span> hoán vị thành duyệt <span class="mathv">2<sup>n</sup></span> tập con (nhỏ
+      hơn nhiều: <span class="mathv">n = 20</span> thì <span class="mathv">n! ≈ 2,4·10<sup>18</sup></span> còn
+      <span class="mathv">2<sup>n</sup> ≈ 10<sup>6</sup></span>).</p>
+      <div class="box tech">
+        <div class="t">Ví dụ: xếp thang máy</div>
+        Thang tải tối đa <span class="mathv">x</span>, <span class="mathv">n</span> người có cân nặng cho trước.
+        Cần ít nhất bao nhiêu lượt? Với mỗi tập con <span class="mathv">S</span>, lưu cặp
+        <span class="mathv">(số lượt, cân nặng lượt cuối)</span>; thêm dần từng người vào lượt cuối nếu còn chỗ,
+        không thì mở lượt mới. Độ phức tạp <span class="mathv">O(2<sup>n</sup> · n)</span> — thay cho
+        <span class="mathv">O(n! · n)</span> khi thử mọi thứ tự.
+      </div>
+      <div class="codewrap noname"><pre><code>for (int s = 1; s &lt; (1 &lt;&lt; n); s++) {
+    best[s] = {n + 1, 0};
+    for (int p = 0; p &lt; n; p++) if (s &amp; (1 &lt;&lt; p)) {
+        auto o = best[s ^ (1 &lt;&lt; p)];              // bỏ người p khỏi tập
+        if (o.second + weight[p] &lt;= x) o.second += weight[p];  // ghép vào lượt cuối
+        else { o.first++; o.second = weight[p]; }              // mở lượt mới
+        best[s] = min(best[s], o);
+    }
+}</code></pre></div>
+
+      <footer>Chương 10 — <em>Cẩm nang Lập trình thi đấu</em>. Hết Phần 1.</footer>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/sitemap.js"></script>
+<script src="../assets/nav.js"></script>
+<script>CVNav.mount({ current: 'bit-manipulation' });</script>
+
+<script src="../assets/sim.js"></script>
+<script>
+/* Phép AND/OR/XOR trên hai thanh bit (8 bit) */
+(function(){
+  var curSym='&', W=8;
+  function parse(str){ return (str||'').trim().split(/[\s,]+/).map(Number).filter(function(x){return !isNaN(x);}); }
+  function framesBit(str, op, sym){
+    var t=parse(str); if(t.length<2) return null;
+    var a=((t[0]%256)+256)%256, b=((t[1]%256)+256)%256; curSym=sym;
+    var ab=[], bb=[], cb=[];
+    for(var j=0;j<W;j++){ ab[j]=(a>>j)&1; bb[j]=(b>>j)&1;
+      cb[j]= op==='and'?(ab[j]&bb[j]) : op==='or'?(ab[j]|bb[j]) : (ab[j]^bb[j]); }
+    var F=[{line:1,cur:W,final:false,a:a,b:b,ab:ab,bb:bb,cb:cb,msg:'Tính '+a+' '+sym+' '+b+' theo từng cột bit (từ trái sang phải).'}];
+    for(var j=W-1;j>=0;j--)
+      F.push({line:2,cur:j,final:false,a:a,b:b,ab:ab,bb:bb,cb:cb,
+        msg:'Cột '+j+': a='+ab[j]+', b='+bb[j]+' → '+ab[j]+' '+sym+' '+bb[j]+' = '+cb[j]+'.'});
+    var cval= op==='and'?(a&b): op==='or'?(a|b):(a^b), cbin='';
+    for(var j=W-1;j>=0;j--) cbin+=cb[j];
+    F.push({line:3,cur:-1,final:true,a:a,b:b,ab:ab,bb:bb,cb:cb,msg:'Kết quả: '+cbin+'₂ = '+cval+'.'});
+    return F;
+  }
+  function draw(f, canvas){
+    var cw=30, gap=4, x0=94, ya=22, yb=60, yc=110, h=30;
+    function colx(j){ return x0 + (W-1-j)*(cw+gap); }
+    function cell(j,val,y,shown,cur){
+      var x=colx(j);
+      if(!shown) return '<rect x="'+x+'" y="'+y+'" width="'+cw+'" height="'+h+'" rx="5" fill="var(--card)" stroke="var(--border)" stroke-dasharray="4 3" opacity="0.5"/>';
+      var fill=val?'var(--blue-bg)':'var(--card)', stroke=cur?'var(--accent,var(--blue))':'var(--border)', sw=cur?3:1.3, tc=val?'var(--accent,var(--blue))':'var(--muted)';
+      return '<rect x="'+x+'" y="'+y+'" width="'+cw+'" height="'+h+'" rx="5" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+sw+'"/>'+
+        '<text x="'+(x+cw/2)+'" y="'+(y+h/2)+'" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans Mono,monospace" font-size="15" font-weight="700" fill="'+tc+'">'+val+'</text>';
+    }
+    function lab(txt,y){ return '<text x="8" y="'+(y+h/2)+'" dominant-baseline="central" font-family="Noto Sans Mono,monospace" font-size="14" fill="var(--fg)">'+txt+'</text>'; }
+    var cval=f.final?(curSym==='&'?(f.a&f.b):curSym==='|'?(f.a|f.b):(f.a^f.b)):'?';
+    var s='<svg viewBox="0 0 '+(x0+W*(cw+gap)+8)+' 150" xmlns="http://www.w3.org/2000/svg">';
+    s+=lab('a = '+f.a, ya)+lab(curSym+' b = '+f.b, yb)+lab('= '+cval, yc);
+    s+='<line x1="'+colx(W-1)+'" y1="'+(yb+h+6)+'" x2="'+(colx(0)+cw)+'" y2="'+(yb+h+6)+'" stroke="var(--border)"/>';
+    for(var j=0;j<W;j++){ var cur=(f.cur===j);
+      s+=cell(j,f.ab[j],ya,true,cur)+cell(j,f.bb[j],yb,true,cur)+cell(j,f.cb[j],yc,f.final||j>=f.cur,cur); }
+    s+='</svg>'; canvas.innerHTML=s;
+  }
+  var id0=framesBit('22 26','and','&')[0];
+  id0.msg='Nhập "a b" (0–255), chọn AND / OR / XOR rồi bấm Chạy.';
+  CVSim.create('#bitop', {
+    title:'Phép bit trên hai thanh 8 bit',
+    input:{label:'a b', type:'text', value:'22 26'},
+    code:{
+      and:['Xét từng cột bit (trái → phải):','  cᵢ = 1 CHỈ KHI aᵢ = 1 và bᵢ = 1','Ghép các bit cᵢ lại → kết quả'],
+      or: ['Xét từng cột bit (trái → phải):','  cᵢ = 1 KHI aᵢ = 1 hoặc bᵢ = 1','Ghép các bit cᵢ lại → kết quả'],
+      xor:['Xét từng cột bit (trái → phải):','  cᵢ = 1 KHI aᵢ khác bᵢ','Ghép các bit cᵢ lại → kết quả']
+    },
+    defaultCode:'and', defaultOpLabel:'AND',
+    ops:[
+      {label:'AND (&)', code:'and', run:function(v){return framesBit(v,'and','&');}},
+      {label:'OR (|)', variant:'alt', code:'or', run:function(v){return framesBit(v,'or','|');}},
+      {label:'XOR (^)', variant:'ghost', code:'xor', run:function(v){return framesBit(v,'xor','^');}}
+    ],
+    idle:id0,
+    draw:draw
+  });
+})();
+</script>
+
+<script src="../assets/chuan.js"></script>
+</body>
+</html>

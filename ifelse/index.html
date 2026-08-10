@@ -123,7 +123,7 @@ chương trình vẫn chạy, vẫn in ra một đáp án trông có lý, chỉ 
 mà mình không nghĩ tới</b>. Chuyên đề này đi tới cùng một ý:</p>
 
 <div class="box def">
-<div class="t">Sợi chỉ đỏ</div>
+<div class="t">Ý chính</div>
 <p>Một dãy <code class="inl">if/else</code> là <b>một phép chia tập</b>: nó cắt tập mọi dữ
 liệu vào thành các mảnh, mỗi mảnh ứng với một nhánh. Gần như mọi lỗi rẽ nhánh đều là
 <b>chia sai tập</b> — sót một mảnh, để hai mảnh chồng lên nhau, hoặc xếp sai thứ tự các
@@ -185,7 +185,7 @@ else if (a == b || b == c || a == c)
 nó có hai cạnh bằng nhau, thậm chí có ba. Câu lệnh <code class="inl">if</code> đầu tiên
 không hề nói dối.</p>
 <p>Vấn đề là <b>tập các tam giác đều nằm gọn bên trong tập các tam giác cân</b>. Khi hai
-mảnh lồng nhau như vậy, nhánh nào đứng trước sẽ nuốt trọn phần chung. Vậy quy tắc nào
+mảnh lồng nhau như vậy, nhánh nào đứng trước sẽ chiếm trọn phần chung. Vậy quy tắc nào
 quyết định thứ tự đúng?</p>
 </div>
 
@@ -981,7 +981,7 @@ thứ tự thì mỗi chặng chỉ thêm một điều mới.</p>
     if (raA[kA] !== raB[kB])
       tKq.innerHTML = '<div class="lech">Hai thứ tự cho <b>hai kết quả khác nhau</b>: '
         + raA[kA] + ' và ' + raB[kB] + '. Tập tam giác đều nằm trong tập tam giác cân, '
-        + 'nên nhánh nào đứng trước sẽ nuốt phần chung. Đề muốn <b>' + raB[kB] + '</b>.</div>';
+        + 'nên nhánh nào đứng trước sẽ chiếm phần chung. Đề muốn <b>' + raB[kB] + '</b>.</div>';
     else
       tKq.innerHTML = '<div class="khop">Hai thứ tự cho cùng kết quả <b>' + raA[kA]
         + '</b>. Bộ dữ liệu này không thoả nhiều nhánh cùng lúc nên thứ tự chưa lộ ra.</div>';

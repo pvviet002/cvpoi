@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hình học | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../assets/sim.css">
+<link rel="stylesheet" href="../assets/nav.css">
+</head>
+<body class="cv-shell" data-nav="geometry">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
+
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
+
+    <div class="wrap">
+      <header>
+        <div class="kicker">Chương 29 · Chủ đề nâng cao</div>
+        <h1>Hình học</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p>Thách thức của bài toán hình học là tìm cách tiếp cận <b>dễ cài</b> và có <b>ít trường hợp đặc biệt</b>.
+      Chẳng hạn diện tích tứ giác: chia thành hai tam giác thì gặp bẫy "đường chia nằm ngoài hình"; nhưng có
+      công thức tổng quát tính thẳng, không cần chia trường hợp.</p>
+
+      <h2 id="s1"><span class="num">1.</span>Số phức làm điểm và vectơ</h2>
+      <p>Lớp <code class="inl">complex</code> của C++ biểu diễn gọn một điểm/vectơ
+      <span class="mathv">(x, y)</span>. Nên dùng toạ độ <b>số nguyên</b> (<code class="inl">long long</code>)
+      khi có thể vì phép tính chính xác; nếu buộc dùng số thực (<code class="inl">long double</code>), so sánh
+      bằng <span class="mathv">|a − b| &lt; ε</span> với <span class="mathv">ε = 10<sup>−9</sup></span>.</p>
+      <div class="box tech">
+        <div class="t">Vài hàm hữu ích</div>
+        <span class="mathv">abs(v)</span> = độ dài <span class="mathv">√(x²+y²)</span> (cũng là khoảng cách giữa
+        hai điểm); <span class="mathv">arg(v)</span> = góc so với trục x (radian);
+        <span class="mathv">polar(s, a)</span> = vectơ dài <span class="mathv">s</span> theo góc
+        <span class="mathv">a</span>. Nhân với <code class="inl">polar(1, a)</code> để <em>quay</em> một vectơ.
+      </div>
+
+      <h2 id="s2"><span class="num">2.</span>Tích có hướng</h2>
+      <p><b>Tích có hướng</b> <span class="mathv">a × b = x<sub>1</sub>y<sub>2</sub> − x<sub>2</sub>y<sub>1</sub></span>
+      cho biết <span class="mathv">b</span> <em>rẽ trái</em> (dương), <em>thẳng</em> (bằng 0) hay <em>rẽ phải</em>
+      (âm) so với <span class="mathv">a</span>. Đây là con dao đa năng của hình học:</p>
+      <ul>
+        <li><b>Vị trí điểm so với đường thẳng</b> qua <span class="mathv">s<sub>1</sub>, s<sub>2</sub></span>:
+        xét dấu <span class="mathv">(p − s<sub>1</sub>) × (p − s<sub>2</sub>)</span> — dương thì
+        <span class="mathv">p</span> bên trái, âm thì bên phải, bằng 0 thì thẳng hàng.</li>
+        <li><b>Giao hai đoạn thẳng</b>: hai đoạn <span class="mathv">ab</span>, <span class="mathv">cd</span> cắt
+        nhau khi <span class="mathv">c, d</span> nằm hai phía đường <span class="mathv">ab</span> và ngược lại
+        (dùng dấu tích có hướng).</li>
+        <li><b>Khoảng cách điểm đến đường thẳng</b>:
+        <span class="mathv">d = ((s<sub>1</sub>−p) × (s<sub>2</sub>−p)) / |s<sub>2</sub> − s<sub>1</sub>|</span>
+        (suy từ diện tích tam giác).</li>
+        <li><b>Điểm trong đa giác</b>: phóng một tia; số lần cắt biên lẻ → trong, chẵn → ngoài.</li>
+      </ul>
+
+      <h2 id="s3"><span class="num">3.</span>Diện tích đa giác — công thức dây giày</h2>
+      <p>Với đa giác đỉnh <span class="mathv">p<sub>1</sub>, …, p<sub>n</sub></span> (khép kín
+      <span class="mathv">p<sub>n</sub> = p<sub>1</sub></span>):</p>
+      <div class="box def">
+        <div class="t">Công thức dây giày</div>
+        <span class="mathv">Diện tích = ½ |Σ (x<sub>i</sub>y<sub>i+1</sub> − x<sub>i+1</sub>y<sub>i</sub>)|</span>.
+        Mỗi số hạng là tích có hướng của hai đỉnh kề — ta cộng dồn diện tích có dấu của các hình thang xuống
+        trục hoành, phần âm và dương tự bù trừ.
+      </div>
+      <p>Bấm <b>Tính diện tích</b> cho đa giác 5 đỉnh. Cạnh đang xét tô đậm; số hạng
+      <span class="mathv">x<sub>i</sub>y<sub>i+1</sub> − x<sub>i+1</sub>y<sub>i</sub></span> và tổng cộng dồn
+      hiện bên dưới:</p>
+
+      <div class="sim" id="shoe"></div>
+
+      <div class="box tech">
+        <div class="t">Định lý Pick</div>
+        Nếu mọi đỉnh có toạ độ nguyên: <span class="mathv">Diện tích = a + b/2 − 1</span>, với
+        <span class="mathv">a</span> là số điểm nguyên bên trong và <span class="mathv">b</span> là số điểm nguyên
+        trên biên. Với đa giác trên: <span class="mathv">6 + 7/2 − 1 = 17/2</span> — khớp công thức dây giày.
+      </div>
+
+      <h2 id="s4"><span class="num">4.</span>Hàm khoảng cách</h2>
+      <p><b>Euclid</b>: <span class="mathv">√((x<sub>1</sub>−x<sub>2</sub>)² + (y<sub>1</sub>−y<sub>2</sub>)²)</span>.
+      <b>Manhattan</b>: <span class="mathv">|x<sub>1</sub>−x<sub>2</sub>| + |y<sub>1</sub>−y<sub>2</sub>|</span>.
+      Một mẹo với khoảng cách Manhattan là <b>xoay toạ độ 45°</b>:
+      <span class="mathv">(x, y) → (x+y, y−x)</span>. Khi đó</p>
+      <div class="box def">
+        <div class="t">Manhattan sau khi xoay</div>
+        <span class="mathv">|x<sub>1</sub>−x<sub>2</sub>| + |y<sub>1</sub>−y<sub>2</sub>| =
+        max(|x′<sub>1</sub>−x′<sub>2</sub>|, |y′<sub>1</sub>−y′<sub>2</sub>|)</span>.
+      </div>
+      <p>Nhờ đó, để tìm khoảng cách Manhattan lớn nhất giữa <span class="mathv">n</span> điểm, ta chỉ cần xét
+      hiệu lớn nhất theo phương ngang <em>hoặc</em> phương dọc của toạ độ đã xoay — dễ và nhanh.</p>
+
+      <footer>Chương 29 — <em>Cẩm nang Lập trình thi đấu</em>. Bài tiếp: Thuật toán đường quét.</footer>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/sitemap.js"></script>
+<script src="../assets/nav.js"></script>
+<script>CVNav.mount({ current: 'geometry' });</script>
+
+<script src="../assets/sim.js"></script>
+<script>
+/* Công thức dây giày cho đa giác 5 đỉnh */
+(function(){
+  var P=[[4,1],[7,3],[5,5],[2,4],[4,3]], n=P.length;
+  function gx(x){ return 20 + x*42; }
+  function gy(y){ return 190 - y*30; }
+
+  function frames(){
+    var F=[], run=0;
+    F.push({line:1, e:-1, run:0, term:null, msg:'Đa giác 5 đỉnh, khép kín p₅ → p₁. Bắt đầu tổng = 0.'});
+    for(var i=0;i<n;i++){
+      var j=(i+1)%n, term=P[i][0]*P[j][1]-P[j][0]*P[i][1]; run+=term;
+      F.push({line:3, e:i, run:run, term:term,
+        msg:'Cạnh ('+P[i][0]+','+P[i][1]+')→('+P[j][0]+','+P[j][1]+'): '+
+            P[i][0]+'·'+P[j][1]+' − '+P[j][0]+'·'+P[i][1]+' = '+term+'. Tổng = '+run+'.'});
+    }
+    F.push({line:4, e:-1, run:run, term:null, done:1,
+      msg:'Diện tích = |'+run+'| / 2 = '+(Math.abs(run)/2)+'.'});
+    return F;
+  }
+
+  function draw(f, canvas){
+    var s='<svg viewBox="0 0 344 210" xmlns="http://www.w3.org/2000/svg">';
+    // trục
+    s+='<line x1="12" y1="190" x2="336" y2="190" stroke="var(--border)" stroke-width="1"/>';
+    s+='<line x1="20" y1="14" x2="20" y2="198" stroke="var(--border)" stroke-width="1"/>';
+    // các cạnh
+    for(var i=0;i<n;i++){ var j=(i+1)%n, cur=(f.e===i);
+      s+='<line x1="'+gx(P[i][0])+'" y1="'+gy(P[i][1])+'" x2="'+gx(P[j][0])+'" y2="'+gy(P[j][1])+'" stroke="'+(cur?'var(--accent,var(--blue))':'var(--edge)')+'" stroke-width="'+(cur?3.4:1.6)+'"/>';
+    }
+    // đỉnh
+    for(var i=0;i<n;i++){ var cur=(f.e===i||f.e===((i-1+n)%n));
+      s+='<circle cx="'+gx(P[i][0])+'" cy="'+gy(P[i][1])+'" r="3.6" fill="'+(f.e===i?'var(--accent,var(--blue))':'var(--fg)')+'"/>';
+      s+='<text x="'+(gx(P[i][0])+6)+'" y="'+(gy(P[i][1])-6)+'" font-size="10" fill="var(--muted)">('+P[i][0]+','+P[i][1]+')</text>';
+    }
+    var termTxt = f.term==null?'—':(f.term>0?'+'+f.term:''+f.term);
+    s+='<text x="336" y="24" text-anchor="end" font-size="11" fill="var(--muted)" font-family="Noto Sans Mono,monospace">số hạng: '+termTxt+'</text>';
+    s+='<text x="336" y="40" text-anchor="end" font-size="12" font-weight="700" fill="var(--fg)" font-family="Noto Sans Mono,monospace">tổng: '+f.run+(f.done?'  → S = '+(Math.abs(f.run)/2):'')+'</text>';
+    s+='</svg>'; canvas.innerHTML=s;
+  }
+
+  var id0=frames()[0];
+  CVSim.create('#shoe', {
+    title:'Công thức dây giày (diện tích đa giác)',
+    code:{ sh:[
+      'đa giác p₁…pₙ, khép kín pₙ = p₁',
+      'với mỗi cạnh pᵢ → pᵢ₊₁:',
+      '  cộng dồn xᵢ·yᵢ₊₁ − xᵢ₊₁·yᵢ',
+      'diện tích = |tổng| / 2' ] },
+    defaultCode:'sh', defaultOpLabel:'dây giày',
+    ops:[ {label:'Tính diện tích', code:'sh', run:function(){ return frames(); }} ],
+    idle:id0,
+    draw:draw
+  });
+})();
+</script>
+
+<script src="../assets/chuan.js"></script>
+</body>
+</html>

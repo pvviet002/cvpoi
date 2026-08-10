@@ -461,7 +461,7 @@
         <div class="box tech">
             <div class="card-glow" style="background: linear-gradient(90deg, transparent, var(--pink), transparent);"></div>
             <h2 id="s5"><span class="num">5.</span>Mô phỏng 2 — cây con là một đoạn</h2>
-            <p><strong>Bấm vào một đỉnh bất kỳ trên cây</strong>. Hãy quan sát cách toàn bộ các đỉnh thuộc cây con đó sáng lên, và điều kỳ diệu là chúng tạo thành một <strong>khối liền mạch</strong> không thể phá vỡ trên mảng Euler.</p>
+            <p><strong>Bấm vào một đỉnh bất kỳ trên cây</strong>. Hãy quan sát cách toàn bộ các đỉnh thuộc cây con đó sáng lên, và điểm mấu chốt là chúng tạo thành một <strong>khối liền mạch</strong> không thể phá vỡ trên mảng Euler.</p>
             
             <!-- Tầng 1 -->
             <div class="sim-layer-1">
@@ -758,7 +758,7 @@ int main() {
         } else {         // Tính tổng cây con của u
             cin >> u;
             int L = pos[u];
-            int R = pos[u] + size[u] - 1; // Công thức vi diệu!
+            int R = pos[u] + size[u] - 1; // Công thức then chốt!
             long long ans = query(1, 1, N, L, R);
             cout << ans << "\\n";
         }

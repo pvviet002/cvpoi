@@ -66,6 +66,16 @@
   .group-head .cnt{font-family:var(--font-mono);font-size:.72rem;color:var(--ink-dim)}
   .group.hidden{display:none}
 
+  /* ---------- Phần / Chương (mục lục theo sách) ---------- */
+  .part{margin-top:44px}
+  .part.hidden{display:none}
+  .chapter{margin:16px 0 22px}
+  .chapter.hidden{display:none}
+  .chapter-head{display:flex;align-items:center;gap:11px;margin:0 0 11px}
+  .chnum{font-family:var(--font-mono);font-size:.72rem;font-weight:700;color:var(--accent);border:1px solid var(--line2);border-radius:6px;padding:2px 7px;flex:none}
+  .chapter-head h3{font-family:var(--font-ui);font-size:.98rem;font-weight:600;color:var(--ink);white-space:nowrap}
+  .chapter-head .rule{flex:1;height:1px;background:var(--line)}
+
   /* ---------- Thẻ ---------- */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
   .card{
@@ -124,7 +134,7 @@
     <span class="eyebrow">Phan Văn Việt · THPT Chuyên Vĩnh Phúc</span>
     <h1>Lý thuyết CP</h1>
     <p class="sub">Mỗi chuyên đề là một trang bài học tương tác: lý thuyết, mô phỏng từng bước, code mẫu và bài luyện.</p>
-    <p class="meta"><b id="stTotal">0</b> chuyên đề <span>·</span> <b id="stReady">0</b> đã có bài <span>·</span> <b>39</b> bài luyện có lời giải</p>
+    <p class="meta"><b id="stTotal">0</b> chương <span>·</span> <b id="stReady">0</b> bài đã có <span>·</span> <b>39</b> bài luyện có lời giải</p>
   </header>
 
   <div class="search">
@@ -138,65 +148,58 @@
   
 </div>
 
+<script src="assets/sitemap.js"></script>
 <script>
 /* =====================================================================
-   DANH SÁCH CHUYÊN ĐỀ  — thêm mục mới: copy một dòng và sửa.
-     slug  : tên thư mục (link mặc định là slug/index.html)
-     name  : tên hiển thị
-     desc  : mô tả ngắn (một dòng)
-     group : nhóm — phải trùng key trong GROUPS
-     ready : true nếu đã có trang bài học
-     href  : (tùy chọn) ghi đè link — luôn dùng đường dẫn TƯƠNG ĐỐI
-     icon  : tên icon trong ICONS
+   Trang chủ đọc "xương sống" từ assets/sitemap.js (CVSITEMAP): Phần → Chương →
+   trang bài. META bổ sung mô tả + icon cho từng bài (theo slug). Thêm bài mới:
+   khai trong sitemap.js, rồi thêm một dòng mô tả/icon vào META bên dưới.
    ===================================================================== */
-const TOPICS = [
-  {slug:'io', name:'Nhập xuất dữ liệu', desc:'cin/cout, định dạng số thực, chia nguyên và lấy dư, ký tự thoát.', group:'basic', ready:true, icon:'terminal'},
-  {slug:'ifelse', name:'Rẽ nhánh', desc:'if/else là phép chia tập: phủ kín, không chồng, đúng thứ tự.', group:'basic', ready:true, icon:'branch'},
-  {slug:'for-loop', name:'Vòng lặp', desc:'for, while, vòng lặp lồng nhau và bất biến vòng lặp.', group:'basic', ready:true, icon:'repeat'},
-  {slug:'array-1d', name:'Mảng 1 chiều', desc:'Duyệt, tìm kiếm tuyến tính, lính canh, hai con trỏ.', group:'basic', ready:true, icon:'row'},
-  {slug:'array-2d', name:'Mảng 2 chiều', desc:'Lưới hàng × cột, cờ hiệu, lính canh max1/max2.',     group:'basic', ready:true, icon:'grid'},
-  {slug:'string', name:'Xâu ký tự', desc:'Kiểu char và string, đọc và tách dữ liệu, quét cụm số, xâu con và dãy con, số lớn dạng xâu.', group:'basic', ready:true, icon:'text'},
-
-  {slug:'dsu', name:'Các tập rời rạc (DSU)', desc:'Hợp nhất hai tập, tìm gốc, nén đường đi.', group:'ds', ready:true, icon:'branch'},
-  {slug:'sqrt-decomposition', name:'Chia căn', desc:'Chia mảng thành khối để truy vấn và cập nhật nhanh.', group:'ds', ready:true, icon:'blocks'},
-  {slug:'segment-tree', name:'Segment tree', desc:'Cây phân đoạn: mọi đoạn tách thành O(log N) nút chuẩn; cây đệ quy, cây lặp, lazy propagation.', group:'ds', ready:true, icon:'tree'},
-  {slug:'monotonic-stack', name:'Ngăn xếp đơn điệu', desc:'Phần tử lớn/nhỏ kế tiếp bằng stack.', group:'ds', ready:true, icon:'stack'},
-
-  {slug:'tree',        name:'Cây & LCA',   desc:'DFS, tổ tiên chung gần nhất bằng nâng nhị phân.', group:'graph', ready:true,  icon:'tree'},
-  {slug:'euler-tour',  name:'Euler Tour trên cây', desc:'Đưa cây về mảng để dùng được truy vấn đoạn.', group:'graph', ready:true, icon:'repeat', href:'tree/euler-tour/index.html'},
-  {slug:'euler-circuit', name:'Chu trình Euler', desc:'Điều kiện tồn tại và thuật toán Hierholzer.', group:'graph', ready:true, icon:'circuit'},
-  {slug:'graph-basic', name:'Đồ thị cơ bản', desc:'Biểu diễn đồ thị, BFS, DFS, liên thông.', group:'graph', ready:true, icon:'graph'},
-  {slug:'shortest-path', name:'Đường đi ngắn nhất', desc:'Nới lỏng, Dijkstra, Bellman-Ford/SPFA, Floyd.', group:'graph', ready:true, icon:'target'},
-  {slug:'flood-fill',  name:'Loang (Flood fill)', desc:'Tô loang trên lưới, đếm vùng liên thông.', group:'graph', ready:true, icon:'drop'},
-
-  {slug:'dp', name:'Quy hoạch động', desc:'Quy hoạch động trên đoạn — kèm bài luyện có lời giải.', group:'dp', ready:true, icon:'chart'},
-  {slug:'bitmask-dp',        name:'Quy hoạch động bitmask', desc:'Nén trạng thái bằng mặt nạ bit.', group:'dp', ready:false, icon:'binary'},
-  {slug:'convex-hull-trick', name:'Convex Hull Trick', desc:'Tối ưu DP bằng bao lồi các đường thẳng.', group:'dp', ready:false, icon:'chart'},
-
-  {slug:'prefix-sum', name:'Tổng tiền tố', desc:'Cộng dồn 1D và 2D, mảng hiệu, kết hợp bảng băm.', group:'para', ready:true, icon:'sigma'},
-  {slug:'huffman',    name:'Thuật toán Huffman', desc:'Gộp hai đống nhẹ nhất, mã tiền tố tối ưu.', group:'para', ready:true, icon:'huff'},
-  {slug:'greedy',        name:'Tham lam', desc:'Chiến lược tham lam và cách chứng minh.', group:'para', ready:false, icon:'coin'},
-  {slug:'binary-search', name:'Tìm kiếm nhị phân', desc:'Chặt nhị phân trên mảng và trên đáp số.', group:'para', ready:true, icon:'target'},
-  {slug:'backtracking',  name:'Quay lui', desc:'Sinh cấu hình, cắt tỉa, liệt kê.', group:'para', ready:false, icon:'branch'},
-
-  {slug:'sieve', name:'Sàng nguyên tố', desc:'Sàng Eratosthenes, ước nguyên tố nhỏ nhất.', group:'math', ready:true, icon:'hash'},
-  {slug:'in-exclusive', name:'Bao hàm — loại trừ', desc:'Đếm phần tử thỏa ít nhất một điều kiện.', group:'math', ready:true, icon:'sets'},
-  {slug:'number-theory', name:'Số học', desc:'Ước chung, số nguyên tố, đồng dư, lũy thừa nhanh.', group:'math', ready:true, icon:'hash'},
-  {slug:'combinatoric', name:'Tổ hợp', desc:'Quy tắc cộng — nhân, hoán vị, chỉnh hợp, tổ hợp và các kỹ thuật đếm.', group:'math', ready:true, icon:'sigma'},
-  {slug:'math',          name:'Toán rời rạc', desc:'Tổ hợp, xác suất, các đẳng thức thường gặp.', group:'math', ready:false, icon:'sigma'},
-
-  {slug:'sols', name:'Kho lời giải', desc:'39 bài tập có hướng dẫn giải, xếp theo chuyên đề.', group:'sols', ready:true, icon:'book'},
-];
-
-const GROUPS = [
-  {key:'basic', label:'Cơ bản'},
-  {key:'ds',    label:'Cấu trúc dữ liệu'},
-  {key:'graph', label:'Đồ thị & cây'},
-  {key:'dp',    label:'Quy hoạch động'},
-  {key:'para',  label:'Kỹ thuật'},
-  {key:'math',  label:'Toán'},
-  {key:'sols',  label:'Bài luyện'},
-];
+const META = {
+  io:{desc:'cin/cout, định dạng số thực, chia nguyên và lấy dư, ký tự thoát.', icon:'terminal'},
+  ifelse:{desc:'if/else là phép chia tập: phủ kín, không chồng, đúng thứ tự.', icon:'branch'},
+  'for-loop':{desc:'for, while, vòng lặp lồng nhau và quy tắc luôn đúng của vòng lặp.', icon:'repeat'},
+  'array-1d':{desc:'Duyệt, tìm kiếm tuyến tính, lính canh, hai con trỏ.', icon:'row'},
+  'array-2d':{desc:'Lưới hàng × cột, cờ hiệu, lính canh max1/max2.', icon:'grid'},
+  string:{desc:'char và string, đọc và tách dữ liệu, xâu con và dãy con, số lớn dạng xâu.', icon:'text'},
+  'binary-search':{desc:'Chặt nhị phân trên mảng và trên đáp số.', icon:'target'},
+  bst:{desc:'Tìm, chèn theo quy tắc thứ tự; mô phỏng từng bước.', icon:'tree'},
+  huffman:{desc:'Gộp hai đống nhẹ nhất, mã tiền tố tối ưu.', icon:'huff'},
+  dp:{desc:'Quy hoạch động trên đoạn — kèm bài luyện có lời giải.', icon:'chart'},
+  'digit-dp':{desc:'Đếm số trên đoạn rất lớn bằng cách dựng số từ trái sang phải.', icon:'binary'},
+  'monotonic-stack':{desc:'Tìm phần tử lớn/nhỏ gần nhất bằng ngăn xếp giữ thứ tự.', icon:'stack'},
+  'prefix-sum':{desc:'Cộng dồn 1D và 2D, mảng hiệu, kết hợp bảng băm.', icon:'sigma'},
+  'sqrt-decomposition':{desc:'Chia mảng thành khối để truy vấn và cập nhật nhanh.', icon:'blocks'},
+  'segment-tree':{desc:'Mọi đoạn tách thành O(log N) nút chuẩn; cây đệ quy, cây lặp, lazy.', icon:'tree'},
+  'graph-basic':{desc:'Biểu diễn đồ thị, BFS, DFS, liên thông.', icon:'graph'},
+  'flood-fill':{desc:'Tô loang trên lưới, đếm vùng liên thông.', icon:'drop'},
+  'shortest-path':{desc:'Nới lỏng, Dijkstra, Bellman-Ford/SPFA, Floyd.', icon:'target'},
+  tree:{desc:'DFS, tổ tiên chung gần nhất bằng nâng nhị phân.', icon:'tree'},
+  dsu:{desc:'Hợp nhất hai tập, tìm gốc, nén đường đi.', icon:'branch'},
+  'euler-tour':{desc:'Đưa cây về mảng để dùng được truy vấn đoạn.', icon:'repeat'},
+  'euler-circuit':{desc:'Điều kiện tồn tại và thuật toán Hierholzer.', icon:'circuit'},
+  'number-theory':{desc:'Ước chung, số nguyên tố, tính theo số dư, lũy thừa nhanh.', icon:'hash'},
+  sieve:{desc:'Sàng Eratosthenes, ước nguyên tố nhỏ nhất.', icon:'hash'},
+  combinatoric:{desc:'Quy tắc cộng — nhân, hoán vị, chỉnh hợp, tổ hợp và kỹ thuật đếm.', icon:'sigma'},
+  'in-exclusive':{desc:'Đếm phần tử thỏa ít nhất một điều kiện.', icon:'sets'},
+  'time-complexity':{desc:'Ký hiệu O-lớn, các lớp phức tạp, và bài đoạn con tổng lớn nhất (Kadane).', icon:'chart'},
+  introduction:{desc:'Khung C++, nhập xuất, bẫy tràn số, số học phần dư, rút gọn mã, công thức toán.', icon:'book'},
+  'data-structures':{desc:'vector, set, map, iterator, stack/queue/heap, và khi nào nên sắp xếp.', icon:'blocks'},
+  'complete-search':{desc:'Sinh tập con, hoán vị, quay lui (N quân hậu), cắt tỉa, gặp nhau ở giữa.', icon:'branch'},
+  'bit-manipulation':{desc:'Biểu diễn bit, AND/OR/XOR, mẹo bit, tập bằng mặt nạ, tối ưu popcount.', icon:'binary'},
+  'directed-graphs':{desc:'Sắp xếp tô-pô, QHĐ trên DAG, đồ thị kế tiếp, phát hiện chu trình (Floyd).', icon:'graph'},
+  'strong-connectivity':{desc:'Thành phần liên thông hai chiều, thuật toán Kosaraju, bài toán 2SAT.', icon:'graph'},
+  'max-flow':{desc:'Luồng cực đại = lát cắt nhỏ nhất, Ford–Fulkerson, đường đi rời nhau, ghép cặp hai phía.', icon:'graph'},
+  matrices:{desc:'Nhân ma trận, luỹ thừa nhanh cho truy hồi tuyến tính (Fibonacci), đếm đường đi.', icon:'grid'},
+  probability:{desc:'Biến cố, kỳ vọng & tính tuyến tính, phân phối, xích Markov, thuật toán ngẫu nhiên.', icon:'chart'},
+  'game-theory':{desc:'Trạng thái thắng/thua, trò Nim và tổng nim, số Grundy và định lý Sprague–Grundy.', icon:'branch'},
+  'string-algorithms':{desc:'Cây tiền tố, băm chuỗi đa thức, thuật toán Z và so khớp mẫu tuyến tính.', icon:'text'},
+  'sqrt-algorithms':{desc:'Chia khối √n, kết hợp hai thuật toán, phân hoạch số nguyên, thuật toán Mo.', icon:'blocks'},
+  'segment-tree-advanced':{desc:'Truy vấn đệ quy từ trên xuống, lan truyền lười, cây động/thưa/bền vững.', icon:'tree'},
+  geometry:{desc:'Số phức làm điểm, tích có hướng, diện tích dây giày & Pick, khoảng cách Manhattan.', icon:'grid'},
+  'sweep-line':{desc:'Sự kiện theo thời gian, đếm giao điểm, cặp điểm gần nhất, bao lồi Andrew.', icon:'chart'},
+  sols:{desc:'39 bài tập có hướng dẫn giải, xếp theo chuyên đề.', icon:'book'}
+};
 
 const ICONS = {
   grid:    '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
@@ -227,57 +230,78 @@ const groupsBox=document.getElementById('groups');
 const empty=document.getElementById('empty');
 const qInput=document.getElementById('q');
 
-function cardHTML(t){
-  const icon=ICONS[t.icon]||ICONS.dot;
-  const key=(t.name+' '+t.slug+' '+t.desc).toLowerCase();
-  const inner=`
+function cardHTML(p){
+  const m=META[p.slug]||{};
+  const icon=ICONS[m.icon]||ICONS.dot;
+  const desc=m.desc||'';
+  const href=p.href||('/'+p.slug+'/');
+  const key=(p.title+' '+p.slug+' '+desc).toLowerCase();
+  return `<a class="card" href="${href}" data-key="${key}">
     <div class="ico"><svg viewBox="0 0 24 24">${icon}</svg></div>
-    <div class="body">
-      <h3>${t.ready?'<span class="dot"></span>':''}${t.name}${t.ready?'':'<span class="tag-soon">Sắp có</span>'}</h3>
-      <div class="desc">${t.desc}</div>
-    </div>
-    ${t.ready?'<svg class="arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>':''}`;
-  if(t.ready){
-    const href=t.href||(t.slug+'/index.html');
-    return `<a class="card" href="${href}" data-key="${key}">${inner}</a>`;
-  }
-  return `<div class="card soon" data-key="${key}">${inner}</div>`;
+    <div class="body"><h3><span class="dot"></span>${p.title}</h3><div class="desc">${desc}</div></div>
+    <svg class="arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`;
+}
+
+function chapterHTML(ch){
+  const has=ch.pages&&ch.pages.length;
+  const key=(ch.title+' chương '+ch.n).toLowerCase();
+  const cards=has?`<div class="grid">${ch.pages.map(cardHTML).join('')}</div>`:'';
+  const soon=has?'':'<span class="tag-soon">Sắp có</span>';
+  return `<div class="chapter" data-ch="${ch.n}" data-key="${key}">
+    <div class="chapter-head"><span class="chnum">${ch.n}</span><h3>${ch.title}</h3><div class="rule"></div>${soon}</div>
+    ${cards}</div>`;
+}
+
+function partHTML(pt){
+  return `<section class="part" data-part="${pt.id}">
+    <div class="group-head"><h2>${pt.label}</h2><div class="rule"></div><span class="cnt">${pt.chapters.length} chương</span></div>
+    ${pt.chapters.map(chapterHTML).join('')}</section>`;
+}
+
+function extraHTML(){
+  return `<section class="part" data-part="extra">
+    <div class="group-head"><h2>Bài luyện</h2><div class="rule"></div></div>
+    <div class="grid">${cardHTML({slug:'sols', title:'Kho lời giải', href:'/sols/'})}</div></section>`;
 }
 
 function render(){
-  groupsBox.innerHTML=GROUPS.map(g=>{
-    const items=TOPICS.filter(t=>t.group===g.key);
-    if(!items.length) return '';
-    return `<section class="group" data-group="${g.key}">
-      <div class="group-head">
-        <h2>${g.label}</h2><div class="rule"></div>
-        <span class="cnt">${items.length}</span>
-      </div>
-      <div class="grid">${items.map(cardHTML).join('')}</div>
-    </section>`;
-  }).join('');
+  groupsBox.innerHTML=CVSITEMAP.parts.map(partHTML).join('')+extraHTML();
 }
 
 function applyFilter(query){
   let shown=0;
-  groupsBox.querySelectorAll('.group').forEach(sec=>{
-    let vis=0;
-    sec.querySelectorAll('.card').forEach(c=>{
+  groupsBox.querySelectorAll('.part').forEach(part=>{
+    let pv=0;
+    part.querySelectorAll('.chapter').forEach(ch=>{
+      const chMatch=!query||ch.dataset.key.includes(query);
+      let cv=0;
+      ch.querySelectorAll('.card').forEach(c=>{
+        const ok=!query||chMatch||c.dataset.key.includes(query);
+        c.classList.toggle('hidden',!ok);
+        if(ok)cv++;
+      });
+      const hasCards=!!ch.querySelector('.card');
+      const chVis=hasCards?cv>0:chMatch;
+      ch.classList.toggle('hidden',!chVis);
+      if(chVis){pv++; shown+=hasCards?cv:1;}
+    });
+    part.querySelectorAll(':scope > .grid .card').forEach(c=>{
       const ok=!query||c.dataset.key.includes(query);
       c.classList.toggle('hidden',!ok);
-      if(ok){vis++;shown++;}
+      if(ok){pv++;shown++;}
     });
-    sec.classList.toggle('hidden',vis===0);
+    part.classList.toggle('hidden',pv===0);
   });
   empty.classList.toggle('show',shown===0);
 }
 
 qInput.addEventListener('input',()=>applyFilter(qInput.value.trim().toLowerCase()));
 
-/* Thẻ "Kho lời giải" không phải một chuyên đề nên không tính vào hai con số này. */
-const CHUYENDE=TOPICS.filter(t=>t.group!=='sols');
-document.getElementById('stTotal').textContent=CHUYENDE.length;
-document.getElementById('stReady').textContent=CHUYENDE.filter(t=>t.ready).length;
+/* Thống kê: số chương và số bài đã có (không tính "Kho lời giải"). */
+let nCh=0,nPage=0;
+CVSITEMAP.parts.forEach(pt=>pt.chapters.forEach(ch=>{nCh++; if(ch.pages)nPage+=ch.pages.length;}));
+document.getElementById('stTotal').textContent=nCh;
+document.getElementById('stReady').textContent=nPage;
 render();
 </script>
 

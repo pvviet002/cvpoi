@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cây phân đoạn nâng cao | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../assets/sim.css">
+<link rel="stylesheet" href="../assets/nav.css">
+</head>
+<body class="cv-shell" data-nav="segment-tree-advanced">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
+
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
+
+    <div class="wrap">
+      <header>
+        <div class="kicker">Chương 28 · Chủ đề nâng cao</div>
+        <h1>Cây phân đoạn (nâng cao)</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p>Cây phân đoạn giải được rất nhiều bài. Ở đây ta bàn các biến thể nâng cao: cách cài
+      <b>từ trên xuống</b> (đệ quy), <b>lan truyền lười</b> để cập nhật cả đoạn, cây <b>động</b>/<b>thưa</b>,
+      <b>bền vững</b>, và cây có <b>cấu trúc dữ liệu tại mỗi nút</b>.</p>
+
+      <h2 id="s1"><span class="num">1.</span>Cài đặt từ trên xuống</h2>
+      <p>Các cây cơ bản đi <em>từ dưới lên</em>. Các biến thể nâng cao thường cần đi <em>từ trên xuống</em> theo
+      đệ quy. Hàm tính tổng đoạn <span class="mathv">[a, b]</span> khi đang ở nút phủ
+      <span class="mathv">[x, y]</span>:</p>
+      <div class="codewrap noname"><pre><code>int sum(int a, int b, int k, int x, int y) {
+    if (b &lt; x || a &gt; y) return 0;              // rời đoạn
+    if (a &lt;= x &amp;&amp; y &lt;= b) return tree[k];       // nằm trọn
+    int d = (x+y)/2;
+    return sum(a,b,2*k,x,d) + sum(a,b,2*k+1,d+1,y); // chồng một phần
+}</code></pre></div>
+      <p>Bấm <b>Truy vấn tổng [1, 6]</b>: đệ quy từ gốc, nút <em>rời đoạn</em> bị bỏ (mờ), nút <em>nằm trọn</em>
+      được lấy ngay (xanh lá), nút <em>chồng một phần</em> tách xuống hai con (xanh dương). Chỉ một số ít nút
+      được lấy trọn:</p>
+
+      <div class="sim" id="st"></div>
+
+      <p>Tổng số nút được thăm là <span class="mathv">O(log n)</span>, nên mỗi thao tác vẫn
+      <span class="mathv">O(log n)</span>.</p>
+
+      <h2 id="s2"><span class="num">2.</span>Lan truyền lười</h2>
+      <p><b>Lan truyền lười</b> cho phép <em>cập nhật cả đoạn</em> lẫn <em>truy vấn cả đoạn</em> đều
+      <span class="mathv">O(log n)</span>. Mỗi nút giữ hai giá trị <span class="mathv">s / z</span>:
+      <span class="mathv">s</span> là tổng của đoạn, còn <span class="mathv">z</span> là <b>cập nhật lười</b> đang
+      chờ — nghĩa là mọi phần tử trong đoạn cần được tăng thêm <span class="mathv">z</span>.</p>
+      <div class="box def">
+        <div class="t">Tăng mọi phần tử trong [a, b] thêm u</div>
+        Đi từ gốc xuống: nếu đoạn của nút <b>nằm trọn</b> trong <span class="mathv">[a, b]</span>, tăng
+        <span class="mathv">z</span> thêm <span class="mathv">u</span> rồi dừng. Nếu chỉ <b>chồng một phần</b>,
+        tăng <span class="mathv">s</span> thêm <span class="mathv">h·u</span> (với <span class="mathv">h</span> là
+        độ dài phần giao) rồi đệ quy tiếp.
+      </div>
+      <p>Then chốt: cập nhật lười chỉ được <b>đẩy xuống các con khi thật cần</b> (trước khi xử lý nút đó trong
+      một thao tác sau). Nhờ trì hoãn như vậy, mỗi thao tác chỉ chạm <span class="mathv">O(log n)</span> nút. Khi
+      cộng dồn, hai cập nhật lười <span class="mathv">z<sub>1</sub></span> và
+      <span class="mathv">z<sub>2</sub></span> gộp lại thành <span class="mathv">z<sub>1</sub> + z<sub>2</sub></span>.
+      Kỹ thuật này tổng quát được cho cập nhật bằng <b>đa thức</b>
+      <span class="mathv">p(u) = t<sub>k</sub>u<sup>k</sup> + … + t<sub>0</sub></span> (mỗi nút giữ
+      <span class="mathv">k+2</span> giá trị).</p>
+
+      <h2 id="s3"><span class="num">3.</span>Cây động, thưa và bền vững</h2>
+      <p>Cây phân đoạn thông thường là <b>tĩnh</b> (bộ nhớ cố định <span class="mathv">O(n)</span>). Trong cây
+      <b>động</b>, chỉ cấp bộ nhớ cho những nút thực sự được truy cập (mỗi nút là một struct có
+      <code class="inl">left</code>, <code class="inl">right</code>).</p>
+      <ul>
+        <li><b>Cây thưa</b>: khi đoạn chỉ số <span class="mathv">[0, n−1]</span> rất lớn nhưng hầu hết giá trị
+        bằng 0. Sau <span class="mathv">k</span> thao tác, cây chỉ dùng <span class="mathv">O(k log n)</span> bộ
+        nhớ (mỗi thao tác thêm tối đa <span class="mathv">O(log n)</span> nút).</li>
+        <li><b>Cây bền vững</b>: lưu cả <em>lịch sử chỉnh sửa</em>. Vì mỗi cập nhật chỉ thay
+        <span class="mathv">O(log n)</span> nút, các phiên bản cũ dùng chung phần lớn cây con → lưu trọn lịch sử
+        vẫn tiết kiệm.</li>
+      </ul>
+
+      <h2 id="s4"><span class="num">4.</span>Cấu trúc dữ liệu tại nút &amp; cây hai chiều</h2>
+      <p>Mỗi nút có thể chứa hẳn một <b>cấu trúc dữ liệu</b> (ví dụ <code class="inl">map</code>) mô tả đoạn của
+      nó — chẳng hạn để trả lời "phần tử <span class="mathv">x</span> xuất hiện mấy lần trong
+      <span class="mathv">[a, b]</span>". Khi đó mỗi thao tác tốn <span class="mathv">O(log<sup>2</sup> n)</span>
+      và cây dùng <span class="mathv">O(n log n)</span> bộ nhớ.</p>
+      <p><b>Cây phân đoạn hai chiều</b> là các cây lồng nhau (một cây theo hàng, mỗi nút chứa một cây theo cột),
+      trả lời truy vấn trên mảng con hình chữ nhật trong <span class="mathv">O(log<sup>2</sup> n)</span>, dùng
+      <span class="mathv">O(n<sup>2</sup>)</span> bộ nhớ.</p>
+
+      <footer>Chương 28 — <em>Cẩm nang Lập trình thi đấu</em>. Bài tiếp: Hình học.</footer>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/sitemap.js"></script>
+<script src="../assets/nav.js"></script>
+<script>CVNav.mount({ current: 'segment-tree-advanced' });</script>
+
+<script src="../assets/sim.js"></script>
+<script>
+/* Truy vấn tổng đoạn từ trên xuống — thăm O(log n) nút */
+(function(){
+  var A=[5,8,6,3,2,7,2,6], NL=8;
+  var sum={}, L={}, R={};
+  function build(id,l,r){ L[id]=l; R[id]=r; if(l===r){ sum[id]=A[l]; return; } var m=(l+r)>>1; build(2*id,l,m); build(2*id+1,m+1,r); sum[id]=sum[2*id]+sum[2*id+1]; }
+  build(1,0,7);
+
+  function qFrames(ql,qr){
+    var F=[], st={}, run={v:0};
+    function snap(cur,line,msg){ return {states:Object.assign({},st), cur:cur, run:run.v, line:line, msg:msg}; }
+    function rec(id){
+      var l=L[id], r=R[id];
+      if(qr<l||r<ql){ st[id]='out'; F.push(snap(id,2,'Nút ['+l+','+r+'] rời đoạn ['+ql+','+qr+'] → bỏ qua.')); return; }
+      if(ql<=l && r<=qr){ st[id]='take'; run.v+=sum[id]; F.push(snap(id,3,'Nút ['+l+','+r+'] nằm trọn → lấy '+sum[id]+'. Tổng = '+run.v+'.')); return; }
+      st[id]='part'; F.push(snap(id,4,'Nút ['+l+','+r+'] chồng một phần → đệ quy hai nửa.'));
+      rec(2*id); rec(2*id+1);
+    }
+    rec(1);
+    var takes=0; for(var k in st) if(st[k]==='take') takes++;
+    F.push({states:Object.assign({},st), cur:0, line:5, run:run.v, msg:'Tổng đoạn ['+ql+','+qr+'] = '+run.v+'. Chỉ '+takes+' nút được lấy trọn.'});
+    return F;
+  }
+
+  function nx(id){ var mid=(L[id]+R[id])/2; return 24 + mid*42; }
+  function ny(id){ var d=Math.floor(Math.log(id)/Math.log(2)); return 20 + d*42; }
+
+  function draw(f, canvas){
+    var s='<svg viewBox="0 0 356 190" xmlns="http://www.w3.org/2000/svg">';
+    // cạnh
+    for(var id=2; id<=15; id++){ var p=id>>1;
+      s+='<line x1="'+nx(p)+'" y1="'+ny(p)+'" x2="'+nx(id)+'" y2="'+ny(id)+'" stroke="var(--edge)" stroke-width="1.2" opacity="0.7"/>';
+    }
+    // nút
+    for(var id=1; id<=15; id++){
+      var x=nx(id), y=ny(id), stt=f.states[id]||'', cur=(f.cur===id);
+      var fill='var(--card)', stroke='var(--border)', sw=1.4, op=1;
+      if(stt==='out'){ fill='var(--card)'; stroke='var(--border)'; op=0.32; }
+      else if(stt==='take'){ fill='var(--green-bg)'; stroke='var(--hl2)'; sw=2; }
+      else if(stt==='part'){ fill='var(--blue-bg)'; stroke='var(--accent,var(--blue))'; sw=1.8; }
+      if(cur){ stroke='var(--accent,var(--blue))'; sw=3; op=1; }
+      s+='<circle cx="'+x+'" cy="'+y+'" r="13.5" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+sw+'" opacity="'+op+'"'+(stt==='out'?' stroke-dasharray="3 3"':'')+'/>';
+      s+='<text x="'+x+'" y="'+y+'" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans Mono,monospace" font-size="11" font-weight="700" fill="var(--fg)" opacity="'+op+'">'+sum[id]+'</text>';
+    }
+    // lá: chỉ số mảng
+    for(var i=0;i<NL;i++){ var lx=24+i*42; s+='<text x="'+lx+'" y="184" text-anchor="middle" font-size="9" fill="var(--muted)">['+i+']</text>'; }
+    s+='<text x="330" y="16" text-anchor="end" font-size="11.5" font-weight="700" fill="var(--fg)" font-family="Noto Sans Mono,monospace">Tổng: '+f.run+'</text>';
+    s+='</svg>'; canvas.innerHTML=s;
+  }
+
+  var id0={states:{}, cur:0, run:0, line:1, msg:'Bấm “Truy vấn tổng [1, 6]” rồi Chạy/Tiến.'};
+  CVSim.create('#st', {
+    title:'Truy vấn tổng đoạn (từ trên xuống)',
+    code:{ st:[
+      'sum(a,b): đi từ gốc, nút phủ đoạn [x,y]',
+      '  [x,y] rời [a,b] → bỏ qua',
+      '  [x,y] nằm trọn trong [a,b] → lấy tổng nút',
+      '  chồng một phần → đệ quy hai nửa',
+      'chỉ O(log n) nút được lấy trọn' ] },
+    defaultCode:'st', defaultOpLabel:'sum',
+    ops:[ {label:'Truy vấn tổng [1, 6]', code:'st', run:function(){ return qFrames(1,6); }} ],
+    idle:id0,
+    draw:draw
+  });
+})();
+</script>
+
+<script src="../assets/chuan.js"></script>
+</body>
+</html>

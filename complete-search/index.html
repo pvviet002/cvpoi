@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tìm kiếm hoàn chỉnh | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../assets/sim.css">
+<link rel="stylesheet" href="../assets/nav.css">
+</head>
+<body class="cv-shell" data-nav="complete-search">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
+
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
+
+    <div class="wrap">
+      <header>
+        <div class="kicker">Chương 5 · Các kỹ thuật cơ bản</div>
+        <h1>Tìm kiếm hoàn chỉnh</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p><b>Tìm kiếm hoàn chỉnh</b> (vét cạn) sinh ra <em>mọi</em> giải pháp khả dĩ rồi chọn cái tốt nhất
+      hoặc đếm số giải pháp. Nó dễ cài, luôn cho đáp án đúng — miễn là kịp thời gian. Khi vét cạn quá chậm,
+      ta mới cần tới tham lam hay quy hoạch động.</p>
+
+      <h2 id="s1"><span class="num">1.</span>Sinh tập con</h2>
+      <p>Một tập <span class="mathv">n</span> phần tử có <span class="mathv">2<sup>n</sup></span> tập con.
+      Có hai cách sinh. <b>Cách đệ quy:</b> với mỗi phần tử, quyết định lấy hay không:</p>
+      <div class="codewrap noname"><pre><code>void search(int k) {
+    if (k == n) { /* xử lý tập con */ }
+    else {
+        search(k+1);                 // không lấy phần tử k
+        subset.push_back(k);
+        search(k+1);                 // lấy phần tử k
+        subset.pop_back();
+    }
+}</code></pre></div>
+      <p><b>Cách dùng bit:</b> mỗi số <span class="mathv">b</span> từ <span class="mathv">0</span> đến
+      <span class="mathv">2<sup>n</sup>−1</span> là một tập con — bit thứ <span class="mathv">i</span> bật
+      nghĩa là lấy phần tử <span class="mathv">i</span>. Ví dụ <span class="mathv">25 = 11001<sub>2</sub></span>
+      ứng với tập <span class="mathv">{0, 3, 4}</span>:</p>
+      <div class="codewrap noname"><pre><code>for (int b = 0; b &lt; (1 &lt;&lt; n); b++) {      // 1&lt;&lt;n bằng 2^n
+    for (int i = 0; i &lt; n; i++)
+        if (b &amp; (1 &lt;&lt; i)) subset.push_back(i);
+}</code></pre></div>
+
+      <h2 id="s2"><span class="num">2.</span>Sinh hoán vị</h2>
+      <p>Một tập <span class="mathv">n</span> phần tử có <span class="mathv">n!</span> hoán vị. Cách đệ quy
+      dùng mảng <code class="inl">chosen</code> đánh dấu phần tử đã lấy; hoặc gọn hơn, dùng hàm chuẩn
+      <code class="inl">next_permutation</code> để nhảy sang hoán vị kế tiếp:</p>
+      <div class="codewrap noname"><pre><code>vector&lt;int&gt; p;
+for (int i = 0; i &lt; n; i++) p.push_back(i);
+do {
+    // xử lý hoán vị p
+} while (next_permutation(p.begin(), p.end()));</code></pre></div>
+
+      <h2 id="s3"><span class="num">3.</span>Quay lui: bài toán N quân hậu</h2>
+      <p><b>Quay lui</b> dựng giải pháp từng bước; khi một bước không thể mở rộng, ta lùi lại và thử cách
+      khác. Kinh điển là đặt <span class="mathv">n</span> quân hậu lên bàn <span class="mathv">n×n</span>
+      sao cho không quân nào ăn được quân nào: đặt lần lượt mỗi hàng một quân, chỉ chọn cột mà cột và hai
+      đường chéo chưa bị chiếm.</p>
+      <div class="codewrap noname"><pre><code>void search(int y) {           // đặt quân ở hàng y
+    if (y == n) { count++; return; }        // đủ n quân -> một nghiệm
+    for (int x = 0; x &lt; n; x++) {
+        if (column[x] || diag1[x+y] || diag2[x-y+n-1]) continue;
+        column[x] = diag1[x+y] = diag2[x-y+n-1] = 1;
+        search(y+1);
+        column[x] = diag1[x+y] = diag2[x-y+n-1] = 0;   // quay lui
+    }
+}</code></pre></div>
+      <p>Gọi <span class="mathv">q(n)</span> là số cách đặt. Thuật toán cho
+      <span class="mathv">q(8) = 92</span>; số nghiệm tăng theo hàm mũ nên
+      <span class="mathv">q(16) = 14&nbsp;772&nbsp;512</span> đã mất cả phút. Bấm <b>Chạy</b> để xem quay lui
+      dò tới <em>nghiệm đầu tiên</em>: ô đang thử viền xanh, xung đột gạch đỏ, đặt được thì hiện quân hậu,
+      bí thì quay lui (viền đỏ nét đứt).</p>
+
+      <div class="sim" id="nq"></div>
+
+      <h2 id="s4"><span class="num">4.</span>Cắt tỉa cây tìm kiếm</h2>
+      <p>Cây quay lui thường rất lớn, nên nhận ra sớm một nhánh <em>không thể</em> dẫn tới nghiệm sẽ tiết
+      kiệm rất nhiều. Xét bài đếm đường đi qua mỗi ô đúng một lần trong lưới <span class="mathv">7×7</span>
+      (có <span class="mathv">111&nbsp;712</span> đường). Thêm dần các nhận xét cắt tỉa:</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Phiên bản</th><th>Thời gian</th><th>Số lần gọi đệ quy</th></tr></thead>
+        <tbody>
+          <tr><td>Quay lui thuần</td><td class="c">483 s</td><td class="c">76 tỉ</td></tr>
+          <tr><td>+ đối xứng bước đầu</td><td class="c">244 s</td><td class="c">38 tỉ</td></tr>
+          <tr><td>+ dừng nếu tới đích quá sớm</td><td class="c">119 s</td><td class="c">20 tỉ</td></tr>
+          <tr><td>+ phát hiện lưới bị chia đôi</td><td class="c">1,8 s</td><td class="c">221 triệu</td></tr>
+          <tr><td>+ mở rộng nhận xét chia đôi</td><td class="c">0,6 s</td><td class="c">69 triệu</td></tr>
+        </tbody>
+      </table></div>
+      <p>Từ <span class="mathv">483</span> s xuống <span class="mathv">0,6</span> s — nhanh gần
+      <b>1000 lần</b> chỉ nhờ vài nhận xét. <b>Mấu chốt:</b> cắt tỉa càng gần gốc cây (những bước đầu)
+      thì càng loại được nhiều nhánh.</p>
+
+      <h2 id="s5"><span class="num">5.</span>Chia đôi rồi ghép (gặp nhau ở giữa)</h2>
+      <p>Kỹ thuật <b>gặp nhau ở giữa</b> chia không gian tìm kiếm thành hai nửa, tìm riêng mỗi nửa rồi ghép
+      kết quả — thường biến <span class="mathv">2<sup>n</sup></span> thành
+      <span class="mathv">2<sup>n/2</sup></span> (vì <span class="mathv">2<sup>n/2</sup> = √(2<sup>n</sup>)</span>).</p>
+      <div class="box tech">
+        <div class="t">Ví dụ: chọn vài số cho tổng bằng x</div>
+        Danh sách <span class="mathv">[2, 4, 5, 9]</span>, <span class="mathv">x = 15</span>. Chia
+        <span class="mathv">A = [2, 4]</span>, <span class="mathv">B = [5, 9]</span>. Mọi tổng con:
+        <span class="mathv">S<sub>A</sub> = [0, 2, 4, 6]</span>,
+        <span class="mathv">S<sub>B</sub> = [0, 5, 9, 14]</span>. Có
+        <span class="mathv">6 ∈ S<sub>A</sub></span> và <span class="mathv">9 ∈ S<sub>B</sub></span>,
+        <span class="mathv">6 + 9 = 15</span> → chọn được (ứng với <span class="mathv">[2, 4, 9]</span>).
+      </div>
+      <p>Sắp xếp hai danh sách tổng rồi quét bằng hai con trỏ, kiểm tra "có
+      <span class="mathv">u ∈ S<sub>A</sub>, v ∈ S<sub>B</sub></span> với
+      <span class="mathv">u + v = x</span>?" trong <span class="mathv">O(2<sup>n/2</sup>)</span>.</p>
+
+      <footer>Chương 5 — <em>Cẩm nang Lập trình thi đấu</em>. Bài tiếp: Giải thuật tham lam.</footer>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/sitemap.js"></script>
+<script src="../assets/nav.js"></script>
+<script>CVNav.mount({ current: 'complete-search' });</script>
+
+<script src="../assets/sim.js"></script>
+<script>
+/* Quay lui N quân hậu — dò tới nghiệm đầu tiên */
+(function(){
+  var curN = 5;
+  function nqueensFrames(N){
+    curN = N;
+    var F=[], pos=new Array(N).fill(-1);
+    var cols={}, d1={}, d2={}, found=false;
+    function snap(line,r,c,st,msg){ F.push({line:line, pos:pos.slice(), tr:r, tc:c, st:st, msg:msg}); }
+    function place(row){
+      if(found) return;
+      if(row===N){ found=true; snap(2,-1,-1,'solved','Đủ '+N+' quân hậu — TÌM THẤY một nghiệm!'); return; }
+      for(var col=0; col<N && !found; col++){
+        snap(3,row,col,'try','Thử hàng '+row+', cột '+col+'.');
+        if(cols[col]||d1[row+col]||d2[row-col+N]){
+          snap(4,row,col,'conflict','Cột '+col+' hoặc đường chéo đã bị chiếm → bỏ qua.');
+          continue;
+        }
+        cols[col]=d1[row+col]=d2[row-col+N]=1; pos[row]=col;
+        snap(5,row,col,'place','Đặt hậu ở ('+row+','+col+'); sang hàng '+(row+1)+'.');
+        place(row+1);
+        if(found) return;
+        cols[col]=d1[row+col]=d2[row-col+N]=0; pos[row]=-1;
+        snap(6,row,col,'backtrack','Hàng '+(row+1)+' bí → quay lui, bỏ hậu ở ('+row+','+col+').');
+      }
+    }
+    snap(1,-1,-1,'start','Bắt đầu quay lui từ hàng 0.');
+    place(0);
+    return F;
+  }
+  function draw(f, canvas){
+    var N=curN, cw=Math.min(46, Math.floor(300/N)), m=8, W=N*cw+2*m;
+    var s='<svg viewBox="0 0 '+W+' '+W+'" xmlns="http://www.w3.org/2000/svg">';
+    for(var r=0;r<N;r++) for(var c=0;c<N;c++){
+      var x=m+c*cw, y=m+r*cw, dark=((r+c)%2===1);
+      s+='<rect x="'+x+'" y="'+y+'" width="'+cw+'" height="'+cw+'" fill="'+(dark?'var(--code-bg)':'var(--card)')+'" stroke="var(--border)"/>';
+    }
+    for(var r=0;r<N;r++){ if(f.pos[r]>=0){
+      var cx=m+f.pos[r]*cw+cw/2, cy=m+r*cw+cw/2, col=(f.st==='solved')?'var(--hl2)':'var(--accent2,var(--purple))';
+      s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(cw*0.33)+'" fill="'+col+'" stroke="var(--fg)" stroke-width="1.4"/>';
+      s+='<text x="'+cx+'" y="'+cy+'" text-anchor="middle" dominant-baseline="central" font-size="'+(cw*0.42)+'" fill="#fff">♛</text>';
+    }}
+    if(f.tr>=0){
+      var x=m+f.tc*cw, y=m+f.tr*cw;
+      if(f.st==='try'||f.st==='place')
+        s+='<rect x="'+x+'" y="'+y+'" width="'+cw+'" height="'+cw+'" fill="none" stroke="var(--accent,var(--blue))" stroke-width="3.5"/>';
+      else if(f.st==='conflict'){
+        s+='<rect x="'+x+'" y="'+y+'" width="'+cw+'" height="'+cw+'" fill="none" stroke="var(--red)" stroke-width="3"/>';
+        s+='<line x1="'+(x+7)+'" y1="'+(y+7)+'" x2="'+(x+cw-7)+'" y2="'+(y+cw-7)+'" stroke="var(--red)" stroke-width="2.5"/>';
+        s+='<line x1="'+(x+cw-7)+'" y1="'+(y+7)+'" x2="'+(x+7)+'" y2="'+(y+cw-7)+'" stroke="var(--red)" stroke-width="2.5"/>';
+      } else if(f.st==='backtrack')
+        s+='<rect x="'+x+'" y="'+y+'" width="'+cw+'" height="'+cw+'" fill="none" stroke="var(--red)" stroke-width="3" stroke-dasharray="5 4"/>';
+    }
+    s+='</svg>'; canvas.innerHTML=s;
+  }
+  CVSim.create('#nq', {
+    title:'Quay lui đặt N quân hậu',
+    input:{label:'N (4–6)', type:'number', value:5},
+    code:{ nq:[
+      'đặt(hàng):',
+      '  nếu hàng = N → ghi nhận một nghiệm',
+      '  với mỗi cột 0..N−1:',
+      '    nếu cột / đường chéo bị chiếm → bỏ qua',
+      '    đặt hậu (hàng, cột); đặt(hàng+1)',
+      '    bỏ hậu ra (quay lui), thử cột khác' ] },
+    defaultCode:'nq', defaultOpLabel:'quay lui',
+    ops:[ {label:'Chạy', code:'nq', run:function(v){ var N=parseInt(v,10); if(isNaN(N))return null; N=Math.max(4,Math.min(6,N)); return nqueensFrames(N); }} ],
+    idle:{line:0, pos:[-1,-1,-1,-1,-1], tr:-1, tc:-1, st:'start', msg:'Nhập N rồi bấm Chạy (dừng ở nghiệm đầu tiên).'},
+    draw:draw
+  });
+})();
+</script>
+
+<script src="../assets/chuan.js"></script>
+</body>
+</html>

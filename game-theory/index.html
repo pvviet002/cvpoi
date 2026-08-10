@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lý thuyết trò chơi | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../assets/sim.css">
+<link rel="stylesheet" href="../assets/nav.css">
+</head>
+<body class="cv-shell" data-nav="game-theory">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
+
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
+
+    <div class="wrap">
+      <header>
+        <div class="kicker">Chương 25 · Chủ đề nâng cao</div>
+        <h1>Lý thuyết trò chơi</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p>Ta xét các trò chơi <b>hai người, đi luân phiên, không có yếu tố ngẫu nhiên</b> và cả hai đều biết
+      rõ mọi thông tin. Mục tiêu: tìm một chiến lược để thắng bất kể đối thủ chơi thế nào — nếu chiến lược
+      đó tồn tại.</p>
+
+      <h2 id="s1"><span class="num">1.</span>Trạng thái thắng và trạng thái thua</h2>
+      <p>Xét trò lấy que: ban đầu có <span class="mathv">n</span> que, mỗi lượt lấy 1, 2 hoặc 3 que, ai lấy
+      que cuối cùng thì thắng. Mỗi số que còn lại là một <b>trạng thái</b>. Ta phân loại:</p>
+      <div class="box def">
+        <div class="t">Quy tắc phân loại</div>
+        Một trạng thái là <b>THUA</b> (L) nếu <em>mọi</em> nước đi đều dẫn tới một trạng thái THẮNG của đối
+        thủ. Nó là <b>THẮNG</b> (W) nếu <em>có ít nhất một</em> nước đi dẫn tới một trạng thái THUA. Bắt đầu
+        từ trạng thái 0 (không đi được → THUA), ta lan dần lên.
+      </div>
+      <p>Bấm <b>Phân loại</b> để tô L/W cho các trạng thái <span class="mathv">0 … 15</span>. Trạng thái đang
+      xét tô xanh dương, các trạng thái tới được (lấy 1/2/3 que) được đánh dấu; nếu một trong số đó là THUA
+      thì trạng thái hiện tại là THẮNG:</p>
+
+      <div class="sim" id="wl"></div>
+
+      <p>Kết quả gọn gàng: <span class="mathv">k</span> là THUA khi và chỉ khi <span class="mathv">k</span>
+      chia hết cho 4. Chiến lược tối ưu là luôn để lại cho đối thủ một số que chia hết cho 4.</p>
+
+      <h2 id="s2"><span class="num">2.</span>Trò chơi Nim</h2>
+      <p>Trong <b>Nim</b> có nhiều đống que; mỗi lượt chọn một đống và lấy ra số que tuỳ ý (ít nhất một). Ai
+      lấy que cuối thì thắng. Điều bất ngờ: chỉ cần tính <b>tổng nim</b> — phép XOR (<span class="mathv">⊕</span>)
+      của kích thước tất cả các đống.</p>
+      <div class="box tech">
+        <div class="t">Luật thắng của Nim</div>
+        Nếu tổng nim <span class="mathv">= 0</span> thì đây là trạng thái <b>THUA</b>; nếu
+        <span class="mathv">≠ 0</span> thì là trạng thái <b>THẮNG</b>. Ví dụ <span class="mathv">[10, 12, 5]</span>
+        có <span class="mathv">10 ⊕ 12 ⊕ 5 = 3 ≠ 0</span> → THẮNG.
+      </div>
+      <p>Muốn thắng, ta đưa tổng nim về 0. Xếp các đống theo bit:</p>
+      <div class="bitcalc" style="font-family:'Noto Sans Mono',monospace;white-space:pre;overflow-x:auto">
+10   1010
+12   1100
+ 5   0101
+———————————
+ 3   0011  ← tổng nim</div>
+      <p>Bit 1 trái nhất của tổng nim ở cột giá trị 2. Đống 10 (<span class="mathv">10<u>1</u>0</span>) có bit 1
+      tại cột đó, nên ta chỉnh đống này còn <span class="mathv">10 ⊕ 3 = 9</span> que (lấy 1 que). Sau nước đi,
+      trạng thái <span class="mathv">[9, 12, 5]</span> có tổng nim <span class="mathv">9 ⊕ 12 ⊕ 5 = 0</span> —
+      đối thủ rơi vào thế THUA.</p>
+      <p><b>Biến thể Misère</b> (ai lấy que cuối thì <em>thua</em>): chơi y hệt Nim thường, chỉ đổi chiến lược
+      ở cuối — khi các nước đi sắp khiến mọi đống chỉ còn tối đa một que, ta để lại một số <em>lẻ</em> đống có
+      một que (thay vì chẵn như Nim thường).</p>
+
+      <h2 id="s3"><span class="num">3.</span>Định lý Sprague–Grundy</h2>
+      <p>Định lý này khái quát chiến lược Nim cho <em>mọi</em> trò chơi đi luân phiên, hữu hạn, thông tin đầy
+      đủ. Mỗi trạng thái được gán một <b>số Grundy</b>, tương ứng với số que trong một đống Nim.</p>
+      <div class="box def">
+        <div class="t">Số Grundy và hàm mex</div>
+        Số Grundy của một trạng thái là <span class="mathv">mex</span> của tập số Grundy các trạng thái đi tới
+        được, trong đó <span class="mathv">mex</span> là số nguyên không âm nhỏ nhất <em>không</em> có trong
+        tập. Ví dụ <span class="mathv">mex(&#123;0, 1, 3&#125;) = 2</span>; trạng thái không còn nước đi có số
+        Grundy <span class="mathv">mex(∅) = 0</span>.
+      </div>
+      <p>Số Grundy bằng 0 ⇔ trạng thái THUA. Trong một trò mê cung (quân cờ chỉ đi sang trái hoặc lên trên),
+      mỗi ô có một số Grundy; ô ở góc dưới phải trong ví dụ của sách có số Grundy 2, nên là thế THẮNG.</p>
+      <div class="box tech">
+        <div class="t">Cộng nhiều trò chơi con</div>
+        Nếu một lượt gồm việc chọn một trò con rồi đi trong đó, thì số Grundy của cả cục diện là
+        <b>tổng nim</b> các số Grundy của các trò con. Ba mê cung với số Grundy
+        <span class="mathv">2, 3, 3</span> cho <span class="mathv">2 ⊕ 3 ⊕ 3 = 2 ≠ 0</span> → người đi trước
+        thắng (đưa mê cung đầu về số Grundy 0).
+      </div>
+      <p><b>Trò chơi Grundy</b>: một đống <span class="mathv">n</span> que, mỗi lượt tách một đống thành hai
+      đống <em>khác kích thước</em>. Số Grundy <span class="mathv">f(n)</span> tính đệ quy qua mọi cách tách,
+      ví dụ <span class="mathv">f(8) = mex(&#123;f(1)⊕f(7), f(2)⊕f(6), f(3)⊕f(5)&#125;) = 2</span>. Vì
+      <span class="mathv">f(8) ≠ 0</span> nên thắng được; nước thắng là tách <span class="mathv">1 + 7</span>
+      (do <span class="mathv">f(1) ⊕ f(7) = 0</span>).</p>
+
+      <footer>Chương 25 — <em>Cẩm nang Lập trình thi đấu</em>. Bài tiếp: Thuật toán trên chuỗi.</footer>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/sitemap.js"></script>
+<script src="../assets/nav.js"></script>
+<script>CVNav.mount({ current: 'game-theory' });</script>
+
+<script src="../assets/sim.js"></script>
+<script>
+/* Phân loại trạng thái thắng/thua cho trò lấy 1-2-3 que, k = 0..15 */
+(function(){
+  var N=16;
+  function frames(){
+    var st=new Array(N).fill(null), F=[];
+    F.push({line:1, k:-1, reach:[], st:st.slice(), msg:'Bắt đầu: chưa phân loại trạng thái nào.'});
+    for(var k=0;k<N;k++){
+      if(k===0){ st[0]='L'; F.push({line:2,k:0,reach:[],st:st.slice(),msg:'Trạng thái 0: không lấy được que nào → THUA (L).'}); continue; }
+      var reach=[]; for(var d=1;d<=3;d++) if(k-d>=0) reach.push(k-d);
+      var win=reach.some(function(j){return st[j]==='L';});
+      st[k]= win?'W':'L';
+      F.push({line: win?4:5, k:k, reach:reach, st:st.slice(),
+        msg:'Trạng thái '+k+': lấy 1/2/3 que → tới '+reach.join(', ')+'. '+
+            (win?'Có một trạng thái THUA trong đó → '+k+' là THẮNG (W).'
+                :'Mọi nước đều tới THẮNG → '+k+' là THUA (L).')});
+    }
+    F.push({line:6, k:-1, reach:[], st:st.slice(), msg:'Xong. Các trạng thái THUA là 0, 4, 8, 12 — đúng các bội của 4.'});
+    return F;
+  }
+  function draw(f, canvas){
+    var x0=8, cw=21, yT=44, yB=70;
+    var s='<svg viewBox="0 0 350 96" xmlns="http://www.w3.org/2000/svg">';
+    for(var i=0;i<N;i++){
+      var x=x0+i*cw, v=f.st[i], isk=(f.k===i), isr=(f.reach.indexOf(i)>=0);
+      // số thứ tự
+      s+='<text x="'+(x+cw/2)+'" y="14" text-anchor="middle" font-size="10" fill="var(--muted)">'+i+'</text>';
+      // ô W/L
+      var fill='var(--card)', stroke='var(--border)', sw=1;
+      if(v==='L'){ fill='var(--red-bg)'; stroke='var(--red)'; }
+      else if(v==='W'){ fill='var(--green-bg)'; stroke='var(--hl2)'; }
+      if(isk){ stroke='var(--accent,var(--blue))'; sw=2.6; }
+      else if(isr){ stroke='var(--amber)'; sw=2.2; }
+      s+='<rect x="'+x+'" y="'+yT+'" width="'+(cw-3)+'" height="'+(yB-yT)+'" rx="4" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+sw+'"/>';
+      if(v) s+='<text x="'+(x+(cw-3)/2)+'" y="'+((yT+yB)/2)+'" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="700" fill="var(--fg)">'+v+'</text>';
+      if(isr) s+='<text x="'+(x+(cw-3)/2)+'" y="30" text-anchor="middle" font-size="10" fill="var(--amber)">↧</text>';
+    }
+    s+='<text x="'+(x0)+'" y="90" font-size="10.5" fill="var(--muted)">L = THUA · W = THẮNG · ↧ = tới được từ ô đang xét</text>';
+    s+='</svg>'; canvas.innerHTML=s;
+  }
+  var id0=frames()[0];
+  CVSim.create('#wl', {
+    title:'Phân loại trạng thái (trò lấy 1–2–3 que)',
+    code:{ wl:[
+      'trạng thái 0: không đi được → THUA',
+      'với k = 1, 2, … : xét lấy 1, 2, 3 que',
+      '  (tới các trạng thái k−1, k−2, k−3)',
+      '  tới được một THUA → k là THẮNG',
+      '  mọi nước đều tới THẮNG → k là THUA',
+      'quy luật: k chia hết 4 ⇔ THUA' ] },
+    defaultCode:'wl', defaultOpLabel:'phân loại',
+    ops:[ {label:'Phân loại 0…15', code:'wl', run:function(){ return frames(); }} ],
+    idle:id0,
+    draw:draw
+  });
+})();
+</script>
+
+<script src="../assets/chuan.js"></script>
+</body>
+</html>

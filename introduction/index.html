@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Giới thiệu | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../assets/nav.css">
+<style>
+  .ovf{border:1px solid var(--border);border-radius:12px;background:var(--card);padding:14px 16px;margin:20px 0}
+  .ovf-btns{display:flex;gap:8px;margin-bottom:12px}
+  .obtn{background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:8px;padding:7px 13px;font:inherit;font-size:.85rem;cursor:pointer}
+  .obtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .ovf-expr{font-family:"Noto Sans Mono",monospace;font-size:.95rem;background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+  .ovf-expr .c{color:var(--muted)}
+  .ovf-res{margin-top:12px;font-family:"Noto Sans Mono",monospace;font-size:1.05rem}
+  .ovf-res .bad{color:var(--red);font-weight:700}
+  .ovf-res .good{color:var(--green);font-weight:700}
+  .ovf-res .lbl{color:var(--muted);font-size:.85rem}
+</style>
+</head>
+<body class="cv-shell" data-nav="introduction">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
+
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
+
+    <div class="wrap">
+      <header>
+        <div class="kicker">Chương 1 · Các kỹ thuật cơ bản</div>
+        <h1>Giới thiệu</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p>Lập trình thi đấu gồm hai phần: <b>thiết kế thuật toán</b> (nghĩ ra cách giải vừa đúng vừa đủ
+      nhanh) và <b>cài đặt thuật toán</b> (viết mã chạy đúng trên mọi bộ kiểm thử). Chương này gom những
+      thứ nền tảng nhất về C++ và toán mà các chương sau sẽ dùng lại liên tục.</p>
+
+      <h2 id="s1"><span class="num">1.</span>Khung chương trình C++</h2>
+      <p>Một khung mã C++ điển hình cho thi đấu:</p>
+      <div class="codewrap noname"><pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    // lời giải của bạn ở đây
+    return 0;
+}</code></pre></div>
+      <p>Dòng <code class="inl">#include &lt;bits/stdc++.h&gt;</code> nạp toàn bộ thư viện chuẩn, khỏi khai
+      báo lẻ từng thứ. Dòng <code class="inl">using namespace std;</code> cho phép viết <code class="inl">cout</code>
+      thay vì <code class="inl">std::cout</code>. Hai dòng đầu <code class="inl">main</code> tăng tốc nhập/xuất.
+      Biên dịch:</p>
+      <div class="codewrap noname"><pre><code>g++ -std=c++14 -O2 -Wall test.cpp -o test</code></pre></div>
+
+      <h2 id="s2"><span class="num">2.</span>Nhập và xuất dữ liệu</h2>
+      <p>Dùng <code class="inl">cin</code> để đọc, <code class="inl">cout</code> để in. Các giá trị cách nhau
+      bởi dấu cách hoặc xuống dòng đều đọc được:</p>
+      <div class="codewrap noname"><pre><code>int a, b; string x;
+cin &gt;&gt; a &gt;&gt; b &gt;&gt; x;
+cout &lt;&lt; a &lt;&lt; " " &lt;&lt; b &lt;&lt; " " &lt;&lt; x &lt;&lt; "\n";</code></pre></div>
+      <div class="box tech">
+        <div class="t">Vài mẹo nhập/xuất</div>
+        <ul>
+          <li>Dùng <code class="inl">"\n"</code> thay <code class="inl">endl</code>: <code class="inl">endl</code>
+          còn đẩy bộ đệm nên chậm hơn.</li>
+          <li>Đọc trọn một dòng (kể cả dấu cách): <code class="inl">getline(cin, s);</code></li>
+          <li>Đọc đến hết dữ liệu khi không biết trước số lượng: <code class="inl">while (cin &gt;&gt; x) { ... }</code></li>
+        </ul>
+      </div>
+
+      <h2 id="s3"><span class="num">3.</span>Làm việc với số</h2>
+      <p><b>Số nguyên.</b> <code class="inl">int</code> là 32-bit, chứa cỡ <span class="mathv">−2·10<sup>9</sup> … 2·10<sup>9</sup></span>.
+      Không đủ thì dùng <code class="inl">long long</code> (64-bit), chứa cỡ <span class="mathv">−9·10<sup>18</sup> … 9·10<sup>18</sup></span>.</p>
+
+      <div class="box warn">
+        <div class="t">Bẫy tràn số hay gặp nhất</div>
+        Khai báo kết quả là <code class="inl">long long</code> vẫn <em>chưa đủ</em>: nếu hai thừa số đều là
+        <code class="inl">int</code> thì phép nhân được tính bằng <code class="inl">int</code> rồi mới gán,
+        nên đã tràn trước khi kịp thành <code class="inl">long long</code>. Bấm thử:
+      </div>
+
+      <div class="ovf" id="ovf">
+        <div class="ovf-btns">
+          <button class="obtn on" data-mode="int">Hai thừa số kiểu int</button>
+          <button class="obtn" data-mode="ll">Ép (long long)a</button>
+        </div>
+        <div class="ovf-expr">int a = 123456789;<br>long long b = <span id="ovfcast"></span>a * a; <span class="c">&nbsp;// mong đợi 15241578750190521</span></div>
+        <div class="ovf-res" id="ovfres"></div>
+      </div>
+
+      <p><b>Số học phần dư.</b> Khi đề yêu cầu in đáp số “theo modulo <span class="mathv">m</span>” (phần dư
+      khi chia cho <span class="mathv">m</span>, thường <span class="mathv">m = 10<sup>9</sup>+7</span>), ta
+      lấy dư <em>sau mỗi phép cộng, trừ, nhân</em> để số không bao giờ quá lớn:</p>
+      <div class="codewrap noname"><pre><code>long long x = 1;
+for (int i = 2; i &lt;= n; i++) x = (x * i) % m;   // n! mod m
+cout &lt;&lt; x % m &lt;&lt; "\n";</code></pre></div>
+      <p>Vì <code class="inl">x</code> luôn <span class="mathv">&lt; m ≤ 10<sup>9</sup></span> và <code class="inl">i</code>
+      nhỏ, tích <code class="inl">x*i</code> nằm gọn trong <code class="inl">long long</code>. Nếu có phép trừ,
+      phần dư có thể âm — sửa bằng <code class="inl">x %= m; if (x &lt; 0) x += m;</code></p>
+
+      <p><b>Số thực.</b> <code class="inl">double</code> (64-bit) thường đủ; muốn chính xác hơn dùng
+      <code class="inl">long double</code>. Số thực có <b>sai số làm tròn</b>, nên đừng so sánh bằng
+      <code class="inl">==</code>:</p>
+      <div class="codewrap noname"><pre><code>double x = 0.3*3 + 0.1;   // 0.99999999999999988898, KHÔNG đúng bằng 1
+if (abs(a - b) &lt; 1e-9) { /* coi như bằng nhau */ }</code></pre></div>
+
+      <h2 id="s4"><span class="num">4.</span>Rút gọn mã</h2>
+      <p>Đặt tên ngắn cho kiểu hay dùng bằng <code class="inl">typedef</code>, và thay cụm dài bằng
+      <code class="inl">#define</code> để gõ nhanh hơn:</p>
+      <div class="codewrap noname"><pre><code>typedef long long ll;
+typedef pair&lt;int,int&gt; pii;
+#define pb push_back
+#define REP(i,a,b) for (int i = a; i &lt;= b; i++)</code></pre></div>
+      <div class="box warn">
+        <div class="t">Bẫy macro thiếu ngoặc</div>
+        <code class="inl">#define SQ(a) a*a</code> khiến <code class="inl">SQ(3+3)</code> bung thành
+        <code class="inl">3+3*3+3 = 15</code>, không phải 36. Luôn bọc ngoặc:
+        <code class="inl">#define SQ(a) (a)*(a)</code>.
+      </div>
+
+      <h2 id="s5"><span class="num">5.</span>Một ít công thức toán</h2>
+      <p>Những công thức tổng và logarit dưới đây sẽ dùng liên tục khi ước lượng độ phức tạp:</p>
+      <div class="box def">
+        <div class="t">Công thức hay dùng</div>
+        <ul>
+          <li>Tổng <span class="mathv">1 + 2 + … + n = n(n+1)/2</span>.</li>
+          <li>Tổng bình phương <span class="mathv">1<sup>2</sup> + 2<sup>2</sup> + … + n<sup>2</sup> = n(n+1)(2n+1)/6</span>.</li>
+          <li>Cấp số nhân đôi <span class="mathv">1 + 2 + 4 + … + 2<sup>n−1</sup> = 2<sup>n</sup> − 1</span>.</li>
+          <li>Tổng điều hòa <span class="mathv">1 + 1/2 + … + 1/n ≤ log<sub>2</sub> n + 1</span>.</li>
+        </ul>
+      </div>
+      <p><b>Logarit</b> <span class="mathv">log<sub>k</sub> x</span> chính là số lần chia
+      <span class="mathv">x</span> cho <span class="mathv">k</span> đến khi còn 1. Ví dụ
+      <span class="mathv">log<sub>2</sub> 32 = 5</span> vì</p>
+      <div class="codewrap noname"><pre><code>32 -> 16 -> 8 -> 4 -> 2 -> 1   (chia 2 đúng 5 lần)</code></pre></div>
+      <p>Vì nhiều thuật toán hiệu quả chia đôi dữ liệu mỗi bước nên logarit xuất hiện khắp nơi trong
+      phân tích độ phức tạp (xem chương <a href="/time-complexity/">Độ phức tạp thời gian</a>).</p>
+
+      <footer>Chương 1 — <em>Cẩm nang Lập trình thi đấu</em>. Bài tiếp: Độ phức tạp thời gian.</footer>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/sitemap.js"></script>
+<script src="../assets/nav.js"></script>
+<script>CVNav.mount({ current: 'introduction' });</script>
+
+<script>
+/* Bẫy tràn số — bật/tắt kiểu dữ liệu (đã đo bằng C++) */
+(function(){
+  var box=document.getElementById('ovf');
+  var cast=document.getElementById('ovfcast'), res=document.getElementById('ovfres');
+  function set(mode){
+    box.querySelectorAll('.obtn').forEach(function(b){ b.classList.toggle('on', b.dataset.mode===mode); });
+    if(mode==='int'){
+      cast.textContent='';
+      res.innerHTML='<span class="lbl">Kết quả in ra:</span> <span class="bad">-1757895751</span>  '+
+        '<span class="lbl">— SAI (đã tràn int rồi mới gán vào long long).</span>';
+    } else {
+      cast.textContent='(long long)';
+      res.innerHTML='<span class="lbl">Kết quả in ra:</span> <span class="good">15241578750190521</span>  '+
+        '<span class="lbl">— ĐÚNG (nhân bằng long long).</span>';
+    }
+  }
+  box.addEventListener('click',function(e){ var b=e.target.closest('.obtn'); if(b) set(b.dataset.mode); });
+  set('int');
+})();
+</script>
+
+<script src="../assets/chuan.js"></script>
+</body>
+</html>

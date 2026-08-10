@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xác suất | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../assets/sim.css">
+<link rel="stylesheet" href="../assets/nav.css">
+</head>
+<body class="cv-shell" data-nav="probability">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
+
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
+
+    <div class="wrap">
+      <header>
+        <div class="kicker">Chương 24 · Chủ đề nâng cao</div>
+        <h1>Xác suất</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p><b>Xác suất</b> là một số trong <span class="mathv">[0, 1]</span> cho biết một biến cố dễ xảy ra tới
+      mức nào. Nhiều bài thi đấu quy về tính xác suất, kỳ vọng, hoặc dùng chính tính ngẫu nhiên làm công cụ.</p>
+
+      <h2 id="s1"><span class="num">1.</span>Tính xác suất và biến cố</h2>
+      <p>Cách cơ bản: <span class="mathv">P = (số kết quả mong muốn) / (tổng số kết quả)</span>. Một biến cố
+      là một tập con các kết quả; xác suất của nó là tổng xác suất các kết quả bên trong.</p>
+      <div class="box tech">
+        <div class="t">Vài công thức cần nhớ</div>
+        <ul>
+          <li><b>Phần bù:</b> <span class="mathv">P(Ā) = 1 − P(A)</span>. Ví dụ "ít nhất một mặt 6 trong 10
+          lần gieo" = <span class="mathv">1 − (5/6)<sup>10</sup> ≈ 0,838</span> (dễ hơn cộng trực tiếp).</li>
+          <li><b>Hợp:</b> <span class="mathv">P(A ∪ B) = P(A) + P(B) − P(A ∩ B)</span>.</li>
+          <li><b>Có điều kiện:</b> <span class="mathv">P(A | B) = P(A ∩ B) / P(B)</span>.</li>
+          <li><b>Độc lập:</b> khi đó <span class="mathv">P(A ∩ B) = P(A)·P(B)</span>.</li>
+        </ul>
+      </div>
+
+      <h2 id="s2"><span class="num">2.</span>Biến ngẫu nhiên và kỳ vọng</h2>
+      <p><b>Kỳ vọng</b> <span class="mathv">E[X] = Σ P(X = x)·x</span> là giá trị trung bình. Gieo một xúc xắc,
+      <span class="mathv">E[X] = (1 + 2 + … + 6)/6 = 3,5</span>. Tính chất then chốt là
+      <b>tuyến tính</b>: <span class="mathv">E[X<sub>1</sub> + X<sub>2</sub>] = E[X<sub>1</sub>] + E[X<sub>2</sub>]</span>
+      — đúng <em>kể cả khi</em> các biến phụ thuộc nhau. Gieo hai xúc xắc thì tổng kỳ vọng
+      <span class="mathv">3,5 + 3,5 = 7</span>.</p>
+      <p>Bấm <b>Gieo 60 lần</b>: mỗi lần thêm một kết quả, đường trung bình cộng dồn dao động rồi hội tụ về
+      vạch <span class="mathv">3,5</span> (luật số lớn):</p>
+
+      <div class="sim" id="dice"></div>
+
+      <p>Vài phân phối hay gặp: <b>đều</b> (<span class="mathv">E = (a+b)/2</span>), <b>nhị thức</b>
+      (<span class="mathv">n</span> lần thử, mỗi lần thành công xác suất <span class="mathv">p</span>;
+      <span class="mathv">E = pn</span>), <b>hình học</b> (thử tới lần thành công đầu tiên;
+      <span class="mathv">E = 1/p</span>).</p>
+
+      <h2 id="s3"><span class="num">3.</span>Xích Markov</h2>
+      <p>Một <b>xích Markov</b> gồm các trạng thái và xác suất chuyển giữa chúng. Phân phối xác suất là một
+      vector <span class="mathv">[p<sub>1</sub>, …, p<sub>n</sub>]</span> (tổng bằng 1). Mỗi bước, nhân phân
+      phối với <b>ma trận chuyển</b> để ra phân phối mới. Nhờ <b>luỹ thừa ma trận</b>, tính được phân phối
+      sau <span class="mathv">m</span> bước trong <span class="mathv">O(n<sup>3</sup> log m)</span> (nối với
+      chương <a href="/matrices/">Ma trận</a>).</p>
+
+      <h2 id="s4"><span class="num">4.</span>Thuật toán ngẫu nhiên</h2>
+      <p>Đôi khi tính ngẫu nhiên giải được bài <em>không</em> liên quan xác suất. Hai loại: <b>Las Vegas</b>
+      luôn đúng nhưng thời gian ngẫu nhiên; <b>Monte Carlo</b> nhanh nhưng thỉnh thoảng sai (xác suất nhỏ).</p>
+      <div class="box def">
+        <div class="t">Ba ví dụ</div>
+        <ul>
+          <li><b>quickselect</b> (Las Vegas): tìm phần tử lớn thứ <span class="mathv">k</span> không cần sắp
+          xếp — chọn chốt ngẫu nhiên, phân hoạch, đệ quy một nửa; trung bình
+          <span class="mathv">O(n)</span>, xấu nhất <span class="mathv">O(n<sup>2</sup>)</span>.</li>
+          <li><b>Freivalds</b> (Monte Carlo): kiểm tra <span class="mathv">AB = C</span> trong
+          <span class="mathv">O(n<sup>2</sup>)</span> bằng cách so <span class="mathv">A(BX)</span> với
+          <span class="mathv">CX</span> cho vector ngẫu nhiên <span class="mathv">X</span>.</li>
+          <li><b>Tô 2 màu</b>: tô ngẫu nhiên, mỗi cạnh có xác suất <span class="mathv">1/2</span> hai đầu khác
+          màu, nên kỳ vọng số cạnh "tốt" là <span class="mathv">m/2</span> — chắc chắn tồn tại cách tô đạt
+          <span class="mathv">m/2</span>.</li>
+        </ul>
+      </div>
+
+      <footer>Chương 24 — <em>Cẩm nang Lập trình thi đấu</em>. Bài tiếp: Lý thuyết trò chơi.</footer>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/sitemap.js"></script>
+<script src="../assets/nav.js"></script>
+<script>CVNav.mount({ current: 'probability' });</script>
+
+<script src="../assets/sim.js"></script>
+<script>
+/* Luật số lớn: gieo xúc xắc, trung bình cộng dồn → 3.5 */
+(function(){
+  var N=60, AVGS=[];
+  function frames(){
+    var rolls=[], sum=0; AVGS=[];
+    for(var i=0;i<N;i++){ var r=1+Math.floor(Math.random()*6); rolls.push(r); sum+=r; AVGS.push(sum/(i+1)); }
+    var F=[{line:1,i:-1,msg:'Bấm Chạy/Tiến để gieo từng lần.'}];
+    for(var i=0;i<N;i++){
+      F.push({line:2,i:i,msg:'Lần '+(i+1)+': gieo được '+rolls[i]+'. Trung bình = '+AVGS[i].toFixed(3)+'.'});
+    }
+    F.push({line:3,i:N-1,msg:'Sau '+N+' lần, trung bình ≈ '+AVGS[N-1].toFixed(3)+' (gần kỳ vọng 3,5).'});
+    return F;
+  }
+  function draw(f, canvas){
+    var x0=40, x1=326, yTop=16, yBot=150;
+    function X(i){ return x0 + (N<=1?0:(i/(N-1))*(x1-x0)); }
+    function Y(v){ return yBot - (v-1)/5*(yBot-yTop); }
+    var s='<svg viewBox="0 0 342 188" xmlns="http://www.w3.org/2000/svg">';
+    s+='<line x1="'+x0+'" y1="'+yTop+'" x2="'+x0+'" y2="'+yBot+'" stroke="var(--border)"/>';
+    s+='<line x1="'+x0+'" y1="'+yBot+'" x2="'+x1+'" y2="'+yBot+'" stroke="var(--border)"/>';
+    for(var v=1;v<=6;v++){ var y=Y(v);
+      s+='<line x1="'+x0+'" y1="'+y+'" x2="'+x1+'" y2="'+y+'" stroke="var(--border)" stroke-width="0.5" opacity="0.5"/>';
+      s+='<text x="'+(x0-6)+'" y="'+y+'" text-anchor="end" dominant-baseline="central" font-size="10" fill="var(--muted)">'+v+'</text>';
+    }
+    s+='<line x1="'+x0+'" y1="'+Y(3.5)+'" x2="'+x1+'" y2="'+Y(3.5)+'" stroke="var(--hl2)" stroke-width="2" stroke-dasharray="6 4"/>';
+    s+='<text x="'+(x1-2)+'" y="'+(Y(3.5)-5)+'" text-anchor="end" font-size="11" font-weight="700" fill="var(--hl2)">kỳ vọng 3,5</text>';
+    if(f.i>=0){
+      var pts=''; for(var k=0;k<=f.i;k++) pts+=X(k).toFixed(1)+','+Y(AVGS[k]).toFixed(1)+' ';
+      s+='<polyline points="'+pts+'" fill="none" stroke="var(--accent,var(--blue))" stroke-width="2"/>';
+      s+='<circle cx="'+X(f.i)+'" cy="'+Y(AVGS[f.i])+'" r="3.6" fill="var(--accent,var(--blue))"/>';
+    }
+    s+='<text x="'+((x0+x1)/2)+'" y="182" text-anchor="middle" font-size="10.5" fill="var(--muted)">số lần gieo →</text>';
+    s+='</svg>'; canvas.innerHTML=s;
+  }
+  CVSim.create('#dice', {
+    title:'Trung bình khi gieo xúc xắc',
+    code:{ d:[
+      'gieo xúc xắc, cộng dồn kết quả',
+      'trung bình = tổng / số lần gieo',
+      'số lần càng lớn → trung bình càng gần 3,5' ] },
+    defaultCode:'d', defaultOpLabel:'gieo',
+    ops:[ {label:'Gieo 60 lần', code:'d', run:function(){ return frames(); }} ],
+    idle:{line:0,i:-1,msg:'Bấm “Gieo 60 lần” rồi Chạy/Tiến.'},
+    draw:draw
+  });
+})();
+</script>
+
+<script src="../assets/chuan.js"></script>
+</body>
+</html>

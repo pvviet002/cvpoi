@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cây tìm kiếm nhị phân (BST) | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../assets/sim.css">
+<link rel="stylesheet" href="../assets/nav.css">
+</head>
+<body class="cv-shell" data-nav="bst">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
+
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
+
+    <div class="wrap">
+      <header>
+        <div class="kicker">Chương 4 · Cấu trúc dữ liệu</div>
+        <h1>Cây tìm kiếm nhị phân (BST)</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p>Cây tìm kiếm nhị phân giữ dữ liệu theo một trật tự cho phép tìm, chèn và xóa trong thời gian
+      tỉ lệ với <em>chiều cao</em> của cây. Ý tưởng cốt lõi nằm ở một quy tắc đơn giản mà ta sẽ thấy rõ
+      qua phần mô phỏng bên dưới.</p>
+
+      <div class="box def">
+        <div class="t">Quy tắc thứ tự của BST</div>
+        Với mọi nút <code class="inl">u</code>: mọi giá trị trong cây con bên trái đều <em>nhỏ hơn</em>
+        giá trị của <code class="inl">u</code>, mọi giá trị trong cây con bên phải đều <em>lớn hơn</em>.
+        Nhờ vậy, ở mỗi bước tìm kiếm ta bỏ được trọn một nửa cây con.
+      </div>
+
+      <h2>Mô phỏng: Tìm kiếm &amp; Chèn</h2>
+      <p>Nhập một giá trị, bấm <b>Tìm kiếm</b> hoặc <b>Chèn</b>, rồi dùng thanh điều khiển để chạy tự
+      động hoặc đi từng bước. Dòng mã giả đang thực thi được tô sáng đồng bộ với cây.</p>
+
+      <div class="sim" id="bst"></div>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/sitemap.js"></script>
+<script src="../assets/nav.js"></script>
+<script>CVNav.mount({ current: 'bst' });</script>
+
+<script src="../assets/sim.js"></script>
+<script>
+/* ===== Nội dung RIÊNG của mô phỏng BST (khung do assets/sim.js lo) ===== */
+(function(){
+  var root=null, idc=0, nodes=[], VBW=560, VBH=320;
+  function mk(v){return {v:v,l:null,r:null,id:++idc,x:0,y:0,d:0,born:0};}
+  function insVal(v){var nd=mk(v); if(!root){root=nd;return nd;} var c=root;
+    while(true){ if(v<c.v){ if(!c.l){c.l=nd;break;} c=c.l;} else { if(!c.r){c.r=nd;break;} c=c.r;} } return nd;}
+  function buildInitial(){root=null;idc=0;[50,30,70,20,40,60,80,35].forEach(insVal);layout();collect();}
+  function layout(){var i=0,mx=0,my=0;(function r(n,d){if(!n)return;r(n.l,d+1);n.d=d;n.x=42+(i++)*66;n.y=42+d*80;
+      if(n.x>mx)mx=n.x; if(n.y>my)my=n.y; r(n.r,d+1);})(root,0); VBW=mx+42; VBH=my+42;}
+  function collect(){nodes=[];(function r(n){if(!n)return;nodes.push(n);r(n.l);r(n.r);})(root);}
+
+  function framesSearch(x){x=parseInt(x,10); if(isNaN(x))return null; var F=[],path=[];
+    F.push({line:1,cur:root?root.id:null,path:[],done:null,msg:'Bắt đầu tại gốc.'});
+    var n=root;
+    while(true){
+      if(n==null){F.push({line:6,cur:null,path:path.slice(),done:null,msg:'Chạm NULL — không có '+x+' trong cây.'});break;}
+      F.push({line:2,cur:n.id,path:path.slice(),done:null,msg:'Xét giá trị '+n.v+'.'});
+      if(x===n.v){F.push({line:3,cur:n.id,path:path.slice(),done:n.id,msg:'x = '+n.v+' → TÌM THẤY.'});break;}
+      if(x<n.v){F.push({line:4,cur:n.id,path:path.slice(),done:null,msg:x+' &lt; '+n.v+' → sang trái.'});path.push(n.id);n=n.l;}
+      else{F.push({line:5,cur:n.id,path:path.slice(),done:null,msg:x+' &gt; '+n.v+' → sang phải.'});path.push(n.id);n=n.r;}
+    }
+    return F;
+  }
+  function framesInsert(x){x=parseInt(x,10); if(isNaN(x))return null; var F=[],path=[];
+    F.push({line:1,cur:root?root.id:null,path:[],done:null,msg:'Bắt đầu tại gốc, cha = NULL.'});
+    var n=root,parent=null,dir='l';
+    while(n!=null){
+      F.push({line:2,cur:n.id,path:path.slice(),done:null,msg:'Xét giá trị '+n.v+'.'});
+      F.push({line:3,cur:n.id,path:path.slice(),done:null,msg:'Ghi nhớ cha = '+n.v+'.'});
+      parent=n; path.push(n.id);
+      if(x<n.v){F.push({line:4,cur:n.id,path:path.slice(),done:null,msg:x+' &lt; '+n.v+' → sang trái.'});dir='l';n=n.l;}
+      else{F.push({line:5,cur:n.id,path:path.slice(),done:null,msg:x+' &gt; '+n.v+' → sang phải.'});dir='r';n=n.r;}
+    }
+    var nd=mk(x); if(parent==null)root=nd; else parent[dir]=nd;
+    layout(); collect(); nd.born=F.length;
+    F.push({line:6,cur:nd.id,path:path.slice(),done:nd.id,msg:'Gắn giá trị mới '+x+' vào cây.'});
+    return F;
+  }
+
+  function draw(f, canvas, api){
+    var fi=api.index, s='<svg viewBox="0 0 '+VBW+' '+VBH+'" xmlns="http://www.w3.org/2000/svg">';
+    nodes.forEach(function(n){
+      [n.l,n.r].forEach(function(c){ if(c&&c.born<=fi&&n.born<=fi){
+        var on=(f.path&&f.path.indexOf(c.id)>=0)||f.cur===c.id;
+        s+='<line class="edge'+(on?' on':'')+'" x1="'+n.x+'" y1="'+n.y+'" x2="'+c.x+'" y2="'+c.y+'"/>';
+      }});
+    });
+    nodes.forEach(function(n){ if(n.born>fi)return;
+      var cls='node';
+      if(f.done===n.id)cls='node done';
+      else if(f.cur===n.id)cls='node cur';
+      else if(f.path&&f.path.indexOf(n.id)>=0)cls='node path';
+      s+='<circle class="'+cls+'" cx="'+n.x+'" cy="'+n.y+'" r="20"/>'+
+         '<text class="lb" x="'+n.x+'" y="'+n.y+'">'+n.v+'</text>';
+    });
+    s+='</svg>'; canvas.innerHTML=s;
+  }
+
+  buildInitial();
+  CVSim.create('#bst', {
+    title:'Cây tìm kiếm nhị phân',
+    input:{label:'Giá trị', type:'number', value:65},
+    code:{
+      search:['nút ← gốc','khi nút ≠ NULL:','  nếu x = giá trị nút → TÌM THẤY',
+              '  nếu x &lt; giá trị nút → nút ← nút.trái','  ngược lại → nút ← nút.phải','trả về KHÔNG THẤY'],
+      insert:['nút ← gốc,  cha ← NULL','khi nút ≠ NULL:','  cha ← nút',
+              '  nếu x &lt; giá trị nút → nút ← nút.trái','  ngược lại → nút ← nút.phải','gắn giá trị mới (x) làm con của cha']
+    },
+    defaultCode:'search', defaultOpLabel:'Tìm kiếm',
+    ops:[
+      {label:'Tìm kiếm', code:'search', run:function(v){return framesSearch(v);}},
+      {label:'Chèn', variant:'alt', code:'insert', run:function(v){return framesInsert(v);}},
+      {label:'Cây mẫu', variant:'ghost', run:function(){buildInitial(); return [{line:0,msg:'Đã dựng lại cây mẫu.'}];}}
+    ],
+    idle:{line:0, msg:'Chọn thao tác rồi bấm Chạy.'},
+    draw:draw
+  });
+})();
+</script>
+
+<script src="../assets/chuan.js"></script>
+</body>
+</html>

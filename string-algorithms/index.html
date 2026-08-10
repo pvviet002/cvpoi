@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thuật toán trên chuỗi | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../assets/sim.css">
+<link rel="stylesheet" href="../assets/nav.css">
+</head>
+<body class="cv-shell" data-nav="string-algorithms">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
+
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
+
+    <div class="wrap">
+      <header>
+        <div class="kicker">Chương 26 · Chủ đề nâng cao</div>
+        <h1>Thuật toán trên chuỗi</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p>Nhiều bài toán chuỗi giải được dễ dàng trong <span class="mathv">O(n<sup>2</sup>)</span>; thử thách là
+      hạ xuống <span class="mathv">O(n)</span> hoặc <span class="mathv">O(n log n)</span>. Bài toán nền tảng là
+      <b>so khớp mẫu</b>: tìm mọi lần xuất hiện của một mẫu độ dài <span class="mathv">m</span> trong chuỗi độ
+      dài <span class="mathv">n</span>.</p>
+
+      <h2 id="s1"><span class="num">1.</span>Thuật ngữ và cấu trúc trie</h2>
+      <p>Chuỗi đánh chỉ số từ 0. Vài khái niệm hay dùng: <b>chuỗi con</b> (dãy ký tự liên tiếp), <b>dãy con</b>
+      (không nhất thiết liên tiếp), <b>tiền tố</b>/<b>hậu tố</b>, <b>biên</b> (vừa là tiền tố vừa là hậu tố), và
+      thứ tự <b>từ điển</b>.</p>
+      <p>Một <b>cây tiền tố</b> (trie) là cây có gốc lưu một tập chuỗi: mỗi chuỗi là một mạch từ gốc đi xuống,
+      hai chuỗi có chung tiền tố thì dùng chung phần đầu của mạch. Kiểm tra hoặc thêm một chuỗi độ dài
+      <span class="mathv">n</span> mất <span class="mathv">O(n)</span>. Lưu bằng mảng
+      <code class="inl">trie[N][A]</code> (<span class="mathv">N</span> số nút, <span class="mathv">A</span>
+      cỡ bảng chữ cái).</p>
+
+      <h2 id="s2"><span class="num">2.</span>Băm chuỗi</h2>
+      <p>Ý tưởng: thay vì so từng ký tự, ta so <b>giá trị băm</b>. Cách phổ biến là <b>băm đa thức</b>: với chuỗi
+      <span class="mathv">s</span> độ dài <span class="mathv">n</span>,</p>
+      <div class="box def">
+        <div class="t">Công thức băm đa thức</div>
+        <span class="mathv">(s[0]·A<sup>n−1</sup> + s[1]·A<sup>n−2</sup> + … + s[n−1]·A<sup>0</sup>) mod B</span>,
+        với <span class="mathv">A</span>, <span class="mathv">B</span> là hằng số chọn trước.
+      </div>
+      <p>Ví dụ mã ký tự <span class="mathv">A=65, L=76, L=76, E=69, Y=89</span> của <code class="inl">ALLEY</code>.
+      Với <span class="mathv">A=3, B=97</span>:
+      <span class="mathv">(65·3<sup>4</sup> + 76·3<sup>3</sup> + 76·3<sup>2</sup> + 69·3 + 89) mod 97 = 8297 mod 97 = 52</span>.
+      Sau tiền xử lý <span class="mathv">O(n)</span> (mảng tiền tố băm <span class="mathv">h</span> và mảng luỹ
+      thừa <span class="mathv">p</span>), giá trị băm của <em>mọi</em> chuỗi con lấy được trong
+      <span class="mathv">O(1)</span>.</p>
+      <div class="box warn">
+        <div class="t">Bẫy thường gặp: đụng độ</div>
+        Hai chuỗi khác nhau có thể trùng giá trị băm. Nếu <em>so mọi cặp</em> trong <span class="mathv">10<sup>6</sup></span>
+        chuỗi (nghịch lý ngày sinh), đụng độ gần như chắc chắn khi <span class="mathv">B ≈ 10<sup>9</sup></span>.
+        Cách chữa: dùng <em>hai</em> giá trị băm với tham số khác nhau (tương đương một băm
+        <span class="mathv">B ≈ 10<sup>18</sup></span>). Tránh <span class="mathv">B = 2<sup>32</sup></span> hay
+        <span class="mathv">2<sup>64</sup></span> vì có dữ liệu cố tình gây đụng độ.
+      </div>
+
+      <h2 id="s3"><span class="num">3.</span>Thuật toán Z</h2>
+      <p><b>Mảng Z</b> của <span class="mathv">s</span>: <span class="mathv">z[k]</span> là độ dài chuỗi con dài
+      nhất bắt đầu tại <span class="mathv">k</span> mà đồng thời là <em>tiền tố</em> của <span class="mathv">s</span>.
+      Thuật toán Z xây mảng này trong <span class="mathv">O(n)</span> bằng cách vừa tận dụng thông tin đã biết,
+      vừa so ký tự khi cần.</p>
+      <div class="box tech">
+        <div class="t">Cửa sổ [x, y]</div>
+        Thuật toán giữ một đoạn <span class="mathv">[x, y]</span> — chuỗi con
+        <span class="mathv">s[x…y]</span> là tiền tố của <span class="mathv">s</span> và có
+        <span class="mathv">y</span> lớn nhất. Nhờ vậy, khi tính <span class="mathv">z[k]</span> với
+        <span class="mathv">k</span> trong cửa sổ, ta <em>chép lại</em> giá trị
+        <span class="mathv">z[k−x]</span> thay vì so lại từ đầu.
+      </div>
+      <p>Bấm <b>Chạy thuật toán Z</b> trên chuỗi <code class="inl">ACBACDACBACBACDA</code>. Cửa sổ
+      <span class="mathv">[x, y]</span> tô nhạt, ô đang tính tô xanh dương, giá trị
+      <span class="mathv">z[k]</span> điền dần ở hàng dưới:</p>
+
+      <div class="sim" id="zsim"></div>
+
+      <p><b>So khớp mẫu bằng mảng Z.</b> Ghép <span class="mathv">p#s</span> (dấu <code class="inl">#</code> không
+      có trong hai chuỗi) rồi tính mảng Z: vị trí nào có <span class="mathv">z = |p|</span> chính là nơi
+      <span class="mathv">p</span> xuất hiện trong <span class="mathv">s</span>. Với
+      <span class="mathv">s=</span><code class="inl">HATTIVATTI</code>,
+      <span class="mathv">p=</span><code class="inl">ATT</code>, mảng Z có giá trị 3 tại hai vị trí — đúng hai lần
+      xuất hiện. Khác với băm, thuật toán Z luôn đúng, không có rủi ro đụng độ; đổi lại nó khó cài hơn.</p>
+
+      <footer>Chương 26 — <em>Cẩm nang Lập trình thi đấu</em>. Bài tiếp: Thuật toán căn bậc hai.</footer>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/sitemap.js"></script>
+<script src="../assets/nav.js"></script>
+<script>CVNav.mount({ current: 'string-algorithms' });</script>
+
+<script src="../assets/sim.js"></script>
+<script>
+/* Thuật toán Z trên "ACBACDACBACBACDA" — ghi lại từng bước */
+(function(){
+  var S='ACBACDACBACBACDA', N=S.length;
+  function frames(){
+    var z=new Array(N).fill(0), F=[];
+    var x=0, y=0;
+    F.push({line:1, i:-1, x:-1, y:-1, z:z.slice(), known:0, msg:'Bắt đầu: z[0] bỏ trống, cửa sổ [x,y] rỗng.'});
+    for(var i=1;i<N;i++){
+      var xStart=x;
+      var guess = Math.max(0, Math.min(z[i-x], y-i+1));
+      z[i]=guess;
+      var cmp=0;
+      while(i+z[i]<N && S[z[i]]===S[i+z[i]]){ x=i; y=i+z[i]; z[i]++; cmp++; }
+      var line = cmp>0 ? (guess>0?5:4) : 3;
+      var msg;
+      if(guess>0 && cmp===0) msg='i='+i+': chép z['+(i-xStart)+']='+guess+' từ cửa sổ, z['+i+']='+z[i]+' (không cần so thêm).';
+      else if(cmp>0) msg='i='+i+': so ký tự, z['+i+']='+z[i]+'. Cửa sổ mới [x,y]=['+x+','+y+'].';
+      else msg='i='+i+': không khớp, z['+i+']=0.';
+      F.push({line:line, i:i, x:x, y:y, z:z.slice(), known:guess, msg:msg});
+    }
+    F.push({line:6, i:-1, x:x, y:y, z:z.slice(), known:0, msg:'Xong. Ví dụ z[6]=5 và z[9]=7 — hai đoạn khớp tiền tố dài nhất.'});
+    return F;
+  }
+  function draw(f, canvas){
+    var x0=6, cw=21.4, yC=26, yZ=52, h=22;
+    var s='<svg viewBox="0 0 350 92" xmlns="http://www.w3.org/2000/svg">';
+    // cửa sổ [x,y] tô nền
+    if(f.x>=0 && f.y>=f.x){
+      s+='<rect x="'+(x0+f.x*cw)+'" y="'+(yC-2)+'" width="'+((f.y-f.x+1)*cw-3)+'" height="'+(h+4)+'" rx="4" fill="var(--amber-bg)" opacity="0.55"/>';
+    }
+    for(var i=0;i<N;i++){
+      var x=x0+i*cw, isk=(f.i===i);
+      s+='<text x="'+(x+(cw-3)/2)+'" y="12" text-anchor="middle" font-size="9" fill="var(--muted)">'+i+'</text>';
+      // ô ký tự
+      var st=isk?'var(--accent,var(--blue))':'var(--border)', sw=isk?2.4:1;
+      s+='<rect x="'+x+'" y="'+yC+'" width="'+(cw-3)+'" height="'+h+'" rx="3" fill="var(--card)" stroke="'+st+'" stroke-width="'+sw+'"/>';
+      s+='<text x="'+(x+(cw-3)/2)+'" y="'+(yC+h/2)+'" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans Mono,monospace" font-size="11" font-weight="700" fill="var(--fg)">'+S[i]+'</text>';
+      // ô z
+      var zv = (i===0)?'—':(f.z[i]!=null && (i<=f.i)?f.z[i]:'?');
+      var zf = (i<=f.i||i===0)?'var(--code-bg)':'var(--card)';
+      s+='<rect x="'+x+'" y="'+yZ+'" width="'+(cw-3)+'" height="'+h+'" rx="3" fill="'+zf+'" stroke="'+(isk?'var(--accent,var(--blue))':'var(--border)')+'" stroke-width="'+(isk?2.4:1)+'"/>';
+      s+='<text x="'+(x+(cw-3)/2)+'" y="'+(yZ+h/2)+'" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans Mono,monospace" font-size="11" fill="'+(i<=f.i||i===0?'var(--fg)':'var(--muted)')+'">'+zv+'</text>';
+    }
+    s+='<text x="'+x0+'" y="86" font-size="10" fill="var(--muted)">hàng trên: ký tự · hàng dưới: z[k] · nền vàng: cửa sổ [x,y]</text>';
+    s+='</svg>'; canvas.innerHTML=s;
+  }
+  var id0=frames()[0];
+  CVSim.create('#zsim', {
+    title:'Xây mảng Z của ACBACDACBACBACDA',
+    code:{ z:[
+      'z[0] bỏ trống; cửa sổ [x,y] rỗng',
+      'với i = 1 … n−1:',
+      '  z[i] = min(z[i−x], y−i+1)   (chép trong cửa sổ)',
+      '  hết thông tin → so ký tự trực tiếp',
+      '  vượt qua y → cập nhật cửa sổ [x,y]',
+      'xong: mảng Z hoàn tất' ] },
+    defaultCode:'z', defaultOpLabel:'Z',
+    ops:[ {label:'Chạy thuật toán Z', code:'z', run:function(){ return frames(); }} ],
+    idle:id0,
+    draw:draw
+  });
+})();
+</script>
+
+<script src="../assets/chuan.js"></script>
+</body>
+</html>

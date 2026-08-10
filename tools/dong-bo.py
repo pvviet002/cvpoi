@@ -72,6 +72,10 @@ TRANG = {
  'dp/index.html': dict(
     nhom='Quy hoạch động', nhan='Quy hoạch động', tieude='Quy hoạch động',
     mota='Quy hoạch động trên đoạn, kèm bài luyện có hướng dẫn giải.'),
+ 'dp/digit-dp/index.html': dict(
+    cha=('Quy hoạch động', '../index.html'), nhan='Quy hoạch động chữ số',
+    tieude='Quy hoạch động chữ số',
+    mota='Đếm số trên đoạn rất lớn bằng cách dựng số từ trái sang phải: trạng thái tight, chữ số 0 ở đầu, thiết kế trạng thái phụ.'),
  'prefix-sum/index.html': dict(
     nhom='Kỹ thuật', nhan='Tổng tiền tố', tieude='Tổng tiền tố',
     mota='Cộng dồn một chiều và hai chiều, mảng hiệu, kết hợp bảng băm.'),
@@ -288,6 +292,7 @@ CO_THANH_BEN = {
     'array-1d/index.html',
     'array-2d/index.html',
     'binary-search/index.html',
+    'dp/digit-dp/index.html',
     'dsu/index.html',
     'euler-circuit/index.html',
     'huffman/index.html',

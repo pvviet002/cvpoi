@@ -347,7 +347,7 @@
                 <p>Chỉ cần quét đồ thị đúng <strong>2 lần</strong>:</p>
                 <p>• DFS lần 1: Tính kết quả cho một đỉnh bất kỳ (ví dụ đỉnh 1) làm gốc.</p>
                 <p>• DFS lần 2: Trượt (dời) gốc từ đỉnh 1 sang các đỉnh kề nó, dùng kết quả cũ để tính kết quả mới trong O(1).</p>
-                <p>• Tổng thời gian: <strong>O(n)</strong> → Chạy mượt mà trong nháy mắt!</p>
+                <p>• Tổng thời gian: <strong>O(n)</strong> → Chạy rất nhanh (tuyến tính).</p>
             </div>
         </div>
     </div>
@@ -360,7 +360,7 @@
             <li>Những người ở <strong>phía nhà v</strong> (tức là thuộc nhánh con của v): Điểm họp đã tiến lại gần họ 1 bước! Vậy tổng đường của nhóm này sẽ <strong>giảm đi</strong> một lượng chính bằng số người trong nhánh v. Ký hiệu số người này là <span class="inline-code">sz[v]</span>.</li>
             <li>Những người ở <strong>phần còn lại của làng</strong>: Điểm họp đã lùi xa họ 1 bước! Tổng đường của nhóm này sẽ <strong>tăng thêm</strong> 1 lượng bằng số người còn lại, tức là <span class="inline-code">n - sz[v]</span>.</li>
         </ul>
-        <p>Ta có công thức chuyển dịch kỳ diệu trong O(1):</p>
+        <p>Ta có công thức chuyển đổi trong O(1):</p>
         <div style="background: rgba(56,214,196,.1); padding: 15px; border-radius: 8px; text-align: center; font-size: 1.2rem; font-family: 'JetBrains Mono', monospace; color: var(--accent); margin-bottom: 20px; border: 1px dashed var(--accent);">
             f[v] = f[u] - sz[v] + (n - sz[v])
         </div>

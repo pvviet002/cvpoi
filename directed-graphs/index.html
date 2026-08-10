@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đồ thị có hướng | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../assets/sim.css">
+<link rel="stylesheet" href="../assets/nav.css">
+</head>
+<body class="cv-shell" data-nav="directed-graphs">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
+
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
+
+    <div class="wrap">
+      <header>
+        <div class="kicker">Chương 16 · Thuật toán đồ thị</div>
+        <h1>Đồ thị có hướng</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p>Hai loại đồ thị có hướng có tính chất đẹp: <b>đồ thị không chu trình (DAG)</b> — không đường đi
+      nào quay về chính nó, cho phép quy hoạch động theo thứ tự tô-pô; và <b>đồ thị kế tiếp</b> — mỗi đỉnh
+      có đúng một cung ra.</p>
+
+      <h2 id="s1"><span class="num">1.</span>Sắp xếp tô-pô</h2>
+      <p>Một <b>thứ tự tô-pô</b> xếp các đỉnh sao cho nếu có đường đi từ <span class="mathv">a</span> tới
+      <span class="mathv">b</span> thì <span class="mathv">a</span> đứng trước <span class="mathv">b</span>.
+      DAG luôn xếp được; đồ thị <em>có chu trình</em> thì không (các đỉnh trong chu trình không đỉnh nào
+      đứng trước được).</p>
+      <div class="box def">
+        <div class="t">Thuật toán Kahn (theo bậc vào)</div>
+        Tính <em>bậc vào</em> (số cung đi tới) của mỗi đỉnh. Lặp: chọn một đỉnh bậc vào 0, đưa vào thứ tự,
+        gỡ nó ra và giảm bậc vào của các đỉnh kề. Nếu gỡ đủ <span class="mathv">n</span> đỉnh → xong; nếu
+        kẹt (không còn đỉnh bậc vào 0) → đồ thị có chu trình.
+      </div>
+      <p>Số nhỏ màu đỏ ở mỗi đỉnh là bậc vào hiện tại. Bấm thử hai đồ thị:</p>
+
+      <div class="sim" id="topo"></div>
+
+      <p>Cách khác dùng DFS với ba trạng thái (trắng / đang xử lý / xong): thêm đỉnh vào danh sách khi nó
+      "xong", rồi <em>đảo ngược</em> danh sách. Nếu gặp lại một đỉnh "đang xử lý" thì có chu trình.</p>
+
+      <h2 id="s2"><span class="num">2.</span>Quy hoạch động trên DAG</h2>
+      <p>Trên DAG, nhiều bài về đường đi giải được bằng quy hoạch động theo thứ tự tô-pô: <em>đếm số đường
+      đi</em>, đường ngắn/dài nhất, số cạnh ít/nhiều nhất… Ví dụ đếm số đường đi từ đỉnh 1 tới mỗi đỉnh:
+      <span class="mathv">paths(x)</span> bằng tổng <span class="mathv">paths</span> của các đỉnh có cung
+      tới <span class="mathv">x</span>, với <span class="mathv">paths(1) = 1</span>.</p>
+      <div class="box ex">
+        <div class="t">Ví dụ</div>
+        Với đồ thị mẫu, <span class="mathv">paths</span> của các đỉnh 1..6 lần lượt là
+        <span class="mathv">1, 2, 3, 1, 1, 3</span>. Chẳng hạn
+        <span class="mathv">paths(3) = paths(2) + paths(5) = 2 + 1 = 3</span>, nên có
+        <b>3</b> đường đi từ 1 tới 6.
+      </div>
+      <p>Thực ra <em>mọi</em> bài quy hoạch động đều là một DAG ẩn: mỗi đỉnh là một trạng thái, mỗi cung là
+      một phụ thuộc. Ví dụ bài đổi tiền tổng <span class="mathv">n</span> với bộ xu
+      <span class="mathv">{1, 3, 4}</span>: đỉnh là các tổng <span class="mathv">0…n</span>, cung
+      <span class="mathv">s → s + c</span>; đường ngắn nhất <span class="mathv">0 → n</span> là số xu ít
+      nhất, số đường đi là số cách.</p>
+
+      <h2 id="s3"><span class="num">3.</span>Đồ thị kế tiếp và nhảy nhanh</h2>
+      <p>Trong <b>đồ thị kế tiếp</b> mỗi đỉnh có một đỉnh kế tiếp duy nhất <code class="inl">succ(x)</code>.
+      Gọi <code class="inl">succ(x, k)</code> là đỉnh tới sau <span class="mathv">k</span> bước từ
+      <span class="mathv">x</span>. Đi từng bước tốn <span class="mathv">O(k)</span>; nhưng nếu tiền xử lý
+      trước các bước là <em>luỹ thừa của 2</em> thì tính được trong <span class="mathv">O(log k)</span>:</p>
+      <div class="codewrap noname"><pre><code>succ(x, 1)  = succ(x)
+succ(x, 2k) = succ(succ(x, k), k)      // nhân đôi số bước</code></pre></div>
+      <p>Muốn <span class="mathv">k</span> bất kỳ, tách <span class="mathv">k</span> thành tổng các luỹ thừa
+      của 2. Ví dụ <span class="mathv">11 = 8 + 2 + 1</span> nên
+      <span class="mathv">succ(x, 11) = succ(succ(succ(x, 8), 2), 1)</span>; với đồ thị mẫu
+      <span class="mathv">succ(4, 11) = 5</span>. Tiền xử lý tốn <span class="mathv">O(n log u)</span>.</p>
+
+      <h2 id="s4"><span class="num">4.</span>Phát hiện chu trình (thuật toán Floyd)</h2>
+      <p>Đi mãi trong đồ thị kế tiếp thì chắc chắn rơi vào một chu trình. Cách ngây thơ đánh dấu mọi đỉnh đã
+      thăm tốn <span class="mathv">O(n)</span> bộ nhớ. <b>Thuật toán Floyd</b> (rùa và thỏ) chỉ tốn
+      <span class="mathv">O(1)</span> bộ nhớ: hai con trỏ, một đi 1 bước, một đi 2 bước; khi gặp nhau là đã
+      ở trong chu trình.</p>
+      <div class="codewrap noname"><pre><code>a = succ(x);  b = succ(succ(x));
+while (a != b) { a = succ(a);  b = succ(succ(b)); }   // gặp nhau trong chu trình</code></pre></div>
+      <p>Sau đó đưa <code class="inl">a</code> về đỉnh xuất phát rồi cho cả hai đi từng bước một; nơi chúng
+      gặp lại chính là <b>đỉnh đầu tiên của chu trình</b>. Cho một con trỏ đi trọn một vòng thì đếm được
+      <b>độ dài chu trình</b>.</p>
+
+      <footer>Chương 16 — <em>Cẩm nang Lập trình thi đấu</em>. Bài tiếp: Liên thông hai chiều.</footer>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/sitemap.js"></script>
+<script src="../assets/nav.js"></script>
+<script>CVNav.mount({ current: 'directed-graphs' });</script>
+
+<script src="../assets/sim.js"></script>
+<script>
+/* Sắp xếp tô-pô kiểu Kahn (theo bậc vào) */
+(function(){
+  var G1=[[1,2],[2,3],[4,1],[4,5],[5,2],[5,3],[3,6]];        // không chu trình
+  var G2=[[1,2],[2,3],[4,1],[4,5],[5,2],[3,5],[3,6]];        // có chu trình 2->3->5->2
+  var EDGES=G1;
+  var P={1:[60,44],2:[165,44],3:[270,44],4:[60,150],5:[165,150],6:[270,150]}, R=18;
+
+  function kahn(edges,N){
+    EDGES=edges;
+    var adj={}, indeg={};
+    for(var v=1;v<=N;v++){adj[v]=[]; indeg[v]=0;}
+    edges.forEach(function(e){ adj[e[0]].push(e[1]); indeg[e[1]]++; });
+    var F=[], order=[], removed={};
+    function snap(line,cur,msg){ F.push({line:line, indeg:Object.assign({},indeg), order:order.slice(), removed:Object.assign({},removed), cur:cur||0, msg:msg}); }
+    snap(1,0,'Tính bậc vào của mọi đỉnh (số đỏ).');
+    while(true){
+      if(order.length===N){ snap(5,0,'Xong. Thứ tự tô-pô: ['+order.join(', ')+'].'); break; }
+      var ready=[]; for(var v=1;v<=N;v++) if(!removed[v] && indeg[v]===0) ready.push(v);
+      if(!ready.length){ snap(6,0,'Không còn đỉnh bậc vào 0 mà chưa đủ đỉnh → ĐỒ THỊ CÓ CHU TRÌNH, không xếp được.'); break; }
+      var x=ready[0];
+      snap(3,x,'Đỉnh bậc vào 0: {'+ready.join(', ')+'}. Chọn '+x+' đưa vào thứ tự.');
+      order.push(x); removed[x]=true;
+      adj[x].forEach(function(w){ indeg[w]--; });
+      snap(4,x,'Gỡ '+x+', giảm bậc vào các đỉnh kề: '+(adj[x].length?adj[x].join(', '):'không có')+'.');
+    }
+    return F;
+  }
+
+  function draw(f, canvas){
+    var s='<svg viewBox="0 0 330 208" xmlns="http://www.w3.org/2000/svg">';
+    s+='<defs><marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 z" fill="var(--edge)"/></marker>'+
+       '<marker id="af" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0 0 L7 3 L0 6 z" fill="var(--border)"/></marker></defs>';
+    EDGES.forEach(function(e){
+      var u=P[e[0]], v=P[e[1]], dx=v[0]-u[0], dy=v[1]-u[1], L=Math.sqrt(dx*dx+dy*dy), ux=dx/L, uy=dy/L;
+      var x1=u[0]+ux*R, y1=u[1]+uy*R, x2=v[0]-ux*(R+7), y2=v[1]-uy*(R+7), faded=f.removed[e[0]];
+      s+='<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+(faded?'var(--border)':'var(--edge)')+'" stroke-width="'+(faded?1.5:2)+'"'+(faded?' stroke-dasharray="4 3" marker-end="url(#af)"':' marker-end="url(#ah)"')+'/>';
+    });
+    for(var v=1;v<=6;v++){ var p=P[v], fill, stroke;
+      if(f.cur===v){fill='var(--blue-bg)';stroke='var(--accent,var(--blue))';}
+      else if(f.removed[v]){fill='var(--green-bg)';stroke='var(--hl2)';}
+      else if(f.indeg[v]===0){fill='var(--amber-bg)';stroke='var(--amber)';}
+      else {fill='var(--card)';stroke='var(--border)';}
+      s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+R+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="2.5"/>';
+      s+='<text x="'+p[0]+'" y="'+p[1]+'" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="700" fill="var(--fg)">'+v+'</text>';
+      if(!f.removed[v]) s+='<text x="'+(p[0]+R-1)+'" y="'+(p[1]-R+3)+'" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--red)">'+f.indeg[v]+'</text>';
+    }
+    s+='<text x="8" y="200" font-size="12.5" fill="var(--fg)" font-family="Noto Sans Mono,monospace">Thứ tự: ['+f.order.join(', ')+']</text>';
+    s+='</svg>'; canvas.innerHTML=s;
+  }
+
+  var id0=kahn(G1,6)[0]; id0.msg='Chọn một đồ thị rồi bấm Chạy.';
+  CVSim.create('#topo', {
+    title:'Sắp xếp tô-pô (Kahn)',
+    code:{ topo:[
+      'tính bậc vào mỗi đỉnh',
+      'khi vẫn còn đỉnh bậc vào 0:',
+      '  chọn một đỉnh bậc vào 0 → đưa vào thứ tự',
+      '  gỡ nó, giảm bậc vào các đỉnh kề',
+      'đủ n đỉnh → xong (thứ tự tô-pô)',
+      'còn kẹt → đồ thị có chu trình' ] },
+    defaultCode:'topo', defaultOpLabel:'Kahn',
+    ops:[
+      {label:'Không chu trình', code:'topo', run:function(){ return kahn(G1,6); }},
+      {label:'Có chu trình', variant:'alt', code:'topo', run:function(){ return kahn(G2,6); }}
+    ],
+    idle:id0,
+    draw:draw
+  });
+})();
+</script>
+
+<script src="../assets/chuan.js"></script>
+</body>
+</html>

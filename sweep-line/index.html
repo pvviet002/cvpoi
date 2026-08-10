@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thuật toán đường quét | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../assets/sim.css">
+<link rel="stylesheet" href="../assets/nav.css">
+</head>
+<body class="cv-shell" data-nav="sweep-line">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
+
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
+
+    <div class="wrap">
+      <header>
+        <div class="kicker">Chương 30 · Chủ đề nâng cao</div>
+        <h1>Thuật toán đường quét</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p>Nhiều bài toán hình học giải được bằng <b>đường quét</b>: biểu diễn dữ liệu thành các <b>sự kiện</b> gắn
+      với điểm trên mặt phẳng, rồi xử lý các sự kiện theo thứ tự tăng dần của toạ độ (thường là x).</p>
+
+      <h2 id="s1"><span class="num">1.</span>Số người có mặt cùng lúc</h2>
+      <p>Mỗi nhân viên có giờ đến và giờ về. Cần tìm số người tối đa cùng có mặt. Mỗi người tạo hai sự kiện:
+      <b>đến</b> (<span class="mathv">+</span>) và <b>về</b> (<span class="mathv">−</span>). Sắp các sự kiện theo
+      thời gian rồi quét từ trái sang phải, giữ một bộ đếm; đáp án là giá trị lớn nhất của bộ đếm.</p>
+      <p>Bấm <b>Quét</b>: đường quét (nét đứt) chạy qua các mốc thời gian; mỗi lần gặp <span class="mathv">+</span>
+      bộ đếm tăng, gặp <span class="mathv">−</span> thì giảm. Thanh của người đang có mặt tô xanh lá:</p>
+
+      <div class="sim" id="sw"></div>
+
+      <p>Giá trị lớn nhất của bộ đếm là <b>3</b> (từ khi John đến tới khi Maria về). Thời gian chạy
+      <span class="mathv">O(n log n)</span> — chi phí chính là sắp xếp các sự kiện.</p>
+
+      <h2 id="s2"><span class="num">2.</span>Đếm giao điểm các đoạn thẳng</h2>
+      <p>Cho <span class="mathv">n</span> đoạn thẳng, mỗi đoạn <em>nằm ngang</em> hoặc <em>thẳng đứng</em>; đếm số
+      giao điểm. Vét cạn mọi cặp là <span class="mathv">O(n<sup>2</sup>)</span>; đường quét hạ xuống
+      <span class="mathv">O(n log n)</span>.</p>
+      <div class="box tech">
+        <div class="t">Ba loại sự kiện (quét theo x)</div>
+        (1) đoạn ngang <em>bắt đầu</em> → thêm toạ độ y của nó vào một cấu trúc; (2) đoạn ngang <em>kết thúc</em>
+        → xoá toạ độ y; (3) gặp <em>đoạn thẳng đứng</em> ở <span class="mathv">[y<sub>1</sub>, y<sub>2</sub>]</span>
+        → đếm xem có bao nhiêu đoạn ngang đang hoạt động có y trong khoảng đó. Dùng cây chỉ số nhị phân / cây
+        phân đoạn (kèm nén chỉ số), mỗi sự kiện <span class="mathv">O(log n)</span>.
+      </div>
+
+      <h2 id="s3"><span class="num">3.</span>Cặp điểm gần nhất</h2>
+      <p>Tìm hai điểm có khoảng cách Euclid nhỏ nhất. Quét các điểm từ trái sang phải, giữ
+      <span class="mathv">d</span> = khoảng cách nhỏ nhất đã gặp. Với điểm hiện tại
+      <span class="mathv">(x, y)</span>, chỉ cần xét các điểm có toạ độ x trong
+      <span class="mathv">[x−d, x]</span> và y trong <span class="mathv">[y−d, y+d]</span>.</p>
+      <p>Vùng ấy luôn chứa <span class="mathv">O(1)</span> điểm, và ta duyệt qua chúng trong
+      <span class="mathv">O(log n)</span> bằng cách giữ một tập điểm sắp theo y. Tổng cộng
+      <span class="mathv">O(n log n)</span>.</p>
+
+      <h2 id="s4"><span class="num">4.</span>Bao lồi — thuật toán Andrew</h2>
+      <p><b>Bao lồi</b> là đa giác lồi nhỏ nhất chứa mọi điểm. <b>Thuật toán Andrew</b> xây trong
+      <span class="mathv">O(n log n)</span>: sắp điểm theo x (rồi theo y), dựng lần lượt <b>bao trên</b> rồi
+      <b>bao dưới</b>.</p>
+      <div class="box def">
+        <div class="t">Ý tưởng dựng nửa bao</div>
+        Duyệt các điểm và thêm dần vào bao. Mỗi khi vừa thêm một điểm mà đoạn cuối <em>rẽ trái</em>, ta liên tục
+        <b>xoá điểm áp chót</b> cho tới khi không còn rẽ trái. Dùng tích có hướng để kiểm hướng rẽ.
+      </div>
+
+      <footer>Chương 30 — <em>Cẩm nang Lập trình thi đấu</em>. Hết Phần 3 — trọn bộ 31 chương.</footer>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/sitemap.js"></script>
+<script src="../assets/nav.js"></script>
+<script>CVNav.mount({ current: 'sweep-line' });</script>
+
+<script src="../assets/sim.js"></script>
+<script>
+/* Đường quét: số người tối đa có mặt cùng lúc */
+(function(){
+  var P=[{n:'John',a:10,d:15},{n:'Maria',a:6,d:12},{n:'Peter',a:14,d:16},{n:'Lisa',a:5,d:13}];
+  var T0=5, T1=16;
+  function gx(t){ return 44 + (t-T0)*26; }
+  var rowY=[20,42,64,86], barH=13;
+
+  function frames(){
+    var ev=[];
+    for(var i=0;i<P.length;i++){ ev.push({t:P[i].a,type:'+',pi:i}); ev.push({t:P[i].d,type:'-',pi:i}); }
+    ev.sort(function(a,b){ return a.t-b.t; });
+    var F=[], cnt=0, mx=0, active={};
+    F.push({t:null, cnt:0, mx:0, active:{}, cur:-1, line:1, msg:'Sắp các sự kiện theo thời gian. Bộ đếm = 0.'});
+    for(var k=0;k<ev.length;k++){
+      var e=ev[k];
+      if(e.type==='+'){ cnt++; active[e.pi]=true; } else { cnt--; delete active[e.pi]; }
+      if(cnt>mx) mx=cnt;
+      F.push({t:e.t, cnt:cnt, mx:mx, active:Object.assign({},active), cur:e.pi, line: e.type==='+'?3:4,
+        msg:'t = '+e.t+': '+P[e.pi].n+(e.type==='+'?' đến (+1)':' về (−1)')+'. Bộ đếm = '+cnt+', tối đa = '+mx+'.'});
+    }
+    F.push({t:null, cnt:cnt, mx:mx, active:{}, cur:-1, line:5, msg:'Xong. Số người tối đa cùng lúc = '+mx+'.'});
+    return F;
+  }
+
+  function draw(f, canvas){
+    var s='<svg viewBox="0 0 340 128" xmlns="http://www.w3.org/2000/svg">';
+    // thanh mỗi người
+    for(var i=0;i<P.length;i++){
+      var y=rowY[i], x1=gx(P[i].a), x2=gx(P[i].d), act=f.active[i], cur=(f.cur===i);
+      s+='<rect x="'+x1+'" y="'+y+'" width="'+(x2-x1)+'" height="'+barH+'" rx="3" fill="'+(act?'var(--green-bg)':'var(--card)')+'" stroke="'+(cur?'var(--accent,var(--blue))':(act?'var(--hl2)':'var(--border)'))+'" stroke-width="'+(cur?2.6:1.4)+'"/>';
+      s+='<text x="'+(x1-4)+'" y="'+(y+barH/2)+'" text-anchor="end" dominant-baseline="central" font-size="9.5" fill="var(--muted)">'+P[i].n+'</text>';
+      s+='<text x="'+((x1+x2)/2)+'" y="'+(y+barH/2)+'" text-anchor="middle" dominant-baseline="central" font-size="8.5" fill="var(--muted)">'+P[i].a+'–'+P[i].d+'</text>';
+    }
+    // trục thời gian
+    var yAx=104;
+    s+='<line x1="'+gx(T0)+'" y1="'+yAx+'" x2="'+gx(T1)+'" y2="'+yAx+'" stroke="var(--border)"/>';
+    [5,6,10,12,13,14,15,16].forEach(function(t){ s+='<text x="'+gx(t)+'" y="'+(yAx+11)+'" text-anchor="middle" font-size="8.5" fill="var(--muted)">'+t+'</text>'; });
+    // đường quét
+    if(f.t!=null){ var xs=gx(f.t);
+      s+='<line x1="'+xs+'" y1="12" x2="'+xs+'" y2="'+yAx+'" stroke="var(--accent,var(--blue))" stroke-width="1.6" stroke-dasharray="4 3"/>';
+    }
+    // bộ đếm
+    s+='<text x="336" y="16" text-anchor="end" font-size="12" font-weight="700" fill="var(--fg)" font-family="Noto Sans Mono,monospace">đếm '+f.cnt+' · tối đa '+f.mx+'</text>';
+    s+='</svg>'; canvas.innerHTML=s;
+  }
+
+  var id0=frames()[0];
+  CVSim.create('#sw', {
+    title:'Số người tối đa có mặt cùng lúc',
+    code:{ sw:[
+      'mỗi người → sự kiện đến (+) và về (−)',
+      'sắp các sự kiện theo thời gian, rồi quét:',
+      '  gặp “đến” → bộ đếm +1',
+      '  gặp “về”  → bộ đếm −1',
+      'đáp án = giá trị lớn nhất của bộ đếm' ] },
+    defaultCode:'sw', defaultOpLabel:'quét',
+    ops:[ {label:'Quét sự kiện', code:'sw', run:function(){ return frames(); }} ],
+    idle:id0,
+    draw:draw
+  });
+})();
+</script>
+
+<script src="../assets/chuan.js"></script>
+</body>
+</html>

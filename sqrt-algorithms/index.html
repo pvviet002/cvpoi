@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thuật toán căn bậc hai | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../assets/sim.css">
+<link rel="stylesheet" href="../assets/nav.css">
+</head>
+<body class="cv-shell" data-nav="sqrt-algorithms">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
+
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
+
+    <div class="wrap">
+      <header>
+        <div class="kicker">Chương 27 · Chủ đề nâng cao</div>
+        <h1>Thuật toán căn bậc hai</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p>Một <b>thuật toán căn bậc hai</b> có <span class="mathv">√n</span> trong độ phức tạp. Có thể xem
+      <span class="mathv">√n</span> như "logarit của nhà nghèo":
+      <span class="mathv">O(√n)</span> tốt hơn <span class="mathv">O(n)</span> nhưng kém
+      <span class="mathv">O(log n)</span> — vậy mà nhiều thuật toán loại này lại nhanh và tiện dùng.</p>
+
+      <h2 id="s1"><span class="num">1.</span>Chia mảng thành khối</h2>
+      <p>Chia mảng thành các <b>khối</b> cỡ <span class="mathv">√n</span>, mỗi khối giữ sẵn tổng của nó. Khi đó:
+      <b>sửa một phần tử</b> chỉ cần cập nhật một khối — <span class="mathv">O(1)</span>; <b>tính tổng đoạn</b>
+      thì chia đoạn thành ba phần: vài phần tử lẻ ở hai đầu, cộng với trọn tổng các khối nằm giữa —
+      <span class="mathv">O(√n)</span>.</p>
+      <p>Bấm <b>Truy vấn [3, 13]</b> rồi <b>Sửa a[5]</b> để xem cả hai thao tác. Khối tô nhạt là khối được cộng
+      trọn; ô xanh dương là phần tử lẻ được cộng riêng; tổng đang tích luỹ hiện bên dưới:</p>
+
+      <div class="sim" id="sd"></div>
+
+      <p>Kích thước khối <span class="mathv">√n</span> <em>cân bằng</em> hai phía: có
+      <span class="mathv">√n</span> khối, mỗi khối <span class="mathv">√n</span> phần tử. Không nhất thiết dùng
+      đúng <span class="mathv">√n</span> — tham số tối ưu tuỳ bài; nếu ít khi đụng tới phần tử lẻ, có thể chọn
+      khối to hơn.</p>
+
+      <h2 id="s2"><span class="num">2.</span>Kết hợp hai thuật toán</h2>
+      <p>Nhiều bài chạy <span class="mathv">O(n<sup>2</sup>)</span> nếu chỉ dùng một thuật toán, nhưng
+      <em>kết hợp</em> hai thuật toán theo ngưỡng <span class="mathv">√n</span> thì còn
+      <span class="mathv">O(n√n)</span>.</p>
+      <div class="box tech">
+        <div class="t">Xử lý theo trường hợp</div>
+        Bài "cặp ô cùng chữ gần nhất": với chữ xuất hiện <span class="mathv">k</span> lần, nếu
+        <span class="mathv">k ≤ √n</span> thì <em>duyệt mọi cặp</em> (<span class="mathv">O(k<sup>2</sup>)</span>);
+        nếu <span class="mathv">k &gt; √n</span> thì <em>BFS đa nguồn</em> (<span class="mathv">O(n)</span>). Cả
+        hai nhánh cộng lại chỉ <span class="mathv">O(n√n)</span>.
+      </div>
+      <div class="box tech">
+        <div class="t">Xử lý theo lô</div>
+        Chia các thao tác thành <span class="mathv">√n</span> lô, mỗi lô <span class="mathv">√n</span> thao tác.
+        Đầu mỗi lô chạy một lần BFS <span class="mathv">O(n)</span>; trong lô, mỗi thao tác duyệt danh sách
+        ngắn <span class="mathv">O(√n)</span>. Tổng cũng <span class="mathv">O(n√n)</span>.
+      </div>
+
+      <h2 id="s3"><span class="num">3.</span>Phân hoạch số nguyên</h2>
+      <p>Nếu số nguyên dương <span class="mathv">n</span> được viết thành tổng các số nguyên dương thì tổng ấy
+      chứa tối đa <span class="mathv">O(√n)</span> số <em>phân biệt</em> (vì
+      <span class="mathv">1+2+…+k = k(k+1)/2</span>, nên <span class="mathv">k = O(√n)</span>). Nhận xét này
+      giúp:</p>
+      <ul>
+        <li><b>Bài toán cái túi</b> với tổng trọng số <span class="mathv">n</span>: xử lý theo nhóm trọng số
+        giống nhau, mỗi nhóm <span class="mathv">O(n)</span> → tổng <span class="mathv">O(n√n)</span> (thay vì
+        <span class="mathv">O(n<sup>2</sup>)</span>).</li>
+        <li><b>Ghép chuỗi</b> từ tập <span class="mathv">D</span> tổng độ dài <span class="mathv">m</span>: chỉ có
+        <span class="mathv">O(√m)</span> độ dài phân biệt, dùng băm để xét → <span class="mathv">O(n√m)</span>.</li>
+      </ul>
+
+      <h2 id="s4"><span class="num">4.</span>Thuật toán Mo</h2>
+      <p>Với các truy vấn đoạn trên mảng <b>tĩnh</b>, có thể xử lý các truy vấn theo thứ tự bất kỳ. Thuật toán Mo
+      giữ một <b>phạm vi đang xét</b> và di chuyển hai đầu mút bằng cách thêm/bớt từng phần tử.</p>
+      <div class="box def">
+        <div class="t">Thứ tự xử lý truy vấn</div>
+        Chia mảng thành khối <span class="mathv">k = O(√n)</span>. Sắp các truy vấn theo
+        <span class="mathv">(⌊a/k⌋, b)</span>: cùng khối trái thì xét theo đầu mút phải tăng dần. Nhờ vậy đầu
+        mút trái đi tổng cộng <span class="mathv">O(n√n)</span> bước, đầu mút phải cũng
+        <span class="mathv">O(n√n)</span> bước → tổng <span class="mathv">O(n√n·f(n))</span> với
+        <span class="mathv">f(n)</span> là chi phí thêm/bớt một phần tử.
+      </div>
+      <p>Ví dụ đếm <b>số phần tử phân biệt</b> trong mỗi đoạn: giữ mảng <code class="inl">count[x]</code>; thêm
+      <span class="mathv">x</span> mà <code class="inl">count[x]</code> vừa thành 1 thì đáp án tăng 1, bớt mà về
+      0 thì đáp án giảm 1. Mỗi bước <span class="mathv">O(1)</span> → toàn bài
+      <span class="mathv">O(n√n)</span>.</p>
+
+      <footer>Chương 27 — <em>Cẩm nang Lập trình thi đấu</em>. Bài tiếp: Cây phân đoạn (nâng cao).</footer>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/sitemap.js"></script>
+<script src="../assets/nav.js"></script>
+<script>CVNav.mount({ current: 'sqrt-algorithms' });</script>
+
+<script src="../assets/sim.js"></script>
+<script>
+/* Chia căn: truy vấn tổng đoạn + sửa phần tử */
+(function(){
+  var A0=[5,8,6,3,2,7,2,6,7,1,7,5,6,2,3,2], BS=4, NB=A0.length/BS;
+  function blocks(a){ var b=[]; for(var i=0;i<NB;i++){ var s=0; for(var j=0;j<BS;j++) s+=a[i*BS+j]; b.push(s);} return b; }
+
+  function queryFrames(a, lo, hi){
+    var bs=blocks(a), F=[], run=0;
+    var hc=[], hb=[];
+    F.push({line:2, a:a.slice(), bs:bs, hc:[], hb:[], run:0, msg:'Truy vấn tổng đoạn ['+lo+', '+hi+']. Tách thành hai đầu lẻ + khối giữa.'});
+    var i=lo;
+    // đầu trái lẻ tới hết khối
+    while(i<=hi && i%BS!==0){ run+=a[i]; hc=hc.concat([i]);
+      F.push({line:3, a:a.slice(), bs:bs, hc:hc.slice(), hb:hb.slice(), run:run, msg:'Phần tử lẻ đầu: a['+i+']='+a[i]+'. Tổng = '+run+'.'}); i++; }
+    // khối trọn
+    while(i+BS-1<=hi){ var bi=i/BS; run+=bs[bi]; hb=hb.concat([bi]);
+      F.push({line:4, a:a.slice(), bs:bs, hc:hc.slice(), hb:hb.slice(), run:run, msg:'Khối '+bi+' nằm trọn trong đoạn: +'+bs[bi]+'. Tổng = '+run+'.'}); i+=BS; }
+    // đầu phải lẻ
+    while(i<=hi){ run+=a[i]; hc=hc.concat([i]);
+      F.push({line:3, a:a.slice(), bs:bs, hc:hc.slice(), hb:hb.slice(), run:run, msg:'Phần tử lẻ cuối: a['+i+']='+a[i]+'. Tổng = '+run+'.'}); i++; }
+    F.push({line:4, a:a.slice(), bs:bs, hc:hc.slice(), hb:hb.slice(), run:run, done:1, msg:'Tổng đoạn ['+lo+', '+hi+'] = '+run+'.'});
+    return F;
+  }
+  function updateFrames(a, idx, val){
+    var b0=blocks(a), F=[];
+    var old=a[idx]; var bi=Math.floor(idx/BS);
+    F.push({line:5, a:a.slice(), bs:b0, hc:[idx], hb:[], run:0, upd:1, msg:'Sửa a['+idx+']: '+old+' → '+val+'.'});
+    var a2=a.slice(); a2[idx]=val; var b1=blocks(a2);
+    F.push({line:5, a:a2.slice(), bs:b1, hc:[idx], hb:[bi], run:0, upd:1, msg:'Chỉ khối '+bi+' đổi tổng: '+b0[bi]+' → '+b1[bi]+' — O(1).'});
+    return F;
+  }
+
+  function draw(f, canvas){
+    var x0=8, cw=21, yB=18, yA=44, h=22;
+    var s='<svg viewBox="0 0 348 92" xmlns="http://www.w3.org/2000/svg">';
+    // khối (tổng) hàng trên
+    for(var bi=0;bi<NB;bi++){
+      var bx=x0+bi*BS*cw, bw=BS*cw-3, isb=(f.hb&&f.hb.indexOf(bi)>=0);
+      s+='<rect x="'+bx+'" y="'+yB+'" width="'+bw+'" height="'+h+'" rx="4" fill="'+(isb?'var(--amber-bg)':'var(--card)')+'" stroke="'+(isb?'var(--amber)':'var(--border)')+'" stroke-width="'+(isb?2.2:1)+'"/>';
+      s+='<text x="'+(bx+bw/2)+'" y="'+(yB+h/2)+'" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans Mono,monospace" font-size="12" font-weight="700" fill="var(--fg)">'+f.bs[bi]+'</text>';
+    }
+    // phần tử hàng dưới
+    for(var i=0;i<f.a.length;i++){
+      var x=x0+i*cw, isc=(f.hc&&f.hc.indexOf(i)>=0);
+      s+='<rect x="'+x+'" y="'+yA+'" width="'+(cw-3)+'" height="'+h+'" rx="3" fill="'+(isc?'var(--blue-bg)':'var(--card)')+'" stroke="'+(isc?'var(--accent,var(--blue))':'var(--border)')+'" stroke-width="'+(isc?2.4:1)+'"/>';
+      s+='<text x="'+(x+(cw-3)/2)+'" y="'+(yA+h/2)+'" text-anchor="middle" dominant-baseline="central" font-family="Noto Sans Mono,monospace" font-size="11" fill="var(--fg)">'+f.a[i]+'</text>';
+      s+='<text x="'+(x+(cw-3)/2)+'" y="'+(yA+h+9)+'" text-anchor="middle" font-size="8" fill="var(--muted)">'+i+'</text>';
+    }
+    if(!f.upd) s+='<text x="'+x0+'" y="90" font-size="11.5" font-weight="700" fill="var(--fg)" font-family="Noto Sans Mono,monospace">Tổng: '+f.run+'</text>';
+    else s+='<text x="'+x0+'" y="90" font-size="11" fill="var(--muted)">Sửa 1 phần tử → cập nhật 1 khối</text>';
+    s+='</svg>'; canvas.innerHTML=s;
+  }
+
+  var id0={line:1, a:A0.slice(), bs:blocks(A0), hc:[], hb:[], run:0, msg:'Bấm một thao tác rồi Chạy/Tiến.'};
+  CVSim.create('#sd', {
+    title:'Chia căn: tổng đoạn & sửa phần tử',
+    code:{ sd:[
+      'khối = √n phần tử; mỗi khối giữ sẵn tổng',
+      'truy vấn tổng [a, b]:',
+      '  cộng các phần tử lẻ ở hai đầu',
+      '  cộng trọn tổng các khối nằm giữa → O(√n)',
+      'sửa a[i]: cập nhật đúng một khối → O(1)' ] },
+    defaultCode:'sd', defaultOpLabel:'thao tác',
+    ops:[
+      {label:'Truy vấn [3, 13]', code:'sd', run:function(){ return queryFrames(A0.slice(), 3, 13); }},
+      {label:'Sửa a[5]: 7→5', variant:'alt', code:'sd', run:function(){ return updateFrames(A0.slice(), 5, 5); }}
+    ],
+    idle:id0,
+    draw:draw
+  });
+})();
+</script>
+
+<script src="../assets/chuan.js"></script>
+</body>
+</html>

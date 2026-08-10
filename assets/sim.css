@@ -1,0 +1,62 @@
+/* =====================================================================
+   sim.css — phòng mô phỏng dùng chung (kiểu visualgo).
+   Nạp SAU chuan.css. Mọi màu lấy từ biến của chuan.css; hai biến nhấn
+   dùng cú pháp fallback: --accent (mặc định --blue), --accent2 (--purple).
+   Trang muốn đổi cặp nhấn thì khai `--accent`/`--accent2` trong <style> riêng.
+   ===================================================================== */
+
+.sim{border:1px solid var(--border); border-radius:14px; background:var(--card); margin:26px 0; overflow:hidden}
+
+/* --- thanh trên: tên + thao tác --- */
+.sim-top{display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid var(--border)}
+.sim-title{font-weight:700; font-size:.95rem; margin-right:auto}
+.sim-ops{display:flex; flex-wrap:wrap; align-items:center; gap:8px}
+.sim-op-in{font-size:.85rem; color:var(--muted); display:inline-flex; align-items:center; gap:6px}
+.sim-op-in input{width:74px; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:6px 9px; color:var(--fg); font:inherit}
+.sim-btn{background:var(--accent,var(--blue)); color:#fff; border:none; border-radius:8px; padding:7px 13px; font:inherit; font-size:.85rem; font-weight:600; cursor:pointer}
+.sim-btn:hover{filter:brightness(1.07)}
+.sim-btn.sim-alt{background:var(--accent2,var(--purple))}
+.sim-btn.sim-ghost{background:transparent; color:var(--accent,var(--blue)); border:1px solid var(--accent,var(--blue))}
+
+/* --- thân: canvas + mã giả --- */
+.sim-main{display:grid; grid-template-columns:1.35fr 1fr}
+.sim-canvas{padding:12px; border-right:1px solid var(--border); min-height:330px; display:flex; align-items:center; justify-content:center}
+.sim-canvas svg{max-width:100%; height:auto}
+.sim-pc{padding:14px 14px 16px; background:var(--code-bg)}
+.sim-pc-h{font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:700; margin-bottom:8px}
+.sim-pc-h .op{color:var(--accent,var(--blue))}
+.sim-pc-lines{font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.86rem; line-height:1.42; color:var(--code-fg)}
+.sim-ln{padding:3px 8px; border-radius:6px; border-left:3px solid transparent; white-space:pre-wrap}
+.sim-ln .sim-n{color:var(--muted); margin-right:8px}
+.sim-ln.sim-in{padding-left:20px}
+.sim-ln.on{background:color-mix(in srgb, var(--accent,var(--blue)) 16%, transparent); border-left-color:var(--accent,var(--blue)); color:var(--fg)}
+.sim-ln.on .sim-n{color:var(--accent,var(--blue)); font-weight:700}
+
+/* --- thanh điều khiển --- */
+.sim-ctrl{display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:12px 16px; border-top:1px solid var(--border)}
+.sim-ic{width:38px; height:34px; display:grid; place-items:center; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--fg); cursor:pointer; font-size:.95rem}
+.sim-ic:hover:not(:disabled){border-color:var(--accent,var(--blue)); color:var(--accent,var(--blue))}
+.sim-ic:disabled{opacity:.4; cursor:default}
+.sim-play{min-width:104px}
+.sim-sp{font-size:.82rem; color:var(--muted); margin-left:6px}
+.sim-speed{accent-color:var(--accent,var(--blue))}
+.sim-prog{margin-left:auto; font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.8rem; color:var(--muted)}
+.sim-msg{padding:11px 16px; border-top:1px solid var(--border); font-size:.9rem; background:var(--bg); min-height:20px}
+
+/* --- nguyên thủy vẽ dùng chung (đỉnh/cạnh/ô) — draw() gán class này --- */
+.sim-canvas .node{fill:var(--node); stroke:var(--node-stroke); stroke-width:2; transition:fill .18s, stroke .18s}
+.sim-canvas .node.path{fill:var(--node2); stroke:var(--accent2,var(--purple)); stroke-width:2.5}
+.sim-canvas .node.cur{fill:var(--blue-bg); stroke:var(--accent,var(--blue)); stroke-width:4}
+.sim-canvas .node.done{fill:var(--green-bg); stroke:var(--hl2); stroke-width:4}
+.sim-canvas .lb{fill:var(--fg); font-family:"Noto Sans",system-ui,sans-serif; font-size:15px; font-weight:700; text-anchor:middle; dominant-baseline:central}
+.sim-canvas .edge{stroke:var(--edge); stroke-width:2; fill:none}
+.sim-canvas .edge.on{stroke:var(--accent2,var(--purple)); stroke-width:3}
+.sim-canvas .cell{fill:var(--card); stroke:var(--border); stroke-width:1.5}
+.sim-canvas .cell.cur{fill:var(--blue-bg); stroke:var(--accent,var(--blue)); stroke-width:2.5}
+.sim-canvas .cell.done{fill:var(--green-bg); stroke:var(--hl2); stroke-width:2}
+.sim-canvas .clb{fill:var(--fg); font-family:"Noto Sans Mono",monospace; font-size:14px; text-anchor:middle; dominant-baseline:central}
+
+@media (max-width:720px){
+  .sim-main{grid-template-columns:1fr}
+  .sim-canvas{border-right:none; border-bottom:1px solid var(--border)}
+}

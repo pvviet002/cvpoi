@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luồng và lát cắt | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../assets/sim.css">
+<link rel="stylesheet" href="../assets/nav.css">
+</head>
+<body class="cv-shell" data-nav="max-flow">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
+
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
+
+    <div class="wrap">
+      <header>
+        <div class="kicker">Chương 20 · Thuật toán đồ thị</div>
+        <h1>Luồng và lát cắt</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p>Cho đồ thị có hướng, có trọng số, với một <b>nguồn</b> (không cạnh vào) và một <b>đích</b> (không
+      cạnh ra). Hai bài toán gắn liền nhau: gửi được nhiều <em>luồng</em> nhất từ nguồn tới đích, và cắt bỏ
+      một tập cạnh <em>nhẹ nhất</em> để tách nguồn khỏi đích.</p>
+
+      <h2 id="s1"><span class="num">1.</span>Luồng cực đại = lát cắt nhỏ nhất</h2>
+      <p>Trọng số mỗi cạnh là <b>sức chứa</b>; tại mỗi đỉnh giữa, luồng vào bằng luồng ra. Với đồ thị mẫu
+      (nguồn 1, đích 6), luồng cực đại là <b>7</b> (nguồn gửi <span class="mathv">3 + 4</span>, đích nhận
+      <span class="mathv">5 + 2</span>). <b>Lát cắt nhỏ nhất</b> là bỏ hai cạnh <span class="mathv">2 → 3</span>
+      và <span class="mathv">4 → 5</span> với tổng sức chứa <span class="mathv">6 + 1 = 7</span> — bỏ xong thì
+      không còn đường nào từ nguồn tới đích.</p>
+      <div class="box def">
+        <div class="t">Định lý luồng cực đại – lát cắt nhỏ nhất</div>
+        Luồng cực đại và lát cắt nhỏ nhất <b>luôn bằng nhau</b>. Lý do: mọi luồng đều phải đi qua mọi lát cắt,
+        nên luồng ≤ mọi lát cắt; khi có một luồng bằng đúng một lát cắt thì cả hai đều tối ưu.
+      </div>
+
+      <h2 id="s2"><span class="num">2.</span>Thuật toán Ford–Fulkerson</h2>
+      <p>Bắt đầu với luồng rỗng. Dựng <b>đồ thị thặng dư</b>: mỗi cạnh gốc kèm một cạnh ngược (ban đầu sức
+      chứa 0). Mỗi vòng, tìm một <b>đường tăng luồng</b> từ nguồn tới đích chỉ qua các cạnh còn sức chứa
+      dương; đẩy thêm <span class="mathv">x</span> = sức chứa nhỏ nhất trên đường đó, giảm sức chứa các cạnh
+      xuôi đi <span class="mathv">x</span> và tăng các cạnh ngược thêm <span class="mathv">x</span>. Cạnh ngược
+      cho phép <em>rút lại</em> luồng cũ nếu về sau có cách đi lợi hơn. Lặp tới khi hết đường tăng.</p>
+      <div class="box tech">
+        <div class="t">Chọn đường tăng thế nào</div>
+        Dùng DFS thường ổn, nhưng xấu nhất mỗi đường chỉ tăng 1 đơn vị → chậm. <b>Edmonds–Karp</b> dùng BFS
+        (đường ít cạnh nhất), <span class="mathv">O(m<sup>2</sup>n)</span>; <b>thuật toán co giãn</b> chỉ nhận
+        đường có sức chứa ≥ một ngưỡng rồi chia đôi ngưỡng dần. Cả hai đủ nhanh cho thi đấu.
+      </div>
+      <p>Khi dừng, gọi <span class="mathv">A</span> = tập đỉnh còn tới được từ nguồn trong đồ thị thặng dư.
+      Các cạnh <em>gốc</em> đi từ <span class="mathv">A</span> ra ngoài <span class="mathv">A</span> chính là
+      <b>lát cắt nhỏ nhất</b> — và chúng đã dùng hết sức chứa.</p>
+
+      <h2 id="s3"><span class="num">3.</span>Đường đi rời nhau</h2>
+      <p>Nhiều bài quy được về luồng cực đại. <b>Đường đi rời cạnh</b> (mỗi cạnh dùng nhiều nhất một lần):
+      cho mọi cạnh sức chứa 1, số đường rời cạnh tối đa = luồng cực đại. <b>Đường đi rời đỉnh</b> (mỗi đỉnh
+      giữa dùng nhiều nhất một lần): <em>tách</em> mỗi đỉnh thành "đỉnh vào" và "đỉnh ra" nối bởi một cạnh
+      sức chứa 1, rồi lại tính luồng cực đại.</p>
+
+      <h2 id="s4"><span class="num">4.</span>Ghép cặp cực đại trên đồ thị hai phía</h2>
+      <p>Đồ thị <b>hai phía</b> chia đỉnh thành hai nhóm, mọi cạnh nối trái–phải. <b>Ghép cặp cực đại</b> là
+      tập nhiều cặp nhất sao cho mỗi đỉnh thuộc nhiều nhất một cặp. Quy về luồng: thêm nguồn nối tới mọi đỉnh
+      trái, mọi đỉnh phải nối tới đích, sức chứa 1 — luồng cực đại chính là số cặp.</p>
+      <p>Cách trực tiếp là thuật toán <b>đường tăng (Kuhn)</b>: lần lượt xét từng đỉnh trái, tìm một "đường
+      tăng" — nếu láng giềng còn trống thì ghép, nếu bận thì thử đẩy bạn ghép của nó sang chỗ khác. Bấm
+      <b>Ghép cặp</b> để xem số cặp lớn dần tới <b>3</b> (đỉnh 4 không ghép được vì 7 đã bận):</p>
+
+      <div class="sim" id="match"></div>
+
+      <p>Hai định lý đi kèm: <b>định lý Kőnig</b> — trên đồ thị hai phía, phủ đỉnh nhỏ nhất bằng ghép cặp cực
+      đại; <b>định lý Hall</b> — ghép được hết đỉnh trái khi và chỉ khi mọi tập <span class="mathv">X</span>
+      đỉnh trái có <span class="mathv">|X| ≤ |f(X)|</span> (số láng giềng).</p>
+
+      <footer>Chương 20 — <em>Cẩm nang Lập trình thi đấu</em>. Hết Phần 2. Bài tiếp: Ma trận.</footer>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/sitemap.js"></script>
+<script src="../assets/nav.js"></script>
+<script>CVNav.mount({ current: 'max-flow' });</script>
+
+<script src="../assets/sim.js"></script>
+<script>
+/* Ghép cặp cực đại hai phía — thuật toán đường tăng (Kuhn) */
+(function(){
+  var adjL={1:[5],2:[7],3:[5,6,8],4:[7]};
+  var EDG=[[1,5],[2,7],[3,5],[3,6],[3,8],[4,7]];
+  var P={1:[56,34],2:[56,90],3:[56,146],4:[56,202],5:[246,34],6:[246,90],7:[246,146],8:[246,202]}, R=17;
+
+  function frames(){
+    var mR={}, mL={}, F=[], size=0, visited;
+    function snap(line,curU,tryV,msg){ F.push({line:line, mL:Object.assign({},mL), mR:Object.assign({},mR), curU:curU||0, tryV:tryV||0, size:size, msg:msg}); }
+    function aug(u){
+      var ns=adjL[u]||[];
+      for(var i=0;i<ns.length;i++){ var v=ns[i]; if(visited[v]) continue; visited[v]=true;
+        snap(3,u,v,'Thử cạnh '+u+'–'+v+(mR[v]?': '+v+' đang ghép với '+mR[v]+', thử đẩy '+mR[v]+' sang chỗ khác.':': '+v+' còn trống → ghép '+u+'–'+v+'.'));
+        if(!mR[v] || aug(mR[v])){ mR[v]=u; mL[u]=v; return true; }
+      }
+      return false;
+    }
+    snap(1,0,0,'Bắt đầu: chưa có cặp nào.');
+    [1,2,3,4].forEach(function(u){ visited={};
+      snap(2,u,0,'Xét đỉnh trái '+u+'.');
+      if(aug(u)){ size++; snap(4,u,0,'Ghép được đỉnh '+u+'. Số cặp = '+size+'.'); }
+      else snap(5,u,0,'Đỉnh '+u+' không ghép được. Số cặp = '+size+'.');
+    });
+    snap(6,0,0,'Xong. Ghép cặp cực đại = '+size+'.');
+    return F;
+  }
+
+  function draw(f, canvas){
+    var s='<svg viewBox="0 0 302 232" xmlns="http://www.w3.org/2000/svg">';
+    s+='<text x="56" y="15" text-anchor="middle" font-size="11" fill="var(--muted)">Trái</text>';
+    s+='<text x="246" y="15" text-anchor="middle" font-size="11" fill="var(--muted)">Phải</text>';
+    EDG.forEach(function(e){
+      var u=P[e[0]], v=P[e[1]], matched=(f.mL[e[0]]===e[1]), trying=(f.curU===e[0]&&f.tryV===e[1]);
+      var col=matched?'var(--hl2)':(trying?'var(--accent,var(--blue))':'var(--edge)'), sw=(matched||trying)?3.2:1.5;
+      var dx=v[0]-u[0],dy=v[1]-u[1],L=Math.sqrt(dx*dx+dy*dy),ux=dx/L,uy=dy/L;
+      s+='<line x1="'+(u[0]+ux*R)+'" y1="'+(u[1]+uy*R)+'" x2="'+(v[0]-ux*R)+'" y2="'+(v[1]-uy*R)+'" stroke="'+col+'" stroke-width="'+sw+'"'+(trying&&!matched?' stroke-dasharray="5 3"':'')+'/>';
+    });
+    [1,2,3,4,5,6,7,8].forEach(function(v){ var p=P[v], matched=(v<=4)?(f.mL[v]!=null):(f.mR[v]!=null);
+      var fill=matched?'var(--green-bg)':'var(--card)', stroke=matched?'var(--hl2)':'var(--border)', sw=2.2;
+      if(f.curU===v){stroke='var(--accent,var(--blue))';sw=3.6;}
+      s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+R+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+sw+'"/>';
+      s+='<text x="'+p[0]+'" y="'+p[1]+'" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="700" fill="var(--fg)">'+v+'</text>';
+    });
+    s+='<text x="151" y="226" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--fg)" font-family="Noto Sans Mono,monospace">Số cặp: '+f.size+'</text>';
+    s+='</svg>'; canvas.innerHTML=s;
+  }
+
+  var id0=frames()[0]; id0.msg='Bấm Ghép cặp để chạy thuật toán đường tăng.';
+  CVSim.create('#match', {
+    title:'Ghép cặp cực đại (hai phía)',
+    code:{ m:[
+      'chưa ghép cặp nào',
+      'với mỗi đỉnh trái u:',
+      '  thử từng cạnh u–v (nếu v bận thì đẩy bạn ghép của v)',
+      '  tìm được đường tăng → thêm một cặp',
+      '  không được → bỏ qua u',
+      'xong: số cặp = ghép cặp cực đại' ] },
+    defaultCode:'m', defaultOpLabel:'Kuhn',
+    ops:[ {label:'Ghép cặp', code:'m', run:function(){ return frames(); }} ],
+    idle:id0,
+    draw:draw
+  });
+})();
+</script>
+
+<script src="../assets/chuan.js"></script>
+</body>
+</html>

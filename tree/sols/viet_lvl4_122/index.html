@@ -329,7 +329,7 @@
         <p><strong>Ta muốn gì?</strong> Để tối ưu nhiều truy vấn, ta thường dùng các cấu trúc dữ liệu mảng 1D (như Segment Tree hoặc thuật toán Mo). Nhưng dữ liệu lại nằm trên một cây phân nhánh.</p>
         <p><strong>Khó khăn:</strong> Đường đi từ <code>u</code> đến <code>v</code> trên cây không tạo thành một đoạn liên tiếp trên một mảng thông thường.</p>
         <p><strong>Ý tưởng:</strong> Chuyến thám hiểm Euler (Euler Tour). Ta duyệt DFS qua cây. Khi <strong>bước vào</strong> một đỉnh <code>u</code>, ta ghi nó vào mảng và lưu thời gian vào <code>tin[u]</code>. Khi <strong>rời khỏi</strong> đỉnh <code>u</code>, ta lại ghi nó vào mảng và lưu thời gian ra <code>tout[u]</code>. Mảng này có độ dài <code>2n</code>.</p>
-        <p><strong>Điều kỳ diệu:</strong> Một đường đi từ <code>u</code> đến <code>v</code> (giả sử <code>tin[u] &lt; tin[v]</code>) sẽ tương ứng với một đoạn liên tiếp trên mảng Euler: <code>[tout[u], tin[v]]</code>. Những đỉnh nào không nằm trên đường đi (bị rẽ nhánh tạt ngang) sẽ xuất hiện <strong>đúng 2 lần</strong> (một lần vào, một lần ra) trong đoạn này!</p>
+        <p><strong>Điểm mấu chốt:</strong> Một đường đi từ <code>u</code> đến <code>v</code> (giả sử <code>tin[u] &lt; tin[v]</code>) sẽ tương ứng với một đoạn liên tiếp trên mảng Euler: <code>[tout[u], tin[v]]</code>. Những đỉnh nào không nằm trên đường đi (bị rẽ nhánh tạt ngang) sẽ xuất hiện <strong>đúng 2 lần</strong> (một lần vào, một lần ra) trong đoạn này!</p>
         
         <!-- LAB 2 -->
         <div class="lab-container" id="lab2">

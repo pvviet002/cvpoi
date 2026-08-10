@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Độ phức tạp thời gian | Lý thuyết CP</title>
+<link rel="stylesheet" href="../assets/chuan.css">
+<link rel="stylesheet" href="../assets/sim.css">
+<link rel="stylesheet" href="../assets/nav.css">
+<style>
+  /* tiện ích riêng cho trang này */
+  .opbox input[type=range]{width:100%;accent-color:var(--blue);margin:6px 0}
+  .opout{font-family:"Noto Sans Mono",monospace;font-size:.9rem;line-height:1.9}
+  .opout b{color:var(--blue)}
+  .opout .o3{color:var(--red)} .opout .o2{color:var(--amber)} .opout .o1{color:var(--green)}
+</style>
+</head>
+<body class="cv-shell" data-nav="time-complexity">
+
+<button class="themebtn" id="tg">Nền sáng / tối</button>
+
+<div class="cv-app">
+  <aside class="cvnav" id="cvnav"></aside>
+
+  <main class="cvmain">
+    <div class="cvcrumb" id="cvcrumb"></div>
+
+    <div class="wrap">
+      <header>
+        <div class="kicker">Chương 2 · Các kỹ thuật cơ bản</div>
+        <h1>Độ phức tạp thời gian</h1>
+        <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
+      </header>
+
+      <p><b>Độ phức tạp thời gian</b> ước lượng số phép toán một thuật toán phải làm, viết thành một hàm
+      theo kích thước dữ liệu <span class="mathv">n</span>. Nhờ nó, ta biết thuật toán có đủ nhanh hay
+      không <em>trước khi</em> ngồi cài đặt — và loại sớm những hướng chắc chắn quá chậm.</p>
+
+      <div class="box def">
+        <div class="t">Ký hiệu O-lớn</div>
+        Ta viết độ phức tạp dưới dạng <span class="mathv">O(f(n))</span>: chỉ giữ <em>bậc lớn nhất</em>,
+        bỏ hằng số nhân và các số hạng nhỏ. Ví dụ một vòng lặp chạy <span class="mathv">3n + 5</span> lần
+        vẫn là <span class="mathv">O(n)</span>.
+      </div>
+
+      <h2 id="s1"><span class="num">1.</span>Đọc độ phức tạp từ đoạn mã</h2>
+      <p><b>Vòng lặp.</b> Mỗi vòng lặp duyệt hết dữ liệu tốn <span class="mathv">O(n)</span>. Càng lồng
+      nhiều vòng, bậc càng cao: <span class="mathv">k</span> vòng lồng nhau cho <span class="mathv">O(n<sup>k</sup>)</span>.</p>
+      <div class="codewrap noname"><pre><code>for (int i = 0; i &lt; n; i++)
+    for (int j = 0; j &lt; n; j++)
+        // ... O(n^2)</code></pre></div>
+
+      <p><b>Các giai đoạn nối tiếp.</b> Nếu thuật toán gồm nhiều đoạn chạy lần lượt, độ phức tạp tổng bằng
+      đoạn <em>chậm nhất</em>: <span class="mathv">O(n) + O(n<sup>2</sup>) + O(n) = O(n<sup>2</sup>)</span>.</p>
+
+      <p><b>Đệ quy.</b> Chi phí bằng số lần gọi nhân với chi phí mỗi lần. Hàm gọi lại chính nó hai lần với
+      <span class="mathv">n−1</span> tạo ra <span class="mathv">1 + 2 + 4 + …</span> lần gọi:</p>
+      <div class="codewrap noname"><pre><code>void g(int n) {
+    if (n == 1) return;
+    g(n - 1);
+    g(n - 1);   // 2^n - 1 lần gọi  ->  O(2^n)
+}</code></pre></div>
+
+      <h2 id="s2"><span class="num">2.</span>Các lớp độ phức tạp thường gặp</h2>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Độ phức tạp</th><th>Tên gọi</th><th>Dấu hiệu điển hình</th></tr></thead>
+        <tbody>
+          <tr><td class="c">O(1)</td><td>hằng số</td><td>công thức tính thẳng ra kết quả</td></tr>
+          <tr><td class="c">O(log n)</td><td>logarit</td><td>mỗi bước chia đôi dữ liệu (tìm kiếm nhị phân)</td></tr>
+          <tr><td class="c">O(√n)</td><td>căn</td><td>duyệt tới căn của n (kiểm tra số nguyên tố)</td></tr>
+          <tr><td class="c">O(n)</td><td>tuyến tính</td><td>duyệt dữ liệu một số lần cố định</td></tr>
+          <tr><td class="c">O(n log n)</td><td>—</td><td>có sắp xếp, hoặc mỗi phần tử một thao tác O(log n)</td></tr>
+          <tr><td class="c">O(n²)</td><td>bình phương</td><td>hai vòng lặp lồng nhau, xét mọi cặp</td></tr>
+          <tr><td class="c">O(n³)</td><td>lập phương</td><td>ba vòng lặp lồng nhau, xét mọi bộ ba</td></tr>
+          <tr><td class="c">O(2ⁿ)</td><td>—</td><td>duyệt mọi tập con của dữ liệu</td></tr>
+          <tr><td class="c">O(n!)</td><td>—</td><td>duyệt mọi hoán vị của dữ liệu</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2 id="s3"><span class="num">3.</span>Đoán độ phức tạp cần thiết</h2>
+      <p>Một máy tính hiện nay làm được cỡ vài trăm triệu phép toán mỗi giây. Từ kích thước dữ liệu, ta
+      <em>đoán ngược</em> ra độ phức tạp mà thuật toán phải đạt để kịp trong một giây:</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Kích thước dữ liệu</th><th>Độ phức tạp cần đạt</th></tr></thead>
+        <tbody>
+          <tr><td class="c">n ≤ 10</td><td class="c">O(n!)</td></tr>
+          <tr><td class="c">n ≤ 20</td><td class="c">O(2ⁿ)</td></tr>
+          <tr><td class="c">n ≤ 500</td><td class="c">O(n³)</td></tr>
+          <tr><td class="c">n ≤ 5000</td><td class="c">O(n²)</td></tr>
+          <tr><td class="c">n ≤ 10⁶</td><td class="c">O(n log n) hoặc O(n)</td></tr>
+          <tr><td class="c">n rất lớn</td><td class="c">O(1) hoặc O(log n)</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2 id="s4"><span class="num">4.</span>Ví dụ: đoạn con có tổng lớn nhất</h2>
+      <p>Cho một dãy <span class="mathv">n</span> số (có thể âm), hãy tìm <b>một đoạn liên tiếp</b> có tổng
+      lớn nhất. Cho phép đoạn rỗng nên đáp số luôn không âm. Ví dụ với dãy dưới đây, đoạn tô đậm
+      <span class="mathv">[2, 4, −3, 5, 2]</span> có tổng lớn nhất bằng <b>10</b>.</p>
+
+      <p>Bài này có ba cách với độ phức tạp giảm dần. <b>Cách 1</b> — xét mọi đoạn <span class="mathv">[i, j]</span>
+      rồi cộng lại, ba vòng lồng nhau, <span class="mathv">O(n³)</span>:</p>
+      <div class="codewrap noname"><pre><code>int best = 0;
+for (int i = 0; i &lt; n; i++)
+    for (int j = i; j &lt; n; j++) {
+        int sum = 0;
+        for (int k = i; k &lt;= j; k++) sum += a[k];
+        best = max(best, sum);
+    }
+cout &lt;&lt; best &lt;&lt; "\n";</code></pre></div>
+
+      <p><b>Cách 2</b> — vừa dịch đầu cuối vừa cộng dồn, bỏ được một vòng, <span class="mathv">O(n²)</span>:</p>
+      <div class="codewrap noname"><pre><code>int best = 0;
+for (int i = 0; i &lt; n; i++) {
+    int sum = 0;
+    for (int j = i; j &lt; n; j++) {
+        sum += a[j];
+        best = max(best, sum);
+    }
+}
+cout &lt;&lt; best &lt;&lt; "\n";</code></pre></div>
+
+      <p><b>Cách 3 (thuật toán Kadane)</b> — với mỗi vị trí, tính tổng đoạn tốt nhất <em>kết thúc tại đó</em>.
+      Nếu tổng đang có mà cộng thêm phần tử mới lại nhỏ hơn chính phần tử đó, ta bỏ đoạn cũ, bắt đầu đoạn
+      mới. Chỉ một vòng lặp, <span class="mathv">O(n)</span>:</p>
+      <div class="codewrap noname"><pre><code>int best = 0, sum = 0;
+for (int k = 0; k &lt; n; k++) {
+    sum = max(a[k], sum + a[k]);
+    best = max(best, sum);
+}
+cout &lt;&lt; best &lt;&lt; "\n";</code></pre></div>
+
+      <p>Bấm <b>Chạy Kadane</b> rồi đi từng bước để thấy <span class="mathv">sum</span> (tổng đoạn đang xét)
+      và <span class="mathv">best</span> (tốt nhất tới giờ) thay đổi thế nào. Đoạn tốt nhất được tô xanh lá.</p>
+
+      <div class="sim" id="kadane"></div>
+
+      <h3>Vì sao O(n³) “bùng nổ”?</h3>
+      <p>Ba cách cho cùng đáp số, nhưng số phép toán chênh nhau rất xa khi <span class="mathv">n</span> lớn.
+      Kéo thanh dưới đây để so sánh (số phép toán là chính xác, không phụ thuộc máy):</p>
+      <div class="box tech opbox">
+        <div class="t">So sánh số phép toán theo n</div>
+        <input id="nSlider" type="range" min="0" max="7" value="2">
+        <div class="opout" id="nOut"></div>
+      </div>
+      <p>Ở mốc một giây (~10⁸–10⁹ phép toán), cách <span class="mathv">O(n³)</span> đuối ngay khi
+      <span class="mathv">n ≈ 10<sup>4</sup></span>, cách <span class="mathv">O(n²)</span> đuối quanh
+      <span class="mathv">n ≈ 10<sup>5</sup></span>, còn Kadane xử lý được cả dãy rất lớn mà không đáng kể.</p>
+
+      <footer>Chương 2 — <em>Cẩm nang Lập trình thi đấu</em>. Bài tiếp: Sắp xếp.</footer>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/sitemap.js"></script>
+<script src="../assets/nav.js"></script>
+<script>CVNav.mount({ current: 'time-complexity' });</script>
+
+<script src="../assets/sim.js"></script>
+<script>
+/* ===== Mô phỏng Kadane (khung do assets/sim.js lo) ===== */
+(function(){
+  var arr = [-1,2,4,-3,5,2,-5,2];
+  function parse(str){
+    var v=(str||'').trim().split(/[\s,]+/).map(Number).filter(function(x){return !isNaN(x);});
+    return v;
+  }
+  function kadaneFrames(str){
+    var a=parse(str); if(!a.length) return null; arr=a;
+    var F=[], sum=0, best=0, runL=0, bestL=-1, bestR=-1;
+    F.push({line:1,k:-1,sum:0,best:0,runL:0,bestL:-1,bestR:-1,msg:'Khởi tạo best = 0, sum = 0.'});
+    for(var k=0;k<a.length;k++){
+      var ext=sum+a[k], restart=false;
+      if(a[k]>=ext){ sum=a[k]; runL=k; restart=true; } else { sum=ext; }
+      F.push({line:3,k:k,sum:sum,best:best,runL:runL,bestL:bestL,bestR:bestR,
+        msg: restart
+          ? ('Nối tiếp chỉ được '+ext+', nhỏ hơn a['+k+'] = '+a[k]+' → bỏ đoạn cũ, bắt đầu đoạn mới tại vị trí '+k+'. sum = '+sum+'.')
+          : ('Nối a['+k+'] = '+a[k]+' vào đoạn đang xét → sum = '+sum+'.')});
+      var better = sum>best;
+      if(better){ best=sum; bestL=runL; bestR=k; }
+      F.push({line:4,k:k,sum:sum,best:best,runL:runL,bestL:bestL,bestR:bestR,
+        msg: better
+          ? ('sum = '+sum+' &gt; best cũ → cập nhật best = '+best+' (đoạn từ vị trí '+bestL+' đến '+bestR+').')
+          : ('sum = '+sum+' ≤ best = '+best+' → giữ nguyên best.')});
+    }
+    F.push({line:5,k:-1,sum:sum,best:best,runL:runL,bestL:bestL,bestR:bestR,
+      msg:'Xong. Đoạn con có tổng lớn nhất = '+best+'.'});
+    return F;
+  }
+
+  function draw(f, canvas){
+    var n=arr.length, cw=44, gap=6, x0=12, y0=22, h=42;
+    var W=x0*2 + n*cw + (n-1)*gap, H=132;
+    var bestL=(f.bestL==null?-1:f.bestL), bestR=(f.bestR==null?-1:f.bestR), k=(f.k==null?-1:f.k);
+    var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">';
+    for(var i=0;i<n;i++){
+      var x=x0+i*(cw+gap), cls='cell';
+      if(bestL>=0 && i>=bestL && i<=bestR) cls='cell done';
+      if(i===k) cls='cell cur';
+      s+='<rect class="'+cls+'" x="'+x+'" y="'+y0+'" width="'+cw+'" height="'+h+'" rx="6"/>';
+      s+='<text class="clb" x="'+(x+cw/2)+'" y="'+(y0+h/2)+'">'+arr[i]+'</text>';
+      s+='<text class="clb" x="'+(x+cw/2)+'" y="'+(y0-9)+'" style="fill:var(--muted);font-size:10px">'+i+'</text>';
+    }
+    if(k>=0){ var xk=x0+k*(cw+gap)+cw/2, yt=y0+h+6;
+      s+='<path d="M'+(xk-6)+' '+(yt+9)+' L'+(xk+6)+' '+(yt+9)+' L'+xk+' '+yt+' Z" fill="var(--blue)"/>'; }
+    s+='<text x="'+x0+'" y="'+(H-10)+'" style="fill:var(--fg);font-family:Noto Sans Mono,monospace;font-size:15px">'+
+       'sum = '+(f.sum==null?0:f.sum)+'    best = '+(f.best==null?0:f.best)+'</text>';
+    s+='</svg>';
+    canvas.innerHTML=s;
+  }
+
+  CVSim.create('#kadane', {
+    title:'Thuật toán Kadane',
+    input:{label:'Dãy', type:'text', value:'-1 2 4 -3 5 2 -5 2'},
+    code:{ kadane:[
+      'best ← 0,  sum ← 0',
+      'với mỗi vị trí k trong dãy:',
+      '  sum ← max(a[k], sum + a[k])',
+      '  best ← max(best, sum)',
+      'in ra best' ] },
+    defaultCode:'kadane', defaultOpLabel:'Kadane',
+    ops:[
+      {label:'Chạy Kadane', code:'kadane', run:function(v){return kadaneFrames(v);}}
+    ],
+    idle:{line:0,k:-1,sum:0,best:0,bestL:-1,bestR:-1,msg:'Bấm “Chạy Kadane” rồi đi từng bước.'},
+    draw:draw
+  });
+})();
+</script>
+
+<script>
+/* ===== Bảng so sánh số phép toán (tương tác) ===== */
+(function(){
+  var stops=[50,100,200,500,1000,2000,5000,10000];
+  var sl=document.getElementById('nSlider'), out=document.getElementById('nOut');
+  function fmt(x){ return Math.round(x).toLocaleString('vi-VN'); }
+  function upd(){
+    var N=stops[+sl.value];
+    var o1=N*(N+1)*(N+2)/6, o2=N*(N+1)/2, o3=N;
+    out.innerHTML='n = <b>'+fmt(N)+'</b><br>'+
+      '<span class="o3">O(n³)</span> = '+fmt(o1)+' phép toán<br>'+
+      '<span class="o2">O(n²)</span> = '+fmt(o2)+' phép toán<br>'+
+      '<span class="o1">O(n)</span> = '+fmt(o3)+' phép toán';
+  }
+  sl.addEventListener('input',upd); upd();
+})();
+</script>
+
+<script src="../assets/chuan.js"></script>
+</body>
+</html>

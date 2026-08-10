@@ -3,2556 +3,866 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Monotonic Stack | Lý thuyết CP</title>
-
+<title>Ngăn xếp đơn điệu | Lý thuyết CP</title>
 <link rel="stylesheet" href="../assets/chuan.css">
-
 <style>
-/* Các quy tắc riêng cho chuyên đề Monotonic Stack */
-svg .arr-line{
-  stroke:var(--border);
-  stroke-width:2;
-}
+  /* CSS của ba phòng mô phỏng. Mọi màu đều lấy từ chuan.css để tự đổi
+     theo nền sáng/tối. */
+  .sim{background:var(--card); border:1px solid var(--border); border-radius:10px;
+       padding:16px 18px; margin:20px 0}
+  .sim-hang{display:flex; flex-wrap:wrap; gap:12px 22px; align-items:center; margin-bottom:12px}
+  .sim-o{display:flex; align-items:center; gap:8px; font-size:.92rem}
+  .sim-o label{color:var(--muted)}
+  .sim input[type=text],.sim input[type=number]{padding:6px 9px; border-radius:6px;
+       border:1px solid var(--border); background:var(--bg); color:var(--fg);
+       font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.9rem}
+  .sim input[type=text]{width:min(420px,72vw)}
+  .sim input[type=number]{width:82px}
+  .sim select{padding:6px 9px; border-radius:6px; border:1px solid var(--border);
+       background:var(--bg); color:var(--fg); font-family:inherit}
+  .sim-nhan{font-size:.8rem; color:var(--muted); margin:10px 0 5px}
+  .sim-nut{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+  .sim-nut button{background:var(--bg); color:var(--fg); border:1px solid var(--border);
+       border-radius:7px; padding:6px 12px; font-size:.84rem; cursor:pointer; font-family:inherit}
+  .sim-nut button:hover{border-color:var(--blue); color:var(--blue)}
+  .sim-nut button:disabled{opacity:.42; cursor:not-allowed}
+  .sim-ra{margin-top:10px; font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;
+       background:var(--code-bg); color:var(--code-fg); border:1px solid var(--border);
+       border-left:4px solid var(--green); border-radius:8px; padding:9px 13px; white-space:pre-wrap}
+  .sim-ra.trong{border-left-color:var(--red); color:var(--red)}
+  .sim-canh{margin-top:10px; font-size:.88rem; color:var(--amber); min-height:1.2em}
 
-svg .arr-hot{
-  stroke:var(--hl2);
-  stroke-width:3.4;
-}
+  .haicot{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  @media (max-width:700px){.haicot{grid-template-columns:1fr}}
+  .cot-ten{font-size:.84rem; color:var(--muted); margin-bottom:5px}
+  .lech{margin-top:12px; padding:9px 13px; border-radius:8px; font-size:.9rem;
+       background:var(--red-bg); color:var(--red); border:1px solid var(--red)}
+  .khop{margin-top:12px; padding:9px 13px; border-radius:8px; font-size:.9rem;
+       background:var(--green-bg); color:var(--green); border:1px solid var(--green)}
 
-svg .arr-pop{
-  stroke:var(--red);
-  stroke-width:3;
-  stroke-dasharray:6 4;
-}
+  /* Dãy số và ngăn xếp trực quan */
+  .day{display:flex; flex-wrap:wrap; gap:7px; min-height:48px; align-items:flex-end}
+  .pt{min-width:42px; padding:7px 8px; border:1px solid var(--border); border-radius:7px;
+      background:var(--bg); text-align:center; font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;
+      position:relative}
+  .pt small{display:block; color:var(--muted); font-size:.68rem; line-height:1.1; margin-top:3px}
+  .pt.dang{border-color:var(--blue); color:var(--blue); box-shadow:0 0 0 2px var(--blue-bg)}
+  .pt.xong{border-color:var(--green); color:var(--green); background:var(--green-bg)}
+  .pt.pop{border-color:var(--red); color:var(--red); background:var(--red-bg)}
+  .pt.cho{opacity:.58}
+  .pt .ans{display:block; font-size:.7rem; color:var(--green); margin-top:3px}
 
-svg .stack-box{
-  fill:var(--card);
-  stroke:var(--border);
-  stroke-width:2;
-}
+  .stackbox{display:flex; align-items:flex-end; gap:10px; min-height:108px}
+  .stackcol{display:flex; flex-direction:column-reverse; gap:5px; width:128px;
+      border:1px solid var(--border); border-top:0; border-radius:0 0 8px 8px; padding:7px}
+  .stk{padding:6px 8px; border-radius:6px; background:var(--blue-bg); color:var(--blue);
+      border:1px solid var(--blue); text-align:center; font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;
+      font-size:.84rem}
+  .stack-note{font-size:.8rem; color:var(--muted); line-height:1.45}
+  .action{font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.86rem;
+      background:var(--code-bg); color:var(--code-fg); border:1px solid var(--border);
+      border-radius:8px; padding:9px 12px; min-height:42px}
 
-svg .array-box{
-  fill:var(--card);
-  stroke:var(--border);
-  stroke-width:2;
-}
+  /* Biểu đồ cột cho histogram */
+  .bars{display:flex; align-items:flex-end; gap:7px; min-height:210px; padding:12px 6px 0;
+      border-bottom:2px solid var(--edge); overflow-x:auto}
+  .barwrap{display:flex; flex-direction:column; align-items:center; justify-content:flex-end; min-width:45px}
+  .bar{width:34px; min-height:2px; border:1px solid var(--blue); background:var(--blue-bg);
+      border-radius:5px 5px 0 0; position:relative}
+  .bar.active{border-color:var(--amber); background:var(--amber-bg)}
+  .bar.best{border-color:var(--green); background:var(--green-bg)}
+  .bar span{position:absolute; top:-20px; width:100%; text-align:center; color:var(--fg);
+      font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace; font-size:.78rem}
+  .baridx{font-size:.7rem; color:var(--muted); margin-top:4px}
 
-svg .array-hot{
-  fill:var(--hl-bg);
-  stroke:var(--hl2);
-  stroke-width:3;
-}
+  .ct{width:100%; border-collapse:collapse; margin-top:10px; font-size:.9rem}
+  .ct th,.ct td{border:1px solid var(--border); padding:6px 10px; text-align:center}
+  .ct th{background:var(--bg); color:var(--blue); font-weight:600}
+  .ct td.ai{text-align:left}
 
-svg .array-done{
-  fill:var(--ok-bg);
-  stroke:var(--green);
-  stroke-width:2.5;
-}
-
-/* cv-fix-nen-sang */
-
-/* Màu chú thích mã nguồn */
-:root{
-  --c-cmt:#5f6672;
-}
-
-@media (prefers-color-scheme:dark){
-  :root{
-    --c-cmt:#8b949e;
-  }
-}
-
-:root[data-theme="light"]{
-  --c-cmt:#5f6672;
-}
-
-:root[data-theme="dark"]{
-  --c-cmt:#8b949e;
-}
-
-/* Khối mã */
-.code-block,
-.code-container,
-.code,
-.code-runner,
-pre.code-block{
-  background:var(--code-bg) !important;
-}
-
-.code-block,
-.code-container,
-.code,
-.code-runner,
-pre.code-block,
-.codeline{
-  color:var(--code-fg) !important;
-}
-
-.c-kw,
-.tk-keyword,
-.kw,
-.token-kw{
-  color:var(--c-kw) !important;
-}
-
-.c-str,
-.tk-string,
-.st,
-.token-str{
-  color:var(--c-str) !important;
-}
-
-.c-cm,
-.tk-comment,
-.cm,
-.token-com{
-  color:var(--c-cmt) !important;
-}
-
-.c-num,
-.tk-number,
-.nm,
-.token-num{
-  color:var(--c-num) !important;
-}
-
-.c-fn,
-.tk-func,
-.fn,
-.token-func{
-  color:var(--c-fn) !important;
-}
-
-.c-type,
-.c-ty,
-.tk-type,
-.token-type{
-  color:var(--c-kw) !important;
-}
-
-.c-op,
-.op,
-.cmp-op,
-.tk-ident,
-.tk-macro,
-.pp,
-.tk-punc{
-  color:var(--code-fg) !important;
-}
-
-/* Các hộp nội dung */
-.quiz-box,
-.explain,
-.q-card,
-.lab-container,
-.lab-visual,
-.grid-board,
-.grid-vis,
-.sim-controls,
-.score-box,
-.var-item,
-.var-box,
-.var-badge,
-.info-panel,
-.set-box,
-.map-entry,
-.hero-insight,
-.array-cell,
-.bucket-tube,
-.reg-item,
-.quiz,
-.quiz-opt,
-.quiz-exp,
-.quiz-expl,
-.pitfall-col,
-.pitfall-card,
-.lab-bar,
-.formula-box,
-.mini-interactive,
-.visual-area,
-.state-panel,
-.info-box,
-.io-table,
-.styled-table,
-.say,
-.lab-msg,
-.word-box,
-.block-label,
-.col,
-.pit-col,
-.cmp-lab,
-.formula-b,
-.bucket-text{
-  background:var(--card) !important;
-}
-
-/* Màu chữ */
-.qt,
-.q-text,
-.math-display,
-.reg-val,
-.bucket-text,
-.quiz-q,
-.lab-msg,
-.explain,
-.explain *,
-.quiz-box p,
-.quiz-box h4,
-.q-card *,
-.say,
-.say *,
-.formula-box,
-.formula-box *,
-.fv,
-.word-box,
-.word-box *,
-.col,
-.pit-col,
-.lab-msg *,
-.quiz p,
-.quiz h4{
-  color:var(--fg) !important;
-}
-
-/* Bảng */
-.box th,
-.tablewrap th,
-table th{
-  color:var(--blue) !important;
-}
-
-.box td,
-.tablewrap td,
-table td{
-  color:var(--fg);
-}
-
-/* cv-fix-nen-sang */
+/*cv-fix-nen-sang*/
+:root{--c-cmt:#5f6672}
+@media (prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
+:root[data-theme="light"]{--c-cmt:#5f6672}
+:root[data-theme="dark"]{--c-cmt:#8b949e}
+.box th, .tablewrap th, table th{color:var(--blue) !important}
+.box td, .tablewrap td, table td{color:var(--fg)}
+.ct th{color:var(--blue) !important}
+/*/cv-fix-nen-sang*/
 </style>
 
-<!-- cv-head -->
+<!--cv-head-->
 <link rel="stylesheet" href="../assets/site.css">
 <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
-
-<meta
-  name="description"
-  content="Chuyên đề Monotonic Stack: phần tử lớn hơn hoặc nhỏ hơn gần nhất, histogram, tổng minimum của mọi đoạn con và các ứng dụng quan trọng."
->
-
+<meta name="description" content="Ngăn xếp đơn điệu trong C++: giữ một thứ tự bất biến để tìm phần tử gần nhất, xử lý histogram và đếm đóng góp trong O(n). Kèm ba phòng mô phỏng.">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Lý thuyết CP">
-<meta property="og:title" content="Monotonic Stack | Lý thuyết CP">
-
-<meta
-  property="og:description"
-  content="Ngăn xếp đơn điệu, Next Greater Element, Previous Smaller Element, Largest Rectangle in Histogram và các kỹ thuật mở rộng."
->
-<!-- /cv-head -->
+<meta property="og:title" content="Ngăn xếp đơn điệu | Lý thuyết CP">
+<meta property="og:description" content="Từ vét cạn O(n²) tới ngăn xếp đơn điệu O(n): bất biến, pop, xử lý phần tử bằng nhau và các khuôn mẫu quan trọng.">
+<!--/cv-head-->
 </head>
-
 <body class="cv-side">
-
 <button class="themebtn" id="tg">Nền sáng / tối</button>
 
 <aside class="side">
-  <div class="hd">Monotonic Stack</div>
-
-  <a href="#s1">1. Bài toán mở đầu</a>
-  <a href="#s2">2. Khái niệm cơ bản</a>
-  <a href="#s3">3. Hai dạng ngăn xếp</a>
-  <a href="#s4">4. Phần tử gần nhất</a>
-  <a href="#s5">5. Histogram lớn nhất</a>
-  <a href="#s6">6. Đếm đóng góp</a>
-  <a href="#s7">7. Lỗi thường gặp</a>
-  <a href="#s8">8. Bài tập mẫu</a>
-  <a href="#s9">9. Bài tập tự luyện</a>
-  <a href="#s10">10. Tổng kết</a>
+  <div class="hd">Ngăn xếp đơn điệu</div>
+  <a href="#s1">1. Vì sao cần một cái stack</a>
+  <a href="#s2">2. Bất biến đơn điệu</a>
+  <a href="#s3">3. Bốn câu hỏi gần nhất</a>
+  <a href="#s4">4. Bốn khuôn mẫu</a>
+  <a href="#s5">5. Vì sao chỉ O(n)</a>
+  <a href="#s6">6. Nhận dạng và bẫy</a>
+  <a href="#s7">7. Lộ trình luyện tập</a>
 </aside>
 
 <div class="main">
 <div class="wrap">
-
-<!-- cv-nav -->
+<!--cv-nav-->
 <nav class="cv-nav">
   <div class="cv-nav-in">
-
-    <a class="cv-btn" href="../index.html">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M3 11l9-8 9 8"/>
-        <path d="M5 10v10h14V10"/>
-        <path d="M10 20v-6h4v6"/>
-      </svg>
-      <span>Trang chủ</span>
-    </a>
-
-    <a
-      class="cv-btn cv-phu"
-      href="../sols/index.html"
-      title="Kho lời giải"
-    >
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M4 5h16v14H4z"/>
-        <path d="M8 9h8M8 13h5"/>
-      </svg>
-      <span>Kho lời giải</span>
-    </a>
-
-    <a
-      class="cv-btn cv-phu"
-      href="https://cvpoi.id.vn"
-      target="_blank"
-      rel="noopener"
-      title="cvpoi.id.vn"
-    >
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="12" cy="12" r="9"/>
-        <path d="M3 12h18"/>
-        <path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/>
-      </svg>
-      <span>cvpoi.id.vn</span>
-    </a>
-
-    <span class="cv-crumb">
-      Cấu trúc dữ liệu
-      <span class="cv-sep">/</span>
-      <span class="cv-here">Monotonic Stack</span>
-    </span>
-
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb">Cấu trúc dữ liệu<span class="cv-sep">/</span><span class="cv-here">Ngăn xếp đơn điệu</span></span>
   </div>
 </nav>
-<!-- /cv-nav -->
+<!--/cv-nav-->
 
 <header>
   <div class="kicker">Chuyên đề Lập trình thi đấu</div>
-  <h1>Monotonic Stack</h1>
-  <div class="by">
-    Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc
-  </div>
+  <h1>Ngăn xếp đơn điệu</h1>
+  <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
 </header>
+
+<p>Cho mỗi phần tử của một dãy, tìm phần tử đầu tiên lớn hơn nó ở bên phải. Cách tự nhiên
+là đứng tại từng vị trí rồi nhìn dần sang phải. Cách ấy đúng, nhưng trong dãy giảm dài
+<span class="mathv">n</span> phần tử, nó thực hiện gần
+<span class="mathv">n(n−1)/2</span> lần so sánh. Với
+<span class="mathv">n = 2 × 10<sup>5</sup></span>, đó là hàng chục tỉ phép tính.</p>
+
+<div class="box def">
+<div class="t">Ý chính</div>
+<p>Ngăn xếp đơn điệu không lưu tất cả những gì đã đi qua. Nó chỉ giữ các phần tử
+<b>còn có khả năng trở thành đáp án</b>, theo một thứ tự tăng hoặc giảm bất biến. Khi
+một phần tử mới xuất hiện, những phần tử đã chắc chắn hết cơ hội sẽ bị loại bằng
+<code class="inl">pop</code>.</p>
+</div>
 
 <nav class="toc">
   <b>Nội dung</b>
-
   <ol>
-    <li>
-      <a href="#s1">
-        Bài toán mở đầu: phần tử lớn hơn đầu tiên bên phải
-      </a>
-    </li>
-
-    <li>
-      <a href="#s2">
-        Khái niệm và trực giác
-      </a>
-    </li>
-
-    <li>
-      <a href="#s3">
-        Ngăn xếp tăng và ngăn xếp giảm
-      </a>
-    </li>
-
-    <li>
-      <a href="#s4">
-        Bốn bài toán phần tử gần nhất
-      </a>
-    </li>
-
-    <li>
-      <a href="#s5">
-        Hình chữ nhật lớn nhất trong histogram
-      </a>
-    </li>
-
-    <li>
-      <a href="#s6">
-        Kỹ thuật đếm đóng góp
-      </a>
-    </li>
-
-    <li>
-      <a href="#s7">
-        Những lỗi thường gặp
-      </a>
-    </li>
-
-    <li>
-      <a href="#s8">
-        Bài tập mẫu có lời giải
-      </a>
-    </li>
-
-    <li>
-      <a href="#s9">
-        Bài tập tự luyện
-      </a>
-    </li>
-
-    <li>
-      <a href="#s10">
-        Tổng kết
-      </a>
-    </li>
+    <li><a href="#s1">Từ vét cạn đến ngăn xếp giữ thứ tự</a></li>
+    <li><a href="#s2">Bất biến đơn điệu và ý nghĩa của pop</a></li>
+    <li><a href="#s3">Bốn câu hỏi phần tử gần nhất</a></li>
+    <li><a href="#s4">Bốn khuôn mẫu quan trọng</a></li>
+    <li><a href="#s5">Vì sao vòng while lồng trong for vẫn chỉ O(n)</a></li>
+    <li><a href="#s6">Nhận dạng và các bẫy thường gặp</a></li>
+    <li><a href="#s7">Lộ trình luyện tập</a></li>
   </ol>
 </nav>
 
-<!-- ======================================================== -->
-<!-- 1. BÀI TOÁN MỞ ĐẦU                                      -->
-<!-- ======================================================== -->
+<h2 id="s1"><span class="num">1.</span>Từ vét cạn đến ngăn xếp giữ thứ tự</h2>
 
-<h2 id="s1">
-  <span class="num">1</span>
-  Bài toán mở đầu: phần tử lớn hơn đầu tiên bên phải
-</h2>
-
-<p>
-Cho một dãy số
-<span class="mathv">a<sub>1</sub>, a<sub>2</sub>, ..., a<sub>n</sub></span>.
-Với mỗi vị trí <span class="mathv">i</span>, hãy tìm vị trí gần nhất
-<span class="mathv">j &gt; i</span> sao cho:
-</p>
-
-<p style="text-align:center; margin:16px 0">
-  <span class="mathv">
-    a<sub>j</sub> &gt; a<sub>i</sub>
-  </span>
-</p>
-
-<p>
-Nếu không tồn tại vị trí như vậy, kết quả của
-<span class="mathv">i</span> bằng <span class="mathv">−1</span>.
-Bài toán này thường được gọi là
-<strong>Next Greater Element</strong>, viết tắt là
-<strong>NGE</strong>.
-</p>
-
-<p>
-Ví dụ với dãy:
-</p>
-
-<p style="text-align:center">
-  <strong>2, 1, 5, 3, 4</strong>
-</p>
+<p>Xét dãy <code class="inl">2 1 4 3 5</code>. Với mỗi vị trí, ta cần tìm phần tử
+<b>đầu tiên lớn hơn</b> nằm bên phải:</p>
 
 <div class="tablewrap">
 <table>
-  <thead>
-    <tr>
-      <th>Vị trí i</th>
-      <th>a[i]</th>
-      <th>Phần tử lớn hơn gần nhất bên phải</th>
-      <th>Vị trí kết quả</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td>2</td>
-      <td>5</td>
-      <td>3</td>
-    </tr>
-
-    <tr>
-      <td>2</td>
-      <td>1</td>
-      <td>5</td>
-      <td>3</td>
-    </tr>
-
-    <tr>
-      <td>3</td>
-      <td>5</td>
-      <td>Không tồn tại</td>
-      <td>−1</td>
-    </tr>
-
-    <tr>
-      <td>4</td>
-      <td>3</td>
-      <td>4</td>
-      <td>5</td>
-    </tr>
-
-    <tr>
-      <td>5</td>
-      <td>4</td>
-      <td>Không tồn tại</td>
-      <td>−1</td>
-    </tr>
-  </tbody>
+<thead><tr><th class="c">Vị trí</th><th class="c">Giá trị</th><th>Nhìn sang phải</th><th class="c">Đáp án</th></tr></thead>
+<tbody>
+<tr><td class="c">0</td><td class="c">2</td><td>1, rồi gặp 4</td><td class="c">4</td></tr>
+<tr><td class="c">1</td><td class="c">1</td><td>gặp 4 ngay</td><td class="c">4</td></tr>
+<tr><td class="c">2</td><td class="c">4</td><td>3, rồi gặp 5</td><td class="c">5</td></tr>
+<tr><td class="c">3</td><td class="c">3</td><td>gặp 5 ngay</td><td class="c">5</td></tr>
+<tr><td class="c">4</td><td class="c">5</td><td>không còn gì</td><td class="c">−1</td></tr>
+</tbody>
 </table>
 </div>
 
-<p>
-Cách làm trực tiếp là, với mỗi vị trí
-<span class="mathv">i</span>, duyệt lần lượt các vị trí
-<span class="mathv">i + 1, i + 2, ...</span> cho đến khi gặp một phần tử
-lớn hơn.
-</p>
-
-<p>
-Trong trường hợp dãy giảm dần, mỗi vị trí phải kiểm tra gần như toàn bộ phần
-còn lại của dãy. Độ phức tạp khi đó là:
-</p>
-
-<p style="text-align:center">
-  <span class="mathv">O(n<sup>2</sup>)</span>
-</p>
-
-<p>
-Với <span class="mathv">n = 10<sup>6</sup></span>, số phép so sánh có thể lên
-đến khoảng <span class="mathv">10<sup>12</sup></span>, hoàn toàn không thể
-chấp nhận.
-</p>
-
-<figure>
-<svg
-  viewBox="0 0 650 250"
-  width="650"
-  role="img"
-  aria-label="Ví dụ Next Greater Element"
->
-  <rect class="array-box" x="35"  y="85" width="90" height="70" rx="8"/>
-  <rect class="array-box" x="145" y="85" width="90" height="70" rx="8"/>
-  <rect class="array-hot" x="255" y="85" width="90" height="70" rx="8"/>
-  <rect class="array-box" x="365" y="85" width="90" height="70" rx="8"/>
-  <rect class="array-done" x="475" y="85" width="90" height="70" rx="8"/>
-
-  <text class="lb" x="80"  y="120">2</text>
-  <text class="lb" x="190" y="120">1</text>
-  <text class="lb" x="300" y="120">5</text>
-  <text class="lb" x="410" y="120">3</text>
-  <text class="lb" x="520" y="120">4</text>
-
-  <text class="el" x="80"  y="180">i = 1</text>
-  <text class="el" x="190" y="180">i = 2</text>
-  <text class="el" x="300" y="180">i = 3</text>
-  <text class="el" x="410" y="180">i = 4</text>
-  <text class="el" x="520" y="180">i = 5</text>
-
-  <path
-    class="arr-hot"
-    d="M80 75 Q190 15 292 75"
-    fill="none"
-  />
-
-  <path
-    class="arr-hot"
-    d="M190 75 Q240 35 292 75"
-    fill="none"
-  />
-
-  <path
-    class="arr-hot"
-    d="M410 75 Q465 35 520 75"
-    fill="none"
-  />
-
-  <text class="cap" x="325" y="225">
-    Mỗi mũi tên chỉ tới phần tử lớn hơn gần nhất bên phải.
-  </text>
-</svg>
-
-<figcaption>
-  Với dãy 2, 1, 5, 3, 4, hai vị trí đầu cùng nhận phần tử 5 làm đáp án;
-  vị trí 4 nhận phần tử 4.
-</figcaption>
-</figure>
-
-<div class="box tech">
-  <div class="t">Quan sát quan trọng</div>
-
-  <p>
-  Khi đang xét phần tử <span class="mathv">a[i]</span>, nếu nó lớn hơn một số
-  phần tử trước đó đang chờ đáp án, thì
-  <span class="mathv">a[i]</span> chính là phần tử lớn hơn gần nhất của các
-  phần tử ấy.
-  </p>
-
-  <p>
-  Ta chỉ cần lưu các vị trí chưa tìm được đáp án trong một ngăn xếp. Các giá
-  trị tương ứng trong ngăn xếp được duy trì theo thứ tự
-  <strong>giảm dần</strong>.
-  </p>
+<div class="haicot">
+<div>
+<div class="cot-ten">Vét cạn — mỗi vị trí tự đi tìm</div>
+<div class="codewrap noname"><pre><code>for (int i = 0; i &lt; n; ++i) {
+    ans[i] = -1;
+    for (int j = i + 1; j &lt; n; ++j)
+        if (a[j] &gt; a[i]) {
+            ans[i] = a[j];
+            break;
+        }
+}</code></pre></div>
+</div>
+<div>
+<div class="cot-ten">Ngăn xếp đơn điệu — phần tử mới trả lời hộ</div>
+<div class="codewrap noname"><pre><code>stack&lt;int&gt; st;                 // lưu chỉ số
+for (int i = 0; i &lt; n; ++i) {
+    while (!st.empty() &amp;&amp; a[st.top()] &lt; a[i]) {
+        ans[st.top()] = a[i];
+        st.pop();
+    }
+    st.push(i);
+}
+while (!st.empty()) ans[st.top()] = -1, st.pop();</code></pre></div>
+</div>
 </div>
 
-<p>
-Đó chính là ý tưởng của <strong>Monotonic Stack</strong>:
-một ngăn xếp mà các phần tử được duy trì theo một thứ tự đơn điệu.
-</p>
+<p>Khác biệt nằm ở góc nhìn. Vét cạn hỏi: “đáp án của vị trí <span class="mathv">i</span>
+ở đâu?”. Ngăn xếp hỏi ngược: “phần tử mới <span class="mathv">a[i]</span> vừa xuất hiện
+thì nó trở thành đáp án cho những vị trí nào đang chờ?”.</p>
 
-<!-- ======================================================== -->
-<!-- 2. KHÁI NIỆM CƠ BẢN                                      -->
-<!-- ======================================================== -->
+<div class="box tech">
+<div class="t">Tại sao lưu chỉ số thay vì chỉ lưu giá trị?</div>
+<p>Giá trị cho biết điều kiện lớn hơn hay nhỏ hơn. Chỉ số còn cho biết vị trí, khoảng cách,
+biên trái, biên phải và nơi phải ghi đáp án. Vì vậy khuôn an toàn nhất là
+<code class="inl">stack&lt;int&gt;</code> lưu <b>chỉ số</b>, còn so sánh qua
+<code class="inl">a[st.top()]</code>.</p>
+</div>
 
-<h2 id="s2">
-  <span class="num">2</span>
-  Khái niệm và trực giác
-</h2>
+<h3>Thử tay: phần tử lớn hơn gần nhất bên phải</h3>
+
+<p>Nhấn <b>Bước tiếp</b>. Mỗi lần bấm thực hiện đúng một hành động: xét phần tử mới,
+<code class="inl">pop</code> một phần tử đang chờ, hoặc <code class="inl">push</code>
+chỉ số hiện tại.</p>
+
+<div class="sim">
+  <div class="sim-hang">
+    <div class="sim-o"><label for="ngeInput">Dãy</label><input type="text" id="ngeInput" value="2 1 4 3 5"></div>
+  </div>
+  <div class="sim-nhan">Dãy và đáp án hiện có</div>
+  <div class="day" id="ngeDay"></div>
+  <div class="sim-nhan">Ngăn xếp — đáy ở dưới, đỉnh ở trên</div>
+  <div class="stackbox"><div class="stackcol" id="ngeStack"></div><div class="stack-note" id="ngeNote"></div></div>
+  <div class="sim-nhan">Hành động vừa thực hiện</div>
+  <div class="action" id="ngeAction"></div>
+  <div class="sim-nut">
+    <button id="ngeReset">Làm lại</button>
+    <button id="ngeStep">Bước tiếp</button>
+    <button data-nge="5 4 3 2 1">Dãy giảm</button>
+    <button data-nge="1 2 3 4 5">Dãy tăng</button>
+    <button data-nge="2 2 3 2 3">Có phần tử bằng nhau</button>
+  </div>
+</div>
+
+<h2 id="s2"><span class="num">2.</span>Bất biến đơn điệu và ý nghĩa của pop</h2>
+
+<p>Sau khi xử lý xong vị trí <span class="mathv">i</span>, stack của bài trên chứa các
+chỉ số có giá trị <b>không tăng từ đáy lên đỉnh</b>. Với dãy
+<code class="inl">2 1 4 3</code>, sau bốn phần tử stack chứa giá trị
+<code class="inl">4, 3</code>. Giá trị 2 và 1 đã bị 4 giải quyết nên biến mất.</p>
+
+<div style="margin:18px 0; overflow-x:auto">
+<svg viewBox="0 0 760 190" width="100%" style="max-width:760px; display:block; margin:0 auto"
+     xmlns="http://www.w3.org/2000/svg" role="img"
+     aria-label="Ngăn xếp giảm: phần tử mới 5 lần lượt loại 3 và 4 rồi được đưa vào stack">
+  <text x="115" y="25" text-anchor="middle" font-size="13" fill="var(--muted)">trước khi gặp 5</text>
+  <path d="M60 45v105h110V45" fill="none" stroke="var(--edge)" stroke-width="2"/>
+  <rect x="72" y="105" width="86" height="36" rx="6" fill="var(--blue-bg)" stroke="var(--blue)"/>
+  <text x="115" y="128" text-anchor="middle" font-size="15" fill="var(--blue)">4</text>
+  <rect x="72" y="62" width="86" height="36" rx="6" fill="var(--blue-bg)" stroke="var(--blue)"/>
+  <text x="115" y="85" text-anchor="middle" font-size="15" fill="var(--blue)">3</text>
+
+  <text x="275" y="25" text-anchor="middle" font-size="13" fill="var(--muted)">5 xuất hiện</text>
+  <rect x="238" y="68" width="74" height="42" rx="7" fill="var(--amber-bg)" stroke="var(--amber)" stroke-width="1.5"/>
+  <text x="275" y="94" text-anchor="middle" font-size="18" fill="var(--amber)">5</text>
+
+  <path d="M330 90h90" stroke="var(--edge)" stroke-width="2" marker-end="url(#arr)"/>
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge)"/></marker></defs>
+  <text x="375" y="77" text-anchor="middle" font-size="12" fill="var(--red)">pop 3, pop 4</text>
+
+  <text x="555" y="25" text-anchor="middle" font-size="13" fill="var(--muted)">sau khi push 5</text>
+  <path d="M500 45v105h110V45" fill="none" stroke="var(--edge)" stroke-width="2"/>
+  <rect x="512" y="105" width="86" height="36" rx="6" fill="var(--green-bg)" stroke="var(--green)"/>
+  <text x="555" y="128" text-anchor="middle" font-size="15" fill="var(--green)">5</text>
+
+  <text x="668" y="85" font-size="12" fill="var(--muted)">5 là đáp án đầu tiên</text>
+  <text x="668" y="103" font-size="12" fill="var(--muted)">lớn hơn cho cả 3 và 4.</text>
+  <text x="668" y="121" font-size="12" fill="var(--muted)">Giữ chúng lại không còn ích.</text>
+</svg>
+</div>
 
 <div class="box def">
-  <div class="t">Định nghĩa</div>
-
-  <p>
-  <strong>Monotonic Stack</strong>, hay
-  <strong>ngăn xếp đơn điệu</strong>, là một ngăn xếp trong đó các phần tử
-  được duy trì theo thứ tự tăng hoặc giảm từ đáy lên đỉnh.
-  </p>
-
-  <ul>
-    <li>
-      <strong>Ngăn xếp tăng:</strong>
-      giá trị từ đáy lên đỉnh không giảm hoặc tăng nghiêm ngặt.
-    </li>
-
-    <li>
-      <strong>Ngăn xếp giảm:</strong>
-      giá trị từ đáy lên đỉnh không tăng hoặc giảm nghiêm ngặt.
-    </li>
-  </ul>
-</div>
-
-<p>
-Trong thực tế, ta thường không lưu trực tiếp giá trị mà lưu
-<strong>chỉ số</strong> của phần tử:
-</p>
-
-<div class="codewrap">
-<div class="name">Ngăn xếp lưu chỉ số</div>
-
-<pre><code>stack&lt;int&gt; st;
-
-// Giá trị phần tử trên đỉnh là a[st.top()]
-</code></pre>
-</div>
-
-<p>
-Lưu chỉ số có nhiều lợi ích:
-</p>
-
+<div class="t">Bất biến</div>
+<p>Bất biến là điều luôn đúng sau mỗi vòng lặp. Trong bài “lớn hơn gần nhất bên phải”:</p>
 <ul>
-  <li>Biết được vị trí của phần tử.</li>
-  <li>Tính được khoảng cách giữa hai vị trí.</li>
-  <li>Dùng cùng một giá trị nhiều lần mà không bị nhầm.</li>
-  <li>Dễ xử lý các bài toán yêu cầu biên trái và biên phải.</li>
+<li>Các chỉ số trong stack đều chưa có đáp án.</li>
+<li>Chỉ số tăng từ đáy lên đỉnh, vì ta duyệt từ trái sang phải.</li>
+<li>Giá trị không tăng từ đáy lên đỉnh, vì mọi giá trị nhỏ hơn phần tử mới đã bị pop.</li>
 </ul>
-
-<h3>2.1. Vì sao một phần tử có thể bị loại bỏ?</h3>
-
-<p>
-Xét bài toán tìm phần tử lớn hơn gần nhất bên phải. Giả sử trong ngăn xếp có
-vị trí <span class="mathv">j</span>, và ta đang xét vị trí
-<span class="mathv">i</span> với:
-</p>
-
-<p style="text-align:center">
-  <span class="mathv">
-    j &lt; i
-    &nbsp; và &nbsp;
-    a[i] &gt; a[j]
-  </span>
-</p>
-
-<p>
-Khi đó <span class="mathv">a[i]</span> chính là đáp án của
-<span class="mathv">j</span>, vì:
-</p>
-
-<ul>
-  <li>
-    <span class="mathv">i</span> nằm bên phải
-    <span class="mathv">j</span>.
-  </li>
-
-  <li>
-    <span class="mathv">a[i]</span> lớn hơn
-    <span class="mathv">a[j]</span>.
-  </li>
-
-  <li>
-    Mọi vị trí nằm giữa <span class="mathv">j</span> và
-    <span class="mathv">i</span> đã được xử lý nhưng không thể loại
-    <span class="mathv">j</span> khỏi ngăn xếp.
-  </li>
-</ul>
-
-<p>
-Sau khi tìm được đáp án, vị trí <span class="mathv">j</span> không còn cần
-thiết và được lấy ra khỏi ngăn xếp.
-</p>
-
-<h3>2.2. Mỗi phần tử chỉ vào và ra một lần</h3>
-
-<div class="box cmplx">
-  <div class="t">Phân tích độ phức tạp khấu hao</div>
-
-  <p>
-  Một phần tử có thể khiến vòng lặp
-  <code class="inl">while</code> lấy ra nhiều phần tử. Tuy nhiên, trên toàn bộ
-  thuật toán:
-  </p>
-
-  <ul>
-    <li>Mỗi chỉ số được đưa vào ngăn xếp đúng một lần.</li>
-    <li>Mỗi chỉ số bị lấy khỏi ngăn xếp nhiều nhất một lần.</li>
-  </ul>
-
-  <p>
-  Vì vậy tổng số thao tác ngăn xếp là
-  <span class="mathv">O(n)</span>, không phải
-  <span class="mathv">O(n<sup>2</sup>)</span>.
-  </p>
+<p>Ba câu này là lời giải thích đầy đủ cho thuật toán, không chỉ là mẹo nhớ code.</p>
 </div>
 
-<p>
-Đây là một ví dụ điển hình của
-<strong>phân tích khấu hao</strong>: một bước riêng lẻ có thể tốn nhiều thao
-tác, nhưng tổng chi phí của toàn bộ quá trình vẫn tuyến tính.
-</p>
+<h3>Pop không phải là “xóa cho gọn”</h3>
 
-<!-- ======================================================== -->
-<!-- 3. HAI DẠNG NGĂN XẾP                                     -->
-<!-- ======================================================== -->
-
-<h2 id="s3">
-  <span class="num">3</span>
-  Ngăn xếp tăng và ngăn xếp giảm
-</h2>
-
-<h3>3.1. Ngăn xếp tăng</h3>
-
-<p>
-Trong ngăn xếp tăng, các giá trị từ đáy lên đỉnh có thứ tự tăng:
-</p>
-
-<p style="text-align:center">
-  <span class="mathv">
-    a[st<sub>1</sub>] &lt;
-    a[st<sub>2</sub>] &lt;
-    ... &lt;
-    a[st<sub>k</sub>]
-  </span>
-</p>
-
-<p>
-Dạng này thường dùng để tìm:
-</p>
-
-<ul>
-  <li>Phần tử nhỏ hơn gần nhất.</li>
-  <li>Biên mà một phần tử đóng vai trò là giá trị nhỏ nhất.</li>
-  <li>Hình chữ nhật lớn nhất trong histogram.</li>
-  <li>Tổng giá trị nhỏ nhất của mọi đoạn con.</li>
-</ul>
-
-<div class="codewrap">
-<div class="name">Khuôn mẫu ngăn xếp tăng nghiêm ngặt</div>
-
-<pre><code>for (int i = 0; i &lt; n; i++) {
-    while (!st.empty() &amp;&amp; a[st.top()] &gt;= a[i])
-        st.pop();
-
-    // Lúc này st.top() là phần tử nhỏ hơn gần nhất bên trái của a[i]
-    // nếu ngăn xếp không rỗng.
-
-    st.push(i);
-}
-</code></pre>
-</div>
-
-<h3>3.2. Ngăn xếp giảm</h3>
-
-<p>
-Trong ngăn xếp giảm, các giá trị từ đáy lên đỉnh có thứ tự giảm:
-</p>
-
-<p style="text-align:center">
-  <span class="mathv">
-    a[st<sub>1</sub>] &gt;
-    a[st<sub>2</sub>] &gt;
-    ... &gt;
-    a[st<sub>k</sub>]
-  </span>
-</p>
-
-<p>
-Dạng này thường dùng để tìm:
-</p>
-
-<ul>
-  <li>Phần tử lớn hơn gần nhất.</li>
-  <li>Biên mà một phần tử đóng vai trò là giá trị lớn nhất.</li>
-  <li>Tổng giá trị lớn nhất của mọi đoạn con.</li>
-  <li>Một số bài toán nhìn thấy núi, nhiệt độ và chứng khoán.</li>
-</ul>
-
-<div class="codewrap">
-<div class="name">Khuôn mẫu ngăn xếp giảm nghiêm ngặt</div>
-
-<pre><code>for (int i = 0; i &lt; n; i++) {
-    while (!st.empty() &amp;&amp; a[st.top()] &lt;= a[i])
-        st.pop();
-
-    // Lúc này st.top() là phần tử lớn hơn gần nhất bên trái của a[i]
-    // nếu ngăn xếp không rỗng.
-
-    st.push(i);
-}
-</code></pre>
-</div>
-
-<h3>3.3. Tăng nghiêm ngặt hay không giảm?</h3>
-
-<p>
-Đây là điểm dễ nhầm nhất của chuyên đề. Hai điều kiện:
-</p>
-
-<div class="tablewrap">
-<table>
-  <thead>
-    <tr>
-      <th>Điều kiện pop</th>
-      <th>Trạng thái còn lại trong stack</th>
-      <th>Ý nghĩa thường gặp</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <tr>
-      <td>
-        <code class="inl">a[st.top()] &gt; a[i]</code>
-      </td>
-      <td>Không giảm</td>
-      <td>Giữ lại các phần tử bằng nhau</td>
-    </tr>
-
-    <tr>
-      <td>
-        <code class="inl">a[st.top()] &gt;= a[i]</code>
-      </td>
-      <td>Tăng nghiêm ngặt</td>
-      <td>Loại các phần tử bằng nhau</td>
-    </tr>
-
-    <tr>
-      <td>
-        <code class="inl">a[st.top()] &lt; a[i]</code>
-      </td>
-      <td>Không tăng</td>
-      <td>Giữ lại các phần tử bằng nhau</td>
-    </tr>
-
-    <tr>
-      <td>
-        <code class="inl">a[st.top()] &lt;= a[i]</code>
-      </td>
-      <td>Giảm nghiêm ngặt</td>
-      <td>Loại các phần tử bằng nhau</td>
-    </tr>
-  </tbody>
-</table>
-</div>
+<p>Mỗi lần pop phải có một lý do bài toán. Trong bài NGE, khi
+<code class="inl">a[st.top()] &lt; a[i]</code>, phần tử hiện tại là phần tử đầu tiên bên
+phải đủ lớn cho đỉnh stack. Ta <b>ghi đáp án trước, rồi mới pop</b>. Ở bài histogram,
+pop lại mang nghĩa: cột vừa bị pop đã gặp biên phải đầu tiên thấp hơn nó, nên diện tích
+của cột đó đã tính được trọn vẹn.</p>
 
 <div class="box warn">
-  <div class="t">Không có một dấu so sánh đúng cho mọi bài</div>
-
-  <p>
-  Việc dùng <code class="inl">&gt;</code> hay
-  <code class="inl">&gt;=</code> phụ thuộc vào yêu cầu:
-  </p>
-
-  <ul>
-    <li>Nhỏ hơn hay nhỏ hơn hoặc bằng.</li>
-    <li>Lớn hơn hay lớn hơn hoặc bằng.</li>
-    <li>Cách xử lý các giá trị trùng nhau.</li>
-    <li>Quy ước một phần tử bằng nhau thuộc về bên trái hay bên phải.</li>
-  </ul>
-
-  <p>
-  Đặc biệt trong các bài đếm đóng góp, nếu xử lý dấu bằng sai, một đoạn con
-  có thể bị đếm hai lần hoặc không được đếm lần nào.
-  </p>
+<div class="t">Tên tăng hay giảm dễ gây nhầm</div>
+<p>Có tài liệu gọi stack trong bài NGE là “stack giảm” vì các <b>giá trị đang lưu</b>
+giảm từ đáy lên đỉnh. Có tài liệu gọi nó là “stack dùng để tìm phần tử lớn hơn”. Đừng học
+bằng tên. Hãy viết rõ bất biến: <b>đáy → đỉnh không tăng</b>, và điều kiện pop là
+<code class="inl">a[st.top()] &lt; a[i]</code>.</p>
 </div>
 
-<!-- ======================================================== -->
-<!-- 4. BỐN BÀI TOÁN CƠ BẢN                                   -->
-<!-- ======================================================== -->
+<h2 id="s3"><span class="num">3.</span>Bốn câu hỏi phần tử gần nhất</h2>
 
-<h2 id="s4">
-  <span class="num">4</span>
-  Bốn bài toán phần tử gần nhất
-</h2>
-
-<p>
-Có bốn dạng cơ bản cần nhận diện:
-</p>
+<p>Mọi bài cơ bản thuộc họ này được tạo bởi hai lựa chọn độc lập:</p>
 
 <div class="tablewrap">
 <table>
-  <thead>
-    <tr>
-      <th>Bài toán</th>
-      <th>Viết tắt</th>
-      <th>Hướng duyệt phổ biến</th>
-      <th>Stack</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <tr>
-      <td>Phần tử lớn hơn gần nhất bên phải</td>
-      <td>NGE</td>
-      <td>Trái → phải</td>
-      <td>Giảm</td>
-    </tr>
-
-    <tr>
-      <td>Phần tử nhỏ hơn gần nhất bên phải</td>
-      <td>NSE</td>
-      <td>Trái → phải</td>
-      <td>Tăng</td>
-    </tr>
-
-    <tr>
-      <td>Phần tử lớn hơn gần nhất bên trái</td>
-      <td>PGE</td>
-      <td>Trái → phải</td>
-      <td>Giảm</td>
-    </tr>
-
-    <tr>
-      <td>Phần tử nhỏ hơn gần nhất bên trái</td>
-      <td>PSE</td>
-      <td>Trái → phải</td>
-      <td>Tăng</td>
-    </tr>
-  </tbody>
+<thead><tr><th>Lựa chọn</th><th>Khả năng</th><th>Điều quyết định trong code</th></tr></thead>
+<tbody>
+<tr><td>Hướng tìm</td><td>bên trái hoặc bên phải</td><td>hướng duyệt, hoặc lúc ghi đáp án</td></tr>
+<tr><td>Quan hệ</td><td>lớn hơn hoặc nhỏ hơn</td><td>dấu so sánh trong vòng <code class="inl">while</code></td></tr>
+</tbody>
 </table>
 </div>
 
-<h3>4.1. Next Greater Element</h3>
+<table class="ct">
+<thead><tr><th>Bài toán</th><th>Hướng duyệt dễ nhớ</th><th>Bất biến đáy → đỉnh</th><th>Pop khi</th></tr></thead>
+<tbody>
+<tr><td class="ai">Lớn hơn gần nhất bên phải</td><td>trái → phải</td><td>không tăng</td><td><code class="inl">a[top] &lt; a[i]</code>, rồi gán đáp án cho <code class="inl">top</code></td></tr>
+<tr><td class="ai">Nhỏ hơn gần nhất bên phải</td><td>trái → phải</td><td>không giảm</td><td><code class="inl">a[top] &gt; a[i]</code>, rồi gán đáp án cho <code class="inl">top</code></td></tr>
+<tr><td class="ai">Lớn hơn gần nhất bên trái</td><td>trái → phải</td><td>giảm nghiêm ngặt</td><td>pop các phần tử <code class="inl">&lt;= a[i]</code>, đáp án là đỉnh còn lại</td></tr>
+<tr><td class="ai">Nhỏ hơn gần nhất bên trái</td><td>trái → phải</td><td>tăng nghiêm ngặt</td><td>pop các phần tử <code class="inl">&gt;= a[i]</code>, đáp án là đỉnh còn lại</td></tr>
+</tbody>
+</table>
 
-<p>
-Duyệt từ trái sang phải. Khi gặp
-<span class="mathv">a[i]</span>, mọi phần tử nhỏ hơn
-<span class="mathv">a[i]</span> trên đỉnh ngăn xếp đều tìm được đáp án.
-</p>
+<p>Hai dòng “bên phải” dùng phần tử mới để trả lời cho những phần tử cũ. Hai dòng “bên
+trái” dọn stack trước, rồi nhìn đỉnh stack để trả lời cho phần tử hiện tại. Đây là khác
+biệt cấu trúc quan trọng nhất.</p>
 
-<div class="codewrap">
-<div class="name">Next Greater Element bên phải</div>
+<h3>Dấu bằng quyết định đáp án có được bằng nhau hay không</h3>
 
-<pre><code>#include &lt;bits/stdc++.h&gt;
-using namespace std;
+<p>Đề có thể hỏi “lớn hơn” hoặc “lớn hơn hoặc bằng”; “nhỏ hơn” hoặc “nhỏ hơn hoặc bằng”.
+Chỉ một dấu bằng trong điều kiện pop có thể đổi hoàn toàn đáp án khi dãy có phần tử trùng.</p>
 
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n;
-    cin &gt;&gt; n;
-
-    vector&lt;long long&gt; a(n);
-    vector&lt;int&gt; answer(n, -1);
-    stack&lt;int&gt; st;
-
-    for (int i = 0; i &lt; n; i++)
-        cin &gt;&gt; a[i];
-
-    for (int i = 0; i &lt; n; i++) {
-        while (!st.empty() &amp;&amp; a[st.top()] &lt; a[i]) {
-            answer[st.top()] = i;
-            st.pop();
-        }
-
-        st.push(i);
-    }
-
-    for (int i = 0; i &lt; n; i++) {
-        if (answer[i] == -1)
-            cout &lt;&lt; -1 &lt;&lt; " ";
-        else
-            cout &lt;&lt; a[answer[i]] &lt;&lt; " ";
-    }
-
-    cout &lt;&lt; '\n';
-    return 0;
-}
-</code></pre>
+<div class="haicot">
+<div>
+<div class="cot-ten">Tìm phần tử bên trái <b>nhỏ hơn nghiêm ngặt</b></div>
+<div class="codewrap noname"><pre><code>while (!st.empty() &amp;&amp; a[st.top()] &gt;= a[i])
+    st.pop();
+left[i] = st.empty() ? -1 : st.top();</code></pre></div>
+</div>
+<div>
+<div class="cot-ten">Tìm phần tử bên trái <b>nhỏ hơn hoặc bằng</b></div>
+<div class="codewrap noname"><pre><code>while (!st.empty() &amp;&amp; a[st.top()] &gt; a[i])
+    st.pop();
+left[i] = st.empty() ? -1 : st.top();</code></pre></div>
+</div>
 </div>
 
-<h3>4.2. Previous Smaller Element</h3>
+<h3>Thử tay: một dấu bằng, hai kết quả</h3>
 
-<p>
-Với mỗi vị trí <span class="mathv">i</span>, ta loại các phần tử lớn hơn hoặc
-bằng <span class="mathv">a[i]</span>. Phần tử còn lại trên đỉnh, nếu có, là
-phần tử nhỏ hơn gần nhất bên trái.
-</p>
+<div class="sim">
+  <div class="sim-hang">
+    <div class="sim-o"><label for="eqInput">Dãy</label><input type="text" id="eqInput" value="3 2 2 4 2"></div>
+    <div class="sim-o"><label for="eqPos">Vị trí i</label><input type="number" id="eqPos" value="2" min="0"></div>
+  </div>
+  <div class="haicot">
+    <div>
+      <div class="cot-ten">Pop <code class="inl">&gt;=</code>: tìm nhỏ hơn nghiêm ngặt</div>
+      <div class="day" id="eqStrictDay"></div>
+      <div class="sim-ra" id="eqStrictRa"></div>
+    </div>
+    <div>
+      <div class="cot-ten">Pop <code class="inl">&gt;</code>: cho phép bằng nhau</div>
+      <div class="day" id="eqLooseDay"></div>
+      <div class="sim-ra" id="eqLooseRa"></div>
+    </div>
+  </div>
+  <div class="sim-canh" id="eqCanh"></div>
+  <div class="sim-nut">
+    <button data-eq="3 2 2 4 2|2">Hai số 2 liền nhau</button>
+    <button data-eq="5 5 5 5|3">Tất cả bằng nhau</button>
+    <button data-eq="1 3 3 2|2">Số bằng nhau ở giữa</button>
+  </div>
+</div>
 
-<div class="codewrap">
-<div class="name">Previous Smaller Element bên trái</div>
+<h2 id="s4"><span class="num">4.</span>Bốn khuôn mẫu quan trọng</h2>
 
-<pre><code>vector&lt;int&gt; previousSmaller(n, -1);
+<h3>Khuôn A — phần tử lớn hơn gần nhất bên phải</h3>
+
+<div class="codewrap noname"><pre><code>vector&lt;int&gt; ans(n, -1);
 stack&lt;int&gt; st;
-
-for (int i = 0; i &lt; n; i++) {
-    while (!st.empty() &amp;&amp; a[st.top()] &gt;= a[i])
-        st.pop();
-
-    if (!st.empty())
-        previousSmaller[i] = st.top();
-
-    st.push(i);
-}
-</code></pre>
-</div>
-
-<h3>4.3. Duyệt xuôi hay duyệt ngược?</h3>
-
-<p>
-Một bài toán bên phải có thể giải theo hai cách:
-</p>
-
-<ul>
-  <li>
-    Duyệt từ trái sang phải và gán đáp án cho các phần tử bị pop.
-  </li>
-
-  <li>
-    Duyệt từ phải sang trái và đọc đáp án trực tiếp từ đỉnh ngăn xếp.
-  </li>
-</ul>
-
-<div class="codewrap">
-<div class="name">Next Greater Element bằng cách duyệt từ phải sang trái</div>
-
-<pre><code>vector&lt;int&gt; nextGreater(n, -1);
-stack&lt;int&gt; st;
-
-for (int i = n - 1; i &gt;= 0; i--) {
-    while (!st.empty() &amp;&amp; a[st.top()] &lt;= a[i])
-        st.pop();
-
-    if (!st.empty())
-        nextGreater[i] = st.top();
-
-    st.push(i);
-}
-</code></pre>
-</div>
-
-<div class="box tech">
-  <div class="t">Cách chọn hướng duyệt</div>
-
-  <p>
-  Nếu cần tìm đáp án cho phần tử hiện tại từ những phần tử đã xử lý, hãy duyệt
-  từ phía chứa đáp án về phía phần tử hiện tại.
-  </p>
-
-  <p>
-  Nếu muốn một phần tử mới xuất hiện giải quyết đồng thời nhiều phần tử cũ,
-  hãy duyệt theo chiều tự nhiên và gán đáp án khi pop.
-  </p>
-</div>
-
-<h3>4.4. Phần tử gần nhất trong mảng vòng</h3>
-
-<p>
-Trong mảng vòng, phần tử sau vị trí
-<span class="mathv">n − 1</span> là vị trí 0. Ta có thể mô phỏng việc duyệt hai
-lần mảng:
-</p>
-
-<div class="codewrap">
-<div class="name">Next Greater Element trong mảng vòng</div>
-
-<pre><code>vector&lt;int&gt; answer(n, -1);
-stack&lt;int&gt; st;
-
-for (int turn = 0; turn &lt; 2 * n; turn++) {
-    int i = turn % n;
-
+for (int i = 0; i &lt; n; ++i) {
     while (!st.empty() &amp;&amp; a[st.top()] &lt; a[i]) {
-        answer[st.top()] = i;
+        ans[st.top()] = i;       // hoặc a[i], hoặc i - st.top()
         st.pop();
     }
+    st.push(i);
+}</code></pre></div>
 
-    // Chỉ đưa vị trí vào stack trong lượt đầu tiên.
-    if (turn &lt; n)
-        st.push(i);
-}
-</code></pre>
-</div>
+<p>Một khuôn nhưng trả được ba loại đáp án: chỉ số <code class="inl">i</code>, giá trị
+<code class="inl">a[i]</code>, hoặc khoảng cách <code class="inl">i - st.top()</code>.
+Hãy đọc đúng đề trước khi chọn thứ cần lưu.</p>
 
-<!-- ======================================================== -->
-<!-- 5. HISTOGRAM                                             -->
-<!-- ======================================================== -->
+<h3>Khuôn B — phần tử nhỏ hơn gần nhất bên trái</h3>
 
-<h2 id="s5">
-  <span class="num">5</span>
-  Hình chữ nhật lớn nhất trong histogram
-</h2>
+<div class="codewrap noname"><pre><code>vector&lt;int&gt; left(n, -1);
+stack&lt;int&gt; st;
+for (int i = 0; i &lt; n; ++i) {
+    while (!st.empty() &amp;&amp; a[st.top()] &gt;= a[i]) st.pop();
+    if (!st.empty()) left[i] = st.top();
+    st.push(i);
+}</code></pre></div>
 
-<p>
-Cho <span class="mathv">n</span> cột đứng liền nhau. Cột thứ
-<span class="mathv">i</span> có chiều rộng 1 và chiều cao
-<span class="mathv">h[i]</span>. Hãy tìm diện tích hình chữ nhật lớn nhất nằm
-hoàn toàn trong histogram.
-</p>
+<p>Thứ tự ở đây là <b>pop → đọc đỉnh → push</b>. Đảo thành push trước thì đỉnh stack luôn
+là chính <span class="mathv">i</span>, đáp án hỏng ngay.</p>
 
-<p>
-Ví dụ:
-</p>
+<h3>Khuôn C — hình chữ nhật lớn nhất trong histogram</h3>
 
-<p style="text-align:center">
-  <strong>2, 1, 5, 6, 2, 3</strong>
-</p>
+<p>Mỗi cột cao <span class="mathv">h[i]</span> muốn vươn sang trái và phải cho tới khi gặp
+cột thấp hơn. Nếu biết hai biên thấp hơn gần nhất <span class="mathv">L[i]</span> và
+<span class="mathv">R[i]</span>, diện tích lớn nhất dùng cột <span class="mathv">i</span>
+làm chiều cao là:</p>
 
-<p>
-Đáp án là 10, tạo bởi hai cột có chiều cao 5 và 6, lấy chiều cao chung bằng 5
-và chiều rộng bằng 2.
-</p>
+<p style="text-align:center"><span class="mathv">h[i] × (R[i] − L[i] − 1)</span></p>
 
-<figure>
-<svg
-  viewBox="0 0 680 390"
-  width="680"
-  role="img"
-  aria-label="Largest Rectangle in Histogram"
->
-  <line class="arr-line" x1="35" y1="330" x2="645" y2="330"/>
-
-  <rect class="array-box" x="55"  y="250" width="75" height="80"/>
-  <rect class="array-box" x="150" y="290" width="75" height="40"/>
-  <rect class="array-hot" x="245" y="130" width="75" height="200"/>
-  <rect class="array-hot" x="340" y="90"  width="75" height="240"/>
-  <rect class="array-box" x="435" y="250" width="75" height="80"/>
-  <rect class="array-box" x="530" y="210" width="75" height="120"/>
-
-  <rect
-    x="245"
-    y="130"
-    width="170"
-    height="200"
-    fill="var(--hl-bg)"
-    stroke="var(--hl2)"
-    stroke-width="4"
-    fill-opacity="0.42"
-  />
-
-  <text class="lb" x="92"  y="275">2</text>
-  <text class="lb" x="187" y="310">1</text>
-  <text class="lb" x="282" y="155">5</text>
-  <text class="lb" x="377" y="115">6</text>
-  <text class="lb" x="472" y="275">2</text>
-  <text class="lb" x="567" y="235">3</text>
-
-  <text class="el" x="92"  y="355">0</text>
-  <text class="el" x="187" y="355">1</text>
-  <text class="el" x="282" y="355">2</text>
-  <text class="el" x="377" y="355">3</text>
-  <text class="el" x="472" y="355">4</text>
-  <text class="el" x="567" y="355">5</text>
-
-  <text class="cap" x="340" y="35">
-    Hình chữ nhật tối ưu: chiều cao 5, chiều rộng 2, diện tích 10
-  </text>
-</svg>
-
-<figcaption>
-  Mỗi cột được xem là chiều cao nhỏ nhất của một hình chữ nhật. Ta cần tìm
-  đoạn rộng nhất mà cột đó vẫn là cột thấp nhất.
-</figcaption>
-</figure>
-
-<h3>5.1. Tư duy theo từng cột</h3>
-
-<p>
-Giả sử chọn cột <span class="mathv">i</span> làm chiều cao nhỏ nhất của hình
-chữ nhật. Ta cần tìm:
-</p>
-
-<ul>
-  <li>
-    Vị trí gần nhất bên trái có chiều cao nhỏ hơn
-    <span class="mathv">h[i]</span>.
-  </li>
-
-  <li>
-    Vị trí gần nhất bên phải có chiều cao nhỏ hơn
-    <span class="mathv">h[i]</span>.
-  </li>
-</ul>
-
-<p>
-Gọi hai vị trí đó là <span class="mathv">L[i]</span> và
-<span class="mathv">R[i]</span>. Khi đó đoạn lớn nhất mà
-<span class="mathv">h[i]</span> là giá trị nhỏ nhất là:
-</p>
-
-<p style="text-align:center">
-  <span class="mathv">
-    L[i] + 1 ... R[i] − 1
-  </span>
-</p>
-
-<p>
-Chiều rộng và diện tích tương ứng:
-</p>
-
-<p style="text-align:center">
-  <span class="mathv">
-    width = R[i] − L[i] − 1
-  </span>
-</p>
-
-<p style="text-align:center">
-  <span class="mathv">
-    area = h[i] · (R[i] − L[i] − 1)
-  </span>
-</p>
-
-<h3>5.2. Cách 1 — Tính hai mảng biên</h3>
-
-<div class="codewrap">
-<div class="name">Largest Rectangle — tính biên trái và biên phải</div>
-
-<pre><code>#include &lt;bits/stdc++.h&gt;
-using namespace std;
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n;
-    cin &gt;&gt; n;
-
-    vector&lt;long long&gt; h(n);
-    vector&lt;int&gt; leftSmaller(n);
-    vector&lt;int&gt; rightSmaller(n);
-
-    for (int i = 0; i &lt; n; i++)
-        cin &gt;&gt; h[i];
-
-    stack&lt;int&gt; st;
-
-    // Phần tử nhỏ hơn gần nhất bên trái.
-    for (int i = 0; i &lt; n; i++) {
-        while (!st.empty() &amp;&amp; h[st.top()] &gt;= h[i])
-            st.pop();
-
-        leftSmaller[i] = st.empty() ? -1 : st.top();
-        st.push(i);
+<div class="codewrap noname"><pre><code>long long best = 0;
+stack&lt;int&gt; st;
+for (int i = 0; i &lt;= n; ++i) {
+    long long cur = (i == n ? 0 : h[i]);   // cột lính canh 0
+    while (!st.empty() &amp;&amp; h[st.top()] &gt; cur) {
+        int k = st.top(); st.pop();
+        int L = st.empty() ? -1 : st.top();
+        long long width = i - L - 1;
+        best = max(best, h[k] * width);
     }
-
-    while (!st.empty())
-        st.pop();
-
-    // Phần tử nhỏ hơn gần nhất bên phải.
-    for (int i = n - 1; i &gt;= 0; i--) {
-        while (!st.empty() &amp;&amp; h[st.top()] &gt;= h[i])
-            st.pop();
-
-        rightSmaller[i] = st.empty() ? n : st.top();
-        st.push(i);
-    }
-
-    long long answer = 0;
-
-    for (int i = 0; i &lt; n; i++) {
-        long long width = rightSmaller[i] - leftSmaller[i] - 1;
-        answer = max(answer, h[i] * width);
-    }
-
-    cout &lt;&lt; answer &lt;&lt; '\n';
-    return 0;
-}
-</code></pre>
-</div>
-
-<h3>5.3. Cách 2 — Tính diện tích ngay khi pop</h3>
-
-<p>
-Ta thêm một cột ảo có chiều cao 0 ở cuối dãy. Khi gặp một cột thấp hơn đỉnh
-ngăn xếp, cột trên đỉnh không thể mở rộng sang phải nữa, nên ta tính diện tích
-của nó ngay lập tức.
-</p>
-
-<div class="codewrap">
-<div class="name">Largest Rectangle — một lần duyệt</div>
-
-<pre><code>#include &lt;bits/stdc++.h&gt;
-using namespace std;
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n;
-    cin &gt;&gt; n;
-
-    vector&lt;long long&gt; h(n + 1, 0);
-
-    for (int i = 0; i &lt; n; i++)
-        cin &gt;&gt; h[i];
-
-    stack&lt;int&gt; st;
-    long long answer = 0;
-
-    for (int i = 0; i &lt;= n; i++) {
-        while (!st.empty() &amp;&amp; h[st.top()] &gt; h[i]) {
-            int position = st.top();
-            st.pop();
-
-            int leftBoundary = st.empty() ? -1 : st.top();
-            long long width = i - leftBoundary - 1;
-
-            answer = max(answer, h[position] * width);
-        }
-
-        st.push(i);
-    }
-
-    cout &lt;&lt; answer &lt;&lt; '\n';
-    return 0;
-}
-</code></pre>
-</div>
+    st.push(i);
+}</code></pre></div>
 
 <div class="box tech">
-  <div class="t">Ý nghĩa của thời điểm pop</div>
-
-  <p>
-  Khi vị trí <span class="mathv">p</span> bị pop tại vị trí
-  <span class="mathv">i</span>:
-  </p>
-
-  <ul>
-    <li>
-      <span class="mathv">i</span> là vị trí đầu tiên bên phải có chiều cao
-      nhỏ hơn <span class="mathv">h[p]</span>.
-    </li>
-
-    <li>
-      Sau khi pop, <code class="inl">st.top()</code> là vị trí gần nhất bên
-      trái có chiều cao nhỏ hơn <span class="mathv">h[p]</span>.
-    </li>
-
-    <li>
-      Vì vậy chiều rộng lớn nhất là
-      <span class="mathv">i − st.top() − 1</span>.
-    </li>
-  </ul>
+<div class="t">Cột lính canh</div>
+<p>Gán chiều cao 0 ở vị trí <span class="mathv">n</span> ép mọi cột còn lại trong stack
+được pop và tính diện tích. Nhờ vậy không cần viết thêm một vòng lặp dọn stack sau cùng.
+Tương tự, nhiều bài dùng chỉ số giả <code class="inl">-1</code> làm biên trái.</p>
 </div>
 
-<h3>5.4. Hình chữ nhật lớn nhất trong ma trận nhị phân</h3>
+<h3>Thử tay: histogram</h3>
 
-<p>
-Cho ma trận chỉ gồm 0 và 1. Hãy tìm hình chữ nhật toàn số 1 có diện tích lớn
-nhất.
-</p>
+<div class="sim">
+  <div class="sim-hang">
+    <div class="sim-o"><label for="histInput">Chiều cao</label><input type="text" id="histInput" value="2 1 5 6 2 3"></div>
+  </div>
+  <div class="sim-nhan">Biểu đồ</div>
+  <div class="bars" id="histBars"></div>
+  <div class="sim-nhan">Stack chỉ số</div>
+  <div class="stackbox"><div class="stackcol" id="histStack"></div><div class="stack-note" id="histNote"></div></div>
+  <div class="sim-ra" id="histRa"></div>
+  <div class="sim-nut">
+    <button id="histReset">Làm lại</button>
+    <button id="histStep">Bước tiếp</button>
+    <button data-hist="2 1 5 6 2 3">Mẫu kinh điển</button>
+    <button data-hist="1 2 3 4 5">Tăng dần</button>
+    <button data-hist="5 4 3 2 1">Giảm dần</button>
+  </div>
+</div>
 
-<p>
-Ta xử lý từng hàng. Với mỗi cột, duy trì số lượng số 1 liên tiếp tính từ hàng
-hiện tại đi lên. Mỗi hàng trở thành một histogram, sau đó áp dụng thuật toán
-ở trên.
-</p>
+<h3>Khuôn D — đếm đóng góp của mỗi phần tử</h3>
 
-<div class="codewrap">
-<div class="name">Maximum Rectangle trong ma trận nhị phân</div>
+<p>Trong bài tổng giá trị nhỏ nhất của mọi đoạn con, thay vì duyệt từng đoạn, ta hỏi:
+<code class="inl">a[i]</code> là giá trị nhỏ nhất của bao nhiêu đoạn? Gọi
+<span class="mathv">L[i]</span> là chỉ số gần nhất bên trái có giá trị nhỏ hơn, và
+<span class="mathv">R[i]</span> là chỉ số gần nhất bên phải có giá trị nhỏ hơn hoặc bằng.
+Khi đó số đoạn mà <span class="mathv">a[i]</span> đại diện là:</p>
 
-<pre><code>long long largestHistogram(const vector&lt;int&gt;&amp; input) {
-    vector&lt;int&gt; h = input;
-    h.push_back(0);
+<p style="text-align:center"><span class="mathv">(i − L[i]) × (R[i] − i)</span></p>
 
-    stack&lt;int&gt; st;
-    long long answer = 0;
-
-    for (int i = 0; i &lt; (int)h.size(); i++) {
-        while (!st.empty() &amp;&amp; h[st.top()] &gt; h[i]) {
-            int p = st.top();
-            st.pop();
-
-            int left = st.empty() ? -1 : st.top();
-            long long width = i - left - 1;
-
-            answer = max(answer, 1LL * h[p] * width);
-        }
-
-        st.push(i);
-    }
-
-    return answer;
+<div class="codewrap noname"><pre><code>stack&lt;int&gt; st;
+// Trái: phần tử nhỏ hơn nghiêm ngặt gần nhất
+for (int i = 0; i &lt; n; ++i) {
+    while (!st.empty() &amp;&amp; a[st.top()] &gt;= a[i]) st.pop();
+    L[i] = st.empty() ? -1 : st.top();
+    st.push(i);
 }
 
-long long maximumRectangle(const vector&lt;vector&lt;int&gt; &gt;&amp; matrix) {
-    int rows = matrix.size();
-
-    if (rows == 0)
-        return 0;
-
-    int columns = matrix[0].size();
-    vector&lt;int&gt; height(columns, 0);
-
-    long long answer = 0;
-
-    for (int row = 0; row &lt; rows; row++) {
-        for (int column = 0; column &lt; columns; column++) {
-            if (matrix[row][column] == 1)
-                height[column]++;
-            else
-                height[column] = 0;
-        }
-
-        answer = max(answer, largestHistogram(height));
-    }
-
-    return answer;
+while (!st.empty()) st.pop();
+// Phải: phần tử nhỏ hơn hoặc bằng gần nhất
+for (int i = n - 1; i &gt;= 0; --i) {
+    while (!st.empty() &amp;&amp; a[st.top()] &gt; a[i]) st.pop();
+    R[i] = st.empty() ? n : st.top();
+    st.push(i);
 }
-</code></pre>
-</div>
 
-<!-- ======================================================== -->
-<!-- 6. ĐẾM ĐÓNG GÓP                                         -->
-<!-- ======================================================== -->
-
-<h2 id="s6">
-  <span class="num">6</span>
-  Kỹ thuật đếm đóng góp
-</h2>
-
-<p>
-Monotonic Stack không chỉ dùng để tìm phần tử gần nhất. Một ứng dụng mạnh hơn
-là xác định phạm vi mà mỗi phần tử đóng vai trò:
-</p>
-
-<ul>
-  <li>Giá trị nhỏ nhất của đoạn con.</li>
-  <li>Giá trị lớn nhất của đoạn con.</li>
-  <li>Chiều cao giới hạn của một hình chữ nhật.</li>
-</ul>
-
-<h3>6.1. Tổng minimum của mọi đoạn con</h3>
-
-<p>
-Cho dãy <span class="mathv">a</span>. Hãy tính tổng giá trị nhỏ nhất của tất
-cả các đoạn con liên tiếp.
-</p>
-
-<p>
-Ví dụ với dãy:
-</p>
-
-<p style="text-align:center">
-  <strong>3, 1, 2, 4</strong>
-</p>
-
-<p>
-Các đoạn con và minimum:
-</p>
-
-<div class="tablewrap">
-<table>
-  <thead>
-    <tr>
-      <th>Độ dài</th>
-      <th>Các đoạn</th>
-      <th>Minimum</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td>[3], [1], [2], [4]</td>
-      <td>3, 1, 2, 4</td>
-    </tr>
-
-    <tr>
-      <td>2</td>
-      <td>[3,1], [1,2], [2,4]</td>
-      <td>1, 1, 2</td>
-    </tr>
-
-    <tr>
-      <td>3</td>
-      <td>[3,1,2], [1,2,4]</td>
-      <td>1, 1</td>
-    </tr>
-
-    <tr>
-      <td>4</td>
-      <td>[3,1,2,4]</td>
-      <td>1</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-<p>
-Tổng bằng:
-</p>
-
-<p style="text-align:center">
-  <span class="mathv">
-    3 + 1 + 2 + 4 + 1 + 1 + 2 + 1 + 1 + 1 = 17
-  </span>
-</p>
-
-<p>
-Thay vì duyệt mọi đoạn con, ta xét đóng góp của từng vị trí
-<span class="mathv">i</span>.
-</p>
-
-<p>
-Gọi:
-</p>
-
-<ul>
-  <li>
-    <span class="mathv">L[i]</span> là vị trí gần nhất bên trái có giá trị
-    <strong>nhỏ hơn nghiêm ngặt</strong> <span class="mathv">a[i]</span>.
-  </li>
-
-  <li>
-    <span class="mathv">R[i]</span> là vị trí gần nhất bên phải có giá trị
-    <strong>nhỏ hơn hoặc bằng</strong> <span class="mathv">a[i]</span>.
-  </li>
-</ul>
-
-<p>
-Khi đó:
-</p>
-
-<ul>
-  <li>
-    Có <span class="mathv">i − L[i]</span> cách chọn đầu trái.
-  </li>
-
-  <li>
-    Có <span class="mathv">R[i] − i</span> cách chọn đầu phải.
-  </li>
-</ul>
-
-<p>
-Số đoạn con mà <span class="mathv">a[i]</span> là đại diện duy nhất cho
-minimum là:
-</p>
-
-<p style="text-align:center">
-  <span class="mathv">
-    (i − L[i]) · (R[i] − i)
-  </span>
-</p>
-
-<p>
-Đóng góp của <span class="mathv">a[i]</span>:
-</p>
-
-<p style="text-align:center">
-  <span class="mathv">
-    a[i] · (i − L[i]) · (R[i] − i)
-  </span>
-</p>
+for (int i = 0; i &lt; n; ++i)
+    ans = (ans + 1LL * a[i] * (i - L[i]) * (R[i] - i)) % MOD;</code></pre></div>
 
 <div class="box warn">
-  <div class="t">Phải phá đối xứng khi có phần tử bằng nhau</div>
-
-  <p>
-  Nếu cả hai phía đều dùng “nhỏ hơn nghiêm ngặt”, một đoạn có nhiều phần tử
-  minimum bằng nhau có thể bị đếm nhiều lần.
-  </p>
-
-  <p>
-  Nếu cả hai phía đều dùng “nhỏ hơn hoặc bằng”, một số đoạn có thể không được
-  gán cho phần tử nào.
-  </p>
-
-  <p>
-  Một quy ước an toàn là:
-  </p>
-
-  <ul>
-    <li>Bên trái: nhỏ hơn nghiêm ngặt.</li>
-    <li>Bên phải: nhỏ hơn hoặc bằng.</li>
-  </ul>
-
-  <p>
-  Cũng có thể đảo ngược hai quy ước, miễn là chỉ một phía nhận dấu bằng.
-  </p>
+<div class="t">Hai phía không được xử lý phần tử bằng nhau giống hệt nhau</div>
+<p>Nếu cả hai phía đều dùng “nhỏ hơn nghiêm ngặt”, một đoạn có nhiều phần tử nhỏ nhất
+bằng nhau sẽ bị đếm nhiều lần. Nếu cả hai phía đều dùng “nhỏ hơn hoặc bằng”, có đoạn lại
+không được ai nhận. Phải chọn một phía nghiêm ngặt, phía kia không nghiêm ngặt để mỗi đoạn
+có đúng một đại diện.</p>
 </div>
 
-<div class="codewrap">
-<div class="name">Tổng minimum của mọi đoạn con</div>
+<h2 id="s5"><span class="num">5.</span>Vì sao while lồng trong for vẫn chỉ O(n)</h2>
 
-<pre><code>#include &lt;bits/stdc++.h&gt;
-using namespace std;
+<p>Nhìn đoạn code có một vòng <code class="inl">while</code> nằm trong
+<code class="inl">for</code>, phản xạ đầu tiên thường là <span class="mathv">O(n²)</span>.
+Nhưng không thể chỉ đếm số vòng lặp lồng nhau; phải đếm tổng số lần một hành động xảy ra.</p>
 
-const long long MOD = 1000000007LL;
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n;
-    cin &gt;&gt; n;
-
-    vector&lt;long long&gt; a(n);
-    vector&lt;int&gt; leftLess(n);
-    vector&lt;int&gt; rightLessOrEqual(n);
-
-    for (int i = 0; i &lt; n; i++)
-        cin &gt;&gt; a[i];
-
-    stack&lt;int&gt; st;
-
-    // Gần nhất bên trái có giá trị nhỏ hơn nghiêm ngặt.
-    for (int i = 0; i &lt; n; i++) {
-        while (!st.empty() &amp;&amp; a[st.top()] &gt;= a[i])
-            st.pop();
-
-        leftLess[i] = st.empty() ? -1 : st.top();
-        st.push(i);
-    }
-
-    while (!st.empty())
-        st.pop();
-
-    // Gần nhất bên phải có giá trị nhỏ hơn hoặc bằng.
-    for (int i = n - 1; i &gt;= 0; i--) {
-        while (!st.empty() &amp;&amp; a[st.top()] &gt; a[i])
-            st.pop();
-
-        rightLessOrEqual[i] = st.empty() ? n : st.top();
-        st.push(i);
-    }
-
-    long long answer = 0;
-
-    for (int i = 0; i &lt; n; i++) {
-        long long leftChoices = i - leftLess[i];
-        long long rightChoices = rightLessOrEqual[i] - i;
-
-        long long contribution = a[i] % MOD;
-        contribution = contribution * leftChoices % MOD;
-        contribution = contribution * rightChoices % MOD;
-
-        answer = (answer + contribution) % MOD;
-    }
-
-    cout &lt;&lt; answer &lt;&lt; '\n';
-    return 0;
-}
-</code></pre>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Hành động</th><th>Mỗi chỉ số xảy ra tối đa</th><th>Tổng cả chương trình</th></tr></thead>
+<tbody>
+<tr><td><code class="inl">push(i)</code></td><td class="c">1 lần</td><td class="c">n lần</td></tr>
+<tr><td><code class="inl">pop()</code></td><td class="c">1 lần</td><td class="c">n lần</td></tr>
+<tr><td>đọc đỉnh và so sánh</td><td>một số hằng lần quanh push/pop</td><td class="c">O(n)</td></tr>
+</tbody>
+</table>
 </div>
 
-<h3>6.2. Tổng độ rộng của mọi đoạn con</h3>
+<p>Một phần tử đã bị pop thì biến mất vĩnh viễn, không thể bị pop lần thứ hai. Vì vậy tổng
+số vòng quay của mọi vòng <code class="inl">while</code> cộng lại không quá
+<span class="mathv">n</span>. Đây là <b>phân tích khấu hao</b>: một bước có thể đắt, nhưng
+tổng toàn bộ các bước vẫn tuyến tính.</p>
 
-<p>
-Độ rộng của một đoạn con được định nghĩa là:
-</p>
-
-<p style="text-align:center">
-  <span class="mathv">
-    max − min
-  </span>
-</p>
-
-<p>
-Tổng độ rộng của tất cả các đoạn con bằng:
-</p>
-
-<p style="text-align:center">
-  <span class="mathv">
-    tổng các maximum − tổng các minimum
-  </span>
-</p>
-
-<p>
-Ta tính tổng minimum bằng ngăn xếp tăng và tổng maximum bằng ngăn xếp giảm.
-</p>
-
-<div class="codewrap">
-<div class="name">Hàm tính tổng đóng góp minimum hoặc maximum</div>
-
-<pre><code>long long sumOfMinimums(const vector&lt;long long&gt;&amp; a) {
-    int n = a.size();
-
-    vector&lt;int&gt; leftBoundary(n);
-    vector&lt;int&gt; rightBoundary(n);
-    stack&lt;int&gt; st;
-
-    for (int i = 0; i &lt; n; i++) {
-        while (!st.empty() &amp;&amp; a[st.top()] &gt;= a[i])
-            st.pop();
-
-        leftBoundary[i] = st.empty() ? -1 : st.top();
-        st.push(i);
-    }
-
-    while (!st.empty())
-        st.pop();
-
-    for (int i = n - 1; i &gt;= 0; i--) {
-        while (!st.empty() &amp;&amp; a[st.top()] &gt; a[i])
-            st.pop();
-
-        rightBoundary[i] = st.empty() ? n : st.top();
-        st.push(i);
-    }
-
-    long long result = 0;
-
-    for (int i = 0; i &lt; n; i++) {
-        long long leftChoices = i - leftBoundary[i];
-        long long rightChoices = rightBoundary[i] - i;
-
-        result += a[i] * leftChoices * rightChoices;
-    }
-
-    return result;
-}
-
-long long sumOfMaximums(const vector&lt;long long&gt;&amp; a) {
-    int n = a.size();
-
-    vector&lt;int&gt; leftBoundary(n);
-    vector&lt;int&gt; rightBoundary(n);
-    stack&lt;int&gt; st;
-
-    for (int i = 0; i &lt; n; i++) {
-        while (!st.empty() &amp;&amp; a[st.top()] &lt;= a[i])
-            st.pop();
-
-        leftBoundary[i] = st.empty() ? -1 : st.top();
-        st.push(i);
-    }
-
-    while (!st.empty())
-        st.pop();
-
-    for (int i = n - 1; i &gt;= 0; i--) {
-        while (!st.empty() &amp;&amp; a[st.top()] &lt; a[i])
-            st.pop();
-
-        rightBoundary[i] = st.empty() ? n : st.top();
-        st.push(i);
-    }
-
-    long long result = 0;
-
-    for (int i = 0; i &lt; n; i++) {
-        long long leftChoices = i - leftBoundary[i];
-        long long rightChoices = rightBoundary[i] - i;
-
-        result += a[i] * leftChoices * rightChoices;
-    }
-
-    return result;
-}
-</code></pre>
+<div class="box ex">
+<div class="t">Dãy làm một bước pop rất nhiều</div>
+<p>Với <code class="inl">1 2 3 4 5</code>, mỗi phần tử mới chỉ pop một phần tử. Với
+<code class="inl">5 4 3 2 1 100</code>, phần tử 100 pop năm phần tử trong một bước.
+Dù vậy, năm phần tử ấy trước đó chỉ được push một lần và sau đó không quay lại. Tổng vẫn
+là 6 push và 5 pop.</p>
 </div>
 
-<h3>6.3. Maximal Rectangle và đếm đóng góp có cùng bản chất</h3>
+<h3>So với các cấu trúc khác</h3>
 
-<p>
-Hai kỹ thuật tưởng như khác nhau thực chất cùng dựa trên một câu hỏi:
-</p>
-
-<div class="box tech">
-  <div class="t">Câu hỏi trung tâm</div>
-
-  <p>
-  Với mỗi phần tử <span class="mathv">a[i]</span>, đoạn lớn nhất hoặc tập các
-  đoạn nào khiến <span class="mathv">a[i]</span> trở thành phần tử quyết định
-  là gì?
-  </p>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Công cụ</th><th>Dùng tốt khi</th><th>Điểm khác ngăn xếp đơn điệu</th></tr></thead>
+<tbody>
+<tr><td>Hai con trỏ</td><td>cửa sổ hoặc đoạn có tính đơn điệu khi dịch biên</td><td>giữ một đoạn liên tục, không lưu nhiều ứng viên rời</td></tr>
+<tr><td>Deque đơn điệu</td><td>min/max trong cửa sổ trượt cố định</td><td>cần xóa cả hai đầu; stack chỉ thao tác ở đỉnh</td></tr>
+<tr><td>Segment tree</td><td>truy vấn/cập nhật nhiều lần, dữ liệu động</td><td>mạnh hơn nhưng phức tạp hơn, thường O(log n)</td></tr>
+<tr><td>Ngăn xếp đơn điệu</td><td>biên gần nhất, quét một lần trên dãy tĩnh</td><td>đơn giản và O(n), nhưng chỉ phù hợp quan hệ đơn điệu</td></tr>
+</tbody>
+</table>
 </div>
 
-<ul>
-  <li>
-    Trong histogram, <span class="mathv">a[i]</span> quyết định chiều cao.
-  </li>
+<h2 id="s6"><span class="num">6.</span>Nhận dạng và các bẫy thường gặp</h2>
 
-  <li>
-    Trong tổng minimum, <span class="mathv">a[i]</span> quyết định giá trị nhỏ
-    nhất.
-  </li>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Đề nói</th><th>Nghĩ ngay tới</th></tr></thead>
+<tbody>
+<tr><td>“phần tử đầu tiên lớn hơn/nhỏ hơn ở bên trái/bên phải”</td><td>một trong bốn khuôn phần tử gần nhất</td></tr>
+<tr><td>“bao nhiêu ngày phải chờ”, “khoảng cách tới phần tử tiếp theo”</td><td>NGE và lưu khoảng cách chỉ số</td></tr>
+<tr><td>“mỗi cột mở rộng được bao xa”, “hình chữ nhật lớn nhất”</td><td>hai biên nhỏ hơn gần nhất hoặc khuôn histogram một lượt</td></tr>
+<tr><td>“tổng min/max của mọi đoạn con”</td><td>đếm đóng góp bằng hai biên</td></tr>
+<tr><td>“xóa chữ số để số lớn nhất/nhỏ nhất”</td><td>stack đơn điệu tham lam, pop khi chữ số mới tốt hơn</td></tr>
+<tr><td>“nhiệt độ/ngày/giá tiếp theo cao hơn”</td><td>phần tử lớn hơn gần nhất bên phải</td></tr>
+</tbody>
+</table>
+</div>
 
-  <li>
-    Trong tổng maximum, <span class="mathv">a[i]</span> quyết định giá trị lớn
-    nhất.
-  </li>
-</ul>
-
-<p>
-Monotonic Stack giúp tìm hai biên nơi vai trò quyết định đó còn hợp lệ.
-</p>
-
-<!-- ======================================================== -->
-<!-- 7. LỖI THƯỜNG GẶP                                       -->
-<!-- ======================================================== -->
-
-<h2 id="s7">
-  <span class="num">7</span>
-  Những lỗi thường gặp
-</h2>
+<h3>Bảy cái bẫy</h3>
 
 <div class="box warn">
-  <div class="t">Danh sách kiểm tra trước khi nộp bài</div>
-
-  <ol>
-    <li>
-      <strong>Lưu giá trị thay vì chỉ số.</strong>
-      Nếu đề yêu cầu khoảng cách, vị trí hoặc chiều rộng, chỉ lưu giá trị sẽ
-      không đủ thông tin.
-    </li>
-
-    <li>
-      <strong>Dùng sai dấu bằng.</strong>
-      <code class="inl">&gt;</code> và
-      <code class="inl">&gt;=</code> cho hai ý nghĩa khác nhau, đặc biệt khi
-      dãy có phần tử trùng nhau.
-    </li>
-
-    <li>
-      <strong>Nhầm ngăn xếp tăng và giảm.</strong>
-      Tìm phần tử nhỏ hơn thường cần stack tăng; tìm phần tử lớn hơn thường
-      cần stack giảm.
-    </li>
-
-    <li>
-      <strong>Nhầm hướng duyệt.</strong>
-      “Bên phải” không có nghĩa luôn phải duyệt từ phải sang trái. Có thể
-      duyệt trái sang phải và gán đáp án khi pop.
-    </li>
-
-    <li>
-      <strong>Quên xử lý các phần tử còn lại trong stack.</strong>
-      Với histogram, phải thêm cột ảo 0 hoặc chạy thêm một vòng để pop hết các
-      cột còn lại.
-    </li>
-
-    <li>
-      <strong>Sai công thức chiều rộng.</strong>
-      Nếu biên nhỏ hơn là <span class="mathv">L</span> và
-      <span class="mathv">R</span>, chiều rộng phải là
-      <span class="mathv">R − L − 1</span>.
-    </li>
-
-    <li>
-      <strong>Tràn số nguyên.</strong>
-      Diện tích hoặc tổng đóng góp có thể đạt
-      <span class="mathv">O(n<sup>2</sup> · max(a[i]))</span>. Cần dùng
-      <code class="inl">long long</code>.
-    </li>
-
-    <li>
-      <strong>Nhầm đáp án là vị trí hay giá trị.</strong>
-      Nhiều đề yêu cầu in chỉ số, nhưng chương trình lại in
-      <code class="inl">a[index]</code>, hoặc ngược lại.
-    </li>
-
-    <li>
-      <strong>Dùng stack khi cần deque.</strong>
-      Bài toán minimum hoặc maximum trong cửa sổ trượt cố định thường cần
-      <strong>monotonic deque</strong>, không phải monotonic stack.
-    </li>
-
-    <li>
-      <strong>Không kiểm tra trường hợp n = 0 hoặc n = 1.</strong>
-      Các công thức biên và cột ảo cần hoạt động đúng với trường hợp nhỏ nhất.
-    </li>
-  </ol>
+<div class="t">1. Lưu giá trị rồi mất vị trí</div>
+<p>Nếu đề hỏi khoảng cách hoặc cần ghi vào <code class="inl">ans[i]</code>, stack chỉ lưu
+giá trị là không đủ. Mặc định hãy lưu chỉ số.</p>
 </div>
 
-<h3>7.1. Phân biệt Monotonic Stack và Monotonic Queue</h3>
-
-<div class="tablewrap">
-<table>
-  <thead>
-    <tr>
-      <th>Tiêu chí</th>
-      <th>Monotonic Stack</th>
-      <th>Monotonic Queue / Deque</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <tr>
-      <td>Mục tiêu phổ biến</td>
-      <td>Phần tử gần nhất, biên trái/phải</td>
-      <td>Minimum hoặc maximum trong cửa sổ trượt</td>
-    </tr>
-
-    <tr>
-      <td>Loại phần tử cũ</td>
-      <td>Pop ở đỉnh</td>
-      <td>Pop ở đầu vì ra khỏi cửa sổ</td>
-    </tr>
-
-    <tr>
-      <td>Thêm phần tử</td>
-      <td>Đỉnh stack</td>
-      <td>Cuối deque</td>
-    </tr>
-
-    <tr>
-      <td>Truy vấn</td>
-      <td>Phần tử gần nhất còn hợp lệ</td>
-      <td>Minimum hoặc maximum của toàn cửa sổ</td>
-    </tr>
-
-    <tr>
-      <td>Độ phức tạp</td>
-      <td>O(n)</td>
-      <td>O(n)</td>
-    </tr>
-  </tbody>
-</table>
+<div class="box warn">
+<div class="t">2. So sánh nhầm với st.top()</div>
+<p><code class="inl">st.top()</code> là <b>chỉ số</b>, không phải giá trị. Điều kiện đúng
+thường là <code class="inl">a[st.top()] &lt; a[i]</code>, không phải
+<code class="inl">st.top() &lt; a[i]</code>.</p>
 </div>
 
-<!-- ======================================================== -->
-<!-- 8. BÀI TẬP MẪU                                          -->
-<!-- ======================================================== -->
-
-<h2 id="s8">
-  <span class="num">8</span>
-  Bài tập mẫu có lời giải
-</h2>
-
-<h3>8.1. Bài 1 — Daily Temperatures</h3>
-
-<p>
-<strong>Đề bài.</strong>
-Cho nhiệt độ của <span class="mathv">n</span> ngày. Với mỗi ngày, hãy cho biết
-cần chờ bao nhiêu ngày để gặp một ngày có nhiệt độ cao hơn. Nếu không có,
-kết quả bằng 0.
-</p>
-
-<p>
-<strong>Phân tích.</strong>
-Mỗi ngày mới có nhiệt độ cao hơn sẽ giải quyết tất cả các ngày lạnh hơn đang
-nằm trên đỉnh ngăn xếp. Đây chính là Next Greater Element, nhưng đáp án là
-khoảng cách chỉ số.
-</p>
-
-<div class="codewrap">
-<div class="name">Lời giải Daily Temperatures</div>
-
-<pre><code>#include &lt;bits/stdc++.h&gt;
-using namespace std;
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n;
-    cin &gt;&gt; n;
-
-    vector&lt;int&gt; temperature(n);
-    vector&lt;int&gt; answer(n, 0);
-    stack&lt;int&gt; st;
-
-    for (int i = 0; i &lt; n; i++)
-        cin &gt;&gt; temperature[i];
-
-    for (int i = 0; i &lt; n; i++) {
-        while (
-            !st.empty() &amp;&amp;
-            temperature[st.top()] &lt; temperature[i]
-        ) {
-            int previousDay = st.top();
-            st.pop();
-
-            answer[previousDay] = i - previousDay;
-        }
-
-        st.push(i);
-    }
-
-    for (int value : answer)
-        cout &lt;&lt; value &lt;&lt; " ";
-
-    cout &lt;&lt; '\n';
-    return 0;
-}
-</code></pre>
+<div class="box warn">
+<div class="t">3. Dấu bằng không khớp từ khóa của đề</div>
+<p>“Lớn hơn” khác “lớn hơn hoặc bằng”. Hãy tự thử dãy
+<code class="inl">2 2 2</code>; nếu chưa biết đáp án phải là gì, chưa nên viết điều kiện
+<code class="inl">while</code>.</p>
 </div>
 
-<h3>8.2. Bài 2 — Stock Span</h3>
-
-<p>
-<strong>Đề bài.</strong>
-Với mỗi ngày <span class="mathv">i</span>, hãy tìm số ngày liên tiếp tính
-ngược về trước, bao gồm cả ngày <span class="mathv">i</span>, mà giá cổ phiếu
-không lớn hơn giá của ngày <span class="mathv">i</span>.
-</p>
-
-<p>
-Ta cần tìm vị trí gần nhất bên trái có giá
-<strong>lớn hơn nghiêm ngặt</strong> giá hiện tại.
-</p>
-
-<p>
-Nếu vị trí đó là <span class="mathv">j</span>, đáp án là:
-</p>
-
-<p style="text-align:center">
-  <span class="mathv">i − j</span>
-</p>
-
-<p>
-Nếu không tồn tại, đáp án là <span class="mathv">i + 1</span>.
-</p>
-
-<div class="codewrap">
-<div class="name">Lời giải Stock Span</div>
-
-<pre><code>#include &lt;bits/stdc++.h&gt;
-using namespace std;
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n;
-    cin &gt;&gt; n;
-
-    vector&lt;long long&gt; price(n);
-    vector&lt;int&gt; span(n);
-    stack&lt;int&gt; st;
-
-    for (int i = 0; i &lt; n; i++)
-        cin &gt;&gt; price[i];
-
-    for (int i = 0; i &lt; n; i++) {
-        while (!st.empty() &amp;&amp; price[st.top()] &lt;= price[i])
-            st.pop();
-
-        if (st.empty())
-            span[i] = i + 1;
-        else
-            span[i] = i - st.top();
-
-        st.push(i);
-    }
-
-    for (int value : span)
-        cout &lt;&lt; value &lt;&lt; " ";
-
-    cout &lt;&lt; '\n';
-    return 0;
-}
-</code></pre>
+<div class="box warn">
+<div class="t">4. Quên xử lý phần tử còn lại</div>
+<p>Ở bài NGE, các chỉ số còn trong stack không có phần tử lớn hơn bên phải; phải giữ giá
+trị mặc định <code class="inl">-1</code>. Ở histogram, các cột còn lại vẫn có diện tích;
+dùng cột lính canh 0 hoặc một vòng dọn cuối.</p>
 </div>
 
-<h3>8.3. Bài 3 — Largest Rectangle in Histogram</h3>
-
-<p>
-<strong>Đề bài.</strong>
-Cho histogram gồm <span class="mathv">n</span> cột. Hãy tính diện tích hình
-chữ nhật lớn nhất.
-</p>
-
-<p>
-<strong>Phân tích.</strong>
-Ngăn xếp lưu các cột có chiều cao không giảm. Khi gặp cột thấp hơn, các cột
-cao hơn không thể mở rộng sang phải nữa và được xử lý.
-</p>
-
-<div class="codewrap">
-<div class="name">Lời giải Histogram hoàn chỉnh</div>
-
-<pre><code>#include &lt;bits/stdc++.h&gt;
-using namespace std;
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n;
-    cin &gt;&gt; n;
-
-    vector&lt;long long&gt; height(n + 1, 0);
-
-    for (int i = 0; i &lt; n; i++)
-        cin &gt;&gt; height[i];
-
-    stack&lt;int&gt; st;
-    long long answer = 0;
-
-    for (int i = 0; i &lt;= n; i++) {
-        while (
-            !st.empty() &amp;&amp;
-            height[st.top()] &gt; height[i]
-        ) {
-            int current = st.top();
-            st.pop();
-
-            int previousSmaller = st.empty() ? -1 : st.top();
-            long long width = i - previousSmaller - 1;
-            long long area = height[current] * width;
-
-            answer = max(answer, area);
-        }
-
-        st.push(i);
-    }
-
-    cout &lt;&lt; answer &lt;&lt; '\n';
-    return 0;
-}
-</code></pre>
+<div class="box warn">
+<div class="t">5. Đọc đỉnh sau khi pop mà không kiểm tra rỗng</div>
+<p>Sau vòng <code class="inl">while</code>, stack có thể rỗng. Mọi
+<code class="inl">st.top()</code> phải nằm sau kiểm tra <code class="inl">!st.empty()</code>
+hoặc dùng một chỉ số lính canh được thiết kế cẩn thận.</p>
 </div>
 
-<h3>8.4. Bài 4 — Remove K Digits</h3>
-
-<p>
-<strong>Đề bài.</strong>
-Cho một số nguyên không âm dưới dạng chuỗi và số
-<span class="mathv">k</span>. Hãy xoá đúng
-<span class="mathv">k</span> chữ số để số còn lại nhỏ nhất.
-</p>
-
-<p>
-<strong>Ý tưởng.</strong>
-Nếu một chữ số đứng trước lớn hơn chữ số hiện tại, giữ chữ số lớn đó sẽ khiến
-kết quả lớn hơn. Vì vậy ta pop các chữ số lớn hơn khi vẫn còn quyền xoá.
-</p>
-
-<div class="codewrap">
-<div class="name">Lời giải Remove K Digits</div>
-
-<pre><code>#include &lt;bits/stdc++.h&gt;
-using namespace std;
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    string number;
-    int k;
-
-    cin &gt;&gt; number &gt;&gt; k;
-
-    string st;
-
-    for (char digit : number) {
-        while (
-            !st.empty() &amp;&amp;
-            k &gt; 0 &amp;&amp;
-            st.back() &gt; digit
-        ) {
-            st.pop_back();
-            k--;
-        }
-
-        st.push_back(digit);
-    }
-
-    while (k &gt; 0 &amp;&amp; !st.empty()) {
-        st.pop_back();
-        k--;
-    }
-
-    int firstNonZero = 0;
-
-    while (
-        firstNonZero &lt; (int)st.size() &amp;&amp;
-        st[firstNonZero] == '0'
-    ) {
-        firstNonZero++;
-    }
-
-    string answer = st.substr(firstNonZero);
-
-    if (answer.empty())
-        answer = "0";
-
-    cout &lt;&lt; answer &lt;&lt; '\n';
-    return 0;
-}
-</code></pre>
+<div class="box warn">
+<div class="t">6. Tràn số khi tính đóng góp</div>
+<p>Ngay cả khi <code class="inl">a[i]</code> và <span class="mathv">n</span> đều vừa
+<code class="inl">int</code>, tích
+<code class="inl">a[i] * (i-L[i]) * (R[i]-i)</code> có thể vượt 2,1 tỉ. Ép sang
+<code class="inl">long long</code> ngay từ thừa số đầu: <code class="inl">1LL * a[i] * ...</code>.</p>
 </div>
 
-<h3>8.5. Bài 5 — Sum of Subarray Minimums</h3>
-
-<p>
-<strong>Đề bài.</strong>
-Tính tổng giá trị nhỏ nhất của mọi đoạn con liên tiếp, lấy dư theo
-<span class="mathv">10<sup>9</sup> + 7</span>.
-</p>
-
-<p>
-<strong>Phân tích.</strong>
-Với mỗi vị trí, tìm số cách chọn đầu trái và đầu phải sao cho phần tử đó là
-đại diện duy nhất cho minimum.
-</p>
-
-<div class="codewrap">
-<div class="name">Lời giải Sum of Subarray Minimums</div>
-
-<pre><code>#include &lt;bits/stdc++.h&gt;
-using namespace std;
-
-const long long MOD = 1000000007LL;
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n;
-    cin &gt;&gt; n;
-
-    vector&lt;long long&gt; a(n);
-    vector&lt;long long&gt; leftCount(n);
-    vector&lt;long long&gt; rightCount(n);
-
-    for (int i = 0; i &lt; n; i++)
-        cin &gt;&gt; a[i];
-
-    stack&lt;int&gt; st;
-
-    // Số cách mở rộng sang trái.
-    // Loại các phần tử lớn hơn hoặc bằng.
-    for (int i = 0; i &lt; n; i++) {
-        while (!st.empty() &amp;&amp; a[st.top()] &gt;= a[i])
-            st.pop();
-
-        if (st.empty())
-            leftCount[i] = i + 1;
-        else
-            leftCount[i] = i - st.top();
-
-        st.push(i);
-    }
-
-    while (!st.empty())
-        st.pop();
-
-    // Số cách mở rộng sang phải.
-    // Chỉ loại các phần tử lớn hơn.
-    for (int i = n - 1; i &gt;= 0; i--) {
-        while (!st.empty() &amp;&amp; a[st.top()] &gt; a[i])
-            st.pop();
-
-        if (st.empty())
-            rightCount[i] = n - i;
-        else
-            rightCount[i] = st.top() - i;
-
-        st.push(i);
-    }
-
-    long long answer = 0;
-
-    for (int i = 0; i &lt; n; i++) {
-        long long contribution = a[i] % MOD;
-        contribution = contribution * leftCount[i] % MOD;
-        contribution = contribution * rightCount[i] % MOD;
-
-        answer = (answer + contribution) % MOD;
-    }
-
-    cout &lt;&lt; answer &lt;&lt; '\n';
-    return 0;
-}
-</code></pre>
+<div class="box warn">
+<div class="t">7. Dùng stack đơn điệu cho dữ liệu thay đổi</div>
+<p>Ngăn xếp đơn điệu thường giải một lần quét trên dãy cố định. Nếu sau mỗi truy vấn có
+thay đổi phần tử rồi lại hỏi biên gần nhất, stack cũ không còn hợp lệ; khi ấy có thể cần
+segment tree, ordered set hoặc xử lý ngoại tuyến khác.</p>
 </div>
 
-<!-- ======================================================== -->
-<!-- 9. BÀI TẬP TỰ LUYỆN                                     -->
-<!-- ======================================================== -->
-
-<h2 id="s9">
-  <span class="num">9</span>
-  Bài tập tự luyện
-</h2>
-
-<div class="tablewrap">
-<table>
-  <thead>
-    <tr>
-      <th class="c">STT</th>
-      <th>Bài</th>
-      <th>Gợi ý</th>
-      <th class="c">Mức</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <tr>
-      <td class="c">1</td>
-      <td>Next Greater Element I</td>
-      <td>Stack giảm, gán đáp án khi pop.</td>
-      <td class="c">Dễ</td>
-    </tr>
-
-    <tr>
-      <td class="c">2</td>
-      <td>Next Greater Element II</td>
-      <td>Mảng vòng, duyệt hai lần.</td>
-      <td class="c">Dễ</td>
-    </tr>
-
-    <tr>
-      <td class="c">3</td>
-      <td>Daily Temperatures</td>
-      <td>Đáp án là khoảng cách tới phần tử lớn hơn tiếp theo.</td>
-      <td class="c">Dễ</td>
-    </tr>
-
-    <tr>
-      <td class="c">4</td>
-      <td>Online Stock Span</td>
-      <td>Previous Greater Element; có thể lưu cặp giá trị và span.</td>
-      <td class="c">Dễ</td>
-    </tr>
-
-    <tr>
-      <td class="c">5</td>
-      <td>Largest Rectangle in Histogram</td>
-      <td>Stack tăng, tính diện tích khi pop.</td>
-      <td class="c">Trung bình</td>
-    </tr>
-
-    <tr>
-      <td class="c">6</td>
-      <td>Maximal Rectangle</td>
-      <td>Biến từng hàng thành histogram.</td>
-      <td class="c">Trung bình</td>
-    </tr>
-
-    <tr>
-      <td class="c">7</td>
-      <td>Remove K Digits</td>
-      <td>Stack tăng trên chuỗi chữ số.</td>
-      <td class="c">Trung bình</td>
-    </tr>
-
-    <tr>
-      <td class="c">8</td>
-      <td>132 Pattern</td>
-      <td>Duyệt từ phải sang trái, stack giảm và biến lưu phần tử giữa.</td>
-      <td class="c">Trung bình</td>
-    </tr>
-
-    <tr>
-      <td class="c">9</td>
-      <td>Sum of Subarray Minimums</td>
-      <td>Đếm đóng góp, phá đối xứng ở dấu bằng.</td>
-      <td class="c">Trung bình</td>
-    </tr>
-
-    <tr>
-      <td class="c">10</td>
-      <td>Sum of Subarray Ranges</td>
-      <td>Tổng maximum trừ tổng minimum.</td>
-      <td class="c">Trung bình</td>
-    </tr>
-
-    <tr>
-      <td class="c">11</td>
-      <td>Trapping Rain Water</td>
-      <td>Có thể giải bằng stack giảm hoặc hai con trỏ.</td>
-      <td class="c">Trung bình</td>
-    </tr>
-
-    <tr>
-      <td class="c">12</td>
-      <td>Maximum Width Ramp</td>
-      <td>Tạo stack chỉ số giảm, sau đó quét từ phải.</td>
-      <td class="c">Trung bình</td>
-    </tr>
-
-    <tr>
-      <td class="c">13</td>
-      <td>Visible People in a Queue</td>
-      <td>Stack giảm, đếm số người bị pop và người chắn cuối cùng.</td>
-      <td class="c">Khó</td>
-    </tr>
-
-    <tr>
-      <td class="c">14</td>
-      <td>Maximum Subarray Min-Product</td>
-      <td>Biên minimum bằng stack, tổng đoạn bằng prefix sum.</td>
-      <td class="c">Khó</td>
-    </tr>
-
-    <tr>
-      <td class="c">15</td>
-      <td>Number of Valid Subarrays</td>
-      <td>Đếm đoạn mà phần tử đầu là minimum.</td>
-      <td class="c">Khó</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-<!-- ======================================================== -->
-<!-- 10. TỔNG KẾT                                            -->
-<!-- ======================================================== -->
-
-<h2 id="s10">
-  <span class="num">10</span>
-  Tổng kết
-</h2>
-
-<div class="box cmplx">
-  <div class="t">Bốn câu hỏi cần trả lời khi gặp bài Monotonic Stack</div>
-
-  <ol>
-    <li>
-      <strong>Cần tìm phần tử lớn hơn hay nhỏ hơn?</strong>
-      Điều này quyết định dùng stack tăng hay giảm.
-    </li>
-
-    <li>
-      <strong>Cần tìm bên trái hay bên phải?</strong>
-      Điều này gợi ý hướng duyệt hoặc thời điểm gán đáp án.
-    </li>
-
-    <li>
-      <strong>Quan hệ là nghiêm ngặt hay không nghiêm ngặt?</strong>
-      Phải xác định rõ
-      <code class="inl">&lt;</code>,
-      <code class="inl">&lt;=</code>,
-      <code class="inl">&gt;</code> hay
-      <code class="inl">&gt;=</code>.
-    </li>
-
-    <li>
-      <strong>Cần một phần tử gần nhất hay cần phạm vi đóng góp?</strong>
-      Nếu cần phạm vi, thường phải tìm cả biên trái và biên phải.
-    </li>
-  </ol>
-</div>
-
-<div class="box tech">
-  <div class="t">Khuôn mẫu tư duy</div>
-
-  <ol>
-    <li>
-      Duyệt các phần tử theo một hướng cố định.
-    </li>
-
-    <li>
-      Trong khi đỉnh stack không còn khả năng trở thành đáp án hoặc biên hợp
-      lệ, lấy nó ra.
-    </li>
-
-    <li>
-      Sử dụng đỉnh stack còn lại để xác định phần tử gần nhất hoặc biên.
-    </li>
-
-    <li>
-      Đưa vị trí hiện tại vào stack.
-    </li>
-  </ol>
-
-  <p>
-  Mỗi vị trí vào stack một lần và ra stack nhiều nhất một lần, vì vậy độ phức
-  tạp tổng quát là <span class="mathv">O(n)</span>.
-  </p>
-</div>
-
-<h3>10.1. Bảng nhận diện nhanh</h3>
-
-<div class="tablewrap">
-<table>
-  <thead>
-    <tr>
-      <th>Dấu hiệu trong đề</th>
-      <th>Kỹ thuật gợi ý</th>
-    </tr>
-  </thead>
-
-  <tbody>
-    <tr>
-      <td>Phần tử lớn hơn hoặc nhỏ hơn đầu tiên</td>
-      <td>Next/Previous Greater/Smaller Element</td>
-    </tr>
-
-    <tr>
-      <td>Khoảng cách tới ngày, cột hoặc phần tử tiếp theo</td>
-      <td>Lưu chỉ số trong monotonic stack</td>
-    </tr>
-
-    <tr>
-      <td>Đoạn lớn nhất mà một phần tử là minimum</td>
-      <td>Previous Smaller + Next Smaller</td>
-    </tr>
-
-    <tr>
-      <td>Hình chữ nhật lớn nhất trong histogram</td>
-      <td>Stack tăng, tính diện tích khi pop</td>
-    </tr>
-
-    <tr>
-      <td>Tổng minimum hoặc maximum của mọi đoạn con</td>
-      <td>Đếm đóng góp bằng hai biên</td>
-    </tr>
-
-    <tr>
-      <td>Xoá phần tử để tạo thứ tự từ điển nhỏ nhất</td>
-      <td>Stack tăng kết hợp số lần được xoá</td>
-    </tr>
-
-    <tr>
-      <td>Minimum hoặc maximum của cửa sổ độ dài k</td>
-      <td>Monotonic deque, không phải stack</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-<p>
-Monotonic Stack là một kỹ thuật có khuôn mẫu ngắn nhưng phạm vi ứng dụng rất
-rộng. Phần khó nhất không nằm ở việc viết
-<code class="inl">stack&lt;int&gt;</code>, mà nằm ở việc xác định:
-</p>
-
+<div class="box def">
+<div class="t">Bốn câu tự hỏi trước khi code</div>
 <ul>
-  <li>Stack cần tăng hay giảm.</li>
-  <li>Khi nào một phần tử mất giá trị sử dụng.</li>
-  <li>Dấu bằng thuộc về phía nào.</li>
-  <li>Thông tin cần lấy tại thời điểm push, pop hay sau khi duyệt xong.</li>
+<li>Đáp án nằm bên trái hay bên phải?</li>
+<li>Tìm lớn hơn hay nhỏ hơn; có cho phép bằng nhau không?</li>
+<li>Stack lưu chỉ số nào còn “cơ hội” gì?</li>
+<li>Khi pop một chỉ số, ta vừa chứng minh được điều gì để ghi đáp án hoặc tính đóng góp?</li>
 </ul>
+</div>
 
-<p>
-Khi đã trả lời đúng những câu hỏi đó, phần cài đặt thường chỉ còn khoảng
-10–20 dòng và chạy trong thời gian tuyến tính.
-</p>
+<h2 id="s7"><span class="num">7.</span>Lộ trình luyện tập</h2>
+
+<p>Hãy luyện theo chặng. Mỗi chặng chỉ thêm đúng một ý mới; không nên nhảy thẳng vào bài
+đếm đóng góp khi bốn khuôn phần tử gần nhất còn chưa viết được từ trí nhớ.</p>
+
+<div class="tablewrap">
+<table>
+<thead><tr><th class="c">Chặng</th><th>Dạng bài nên làm</th><th>Mục tiêu kỹ thuật</th><th class="c">Đọc mục</th></tr></thead>
+<tbody>
+<tr><td class="c">1</td><td>Lớn hơn gần nhất bên phải; nhỏ hơn gần nhất bên phải</td><td>Hiểu cơ chế phần tử mới giải quyết các phần tử đang chờ; lưu chỉ số và ghi đáp án lúc pop.</td><td class="c">1, 2</td></tr>
+<tr><td class="c">2</td><td>Lớn hơn/nhỏ hơn gần nhất bên trái</td><td>Thành thạo thứ tự pop → đọc đỉnh → push.</td><td class="c">3</td></tr>
+<tr><td class="c">3</td><td>Dãy có nhiều phần tử bằng nhau</td><td>Tự quyết định dấu <code class="inl">&lt;</code>, <code class="inl">&lt;=</code>, <code class="inl">&gt;</code>, <code class="inl">&gt;=</code> từ câu chữ đề.</td><td class="c">3, 6</td></tr>
+<tr><td class="c">4</td><td>Daily Temperatures, Stock Span, xóa chữ số tham lam</td><td>Đổi thứ cần trả: giá trị, chỉ số, khoảng cách hoặc phần tử bị xóa.</td><td class="c">4</td></tr>
+<tr><td class="c">5</td><td>Largest Rectangle in Histogram; maximal rectangle trong ma trận nhị phân</td><td>Dùng lính canh, tính chiều rộng tại thời điểm pop, chuyển bài 2D thành nhiều histogram.</td><td class="c">4</td></tr>
+<tr><td class="c">6</td><td>Tổng min/max của mọi đoạn con; range of subarrays</td><td>Đếm đóng góp và phá hòa phần tử bằng nhau đúng một phía.</td><td class="c">4, 6</td></tr>
+<tr><td class="c">7</td><td>Cartesian tree, bài kết hợp DP hoặc prefix sum</td><td>Nhìn stack đơn điệu như cách dựng quan hệ cha–con và chia miền ảnh hưởng.</td><td class="c">2, 5</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="box ex">
+<div class="t">Khuôn tổng quát để tự biến đổi</div>
+<div class="codewrap noname"><pre><code>stack&lt;int&gt; st;
+for (int i = 0; i &lt; n; ++i) {
+    while (!st.empty() &amp;&amp; P(a[st.top()], a[i])) {
+        // phần tử i vừa chứng minh được điều gì cho st.top()?
+        st.pop();
+    }
+
+    // nếu đáp án của i nằm bên trái, đọc st.top() tại đây
+
+    st.push(i);
+}
+// xử lý phần tử còn lại nếu bài toán yêu cầu</code></pre></div>
+<p>Không học thuộc một chục đoạn code. Chỉ cần xác định đúng điều kiện
+<code class="inl">P</code>, ý nghĩa của stack và thời điểm ghi đáp án.</p>
+</div>
 
 </div>
 </div>
 
+<script>
+(function () {
+  function parseArray(text) {
+    var p = text.trim().split(/[\s,;]+/), a = [];
+    for (var i = 0; i < p.length; ++i) {
+      if (p[i] === '') continue;
+      var x = Number(p[i]);
+      if (!Number.isFinite(x)) return null;
+      a.push(x);
+    }
+    return a.length ? a : null;
+  }
+  function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  /* ---------- Mô phỏng 1: NGE bằng máy trạng thái từng hành động ---------- */
+  var ngeInput = document.getElementById('ngeInput'), ngeDay = document.getElementById('ngeDay'),
+      ngeStack = document.getElementById('ngeStack'), ngeNote = document.getElementById('ngeNote'),
+      ngeAction = document.getElementById('ngeAction'), ngeReset = document.getElementById('ngeReset'),
+      ngeStep = document.getElementById('ngeStep');
+  var NS = {};
+
+  function ngeInit() {
+    var a = parseArray(ngeInput.value);
+    if (!a) {
+      NS = {bad:true}; ngeAction.textContent = 'Dãy không hợp lệ.'; ngeStep.disabled = true;
+      ngeDay.innerHTML = ngeStack.innerHTML = ngeNote.innerHTML = ''; return;
+    }
+    NS = {a:a, ans:new Array(a.length).fill(null), st:[], i:0, phase:'start', popIndex:-1, done:false};
+    ngeAction.textContent = 'Sẵn sàng. Nhấn “Bước tiếp” để xét a[0].';
+    ngeStep.disabled = false; ngeRender();
+  }
+  function ngeRender() {
+    if (NS.bad) return;
+    var h = '';
+    for (var k = 0; k < NS.a.length; ++k) {
+      var cl = k === NS.i && !NS.done ? 'dang' : (NS.ans[k] !== null ? 'xong' : (k < NS.i ? 'cho' : ''));
+      if (k === NS.popIndex) cl = 'pop';
+      h += '<div class="pt ' + cl + '"><b>' + esc(NS.a[k]) + '</b><small>i=' + k + '</small>'
+        + (NS.ans[k] !== null ? '<span class="ans">→ ' + esc(NS.ans[k]) + '</span>' : '') + '</div>';
+    }
+    ngeDay.innerHTML = h;
+    var s = '';
+    for (var j = 0; j < NS.st.length; ++j) {
+      var id = NS.st[j]; s += '<div class="stk">a[' + id + '] = ' + esc(NS.a[id]) + '</div>';
+    }
+    ngeStack.innerHTML = s;
+    ngeNote.innerHTML = NS.st.length
+      ? 'Đáy → đỉnh: ' + NS.st.map(function(id){ return NS.a[id]; }).join(' ≥ ') + '<br>Đỉnh: chỉ số ' + NS.st[NS.st.length-1]
+      : 'Stack rỗng.';
+  }
+  function ngeOneStep() {
+    if (NS.bad || NS.done) return;
+    NS.popIndex = -1;
+    if (NS.i >= NS.a.length) {
+      if (NS.st.length) {
+        var z = NS.st.pop(); NS.ans[z] = -1; NS.popIndex = z;
+        ngeAction.textContent = 'Hết dãy: chỉ số ' + z + ' không có phần tử lớn hơn bên phải, gán -1 và pop.';
+      } else {
+        NS.done = true; ngeStep.disabled = true;
+        ngeAction.textContent = 'Hoàn tất. Mỗi chỉ số đã được push đúng một lần và pop đúng một lần.';
+      }
+      ngeRender(); return;
+    }
+    if (NS.phase === 'start') {
+      NS.phase = 'compare';
+      ngeAction.textContent = 'Đang xét i = ' + NS.i + ', a[i] = ' + NS.a[NS.i] + '.';
+    } else if (NS.phase === 'compare') {
+      if (NS.st.length && NS.a[NS.st[NS.st.length-1]] < NS.a[NS.i]) {
+        var t = NS.st.pop(); NS.ans[t] = NS.a[NS.i]; NS.popIndex = t;
+        ngeAction.textContent = NS.a[t] + ' < ' + NS.a[NS.i] + ': a[' + NS.i + '] là đáp án đầu tiên của a[' + t + '], ghi ' + NS.a[NS.i] + ' rồi pop.';
+      } else {
+        NS.st.push(NS.i);
+        ngeAction.textContent = 'Không còn đỉnh nào nhỏ hơn ' + NS.a[NS.i] + ': push chỉ số ' + NS.i + '.';
+        NS.i++; NS.phase = 'start';
+      }
+    }
+    ngeRender();
+  }
+  ngeReset.addEventListener('click', ngeInit);
+  ngeStep.addEventListener('click', ngeOneStep);
+  ngeInput.addEventListener('change', ngeInit);
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-nge]'), function (b) {
+    b.addEventListener('click', function () { ngeInput.value = b.getAttribute('data-nge'); ngeInit(); });
+  });
+  ngeInit();
+
+  /* ---------- Mô phỏng 2: dấu bằng ---------- */
+  var eqInput = document.getElementById('eqInput'), eqPos = document.getElementById('eqPos'),
+      eqStrictDay = document.getElementById('eqStrictDay'), eqLooseDay = document.getElementById('eqLooseDay'),
+      eqStrictRa = document.getElementById('eqStrictRa'), eqLooseRa = document.getElementById('eqLooseRa'),
+      eqCanh = document.getElementById('eqCanh');
+
+  function previousBy(a, pos, strict) {
+    var st = [];
+    for (var i = 0; i <= pos; ++i) {
+      while (st.length && (strict ? a[st[st.length-1]] >= a[i] : a[st[st.length-1]] > a[i])) st.pop();
+      if (i === pos) return {ans:st.length ? st[st.length-1] : -1, st:st.slice()};
+      st.push(i);
+    }
+    return {ans:-1, st:[]};
+  }
+  function eqDrawDay(el, a, pos, ans, st) {
+    var set = {};
+    for (var j = 0; j < st.length; ++j) set[st[j]] = true;
+    var h = '';
+    for (var i = 0; i < a.length; ++i) {
+      var cl = i === pos ? 'dang' : (i === ans ? 'xong' : (i < pos && !set[i] ? 'pop' : ''));
+      h += '<div class="pt ' + cl + '"><b>' + esc(a[i]) + '</b><small>i=' + i + '</small></div>';
+    }
+    el.innerHTML = h;
+  }
+  function eqVe() {
+    var a = parseArray(eqInput.value), pos = parseInt(eqPos.value, 10);
+    if (!a || !Number.isInteger(pos) || pos < 0 || pos >= a.length) {
+      eqStrictDay.innerHTML = eqLooseDay.innerHTML = '';
+      eqStrictRa.textContent = eqLooseRa.textContent = 'Dữ liệu không hợp lệ.'; return;
+    }
+    eqPos.max = a.length - 1;
+    var s = previousBy(a, pos, true), l = previousBy(a, pos, false);
+    eqDrawDay(eqStrictDay, a, pos, s.ans, s.st);
+    eqDrawDay(eqLooseDay, a, pos, l.ans, l.st);
+    eqStrictRa.textContent = s.ans < 0 ? 'Không có phần tử nhỏ hơn bên trái.' : 'Đáp án: i = ' + s.ans + ', giá trị ' + a[s.ans] + '.';
+    eqLooseRa.textContent = l.ans < 0 ? 'Không có phần tử nhỏ hơn hoặc bằng bên trái.' : 'Đáp án: i = ' + l.ans + ', giá trị ' + a[l.ans] + '.';
+    eqCanh.textContent = s.ans !== l.ans
+      ? 'Hai điều kiện cho hai đáp án khác nhau. Dấu bằng quyết định phần tử có giá trị bằng a[i] được giữ lại hay bị pop.'
+      : 'Ở vị trí này hai điều kiện tình cờ cho cùng đáp án; hãy thử một vị trí có giá trị trùng bên trái.';
+  }
+  eqInput.addEventListener('input', eqVe); eqPos.addEventListener('input', eqVe);
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-eq]'), function (b) {
+    b.addEventListener('click', function () {
+      var p = b.getAttribute('data-eq').split('|'); eqInput.value = p[0]; eqPos.value = p[1]; eqVe();
+    });
+  });
+  eqVe();
+
+  /* ---------- Mô phỏng 3: histogram từng thao tác ---------- */
+  var histInput = document.getElementById('histInput'), histBars = document.getElementById('histBars'),
+      histStack = document.getElementById('histStack'), histNote = document.getElementById('histNote'),
+      histRa = document.getElementById('histRa'), histReset = document.getElementById('histReset'),
+      histStep = document.getElementById('histStep');
+  var HS = {};
+
+  function histInit() {
+    var h = parseArray(histInput.value);
+    if (!h || h.some(function(x){ return x < 0; })) {
+      HS = {bad:true}; histRa.textContent = 'Dãy chiều cao không hợp lệ.'; histStep.disabled = true;
+      histBars.innerHTML = histStack.innerHTML = histNote.innerHTML = ''; return;
+    }
+    HS = {h:h, st:[], i:0, best:0, bestK:-1, active:-1, phase:'compare', done:false};
+    histStep.disabled = false; histRa.textContent = 'Sẵn sàng. Cột lính canh 0 sẽ được xét sau cột cuối.'; histRender();
+  }
+  function histRender() {
+    if (HS.bad) return;
+    var mx = Math.max.apply(null, HS.h.concat([1])), html = '';
+    for (var i = 0; i < HS.h.length; ++i) {
+      var ht = Math.max(2, Math.round(150 * HS.h[i] / mx));
+      var cl = i === HS.active ? 'active' : (i === HS.bestK ? 'best' : '');
+      html += '<div class="barwrap"><div class="bar ' + cl + '" style="height:' + ht + 'px"><span>' + esc(HS.h[i]) + '</span></div><div class="baridx">i=' + i + '</div></div>';
+    }
+    histBars.innerHTML = html;
+    var s = '';
+    for (var j = 0; j < HS.st.length; ++j) {
+      var id = HS.st[j], val = id === HS.h.length ? 0 : HS.h[id];
+      s += '<div class="stk">i=' + id + ', h=' + val + '</div>';
+    }
+    histStack.innerHTML = s;
+    histNote.innerHTML = HS.st.length ? 'Đỉnh: i=' + HS.st[HS.st.length-1] + '<br>Chiều cao trong stack không giảm.' : 'Stack rỗng.';
+  }
+  function histOneStep() {
+    if (HS.bad || HS.done) return;
+    var n = HS.h.length;
+    if (HS.i > n) {
+      HS.done = true; histStep.disabled = true;
+      histRa.textContent = 'Hoàn tất. Diện tích lớn nhất = ' + HS.best + '.'; histRender(); return;
+    }
+    var cur = HS.i === n ? 0 : HS.h[HS.i]; HS.active = HS.i < n ? HS.i : -1;
+    if (HS.st.length && (HS.st[HS.st.length-1] === n || HS.h[HS.st[HS.st.length-1]] > cur)) {
+      var k = HS.st.pop(), L = HS.st.length ? HS.st[HS.st.length-1] : -1;
+      var area = HS.h[k] * (HS.i - L - 1);
+      if (area > HS.best) { HS.best = area; HS.bestK = k; }
+      histRa.textContent = 'Pop i=' + k + ': biên trái ' + L + ', biên phải ' + HS.i + ', diện tích = ' + HS.h[k] + ' × ' + (HS.i-L-1) + ' = ' + area + '. Best = ' + HS.best + '.';
+    } else {
+      HS.st.push(HS.i);
+      histRa.textContent = (HS.i === n ? 'Push cột lính canh i=' + n + ', h=0.' : 'Push i=' + HS.i + ', h=' + cur + '.') + ' Stack vẫn không giảm.';
+      HS.i++;
+    }
+    histRender();
+  }
+  histReset.addEventListener('click', histInit); histStep.addEventListener('click', histOneStep);
+  histInput.addEventListener('change', histInit);
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-hist]'), function (b) {
+    b.addEventListener('click', function () { histInput.value = b.getAttribute('data-hist'); histInit(); });
+  });
+  histInit();
+})();
+</script>
 <script src="../assets/chuan.js"></script>
 
-<!-- cv-foot -->
+<!--cv-foot-->
 <footer class="cv-footer">
-  <span>
-    &copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc
-    &middot; Chuyên đề lập trình thi đấu
-  </span>
-
-  <span>
-    SĐT 0987072896
-    &middot;
-    <a href="../index.html">Trang chủ</a>
-    &middot;
-    <a
-      href="https://cvpoi.id.vn"
-      target="_blank"
-      rel="noopener"
-    >
-      cvpoi.id.vn
-    </a>
-  </span>
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
 </footer>
-<!-- /cv-foot -->
-
+<!--/cv-foot-->
 </body>
 </html>
