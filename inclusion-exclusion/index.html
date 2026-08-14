@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Đếm bao hàm loại trừ | Lý thuyết CP</title>
+<title>Bao hàm — loại trừ | Lý thuyết CP</title>
 <link rel="stylesheet" href="../assets/chuan.css">
 <style>
   /* CSS riêng của phòng mô phỏng — CHỈ dùng biến màu của chuan.css */
@@ -199,6 +199,96 @@
     }
   }
 
+  /* --- Hai phòng chạy từng bước (token và mặt nạ) --- */
+  .stepbar{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:.65rem;
+    margin:.8rem 0;
+  }
+  .stepcount{
+    margin-left:auto;
+    color:var(--muted);
+    font-size:.9rem;
+  }
+  .steplog{
+    margin-top:.7rem;
+    padding:.75rem;
+    border:1px solid var(--border);
+    border-left:4px solid var(--blue);
+    border-radius:.65rem;
+    background:var(--blue-bg);
+    color:var(--fg);
+    min-height:3.2rem;
+  }
+  .pseudo{
+    margin:0;
+    padding:.6rem .75rem;
+    border:1px solid var(--border);
+    border-radius:.65rem;
+    background:var(--code-bg);
+    color:var(--code-fg);
+    overflow-x:auto;
+    font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;
+    font-size:.86rem;
+    line-height:1.75;
+  }
+  .pseudo span{
+    display:block;
+    padding:0 .4rem;
+    border-left:3px solid transparent;
+    white-space:pre;
+  }
+  .pseudo span.hot{
+    border-left-color:var(--green);
+    background:var(--green-bg);
+    color:var(--green);
+  }
+
+  /* dải ô số, mỗi ô mang các thẻ đếm */
+  .cells{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.4rem;
+  }
+  .cell{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:.22rem;
+    width:2.6rem;
+    padding:.3rem .15rem .25rem;
+    border:1px solid var(--border);
+    border-radius:.5rem;
+    background:var(--bg);
+  }
+  .cell.dang{ border-color:var(--amber); background:var(--amber-bg); }
+  .cell.thua{ border-color:var(--red); background:var(--red-bg); }
+  .cell b{ font-size:.9rem; }
+  .toks{ display:flex; gap:.15rem; min-height:.6rem; }
+  .tok{ width:.55rem; height:.55rem; border-radius:50%; }
+  .tok.t2{ background:var(--blue); }
+  .tok.t3{ background:var(--green); }
+
+  /* bảng 7 mặt nạ */
+  .masktab{
+    width:100%;
+    border-collapse:collapse;
+    font-family:"Noto Sans Mono","Consolas",ui-monospace,monospace;
+    font-size:.86rem;
+  }
+  .masktab th,.masktab td{
+    padding:.35rem .5rem;
+    border:1px solid var(--border);
+    text-align:center;
+  }
+  .masktab th{ background:var(--bg); color:var(--blue); }
+  .masktab tr.hot td{ background:var(--amber-bg); }
+  .masktab td.cong{ color:var(--green); font-weight:700; }
+  .masktab td.tru{ color:var(--red); font-weight:700; }
+  .masktab td.cho{ color:var(--muted); }
+
 /*cv-fix-nen-sang*/
 :root{--c-cmt:#5f6672}
 @media (prefers-color-scheme:dark){:root{--c-cmt:#8b949e}}
@@ -208,7 +298,15 @@
 .box td, .tablewrap td, table td{color:var(--fg)}
 /*/cv-fix-nen-sang*/
 </style>
+
 <!--cv-head-->
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<meta name="description" content="Đếm phần tử thỏa ít nhất một trong nhiều điều kiện: cộng trừ luân phiên theo tập con, khuôn bitmask, ba phòng mô phỏng.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lý thuyết CP">
+<meta property="og:title" content="Bao hàm — loại trừ | Lý thuyết CP">
+<meta property="og:description" content="Đếm phần tử thỏa ít nhất một trong nhiều điều kiện: cộng trừ luân phiên theo tập con, khuôn bitmask, ba phòng mô phỏng.">
 <!--/cv-head-->
 </head>
 <body class="cv-side">
@@ -228,11 +326,17 @@
 <div class="main">
 <div class="wrap">
 <!--cv-nav-->
+<nav class="cv-nav">
+  <div class="cv-nav-in">
+    <a class="cv-btn" href="../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span>Trang chủ</span></a><a class="cv-btn cv-phu" href="../sols/index.html" title="Kho lời giải"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><span>Kho lời giải</span></a><a class="cv-btn cv-phu" href="https://cvpoi.id.vn" target="_blank" rel="noopener" title="cvpoi.id.vn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></svg><span>cvpoi.id.vn</span></a>
+    <span class="cv-crumb">Toán<span class="cv-sep">/</span><span class="cv-here">Bao hàm — loại trừ</span></span>
+  </div>
+</nav>
 <!--/cv-nav-->
 
 <header>
   <div class="kicker">Chuyên đề Lập trình thi đấu</div>
-  <h1>Đếm bao hàm loại trừ</h1>
+  <h1>Bao hàm — loại trừ</h1>
   <div class="by">Phan Văn Việt — Trường THPT Chuyên Vĩnh Phúc</div>
 </header>
 
@@ -396,6 +500,38 @@
 
 <p>Nói bằng lời: cộng các giao của một tập, trừ các giao của hai tập, cộng các giao của ba tập, rồi tiếp tục đổi dấu theo số tập được chọn.</p>
 
+<p>Câu chữ ấy vẫn chưa cho thấy <em>vì sao</em> phải đổi dấu. Muốn thấy, phải nhìn xuống mức từng số: mỗi lần một số được cộng vào, ta đặt lên nó một <b>thẻ đếm</b>. Đích đến là <b>mọi số cần giữ đều còn đúng một thẻ</b>.</p>
+
+<div class="sim">
+  <h3>Phòng mô phỏng: đếm bằng thẻ trên đoạn [1, 15]</h3>
+
+  <p class="mutedline">Đếm các số không vượt quá <span class="mathv">15</span> chia hết cho <span class="mathv">2</span> hoặc <span class="mathv">3</span>. Ô viền đỏ là số đang mang thừa thẻ.</p>
+
+  <div class="stepbar">
+    <button type="button" id="tk-truoc">Về trước</button>
+    <button type="button" id="tk-sau">Tiếp theo</button>
+    <button type="button" id="tk-dat">Đặt lại</button>
+    <span class="stepcount">Bước <span id="tk-b">0</span>/3</span>
+  </div>
+
+  <div class="simgrid">
+    <div class="simcard">
+      <b>Việc đang làm</b>
+      <pre class="pseudo" id="tk-ma"><span data-d="1">cộng hết bội của 2</span><span data-d="2">cộng hết bội của 3</span><span data-d="3">trừ hết bội của 6</span></pre>
+      <p style="margin-bottom:0">Tổng đang có: <b><span id="tk-tong">0</span></b></p>
+    </div>
+    <div class="simcard">
+      <b>Đối chiếu</b>
+      <p>Duyệt từng số cho đáp án <b>10</b>.</p>
+      <p class="mutedline" style="margin-bottom:0">Thẻ xanh dương là bội của 2, thẻ xanh lá là bội của 3.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:.9rem"><div class="cells" id="tk-o"></div></div>
+
+  <div class="steplog" id="tk-loi"></div>
+</div>
+
 <div class="box def">
   <div class="t">Luật được đặt tên</div>
   <p>Đó là <b>nguyên lý bao hàm–loại trừ</b>. <strong>Mỗi đối tượng phải nhận tổng hệ số bằng 1 nếu cần giữ, và bằng 0 nếu cần loại.</strong></p>
@@ -532,6 +668,43 @@ int main() {
 <div class="box cmplx">
   <div class="t">Độ phức tạp</div>
   <p>Sau bước rút gọn, nếu còn <span class="mathv">m</span> điều kiện thì thời gian là <span class="mathv">O(2<sup>m</sup> · m)</span>; bộ nhớ phụ ngoài mảng đầu vào là <span class="mathv">O(m)</span>.</p>
+</div>
+
+<p>Vòng lặp <code class="inl">for (mask = 1; mask &lt; (1 &lt;&lt; m); mask++)</code> là chỗ khó hình dung nhất của khuôn này: một con số duy nhất vừa chọn ra tập con, vừa quyết định dấu. Chạy thử từng mặt nạ thì cơ chế ấy hiện ra rõ.</p>
+
+<div class="sim">
+  <h3>Phòng mô phỏng: bảy mặt nạ trên đoạn [1, 100]</h3>
+
+  <p class="mutedline">Đếm các số không vượt quá <span class="mathv">100</span> chia hết cho <span class="mathv">2</span>, <span class="mathv">3</span> hoặc <span class="mathv">5</span>. Ba điều kiện nên có <span class="mathv">2<sup>3</sup> − 1 = 7</span> mặt nạ khác rỗng.</p>
+
+  <div class="stepbar">
+    <button type="button" id="mk-truoc">Về trước</button>
+    <button type="button" id="mk-sau">Tiếp theo</button>
+    <button type="button" id="mk-dat">Đặt lại</button>
+    <span class="stepcount">Mặt nạ <span id="mk-b">0</span>/7</span>
+  </div>
+
+  <div class="simgrid">
+    <div class="simcard">
+      <b>Mã giả đang chạy</b>
+      <pre class="pseudo" id="mk-ma"><span data-d="1">bcnn = 1, sobit = 0</span><span data-d="2">với mỗi bit i bật trong mask:</span><span data-d="3">    sobit++, bcnn = BCNN(bcnn, uoc[i])</span><span data-d="4">dem = N / bcnn</span><span data-d="5">sobit lẻ ? ans += dem : ans -= dem</span></pre>
+    </div>
+    <div class="simcard">
+      <b>Sổ theo dõi</b>
+      <p>Mặt nạ: <b><span id="mk-hien">—</span></b></p>
+      <p>Dấu: <b><span id="mk-dau">—</span></b></p>
+      <p style="margin-bottom:0">Tổng <span class="mathv">ans</span>: <b><span id="mk-ans">0</span></b></p>
+    </div>
+  </div>
+
+  <div style="width:100%;overflow-x:auto;margin-top:.9rem">
+    <table class="masktab">
+      <thead><tr><th>mask</th><th>nhị phân</th><th>tập chọn</th><th>BCNN</th><th>dấu</th><th>N/BCNN</th><th>ans</th></tr></thead>
+      <tbody id="mk-bang"></tbody>
+    </table>
+  </div>
+
+  <div class="steplog" id="mk-loi"></div>
 </div>
 
 <h3>Khuôn B — Đếm phần tốt bằng cách trừ phần xấu</h3>
@@ -841,10 +1014,185 @@ int main() {
 
   render();
 })();
+
+/* ===== Phòng 2: đếm bằng thẻ trên đoạn [1,15], ước 2 và 3 =====
+   Mọi con số dưới đây đã đối chiếu với chương trình C++ chạy thật:
+   cộng bội 2 (+7) → cộng bội 3 (+5, tổng 12) → trừ bội 6 (−2, tổng 10);
+   duyệt từng số cũng cho 10, và đúng hai số 6, 12 mang thừa thẻ. */
+(function () {
+  'use strict';
+
+  var N = 15;
+  var oO = document.getElementById('tk-o');
+  var oTong = document.getElementById('tk-tong');
+  var oLoi = document.getElementById('tk-loi');
+  var oB = document.getElementById('tk-b');
+  var oMa = document.getElementById('tk-ma');
+  if (!oO) return;
+
+  /* Mỗi bước: ước đang xử lý, dấu, lời dẫn. Bước 0 là trạng thái rỗng. */
+  var buoc = [
+    { uoc: 0, dau: 0, loi: 'Chưa đặt thẻ nào. Cần đếm các số không vượt quá 15 chia hết cho 2 hoặc 3.' },
+    { uoc: 2, dau: 1, loi: 'Cộng hết bội của 2: bảy số 2, 4, 6, 8, 10, 12, 14 mỗi số nhận một thẻ. Tổng thành 7.' },
+    { uoc: 3, dau: 1, loi: 'Cộng hết bội của 3: thêm năm số, tổng thành 12. Nhưng 6 và 12 giờ mang hai thẻ — chúng bị đếm hai lần vì thỏa cả hai điều kiện.' },
+    { uoc: 6, dau: -1, loi: 'Trừ hết bội của 6, đúng bằng bội chung nhỏ nhất của 2 và 3. Hai số 6 và 12 trở lại một thẻ. Tổng còn 10, khớp với cách duyệt từng số.' }
+  ];
+
+  var b = 0;
+
+  function ve() {
+    /* dựng lại thẻ của từng số từ đầu tới bước hiện tại — dễ kiểm hơn là sửa dần */
+    var the = [], i, k;
+    for (i = 0; i <= N; i++) the.push([]);
+    var tong = 0;
+    for (k = 1; k <= b; k++) {
+      var u = buoc[k].uoc, d = buoc[k].dau;
+      for (i = u; i <= N; i += u) {
+        if (d > 0) the[i].push(u === 2 ? 2 : 3);
+        else the[i].pop();
+        tong += d;
+      }
+    }
+
+    var uocDang = buoc[b].uoc;
+    var html = '';
+    for (i = 1; i <= N; i++) {
+      var lop = 'cell';
+      if (the[i].length > 1) lop += ' thua';
+      else if (uocDang && i % uocDang === 0) lop += ' dang';
+      var cham = '';
+      for (var j = 0; j < the[i].length; j++)
+        cham += '<span class="tok t' + the[i][j] + '"></span>';
+      html += '<div class="' + lop + '"><b>' + i + '</b><span class="toks">' + cham + '</span></div>';
+    }
+    oO.innerHTML = html;
+    oTong.textContent = tong;
+    oLoi.textContent = buoc[b].loi;
+    oB.textContent = b;
+
+    var dong = oMa.querySelectorAll('span');
+    for (i = 0; i < dong.length; i++)
+      dong[i].className = (+dong[i].getAttribute('data-d') === b) ? 'hot' : '';
+
+    document.getElementById('tk-truoc').disabled = (b === 0);
+    document.getElementById('tk-sau').disabled = (b === buoc.length - 1);
+  }
+
+  document.getElementById('tk-sau').addEventListener('click', function () {
+    if (b < buoc.length - 1) { b++; ve(); }
+  });
+  document.getElementById('tk-truoc').addEventListener('click', function () {
+    if (b > 0) { b--; ve(); }
+  });
+  document.getElementById('tk-dat').addEventListener('click', function () {
+    b = 0; ve();
+  });
+
+  ve();
+})();
+
+/* ===== Phòng 3: bảy mặt nạ trên đoạn [1,100], ước 2, 3, 5 =====
+   Bảng đã đối chiếu với chương trình C++ chạy thật, kết quả cuối 74,
+   bằng đúng số đếm được khi duyệt từng số. */
+(function () {
+  'use strict';
+
+  var N = 100;
+  var uoc = [2, 3, 5];
+  var oBang = document.getElementById('mk-bang');
+  if (!oBang) return;
+  var oLoi = document.getElementById('mk-loi');
+  var oB = document.getElementById('mk-b');
+  var oHien = document.getElementById('mk-hien');
+  var oDau = document.getElementById('mk-dau');
+  var oAns = document.getElementById('mk-ans');
+  var oMa = document.getElementById('mk-ma');
+
+  function ucln(a, b) { while (b) { var t = a % b; a = b; b = t; } return a; }
+
+  /* Tính sẵn cả bảy dòng một lần, rồi chỉ hiện dần theo bước. */
+  var hang = [], ans = 0;
+  for (var m = 1; m <= 7; m++) {
+    var bcnn = 1, sobit = 0, tap = [], bin = '', i;
+    for (i = 0; i < 3; i++)
+      if ((m >> i) & 1) {
+        sobit++;
+        bcnn = bcnn / ucln(bcnn, uoc[i]) * uoc[i];
+        tap.push(uoc[i]);
+      }
+    for (i = 2; i >= 0; i--) bin += ((m >> i) & 1) ? '1' : '0';
+    var dem = Math.floor(N / bcnn);
+    ans += (sobit % 2) ? dem : -dem;
+    hang.push({
+      m: m, bin: bin, tap: '{' + tap.join(',') + '}', bcnn: bcnn,
+      le: (sobit % 2) === 1, dem: dem, ans: ans, sobit: sobit
+    });
+  }
+
+  var b = 0;
+
+  function ve() {
+    var html = '', i;
+    for (i = 0; i < 7; i++) {
+      var h = hang[i];
+      if (i < b) {
+        html += '<tr' + (i === b - 1 ? ' class="hot"' : '') + '><td>' + h.m + '</td><td>' + h.bin
+              + '</td><td>' + h.tap + '</td><td>' + h.bcnn
+              + '</td><td class="' + (h.le ? 'cong' : 'tru') + '">' + (h.le ? '+' : '−')
+              + '</td><td>' + h.dem + '</td><td>' + h.ans + '</td></tr>';
+      } else {
+        html += '<tr><td>' + h.m + '</td><td class="cho">' + h.bin
+              + '</td><td class="cho">—</td><td class="cho">—</td>'
+              + '<td class="cho">—</td><td class="cho">—</td><td class="cho">—</td></tr>';
+      }
+    }
+    oBang.innerHTML = html;
+    oB.textContent = b;
+
+    if (b === 0) {
+      oHien.textContent = '—';
+      oDau.textContent = '—';
+      oAns.textContent = '0';
+      oLoi.textContent = 'Đặt ans = 0. Ba điều kiện nên duyệt mặt nạ từ 1 tới 7; mỗi mặt nạ chọn ra một tập con khác rỗng.';
+    } else {
+      var h = hang[b - 1];
+      oHien.textContent = h.m + ' (' + h.bin + ')';
+      oDau.textContent = h.le ? '+' : '−';
+      oAns.textContent = h.ans;
+      oLoi.textContent = 'Mặt nạ ' + h.m + ' chọn tập ' + h.tap + ', có ' + h.sobit
+        + ' bit bật nên mang dấu ' + (h.le ? 'cộng' : 'trừ') + '. Bội chung nhỏ nhất là '
+        + h.bcnn + ', nên có ' + h.dem + ' số chia hết cho nó. Tổng ans thành ' + h.ans + '.'
+        + (b === 7 ? ' Đây là đáp án cuối: 74 số.' : '');
+    }
+
+    var dong = oMa.querySelectorAll('span');
+    for (i = 0; i < dong.length; i++)
+      dong[i].className = (b > 0 && +dong[i].getAttribute('data-d') === 5) ? 'hot' : '';
+
+    document.getElementById('mk-truoc').disabled = (b === 0);
+    document.getElementById('mk-sau').disabled = (b === 7);
+  }
+
+  document.getElementById('mk-sau').addEventListener('click', function () {
+    if (b < 7) { b++; ve(); }
+  });
+  document.getElementById('mk-truoc').addEventListener('click', function () {
+    if (b > 0) { b--; ve(); }
+  });
+  document.getElementById('mk-dat').addEventListener('click', function () {
+    b = 0; ve();
+  });
+
+  ve();
+})();
 </script>
 <script src="../assets/chuan.js"></script>
 
 <!--cv-foot-->
+<footer class="cv-footer">
+  <span>&copy; <b>Phan Văn Việt</b> — THPT Chuyên Vĩnh Phúc &middot; Chuyên đề lập trình thi đấu</span>
+  <span>SĐT 0987072896 &middot; <a href="../index.html">Trang chủ</a> &middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>
+</footer>
 <!--/cv-foot-->
 </body>
 </html>

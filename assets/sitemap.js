@@ -62,7 +62,7 @@ window.CVSITEMAP = {
       ]},
       { n:22, title:'Tổ hợp', pages:[
         { slug:'combinatoric', title:'Tổ hợp' },
-        { slug:'in-exclusive', title:'Bao hàm — loại trừ' }
+        { slug:'inclusion-exclusion', title:'Bao hàm — loại trừ' }
       ]},
       { n:23, title:'Ma trận', pages:[ { slug:'matrices', title:'Ma trận' } ] },
       { n:24, title:'Xác suất', pages:[ { slug:'probability', title:'Xác suất' } ] },

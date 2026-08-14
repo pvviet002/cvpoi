@@ -27,9 +27,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #    mota   : một câu cho thẻ meta description
 # =====================================================================
 TRANG = {
- 'index.html': dict(
-    nhom=None, cha=None, nhan=None, tieude='Lý thuyết CP',
-    mota='Tuyển tập chuyên đề lập trình thi đấu: lý thuyết, mô phỏng từng bước và bài luyện có lời giải.'),
+ # index.html dùng shell mới (cvnav dùng chung) — không đồng bộ ở đây.
 
  # ---------- Chuyên đề ----------
  'io/index.html': dict(
@@ -76,6 +74,10 @@ TRANG = {
     cha=('Quy hoạch động', '../index.html'), nhan='Quy hoạch động chữ số',
     tieude='Quy hoạch động chữ số',
     mota='Đếm số trên đoạn rất lớn bằng cách dựng số từ trái sang phải: trạng thái tight, chữ số 0 ở đầu, thiết kế trạng thái phụ.'),
+ 'dp/knapsack/index.html': dict(
+    cha=('Quy hoạch động', '../index.html'), nhan='Quy hoạch động cái túi',
+    tieude='Quy hoạch động cái túi',
+    mota='Bài toán cái túi 0/1: xét từng vật lấy hay bỏ, rút bảng hai chiều về mảng một chiều; hướng quét chiều sức chứa quyết định mỗi vật được dùng mấy lần.'),
  'prefix-sum/index.html': dict(
     nhom='Kỹ thuật', nhan='Tổng tiền tố', tieude='Tổng tiền tố',
     mota='Cộng dồn một chiều và hai chiều, mảng hiệu, kết hợp bảng băm.'),
@@ -104,9 +106,9 @@ TRANG = {
  'sieve/index.html': dict(
     nhom='Toán', nhan='Sàng nguyên tố', tieude='Sàng nguyên tố',
     mota='Sàng Eratosthenes và mảng ước nguyên tố nhỏ nhất.'),
- 'in-exclusive/index.html': dict(
+ 'inclusion-exclusion/index.html': dict(
     nhom='Toán', nhan='Bao hàm — loại trừ', tieude='Bao hàm — loại trừ',
-    mota='Đếm số phần tử thỏa ít nhất một trong nhiều điều kiện.'),
+    mota='Đếm phần tử thỏa ít nhất một trong nhiều điều kiện: cộng trừ luân phiên theo tập con, khuôn bitmask, ba phòng mô phỏng.'),
  'sols/index.html': dict(
     nhom='Bài luyện', nhan='Kho lời giải', tieude='Kho lời giải',
     mota='Toàn bộ trang hướng dẫn giải bài tập, xếp theo chuyên đề.'),
@@ -293,11 +295,12 @@ CO_THANH_BEN = {
     'array-2d/index.html',
     'binary-search/index.html',
     'dp/digit-dp/index.html',
+    'dp/knapsack/index.html',
     'dsu/index.html',
     'euler-circuit/index.html',
     'huffman/index.html',
     'ifelse/index.html',
-    'in-exclusive/index.html',
+    'inclusion-exclusion/index.html',
     'io/index.html',
     'number-theory/index.html',
     'prefix-sum/1d/index.html',
