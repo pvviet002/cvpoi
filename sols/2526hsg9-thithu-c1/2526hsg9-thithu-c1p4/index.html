@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài 4: Máy in</title>
+<style>
+  :root{
+    --sw:212px;
+    --bg:#d8dee8; --frame:#ffffff; --fg:#000000; --muted:#39414f; --line:#5b6572;
+    --accent:#1338c4; --accsoft:#c3d4ff; --pos:#04673a; --neg:#b01008;
+    --sidebar:#080d1a; --sideItem:#ced6e6; --cell:#ffffff; --card2:#e9edf4;
+    --shadow:0 10px 26px rgba(10,20,45,.22); color-scheme:light;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#000000; --frame:#0c1119; --fg:#ffffff; --muted:#c3ccdb; --line:#66707f;
+      --accent:#8fb4ff; --accsoft:#123a86; --pos:#3ff0a5; --neg:#ff8b82;
+      --sidebar:#000000; --sideItem:#d3dae7; --cell:#080c12; --card2:#151b25;
+      --shadow:0 12px 34px rgba(0,0,0,.7); color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+      --bg:#000000; --frame:#0c1119; --fg:#ffffff; --muted:#c3ccdb; --line:#66707f;
+      --accent:#8fb4ff; --accsoft:#123a86; --pos:#3ff0a5; --neg:#ff8b82;
+      --sidebar:#000000; --sideItem:#d3dae7; --cell:#080c12; --card2:#151b25;
+      --shadow:0 12px 34px rgba(0,0,0,.7); color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .sidebar{position:fixed;left:0;top:0;width:var(--sw);height:100vh;background:var(--sidebar);
+    color:var(--sideItem);padding:22px 12px;display:flex;flex-direction:column;gap:6px;z-index:30;
+    transition:width .25s ease}
+  .brand{color:#fff;font-weight:700;font-size:1rem;line-height:1.3;margin-bottom:6px}
+  .brand small{display:block;color:var(--sideItem);font-weight:500;font-size:.74rem;margin-top:3px}
+  .snav{display:flex;flex-direction:column;gap:4px;margin-top:10px}
+  .snav a{display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:10px;
+    color:var(--sideItem);text-decoration:none;font-size:.86rem;transition:background .15s,color .15s}
+  .snav a .n{width:22px;height:22px;border-radius:7px;background:rgba(255,255,255,.09);flex:none;
+    display:flex;align-items:center;justify-content:center;font-size:.74rem;font-weight:700}
+  .snav a:hover{background:rgba(255,255,255,.06);color:#fff}
+  .snav a.active{background:var(--accent);color:#fff}
+  .snav a.active .n{background:rgba(255,255,255,.22)}
+  .sfoot{margin-top:auto;font-size:.72rem;color:var(--sideItem)}
+  .sfoot .hint{opacity:.7;margin-bottom:9px;line-height:1.4}
+  .stools{display:flex;gap:6px}
+  .sbtn{width:26px;height:26px;padding:0;border-radius:7px;border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.06);color:var(--sideItem);cursor:pointer;
+    display:flex;align-items:center;justify-content:center}
+  .sbtn:hover{color:#fff;border-color:var(--accent)}
+  .sbtn.theme::before{content:"";width:13px;height:13px;border-radius:50%;
+    border:1.6px solid currentColor;background:linear-gradient(90deg,currentColor 0 50%,transparent 50% 100%)}
+  .sbtn.rail::before{content:"";width:7px;height:7px;margin-left:3px;
+    border-left:1.8px solid currentColor;border-bottom:1.8px solid currentColor;
+    transform:rotate(45deg);transition:transform .2s ease}
+  body.rail{--sw:58px}
+  body.rail .brand small,body.rail .snav a .t,body.rail .sfoot .hint{display:none}
+  body.rail .brand{font-size:.86rem;text-align:center}
+  body.rail .snav a{justify-content:center;padding:9px 0;gap:0}
+  body.rail .stools{flex-direction:column;align-items:center}
+  body.rail .sbtn.rail::before{transform:rotate(-135deg);margin-left:-3px}
+  .deck{margin-left:var(--sw);height:100vh;position:relative;overflow:hidden;
+    transition:margin-left .25s ease}
+  .slide{position:absolute;inset:0;display:flex;padding:18px;
+    opacity:0;transform:translateX(56px) scale(.985);pointer-events:none;
+    transition:opacity .34s ease,transform .34s ease}
+  .slide.active{opacity:1;transform:none;pointer-events:auto}
+  .slide.back{transform:translateX(-56px) scale(.985)}
+  .frame{flex:1;background:var(--frame);border:2px solid var(--line);border-radius:18px;
+    box-shadow:var(--shadow);padding:14px 24px;display:flex;flex-direction:column;
+    align-items:stretch;justify-content:flex-start;overflow:auto}
+  .stag{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  h2{font-size:1.42rem;margin:.08em 0 .3em}
+  p{margin:.3em 0;line-height:1.5;max-width:980px}
+  .muted{color:var(--muted);font-size:.9rem}
+  code{background:var(--card2);padding:1px 6px;border-radius:6px;font-size:.95em}
+  .iobox{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0 2px}
+  .iobox > div{flex:1 1 260px;background:var(--card2);border:2px solid var(--line);
+    border-radius:12px;padding:11px 15px;font-size:.94rem;line-height:1.5}
+  .iobox b{display:block;color:var(--accent);font-size:.74rem;text-transform:uppercase;
+    letter-spacing:.09em;margin-bottom:5px}
+  .exlab{font-size:.78rem;font-weight:700;color:var(--muted);margin-top:8px}
+  .mini{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;
+    background:var(--card2);border:2px solid var(--line);border-radius:14px;padding:10px 18px;margin:8px 0 6px}
+  .mgrp{text-align:center}
+  .mlab{font-size:.72rem;color:var(--accent);font-weight:700;text-transform:uppercase;
+    letter-spacing:.09em;margin-bottom:6px;height:16px}
+  .mar{color:var(--muted);font-size:1.5rem;align-self:center}
+  /* hang o trong dai minh hoa slide Tom tat. Thieu luat nay thi cac o XEP DOC
+     ma khong bao tran — deck 018/Bai1 tung xuat xuong o dang do. */
+  .mrow{display:flex;gap:8px;justify-content:center}
+  .minote{font-size:.94rem;color:var(--muted);max-width:980px;margin:.1em 0}
+  .lead{font-size:1.0rem;line-height:1.5;max-width:1000px;margin:.12em 0 .45em}
+  .ideas{display:flex;gap:14px;align-items:stretch;flex-wrap:wrap;margin:4px 0 10px}
+  .ibox{flex:1 1 250px;background:var(--card2);border:2px solid var(--line);border-radius:14px;padding:12px 15px 10px;text-align:center}
+  .ibox .ic{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto 7px}
+  .ibox > b{display:block;font-size:1.0rem;margin-bottom:6px}
+  .ibox ul{text-align:left;margin:0;padding-left:18px;font-size:.87rem;color:var(--muted);line-height:1.5}
+  .ibox li{margin:.22em 0}
+  .iar{display:flex;align-items:center;color:var(--muted);font-size:1.7rem}
+  .egwork{background:var(--accsoft);border:2px solid var(--line);border-radius:14px;padding:11px 18px;margin:2px 0 8px}
+  .egttl{font-weight:650;margin-bottom:9px;font-size:.97rem}
+  .egflow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+  .egstep{background:var(--frame);border:2px solid var(--line);border-radius:10px;padding:9px 14px;
+    font-variant-numeric:tabular-nums;font-size:.93rem}
+  .egstep .eglab{display:block;font-size:.67rem;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+  .egar{color:var(--muted);font-size:1.4rem}
+  .egnote{margin-top:9px;font-size:.9rem;color:var(--muted);text-align:center}
+  .pos{color:var(--pos);font-weight:700}
+  /* ---- slide suy luan (y tuong) ---- */
+  .why{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;margin:2px 0}
+  .whytxt{flex:1 1 300px;min-width:280px}
+  .whyfig{flex:1 1 380px;min-width:330px;background:var(--card2);border:2px solid var(--line);
+    border-radius:12px;padding:8px 10px}
+  .whyfig svg{width:100%;height:auto;display:block}
+  .figcap{font-size:.75rem;color:var(--muted);text-align:center;margin-top:3px}
+  .qlist{margin:.2em 0;padding-left:20px;font-size:1.0rem;line-height:1.68}
+  .qlist li{margin:.4em 0}
+  .ask{font-size:1.06rem;font-weight:650;color:var(--accent);margin:.25em 0 .4em}
+  .restate,.subprob{border-radius:12px;padding:9px 15px;margin:8px 0 4px;
+    background:var(--accsoft);border:2px solid var(--accent);border-left-width:7px}
+  .subprob{background:var(--card2);border-color:var(--pos)}
+  .restate > b,.subprob > b{display:block;font-size:.71rem;text-transform:uppercase;
+    letter-spacing:.09em;margin-bottom:3px;color:var(--accent)}
+  .subprob > b{color:var(--pos)}
+  .restate p,.subprob p{margin:.1em 0;font-size:.97rem;line-height:1.5}
+  .keyline{font-size:.99rem;color:var(--muted);margin-top:9px;line-height:1.55}
+  .restate p,.subprob p{font-size:1.0rem}
+  .why{gap:20px;margin:6px 0}
+  .whyfig{padding:10px 12px}
+  /* ---- header slide mo phong ---- */
+  .simhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .src{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  select,button{font-family:inherit;color:var(--fg);background:var(--card2);
+    border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-size:.82rem;cursor:pointer}
+  button:hover,select:hover{border-color:var(--accent)}
+  select option{background:var(--card2);color:var(--fg)}
+  .inp{padding:5px 8px;font-size:.88rem;border:1px solid var(--line);border-radius:8px;
+    background:var(--cell);color:var(--fg);text-align:center;font-variant-numeric:tabular-nums}
+  .inp.a{min-width:120px}
+  .ilab{font-size:.74rem;color:var(--muted)}
+  .banner{text-align:center;font-weight:700;font-size:.98rem;padding:7px 12px;border-radius:10px;
+    background:var(--accsoft);border:2px solid var(--line);margin:8px 0}
+  .banner.done{color:var(--pos);border-color:var(--pos)}
+  /* ---- vung mo phong: do thi | code+hang ---- */
+  .simg{display:flex;gap:14px;align-items:stretch;flex-wrap:wrap}
+  .graphbox{flex:1 1 330px;min-width:300px;background:var(--card2);border:2px solid var(--line);
+    border-radius:12px;padding:4px;display:flex;align-items:center;justify-content:center}
+  .graph{width:100%;height:auto;display:block}
+  .simr{flex:1 1 360px;min-width:320px;display:flex;flex-direction:column;gap:8px}
+  .code{background:var(--card2);border:2px solid var(--line);border-radius:12px;
+    padding:9px 10px;font-family:ui-monospace,Consolas,monospace;font-size:.79rem;line-height:1.5}
+  .code .ln{display:flex;gap:8px;padding:2px 8px;border-radius:6px;color:var(--fg);opacity:.72;white-space:pre-wrap}
+  .code .ln.on{background:var(--accsoft);opacity:1;font-weight:700}
+  .code .ln .no{width:14px;text-align:right;opacity:.6;flex:none;cursor:pointer}
+  /* dong VUA chay xong (khung truoc): vach xam trai, khong dung opacity thap */
+  .code .ln.was{opacity:1;box-shadow:inset 4px 0 0 var(--muted)}
+  /* diem dung: bam so dong de dat/bo; de sau .was de vach do thang vach xam */
+  .code .ln.bp{box-shadow:inset 4px 0 0 var(--neg)}
+  .code .ln.bp .no{opacity:1;color:var(--neg);font-weight:800}
+  .rows{display:flex;flex-direction:column;gap:5px}
+  .rows .cell{width:42px;min-width:42px;padding:0}
+  .vsec{text-align:left}
+  .vsec.glow > .row{outline:3px solid var(--pos);outline-offset:4px;border-radius:10px}
+  .slab{font-size:.72rem;color:var(--fg);opacity:.85;font-weight:600;margin-bottom:3px}
+  .row{display:flex;gap:5px;justify-content:flex-start;align-items:flex-start;flex-wrap:wrap;min-height:36px}
+  .tri{display:flex;flex-direction:column;align-items:center;gap:1px}
+  .cell{min-width:36px;height:32px;padding:0 6px;border:3px solid var(--line);border-radius:8px;
+    background:var(--cell);display:flex;align-items:center;justify-content:center;
+    font-size:1.0rem;font-weight:600;font-variant-numeric:tabular-nums;transition:.18s}
+  .cell.hot{border-color:var(--accent);background:var(--accsoft);transform:scale(1.08)}
+  .cell.prime{border-color:var(--pos);color:var(--pos)}
+  .cell.zero{color:var(--muted);border-style:dashed}
+  .cell.cyc{border-color:var(--pos);box-shadow:0 0 0 3px var(--accsoft) inset}
+  .idx{font-size:.63rem;color:var(--fg);opacity:.78}
+  .vbot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-top:4px}
+  .pens{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .pchip{border:2px solid var(--line);border-radius:10px;background:var(--cell);padding:5px 10px;
+    font-size:.84rem;font-variant-numeric:tabular-nums}
+  .pchip.cur{border-color:var(--accent);background:var(--accsoft)}
+  .pchip b{color:var(--pos)}
+  .ansbox{font-size:1.0rem;font-weight:700;background:var(--accsoft);border:2px solid var(--line);
+    border-radius:10px;padding:6px 14px}
+  .ansbox.glow{outline:3px solid var(--pos);outline-offset:3px}
+  .ansbox .av{color:var(--pos);font-size:1.18rem;margin-left:6px}
+  .expl{text-align:center;font-size:.93rem;font-weight:500;margin-top:auto;padding-top:8px;min-height:20px}
+  .ctrl{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .ctrl button{width:38px;height:34px;padding:0;font-size:.92rem}
+  .ctrl button.play{width:50px;background:var(--accent);color:#fff;border-color:var(--accent)}
+  /* nut "Đố" — che do hoi lop, runtime tu tiem vao sau nut ⏭ */
+  .ctrl button.hoi{width:auto;padding:0 10px;font-weight:700}
+  .ctrl button.hoi.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .expl.hoi{color:var(--accent);font-weight:700}
+  .ctrl .step{font-size:.8rem;color:var(--muted);margin:0 4px}
+  .ctrl .spd{display:flex;align-items:center;gap:5px;font-size:.74rem;color:var(--muted)}
+  .ctrl input[type=range]{width:78px}
+  #s1 h2{font-size:1.5rem;margin:.05em 0 .22em}
+  #s1 p{font-size:1.0rem;line-height:1.5;margin:.22em 0}
+  #s1 .muted{font-size:.9rem}
+  @media (max-width:820px){
+    :root{--sw:58px}
+    .brand small,.snav a .t,.sfoot .hint{display:none}
+    .brand{font-size:.86rem;text-align:center}
+    .snav a{justify-content:center;padding:9px 0;gap:0}
+    .stools{flex-direction:column;align-items:center}
+  }
+  /* ---- do thi ---- */
+  .edge{fill:none;stroke:var(--line);stroke-width:1.9;opacity:.18;transition:.18s;stroke-linecap:round}
+  .edge.seen{opacity:1}
+  .edge.hot{opacity:1;stroke:var(--accent);stroke-width:2.8}
+  .edge.tree{opacity:1;stroke:var(--muted);stroke-dasharray:6 4;stroke-width:1.9}
+  .edge.kept{opacity:1;stroke:var(--pos);stroke-width:2.8}
+  .edge.drop{opacity:1;stroke:var(--neg);stroke-dasharray:6 4;stroke-width:2.1}
+  .edge.cut{opacity:1;stroke:var(--neg);stroke-width:2.8}
+  /* trong so canh: chu co vien nen (halo) mau nen the de doc khi de len net */
+  .wlab{font-size:11.5px;font-weight:700;fill:var(--fg);text-anchor:middle;
+    paint-order:stroke;stroke:var(--card2);stroke-width:3.4px;stroke-linejoin:round;
+    opacity:.2;transition:.18s;pointer-events:none}
+  .wlab.on{opacity:1}
+  .wlab.hot{fill:var(--accent)}
+  .wlab.kept{fill:var(--pos)}
+  .wlab.drop,.wlab.cut{fill:var(--neg)}
+  .wlab.tree{fill:var(--muted)}
+  .gnode circle{fill:var(--cell);stroke:var(--line);stroke-width:2.6;transition:.18s}
+  .gnode text{fill:var(--fg);font-weight:700;font-size:15px}
+  .gnode.hot circle{stroke:var(--accent);fill:var(--accsoft)}
+  .gnode.cyc circle{stroke:var(--pos);stroke-width:3.6}
+  .gnode.tree circle{stroke:var(--muted);stroke-dasharray:4 3}
+  .gnode.tree text{fill:var(--muted)}
+  #mk_gray path{fill:var(--line)} #mk_blue path{fill:var(--accent)} #mk_green path{fill:var(--pos)}
+  #mk_red path{fill:var(--neg)} #mk_muted path{fill:var(--muted)}
+  .glegend{display:flex;gap:12px;flex-wrap:wrap;font-size:.74rem;color:var(--muted);justify-content:center;margin-top:2px}
+  .glegend span{display:flex;align-items:center;gap:4px}
+  .glegend i{width:16px;height:0;border-top:3px solid var(--line);display:inline-block}
+  .glegend i.g{border-color:var(--pos)} .glegend i.r{border-top-style:dashed;border-color:var(--neg)}
+  .glegend i.c{border-color:var(--neg)} .glegend i.b{border-color:var(--accent)}
+
+  /* ===== module: bieu do cot =====*/
+  /* ---- bieu do cot (thung nuoc) cho bai 1 ---- */
+  .bar{fill:var(--cell);stroke:var(--line);stroke-width:2.4;transition:.18s}
+  .bar.hot{fill:var(--accsoft);stroke:var(--accent);stroke-width:3.4}
+  .bar.cnt{fill:var(--accsoft);stroke:var(--pos);stroke-width:3.4}
+  .bar.big{stroke:var(--muted);stroke-dasharray:5 4}
+  .barv{font-size:12px;font-weight:700;fill:var(--fg);text-anchor:middle;
+    paint-order:stroke;stroke:var(--card2);stroke-width:3.2px;stroke-linejoin:round;transition:.18s}
+  .barv.hot{fill:var(--accent)} .barv.cnt{fill:var(--pos)} .barv.big{fill:var(--muted)}
+  .baridx{font-size:11px;fill:var(--fg);opacity:.78;text-anchor:middle}
+  .baridx.hot{opacity:1;fill:var(--accent);font-weight:700}
+  .axis{stroke:var(--line);stroke-width:2}
+  .cell.pick{border-color:var(--accent);background:var(--accsoft)}
+
+  /* ===== module: bang 2 chieu =====*/
+  /* ---- bang o vuong (ma tran a / bang QHD f) cho bai 3 ---- */
+  .gcell{fill:var(--cell);stroke:var(--line);stroke-width:2;transition:.18s}
+  .gcell.hot{fill:var(--accsoft);stroke:var(--accent);stroke-width:3.2}
+  .gcell.src{fill:var(--accsoft);stroke:var(--pos);stroke-width:3.2}
+  .gcell.neg{fill:var(--accsoft);stroke:var(--neg);stroke-width:3.2}
+  .gcell.base{stroke-dasharray:5 4;stroke:var(--muted)}
+  .gtxt{font-size:12.5px;font-weight:700;fill:var(--fg);text-anchor:middle;transition:.18s}
+  .gtxt.hot{fill:var(--accent)} .gtxt.src{fill:var(--pos)}
+  .gtxt.neg{fill:var(--neg)} .gtxt.base{fill:var(--muted)}
+  .ghdr{font-size:11.5px;fill:var(--fg);opacity:.82;text-anchor:middle;font-weight:600}
+  .ghdr.hot{opacity:1;fill:var(--accent);font-weight:700}
+  .gcap2{font-size:11.5px;fill:var(--muted);text-anchor:middle}
+
+  /* ===== module: luoi 2 chieu (bi danh cua bang2c) =====*/
+  .gcell.wall{fill:var(--line);stroke:var(--line)}
+  .gtxt.wall{fill:var(--frame)}
+
+  /* ===== module: cua so truot =====*/
+  .win{fill:var(--accsoft);fill-opacity:.34;stroke:var(--accent);stroke-width:2.5;transition:.18s}
+  .win.off{display:none}
+  .ptr{fill:var(--accent)}
+  .ptrt{font-size:11.5px;font-weight:700;fill:var(--accent);text-anchor:middle}
+  .ptr.off,.ptrt.off{display:none}
+
+  /* ===== module: cay phan doan =====*/
+  /* nhan doan "l–r" tren dinh nut: halo nen de doc duoc khi de len canh */
+  .dseg{font-size:9.5px;font-weight:600;fill:var(--muted);text-anchor:middle;
+    paint-order:stroke;stroke:var(--frame);stroke-width:3px;stroke-linejoin:round}
+
+  /* ===== Đố mức 2: học sinh chỉ ô sẽ đổi giá trị =====*/
+  /* Không dùng opacity để phân biệt (mờ là mất trên máy chiếu) — dùng nét và viền. */
+  .cell.doan{cursor:pointer;border-style:dotted}
+  .cell.doan:hover{border-color:var(--accent)}
+  .cell.dung{border-color:var(--pos);box-shadow:0 0 0 3px var(--pos) inset}
+  .cell.sai{border-color:var(--neg);box-shadow:0 0 0 3px var(--neg) inset}
+
+  /* ===== khối "nói bằng lời" (EiPE) =====*/
+  .eipe{border:3px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0;
+    background:var(--card2)}
+  .eipe > b{display:block;font-size:1rem;margin-bottom:6px}
+  .eipe > button{margin-top:8px;padding:4px 12px;font-weight:700}
+  .eipe .dapan{display:none;margin-top:10px;padding-top:10px;border-top:2px dashed var(--line);
+    color:var(--fg)}
+  .eipe.mo .dapan{display:block}
+
+  /* ===== slide bác bỏ: mô hình SAI cạnh mô hình ĐÚNG =====*/
+  .bacbo{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0}
+  .bacbo > div{border:3px solid var(--line);border-radius:12px;padding:10px 14px;
+    background:var(--card2)}
+  .bacbo > div.mhsai{border-color:var(--neg)}
+  .bacbo > div.mhdung{border-color:var(--pos)}
+  /* tieu de phai LON hon chu trong khoi — .98rem hoa ra nho hon 16px cua <p> */
+  .bacbo h4{margin:0 0 6px;font-size:1.06rem}
+  .bacbo .mhsai h4{color:var(--neg)}
+  .bacbo .mhdung h4{color:var(--pos)}
+  .bacbo .re{font-weight:700;margin-top:8px}
+/* Nen rieng slide 4 — cot chu co hai keyline dai, tung tran 13px o man hinh cao 720. */
+#s4 h2{font-size:1.3rem;margin:.05em 0 .22em}
+#s4 .ask{font-size:1.0rem;margin:.12em 0 .28em}
+#s4 .qlist{font-size:.94rem;line-height:1.5}
+#s4 .qlist li{margin:.26em 0}
+#s4 .keyline{font-size:.91rem;margin-top:6px;line-height:1.46}
+#s4 .subprob p{font-size:.94rem}
+/* day lenh viet gon co the dai toi ~16 lenh — thu nho de nam gon mot dong */
+#s6 .pchip{font-size:.78rem;padding:4px 8px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="mk_gray" markerWidth="11" markerHeight="8" refX="10" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 L2.9,4 Z"/></marker>
+  <marker id="mk_blue" markerWidth="11" markerHeight="8" refX="10" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 L2.9,4 Z"/></marker>
+  <marker id="mk_green" markerWidth="11" markerHeight="8" refX="10" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 L2.9,4 Z"/></marker>
+  <marker id="mk_red" markerWidth="11" markerHeight="8" refX="10" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 L2.9,4 Z"/></marker>
+  <marker id="mk_muted" markerWidth="11" markerHeight="8" refX="10" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 L2.9,4 Z"/></marker>
+</defs></svg>
+<script>
+/* ===================== BO KIEM CHUNG DECK MO PHONG =====================
+   Dan nguyen file nay vao javascript_tool (hoac console) roi goi:
+
+       KIEM({ slides:9, players:['1','2','3'],
+              svgs:['g1','g2','g3'],
+              dulieu:[ {o:{arrA:'2 1 1 3', arrC:'2 4 3 1'}, ans:4}, ... ] })
+
+   `ans` nhan CA SO LAN CHUOI: bai in nhieu gia tri thi ghi nguyen van, vd
+       { o:{inpW:'ab', inpS:'  ab abc  ab  '}, ans:'2 3' }
+   Bo nao khong co `ans` thi khong duoc kiem va bi dem vao dapAn.boQua.
+
+   Tra ve JSON: moi muc co truong  dat:true/false  de nhin phat ra ngay.
+   Cac phep do (deu la loi that da tung vap):
+     1. dapAn      — chay tung bo du lieu, so voi dap an mong doi (so hoac chuoi)
+     2. vuaManHinh — tran khung o 1280x720 / 1366x768 / 1920x1080 + do lap day
+     3. svgLotKhung— phan tu SVG nam ngoai viewBox (bang/cot/nhan bi cat)
+     4. nhanChong  — nhan trong so de len nhau hoac de len dinh
+                     (bao kem VEC-TO TACH TOI THIEU: doi bao nhieu, theo truc nao)
+     5. buocKhacNhau— moi buoc phai doi trang thai (khong co buoc "chet")
+     6. tuongPhan  — WCAG hai nen (chu >= 7:1, vien >= 3:1)
+     7. emoji      — ky tu co the vo glyph tren may thieu font
+     8. console    — loi JS (tu bat qua window.onerror neu cai truoc khi load)
+     9. classLa    — class dung trong HTML nhung KHONG co luat CSS nao khop
+    10. phuMaGia   — moi dong ma gia phai duoc to sang it nhat mot lan
+                     (dong khong bao gio sang = deck bo quen mot nhanh thuat toan,
+                      hoac ma gia thua mot dong khong ai chay toi)
+======================================================================== */
+function KIEM(cfg) {
+  const $ = id => document.getElementById(id);
+  const R = {};
+  const IDS = Array.from({ length: cfg.slides || 9 }, (_, i) => 's' + (i + 1));
+  const PL = cfg.players || ['1', '2', '3'];
+  const SV = cfg.svgs || [];
+
+  function datInput(o) {
+    for (const k in o) { const e = $(k); if (e) { e.value = o[k]; e.dispatchEvent(new Event('change')); } }
+  }
+  function toiCuoi() { PL.forEach(p => { const b = $('last' + p); if (b) b.click(); }); }
+  let boChinh = null;                    // bo du lieu nhieu buoc nhat — dung do bo cuc
+
+  /* 1. dap an.
+     So sanh theo CHUOI da chuan hoa, khong ep ve so — bai in nhieu gia tri
+     ("2 1") hay in chu deu kiem duoc. Van bat "07" == 7 nho nhanh so phia sau.
+     (Da vap: `+el.textContent` cho NaN voi dap an "2 1" => phep do im lang bo qua.) */
+  if (cfg.dulieu && cfg.dulieu.length) {
+    const chuan = x => String(x).trim().replace(/\s+/g, ' ');
+    const khop = (mong, duoc) => {
+      if (duoc == null) return false;
+      const a = chuan(mong), b = chuan(duoc);
+      if (a === b) return true;
+      const na = Number(a), nb = Number(b);
+      return Number.isFinite(na) && Number.isFinite(nb) && na === nb;
+    };
+    const ra = [];
+    let ok = true, boQua = 0;
+    cfg.dulieu.forEach(d => {
+      datInput(d.o); toiCuoi();
+      const id = cfg.ansId || 'ans3';
+      const el = $(id);
+      const duoc = el ? chuan(el.textContent) : null;
+      const pass = (d.ans == null) || khop(d.ans, duoc);
+      if (d.ans == null) boQua++;
+      if (!pass) ok = false;
+      ra.push({
+        vao: JSON.stringify(d.o), mong: d.ans,
+        duoc: el ? duoc : '(KHONG TIM THAY #' + id + ')', dat: pass
+      });
+    });
+    R.dapAn = { dat: ok, boQua: boQua, chiTiet: ra };
+    if (boQua)
+      R.dapAn.canhBao = boQua + '/' + cfg.dulieu.length +
+        ' bo KHONG neu `ans` nen khong duoc kiem — dien dap an that vao KIEM_CFG.';
+
+    /* Sau khi cham xong, bo du lieu CUOI con nam do — thuong la ca suy bien,
+       do bo cuc/hoat hinh tren no se bo sot loi. Chon bo NHIEU BUOC NHAT
+       (hoac cfg.chinh neu chi dinh) roi moi do tiep. */
+    let idx0 = 0, nhieu = -1;
+    cfg.dulieu.forEach((d, i) => {
+      datInput(d.o); toiCuoi();
+      let s = 0;
+      PL.forEach(p => { const st = $('step' + p); if (st) s += (+st.textContent.split('/')[1] || 0); });
+      if (s > nhieu) { nhieu = s; idx0 = i; }
+    });
+    if (cfg.chinh != null) idx0 = cfg.chinh;
+    boChinh = cfg.dulieu[idx0];
+    datInput(boChinh.o); toiCuoi();
+    R.dapAn.doTrenBo = JSON.stringify(cfg.dulieu[idx0].o) + ' (' + nhieu + ' bước)';
+  }
+
+  /* 2. vua man hinh + do lap day */
+  (function () {
+    const de = document.documentElement, bo = document.body, dk = $('deck');
+    const luu = [de.style.cssText, bo.style.cssText, dk ? dk.style.cssText : ''];
+    function do_(W, H) {
+      de.style.width = W + 'px'; de.style.height = H + 'px';
+      bo.style.width = W + 'px'; bo.style.height = H + 'px';
+      if (dk) { dk.style.width = (W - 212) + 'px'; dk.style.height = H + 'px'; void dk.offsetWidth; }
+      const r = {};
+      IDS.forEach(id => {
+        const s = $(id); if (!s) return;
+        const f = s.querySelector('.frame'); const k = [...f.children];
+        const ext = Math.round(k[k.length - 1].getBoundingClientRect().bottom - k[0].getBoundingClientRect().top);
+        r[id] = { tran: f.scrollHeight - f.clientHeight, lap: Math.round(ext / f.clientHeight * 100) };
+      });
+      return r;
+    }
+    const a = do_(1280, 720), b = do_(1366, 768), c = do_(1920, 1080);
+    de.style.cssText = luu[0]; bo.style.cssText = luu[1]; if (dk) dk.style.cssText = luu[2];
+    const tran = [];
+    [['720', a], ['768', b], ['1080', c]].forEach(([n, r]) =>
+      Object.keys(r).forEach(id => { if (r[id].tran > 0) tran.push(n + ':' + id + '+' + r[id].tran + 'px'); }));
+    const thap = Object.keys(a).filter(id => a[id].lap < 65).map(id => id + ':' + a[id].lap + '%');
+    R.vuaManHinh = {
+      dat: tran.length === 0,
+      tranO: tran,
+      lapThap720: thap,                     // < 65% => slide bi long leo, nen bo sung noi dung
+      lap720: Object.fromEntries(Object.keys(a).map(id => [id, a[id].lap + '%']))
+    };
+  })();
+
+  /* 3. SVG lot khung + 4. nhan chong nhau / de len dinh */
+  (function () {
+    const lot = {}, chong = {};
+    let okLot = true, okChong = true;
+    const allSvg = SV.length ? SV : [...document.querySelectorAll('svg[id]')].map(s => s.id);
+    allSvg.concat([...document.querySelectorAll('.whyfig svg')].map((s, i) => s)).forEach(function (ref) {
+      const s = (typeof ref === 'string') ? $(ref) : ref;
+      if (!s || !s.getAttribute('viewBox')) return;
+      const key = (typeof ref === 'string') ? ref : ('hình:' + (s.closest('section') || {}).id);
+      const vb = s.getAttribute('viewBox').split(/[\s,]+/).map(Number);
+      const bad = [...s.querySelectorAll('rect,text,circle,path,line')].filter(e => {
+        let b; try { b = e.getBBox(); } catch (x) { return false; }
+        if (!b.width && !b.height) return false;
+        return b.x < vb[0] - 1 || b.y < vb[1] - 1 || b.x + b.width > vb[0] + vb[2] + 1 || b.y + b.height > vb[1] + vb[3] + 1;
+      });
+      if (bad.length) { lot[key] = bad.length; okLot = false; }
+      // nhan trong so
+      const L = [...s.querySelectorAll('.wlab')].map(t => { const b = t.getBBox(); return { t: t.textContent, x: b.x + b.width / 2, y: b.y + b.height / 2, w: b.width, h: b.height }; });
+      const N = [...s.querySelectorAll('.gnode circle')].map(c => ({ x: +c.getAttribute('cx'), y: +c.getAttribute('cy'), r: +c.getAttribute('r') }));
+      /* Bao kem VEC-TO TACH TOI THIEU: chong nhau bao nhieu don vi viewBox va nen
+         doi theo truc nao. Bao "co chong" thi con phai do lai bang mat moi sua duoc;
+         bao kem so do thi sua thang. */
+      let ov = 0, on = 0; const tach = [];
+      for (let i = 0; i < L.length; i++) for (let j = i + 1; j < L.length; j++) {
+        const dx = (L[i].w + L[j].w) / 2 - Math.abs(L[i].x - L[j].x);
+        const dy = (L[i].h + L[j].h) / 2 - Math.abs(L[i].y - L[j].y);
+        if (dx > 0 && dy > 0) {
+          ov++;
+          tach.push("'" + L[i].t + "' ↔ '" + L[j].t + "': dời " +
+            (dx <= dy ? Math.ceil(dx) + ' theo x' : Math.ceil(dy) + ' theo y'));
+        }
+      }
+      L.forEach(l => N.forEach(n => {
+        const d = Math.hypot(l.x - n.x, l.y - n.y);
+        if (d < n.r + 3) {
+          on++;
+          tach.push("'" + l.t + "' đè đỉnh (" + Math.round(n.x) + ',' + Math.round(n.y) +
+            '): dời ' + Math.ceil(n.r + 3 - d) + ' ra xa tâm');
+        }
+      }));
+      if (ov || on) { chong[key] = { chongNhau: ov, deLenDinh: on, tach: tach.slice(0, 8) }; okChong = false; }
+    });
+    R.svgLotKhung = { dat: okLot, chiTiet: lot };
+    R.nhanChong = { dat: okChong, chiTiet: chong };
+  })();
+
+  /* 5. moi buoc phai doi trang thai */
+  (function () {
+    const r = {}; let ok = true;
+    PL.forEach(p => {
+      const first = $('first' + p), next = $('next' + p);
+      if (!first || !next) return;
+      const chup = () => {
+        const sec = next.closest('section');
+        const svg = sec ? [...sec.querySelectorAll('svg')].map(s => s.innerHTML.length + ':' +
+          [...s.querySelectorAll('[class]')].map(e => e.getAttribute('class')).join(',')).join('|') : '';
+        const rows = sec ? [...sec.querySelectorAll('.row .cell')].map(c => c.textContent + c.className).join('|') : '';
+        const ban = $('banner' + p) ? $('banner' + p).textContent : '';
+        return svg + '##' + rows + '##' + ban;
+      };
+      first.click(); const seq = [];
+      for (let guard = 0; guard < 400; guard++) { seq.push(chup()); if (next.disabled) break; next.click(); }
+      const kh = new Set(seq).size;
+      r['bo' + p] = seq.length + ' bước / ' + kh + ' khác nhau';
+      if (kh < seq.length) ok = false;
+    });
+    R.buocKhacNhau = { dat: ok, chiTiet: r };
+  })();
+
+  /* 6. tuong phan WCAG */
+  (function () {
+    function lum(c) {
+      const m = c.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number)
+        .map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+      return 0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2];
+    }
+    const ratio = (a, b) => { const x = lum(a), y = lum(b); return Math.round((Math.max(x, y) + .05) / (Math.min(x, y) + .05) * 10) / 10; };
+    const cs = getComputedStyle(document.documentElement), V = n => cs.getPropertyValue(n).trim();
+    function h2r(h) {
+      h = h.replace('#', ''); if (h.length === 3) h = h.split('').map(c => c + c).join('');
+      return 'rgb(' + parseInt(h.slice(0, 2), 16) + ',' + parseInt(h.slice(2, 4), 16) + ',' + parseInt(h.slice(4, 6), 16) + ')';
+    }
+    const Rr = (a, b) => ratio(h2r(V(a)), h2r(V(b)));
+    function do_(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      return { chu: Rr('--fg', '--frame'), phu: Rr('--muted', '--frame'), vien: Rr('--line', '--frame'), xanh: Rr('--pos', '--frame'), do: Rr('--neg', '--frame') };
+    }
+    const s = do_('light'), d = do_('dark');
+    document.documentElement.removeAttribute('data-theme');
+    const ok = s.chu >= 7 && d.chu >= 7 && s.phu >= 7 && d.phu >= 7 && s.vien >= 3 && d.vien >= 3;
+    R.tuongPhan = { dat: ok, sang: s, toi: d };
+  })();
+
+  /* 7. emoji de vo glyph.
+     AN TOAN: nut dieu khien + mui ten + ky hieu toan pho bien (co trong moi font he thong).
+     BAO LOI: emoji mau (dai U+1F300+) va cac hinh trang tri de thanh o vuong. */
+  (function () {
+    const AT = '✓⏮◀▶⏭⏸' + '←↑→↓↔⇒⇔' + '−×÷±≠≤≥≈∈∉⊂⊆∅∑∏√∞∫∂' + '…·°';
+    const found = [...new Set((document.body.innerText.match(/[\uD83C-\uDBFF][\uDC00-\uDFFF]|[←-➿⬀-⯿]/g) || []))]
+      .filter(c => AT.indexOf(c) < 0);
+    R.emoji = { dat: found.length === 0, kyTu: found };
+  })();
+
+  /* 8. loi JS da bat duoc */
+  R.loiJS = { dat: !(window.__KIEM_ERR && window.__KIEM_ERR.length), chiTiet: window.__KIEM_ERR || [] };
+
+  /* 9. class dung trong HTML nhung khong co luat CSS nao khop.
+     Loi that: `.mrow` (dai minh hoa slide Tom tat) bi roi khi tach CSS ra khung.css
+     => 4 o xep DOC thay vi thanh hang, ma phep do "tran" van bao 0. */
+  (function () {
+    const dung = new Set();
+    document.querySelectorAll('[class]').forEach(e => e.classList.forEach(c => dung.add(c)));
+    const coLuat = new Set();
+    (function quet(list) {
+      for (const r of list) {
+        if (r.selectorText) (r.selectorText.match(/\.[-\w]+/g) || []).forEach(s => coLuat.add(s.slice(1)));
+        if (r.cssRules) quet(r.cssRules);          // @media, @supports
+      }
+    })([...document.styleSheets].flatMap(sh => { try { return [...sh.cssRules]; } catch (e) { return []; } }));
+    const la = [...dung].filter(c => !coLuat.has(c)).sort();
+    R.classLa = { dat: la.length === 0, chiTiet: la };
+  })();
+
+  /* 10. phu ma gia: moi dong phai duoc to sang (class .on) it nhat mot lan.
+     Dong khong bao gio sang = deck bo quen mot nhanh (vd nhanh "da la mot vong phu het"),
+     hoac ma gia thua mot dong. Dong CHU THICH (bat dau bang //) duoc mien. */
+  (function () {
+    const r = {}; let ok = true;
+    const chuThich = e => {
+      const sp = e.querySelectorAll('span');
+      return (sp.length > 1 ? sp[sp.length - 1].textContent : e.textContent).trim().startsWith('//');
+    };
+    const can = {}, da = {};
+    /* Gop TAT CA bo du lieu: mot nhanh chi chay o mot bo (vd "da la mot vong phu het")
+       van duoc tinh la co phu. Do rieng bo "nhieu buoc nhat" se bao oan. */
+    const boDu = (cfg.dulieu && cfg.dulieu.length) ? cfg.dulieu : [null];
+    boDu.forEach(d => {
+      if (d) datInput(d.o);
+      PL.forEach(p => {
+        const first = $('first' + p), next = $('next' + p);
+        if (!first || !next) return;
+        const sec = next.closest('section'); if (!sec) return;
+        const code = sec.querySelector('.code'); if (!code) return;
+        if (!can[p]) can[p] = [...code.querySelectorAll('.ln')]
+          .filter(e => !chuThich(e)).map(e => +e.getAttribute('data-line')).filter(Boolean);
+        if (!da[p]) da[p] = new Set();
+        first.click();
+        for (let guard = 0; guard < 400; guard++) {
+          code.querySelectorAll('.ln.on').forEach(e => da[p].add(+e.getAttribute('data-line')));
+          if (next.disabled) break;
+          next.click();
+        }
+      });
+    });
+    Object.keys(can).forEach(p => {
+      const thieu = can[p].filter(d => !da[p].has(d));
+      r['bo' + p] = thieu.length
+        ? ('dòng chưa bao giờ tô sáng: ' + thieu.join(', '))
+        : (can[p].length + '/' + can[p].length + ' dòng');
+      if (thieu.length) ok = false;
+    });
+    R.phuMaGia = { dat: ok, chiTiet: r, doTrenBo: boDu.length + ' bộ dữ liệu' };
+    if (!(cfg.dulieu && cfg.dulieu.length))
+      R.phuMaGia.canhBao = 'goi KIEM khong kem `dulieu` — chi do tren bo dang hien, ' +
+        'nhanh chi chay o bo du lieu khac se bi bao oan.';
+    if (boChinh) { datInput(boChinh.o); toiCuoi(); }   // tra deck ve bo chinh
+  })();
+
+  R.TONG = Object.keys(R).filter(k => k !== 'TONG' && R[k] && R[k].dat === false);
+  R.KETLUAN = R.TONG.length ? ('LỖI ở: ' + R.TONG.join(', ')) : 'TẤT CẢ ĐẠT';
+  // bo nao khong neu `ans` thi khong duoc kiem — noi ro, dung de "TAT CA DAT" danh lua
+  if (R.dapAn && R.dapAn.boQua)
+    R.KETLUAN += ' — nhưng ' + R.dapAn.boQua + ' bộ dữ liệu chưa nêu đáp án nên KHÔNG được kiểm';
+  return JSON.stringify(R, null, 1);
+}
+/* bat loi JS ngay khi dan file nay som */
+if (!window.__KIEM_ERR) {
+  window.__KIEM_ERR = [];
+  window.addEventListener('error', e => window.__KIEM_ERR.push(String(e.message)));
+}
+
+</script>
+<aside class="sidebar">
+  <div class="brand">Bài 4<small>Máy in</small></div>
+  <nav class="snav">
+    <a href="#s1"><span class="n">1</span><span class="t">Tóm tắt đề bài</span></a>
+    <a href="#s2"><span class="n">2</span><span class="t">TEMP khác MSET chỗ nào?</span></a>
+    <a href="#s3"><span class="n">3</span><span class="t">Trạng thái cần nhớ</span></a>
+    <a href="#s4"><span class="n">4</span><span class="t">Công thức truy hồi</span></a>
+    <a href="#s5"><span class="n">5</span><span class="t">Chạy: điền bảng dp</span></a>
+    <a href="#s6"><span class="n">6</span><span class="t">Chạy: truy vết dãy lệnh</span></a>
+    <a href="#s7"><span class="n">7</span><span class="t">Kiểm tra hiểu</span></a>
+  </nav>
+  <div class="sfoot">
+    <div class="hint">← → chuyển trang<br>Ctrl+H thanh bên<br>Ctrl+D sáng/tối</div>
+    <div class="stools">
+      <button class="sbtn theme" id="btnTheme" title="Đổi nền sáng/tối (Ctrl+D hoặc D)"></button>
+      <button class="sbtn rail" id="btnRail" title="Thu gọn / mở rộng thanh bên (Ctrl+H hoặc H)"></button>
+    </div>
+  </div>
+</aside>
+
+<main class="deck" id="deck">
+  <!-- SLIDE 1 — TÓM TẮT -->
+  <section id="s1" class="slide"><div class="frame">
+    <div class="stag">Phần 1 · Tóm tắt đề bài</div>
+    <h2>Máy in</h2>
+    <p>Máy in có một ô <b>bộ nhớ</b> chứa đúng một ký tự, và ba lệnh: <b>MSET(X)</b> đặt bộ nhớ thành X · <b>PRINT</b> in ra ký tự đang có trong bộ nhớ · <b>TEMP(X)</b> đặt ký tự cho <b>riêng lần in kế tiếp</b> là X, in xong thì bộ nhớ <b>tự quay lại</b> giá trị của lệnh MSET gần nhất.</p>
+    <p>Cho chuỗi <b>S</b> gồm chữ in hoa, hãy tìm <b>số lệnh ít nhất</b> để in đúng chuỗi đó. Lệnh đầu tiên luôn phải là <b>MSET</b>.</p>
+    <div class="iobox">
+      <div><b>Dữ liệu vào</b>Một dòng chứa chuỗi S gồm chữ in hoa, |S| ≤ 10 000.</div>
+      <div><b>Kết quả ra</b>Một số nguyên — số lệnh tối thiểu.</div>
+    </div>
+    <div class="exlab">Ví dụ trong phần mô tả — in chuỗi AABAA</div>
+    <div class="mini">
+      <div class="mgrp"><div class="mlab">Chuỗi cần in</div>
+        <div class="mrow"><div class="cell">A</div><div class="cell">A</div><div class="cell hot">B</div><div class="cell">A</div><div class="cell">A</div></div></div>
+      <div class="mar">→</div>
+      <div class="mgrp"><div class="mlab">Chỉ dùng MSET — 8 lệnh</div>
+        <div class="mrow"><div class="cell">M<sub>A</sub></div><div class="cell">P</div><div class="cell">P</div><div class="cell zero">M<sub>B</sub></div><div class="cell">P</div><div class="cell zero">M<sub>A</sub></div><div class="cell">P</div><div class="cell">P</div></div></div>
+      <div class="mgrp"><div class="mlab">Có TEMP — 7 lệnh</div>
+        <div class="mrow"><div class="cell">M<sub>A</sub></div><div class="cell">P</div><div class="cell">P</div><div class="cell prime">T<sub>B</sub></div><div class="cell">P</div><div class="cell">P</div><div class="cell">P</div></div></div>
+    </div>
+    <p class="minote"><b>M<sub>X</sub></b> = MSET(X), <b>T<sub>X</sub></b> = TEMP(X), <b>P</b> = PRINT. Cách thứ hai tiết kiệm một lệnh vì sau <code>TEMP(B)</code> bộ nhớ <b>tự trở lại A</b>, khỏi phải gõ lại <code>MSET(A)</code>.</p>
+    <p class="muted">Ràng buộc: |S| ≤ 10 000, chữ in hoa tiếng Anh. Subtask: chuỗi một loại ký tự (10đ) · chuỗi hai loại ký tự (40đ) · |S| ≤ 25 (30đ) · đầy đủ (20đ).</p>
+  </div></section>
+
+  <!-- SLIDE 2 — SUY LUẬN 1/3 -->
+  <section id="s2" class="slide"><div class="frame">
+    <div class="stag">Phần 2 · Suy luận 1/3</div>
+    <h2>TEMP và MSET: cùng giá, khác hậu quả</h2>
+    <div class="why">
+      <div class="whytxt">
+        <p class="ask">Khi ký tự cần in khác ký tự trong bộ nhớ, chọn lệnh nào?</p>
+        <ul class="qlist">
+          <li>Cả hai đường đều tốn đúng <b>2 lệnh</b>: <code>TEMP(X) + PRINT</code> hoặc <code>MSET(X) + PRINT</code>. Về <b>giá trước mắt</b> chúng hoàn toàn ngang nhau.</li>
+          <li>Khác nhau ở <b>trạng thái để lại</b>: sau <code>TEMP</code> bộ nhớ <b>giữ nguyên</b> ký tự cũ; sau <code>MSET</code> bộ nhớ <b>đổi</b> thành X.</li>
+          <li>Vậy chọn cái nào <b>hoàn toàn phụ thuộc phần chuỗi phía sau</b>: nếu ký tự cũ còn lặp lại nhiều thì nên giữ (TEMP); nếu X mới là ký tự lặp nhiều thì nên đổi hẳn (MSET).</li>
+          <li>Vì phụ thuộc tương lai nên <b>không có luật tham lam nào đúng</b> — thấy trước mắt thì hai lệnh y hệt nhau, không đủ căn cứ để quyết.</li>
+        </ul>
+        <p class="keyline">Không quyết được ngay thì <b>thử cả hai và lấy phương án rẻ hơn</b> — nhưng phải nhớ lại kết quả để khỏi tính đi tính lại. Đó chính là quy hoạch động.</p>
+      </div>
+      <div class="whyfig">
+        <svg viewBox="0 0 620 222">
+          <text x="310" y="16" text-anchor="middle" font-size="12" fill="var(--accent)" font-weight="700">Cùng in chuỗi AABAA</text>
+          <text x="105" y="32" text-anchor="middle" font-size="11.5" fill="var(--neg)" font-weight="700">Chỉ dùng MSET — 8 lệnh</text>
+          <rect x="30" y="38" width="150" height="17" rx="4" class="gcell"/><text x="105" y="51" class="gtxt">MSET(A)</text>
+          <rect x="30" y="59" width="150" height="17" rx="4" class="gcell"/><text x="105" y="72" class="gtxt">PRINT</text>
+          <rect x="30" y="80" width="150" height="17" rx="4" class="gcell"/><text x="105" y="93" class="gtxt">PRINT</text>
+          <rect x="30" y="101" width="150" height="17" rx="4" class="gcell neg"/><text x="105" y="114" class="gtxt neg">MSET(B)</text>
+          <rect x="30" y="122" width="150" height="17" rx="4" class="gcell"/><text x="105" y="135" class="gtxt">PRINT</text>
+          <rect x="30" y="143" width="150" height="17" rx="4" class="gcell neg"/><text x="105" y="156" class="gtxt neg">MSET(A)</text>
+          <rect x="30" y="164" width="150" height="17" rx="4" class="gcell"/><text x="105" y="177" class="gtxt">PRINT</text>
+          <rect x="30" y="185" width="150" height="17" rx="4" class="gcell"/><text x="105" y="198" class="gtxt">PRINT</text>
+          <text x="188" y="156" font-size="9.5" fill="var(--neg)" font-weight="700">phải đặt lại bằng tay</text>
+
+          <text x="415" y="32" text-anchor="middle" font-size="11.5" fill="var(--pos)" font-weight="700">Dùng TEMP — 7 lệnh</text>
+          <rect x="340" y="38" width="150" height="17" rx="4" class="gcell"/><text x="415" y="51" class="gtxt">MSET(A)</text>
+          <rect x="340" y="59" width="150" height="17" rx="4" class="gcell"/><text x="415" y="72" class="gtxt">PRINT</text>
+          <rect x="340" y="80" width="150" height="17" rx="4" class="gcell"/><text x="415" y="93" class="gtxt">PRINT</text>
+          <rect x="340" y="101" width="150" height="17" rx="4" class="gcell src"/><text x="415" y="114" class="gtxt src">TEMP(B)</text>
+          <rect x="340" y="122" width="150" height="17" rx="4" class="gcell"/><text x="415" y="135" class="gtxt">PRINT</text>
+          <rect x="340" y="143" width="150" height="17" rx="4" class="gcell"/><text x="415" y="156" class="gtxt">PRINT</text>
+          <rect x="340" y="164" width="150" height="17" rx="4" class="gcell"/><text x="415" y="177" class="gtxt">PRINT</text>
+          <text x="498" y="128" font-size="9.5" fill="var(--pos)" font-weight="700">bộ nhớ TỰ về A</text>
+          <text x="310" y="216" text-anchor="middle" font-size="11.5" fill="var(--muted)">hai lệnh đổi ký tự đều tốn 2 — chỉ khác ở chỗ bộ nhớ sau đó là gì</text>
+        </svg>
+        <div class="figcap">Chênh nhau đúng một lệnh MSET(A) mà TEMP không cần tới</div>
+      </div>
+    </div>
+    <div class="restate"><b>Phát biểu lại (lần 1)</b>
+      <p>Ở mỗi ký tự, nếu bộ nhớ chưa khớp thì có <b>hai lựa chọn ngang giá</b> nhưng để lại <b>hai bộ nhớ khác nhau</b>. Câu hỏi kế tiếp: muốn tính bằng quy hoạch động thì <b>trạng thái</b> gồm những gì?</p>
+    </div>
+  </div></section>
+
+  <!-- SLIDE 3 — SUY LUẬN 2/3 -->
+  <section id="s3" class="slide"><div class="frame">
+    <div class="stag">Phần 3 · Suy luận 2/3</div>
+    <h2>Trạng thái: đang ở ký tự nào, bộ nhớ đang giữ chữ gì</h2>
+    <div class="why">
+      <div class="whytxt">
+        <p class="ask">Muốn biết chi phí phần còn lại, cần biết những gì?</p>
+        <ul class="qlist">
+          <li>Phần chuỗi chưa in được xác định bởi <b>một con số i</b> — vị trí ký tự kế tiếp.</li>
+          <li>Máy in không có gì khác để nhớ ngoài <b>một ký tự c</b> trong bộ nhớ. Số lệnh đã dùng trước đó <b>không ảnh hưởng</b> tới tương lai.</li>
+          <li>Vậy cặp <b>(i, c)</b> đã mô tả trọn vẹn tình trạng máy. Đặt <b>dp[i][c]</b> = số lệnh ít nhất để in xong đoạn <b>S[i..n]</b> khi bộ nhớ đang giữ <b>c</b>.</li>
+          <li>Số trạng thái: <b>n × 26</b>. Với n ≤ 10 000 là 260 000 ô — thừa sức chứa.</li>
+          <li>Thực ra chỉ cần xét c là các chữ <b>có mặt trong S</b>: từ trạng thái c ta chỉ nhảy tới c hoặc S[i], mà điểm xuất phát là S[1]. Bảng mô phỏng ở slide sau dùng đúng tập rút gọn ấy cho dễ nhìn.</li>
+        </ul>
+        <p class="keyline">Cơ sở: <b>dp[n+1][c] = 0</b> với mọi c — không còn gì để in thì không tốn lệnh nào, bất kể bộ nhớ đang giữ chữ gì.</p>
+      </div>
+      <div class="whyfig">
+        <svg viewBox="0 0 620 210">
+          <text x="310" y="16" text-anchor="middle" font-size="12" fill="var(--muted)">chuỗi B A B C B A C A — đang đứng ở i = 4</text>
+          <rect x="60"  y="30" width="42" height="34" rx="5" class="gcell base"/><text x="81"  y="52" class="gtxt base">B</text>
+          <rect x="106" y="30" width="42" height="34" rx="5" class="gcell base"/><text x="127" y="52" class="gtxt base">A</text>
+          <rect x="152" y="30" width="42" height="34" rx="5" class="gcell base"/><text x="173" y="52" class="gtxt base">B</text>
+          <rect x="198" y="30" width="42" height="34" rx="5" class="gcell hot"/><text x="219" y="52" class="gtxt hot">C</text>
+          <rect x="244" y="30" width="42" height="34" rx="5" class="gcell"/><text x="265" y="52" class="gtxt">B</text>
+          <rect x="290" y="30" width="42" height="34" rx="5" class="gcell"/><text x="311" y="52" class="gtxt">A</text>
+          <rect x="336" y="30" width="42" height="34" rx="5" class="gcell"/><text x="357" y="52" class="gtxt">C</text>
+          <rect x="382" y="30" width="42" height="34" rx="5" class="gcell"/><text x="403" y="52" class="gtxt">A</text>
+          <text x="219" y="80" text-anchor="middle" font-size="11" fill="var(--accent)" font-weight="700">i = 4</text>
+          <path d="M198,88 L426,88" class="edge hot"/>
+          <text x="312" y="104" text-anchor="middle" font-size="11.5" fill="var(--accent)" font-weight="700">phần còn phải in: S[4..8]</text>
+          <text x="130" y="104" text-anchor="middle" font-size="11.5" fill="var(--muted)">đã in xong — không cần nhớ nữa</text>
+          <rect x="460" y="30" width="120" height="52" rx="8" class="gcell src"/>
+          <text x="520" y="50" class="gtxt src">bộ nhớ</text>
+          <text x="520" y="70" class="gtxt src">c = A</text>
+          <rect x="60" y="120" width="500" height="70" rx="10" class="gcell"/>
+          <text x="310" y="144" class="gtxt">dp[i][c] = số lệnh ít nhất để in S[i..n] khi bộ nhớ giữ c</text>
+          <text x="310" y="168" class="gcap2">chỉ cần hai thông tin này — mọi chuyện đã in trước đó không còn ảnh hưởng</text>
+        </svg>
+        <div class="figcap">Vị trí i cắt chuỗi làm đôi; bộ nhớ c là thứ duy nhất còn sót lại từ quá khứ</div>
+      </div>
+    </div>
+    <div class="restate"><b>Phát biểu lại (lần 2)</b>
+      <p>Cần điền bảng <b>dp[i][c]</b> rồi đọc đáp án ở một ô. Câu hỏi cuối: <b>công thức truy hồi</b> viết thế nào, và đáp án nằm ở ô nào?</p>
+    </div>
+  </div></section>
+
+  <!-- SLIDE 4 — SUY LUẬN 3/3 -->
+  <section id="s4" class="slide"><div class="frame">
+    <div class="stag">Phần 4 · Suy luận 3/3</div>
+    <h2>Công thức truy hồi và ô chứa đáp án</h2>
+    <div class="why">
+      <div class="whytxt">
+        <p class="ask">Đứng ở (i, c) thì làm gì tiếp?</p>
+        <ul class="qlist">
+          <li><b>Nếu c = S[i]</b>: bộ nhớ đã đúng, chỉ cần <code>PRINT</code> — tốn 1 lệnh, bộ nhớ không đổi.
+            <br><b>dp[i][c] = 1 + dp[i+1][c]</b></li>
+          <li><b>Nếu c ≠ S[i]</b>: hai đường đều tốn 2 lệnh, lấy đường rẻ hơn về sau.
+            <br>giữ bộ nhớ (TEMP) → <b>2 + dp[i+1][c]</b> · đổi bộ nhớ (MSET) → <b>2 + dp[i+1][S[i]]</b></li>
+          <li>Thứ tự tính: dp[i] cần dp[i+1] ⇒ phải chạy <b>i từ n về 1</b>, tức từ <b>phải sang trái</b>.</li>
+          <li>Đáp án: lệnh đầu bắt buộc là <code>MSET(S[1])</code> — tốn 1 lệnh và đưa bộ nhớ về S[1] ⇒ <b>đáp án = 1 + dp[1][S[1]]</b>.</li>
+        </ul>
+        <p class="keyline">Độ phức tạp <b>O(26 n)</b> thời gian và bộ nhớ — khoảng 260 nghìn ô với n = 10 000. Có thể rút xuống O(26) bộ nhớ vì mỗi cột chỉ cần cột liền sau.</p>
+        <p class="keyline"><b>Chỗ dễ sai:</b> quên cộng 1 cho lệnh <code>MSET</code> đầu tiên, hoặc đặt <code>dp[n+1][c] = 1</code> thay vì 0.</p>
+      </div>
+      <div class="whyfig">
+        <svg viewBox="0 0 620 208">
+          <text x="310" y="18" text-anchor="middle" font-size="12.5" fill="var(--accent)" font-weight="700">Hai nhánh tại ô dp[i][c]</text>
+          <rect x="230" y="28" width="160" height="34" rx="8" class="gcell hot"/>
+          <text x="310" y="50" class="gtxt hot">dp[i][c]</text>
+          <path d="M270,64 L150,92" class="edge kept" marker-end="url(#mk_green)"/>
+          <path d="M350,64 L470,92" class="edge hot" marker-end="url(#mk_blue)"/>
+          <text x="196" y="80" text-anchor="middle" font-size="11" fill="var(--pos)" font-weight="700">c = S[i]</text>
+          <text x="428" y="80" text-anchor="middle" font-size="11" fill="var(--accent)" font-weight="700">c ≠ S[i]</text>
+          <rect x="30" y="96" width="230" height="44" rx="8" class="gcell src"/>
+          <text x="145" y="114" class="gtxt src">PRINT — 1 lệnh</text>
+          <text x="145" y="132" class="gtxt">dp[i][c] = 1 + dp[i+1][c]</text>
+          <rect x="330" y="96" width="260" height="44" rx="8" class="gcell"/>
+          <text x="460" y="114" class="gtxt">TEMP hoặc MSET — 2 lệnh</text>
+          <text x="460" y="132" class="gtxt">2 + min( dp[i+1][c], dp[i+1][S[i]] )</text>
+          <rect x="120" y="152" width="380" height="42" rx="8" class="gcell src"/>
+          <text x="310" y="170" class="gtxt src">Cơ sở dp[n+1][c] = 0 · Đáp án = 1 + dp[1][S[1]]</text>
+          <text x="310" y="187" class="gcap2">điền bảng từ cột n về cột 1 — mỗi cột chỉ cần cột ngay sau nó</text>
+        </svg>
+        <div class="figcap">Nhánh trái tốn 1 lệnh và giữ nguyên bộ nhớ; nhánh phải tốn 2 và có hai ngả</div>
+      </div>
+    </div>
+    <div class="subprob"><b>Lời giải hoàn chỉnh</b>
+      <p>Đặt <code>dp[n+1][c] = 0</code>, chạy <b>i từ n về 1</b>, mỗi i duyệt mọi chữ c và áp công thức trên, cuối cùng in <b>1 + dp[1][S[1]]</b>. Toàn bộ chạy trong <b>O(26 n)</b>.</p>
+    </div>
+  </div></section>
+
+  <!-- SLIDE 5 — MÔ PHỎNG 1/2 -->
+  <section id="s5" class="slide"><div class="frame">
+    <div class="simhead">
+      <div><div class="stag">Phần 5 · Mô phỏng — Bước 1/2</div><h2>Điền bảng dp từ phải sang trái</h2></div>
+      <div class="src">
+        <span class="ilab">Chuỗi S</span><input class="inp a" id="inpS" type="text" value="BABCBACA" style="min-width:130px">
+        <select id="preset" title="Ví dụ mẫu">
+          <option value="">Ví dụ…</option>
+          <option value="BABCBACA">Ví dụ 3 — BABCBACA (13)</option>
+          <option value="IOIA">Ví dụ 2 — IOIA (7)</option>
+          <option value="BB">Ví dụ 1 — BB (3)</option>
+          <option value="AABAA">AABAA — TEMP thắng (7)</option>
+          <option value="ABBBB">ABBBB — MSET thắng (7)</option>
+          <option value="ABABABAB">ABABABAB — xen kẽ (13)</option>
+        </select>
+        <button id="rnd">Ngẫu nhiên</button>
+      </div>
+    </div>
+    <div class="banner" id="banner1"></div>
+    <div class="simg">
+      <div class="graphbox"><svg id="g1" class="graph" viewBox="0 0 380 300"></svg></div>
+      <div class="simr">
+        <div class="code" id="code1">
+          <div class="ln" data-line="1"><span class="no">1</span><span>dp[n+1][c] ← 0  với mọi chữ c</span></div>
+          <div class="ln" data-line="2"><span class="no">2</span><span>for i = n về 1:</span></div>
+          <div class="ln" data-line="3"><span class="no">3</span><span>    cho mỗi chữ c:</span></div>
+          <div class="ln" data-line="4"><span class="no">4</span><span>        nếu c = S[i]: dp[i][c] ← 1 + dp[i+1][c]</span></div>
+          <div class="ln" data-line="5"><span class="no">5</span><span>        ngược lại:    dp[i][c] ← 2 + min(dp[i+1][c], dp[i+1][S[i]])</span></div>
+          <div class="ln" data-line="6"><span class="no">6</span><span>đáp án ← 1 + dp[1][S[1]]</span></div>
+        </div>
+        <div class="rows">
+          <div class="vsec" id="secP5D"><div class="slab">Đường chéo dp[i][S[i]] — bộ nhớ vừa khớp ký tự đang in</div><div class="row" id="rowP5D"></div></div>
+        </div>
+        <div class="vbot"><div class="pens" id="pens5"></div></div>
+      </div>
+    </div>
+    <div class="glegend"><span><i class="b"></i> cột đang tính</span><span><i class="g"></i> cột đã có (dùng lại)</span><span><i class="r"></i> chưa tính (nét đứt)</span></div>
+    <div class="expl" id="expl1"></div>
+    <div class="ctrl">
+      <button id="first1" title="Về đầu">⏮</button><button id="prev1" title="Lùi">◀</button>
+      <button class="play" id="play1" title="Chạy/Dừng">▶</button>
+      <button id="next1" title="Tới">▶</button><button id="last1" title="Tới cuối">⏭</button>
+      <span class="step" id="step1">0/0</span>
+      <span class="spd">tốc độ <input id="speed1" type="range" min="200" max="1600" step="100" value="750"></span>
+    </div>
+  </div></section>
+
+  <!-- SLIDE 6 — MÔ PHỎNG 2/2 -->
+  <section id="s6" class="slide"><div class="frame">
+    <div class="simhead">
+      <div><div class="stag">Phần 6 · Mô phỏng — Bước 2/2</div><h2>Truy vết: bảng dp chỉ ra dãy lệnh</h2></div>
+    </div>
+    <div class="banner" id="banner2"></div>
+    <div class="simg">
+      <div class="graphbox"><svg id="g2" class="graph" viewBox="0 0 380 210"></svg></div>
+      <div class="simr">
+        <div class="code" id="code2">
+          <div class="ln" data-line="1"><span class="no">1</span><span>lệnh ← [MSET(S[1])];   nhớ ← S[1]</span></div>
+          <div class="ln" data-line="2"><span class="no">2</span><span>for i = 1 .. n:</span></div>
+          <div class="ln" data-line="3"><span class="no">3</span><span>    nếu nhớ = S[i]:          PRINT             (1 lệnh)</span></div>
+          <div class="ln" data-line="4"><span class="no">4</span><span>    ngược lại nếu dp[i+1][nhớ] ≤ dp[i+1][S[i]]:</span></div>
+          <div class="ln" data-line="5"><span class="no">5</span><span>        TEMP(S[i]), PRINT — giữ nhớ  (2 lệnh)</span></div>
+          <div class="ln" data-line="6"><span class="no">6</span><span>    ngược lại: MSET(S[i]), PRINT — nhớ ← S[i]  (2 lệnh)</span></div>
+          <div class="ln" data-line="7"><span class="no">7</span><span>in số lệnh</span></div>
+        </div>
+        <div class="rows">
+          <div class="vsec" id="secP6L"><div class="slab">Số lệnh đã dùng sau khi in xong ký tự thứ i</div><div class="row" id="rowP6L"></div></div>
+        </div>
+        <div class="vbot">
+          <div class="pens" id="pens6"></div>
+          <div class="ansbox" id="ansbox2">Số lệnh <span class="av" id="ans2">·</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="glegend"><span><i class="b"></i> ký tự đang in</span><span><i class="g"></i> đã in xong</span><span>viết gọn: M<sub>X</sub>=MSET(X) · T<sub>X</sub>=TEMP(X) · P=PRINT</span></div>
+    <div class="expl" id="expl2"></div>
+    <div class="ctrl">
+      <button id="first2" title="Về đầu">⏮</button><button id="prev2" title="Lùi">◀</button>
+      <button class="play" id="play2" title="Chạy/Dừng">▶</button>
+      <button id="next2" title="Tới">▶</button><button id="last2" title="Tới cuối">⏭</button>
+      <span class="step" id="step2">0/0</span>
+      <span class="spd">tốc độ <input id="speed2" type="range" min="200" max="1600" step="100" value="750"></span>
+    </div>
+  </div></section>
+
+  <!-- SLIDE 7 — KIỂM TRA HIỂU -->
+  <section id="s7" class="slide"><div class="frame">
+    <div class="stag">Phần 7 · Kiểm tra hiểu</div>
+    <h2>Hai luật tham lam nghe rất hợp lý — và cả hai đều thua</h2>
+
+    <div class="bacbo">
+      <div class="mhsai">
+        <h4>Mô hình sai — chọn cứng một loại lệnh</h4>
+        <p><b>Luật A "luôn MSET":</b> <i>"cứ đổi hẳn bộ nhớ cho chắc"</i>. Số lệnh = 1 + n + số lần ký tự đổi so với ký tự liền trước.</p>
+        <p><b>Luật B "luôn TEMP":</b> <i>"TEMP không phá bộ nhớ nên luôn an toàn hơn"</i>.</p>
+        <p>Trên <b>BABCBACA</b> (n = 8): luật A cho <b>16</b>, luật B cho <b>14</b>.</p>
+        <p class="re">Chỗ rẽ: hai lệnh <b>cùng giá 2</b>, nên không có căn cứ nào ở hiện tại để chọn — cái quyết định nằm ở <b>phần chuỗi phía sau</b>, thứ mà tham lam không nhìn thấy.</p>
+      </div>
+      <div class="mhdung">
+        <h4>Mô hình đúng — quy hoạch động, trộn cả hai</h4>
+        <p>dp thử cả hai ngả ở mỗi bước rồi lấy nhánh rẻ hơn, nên lời giải tối ưu <b>pha trộn</b> TEMP và MSET.</p>
+        <p>Cũng chuỗi ấy, dãy tối ưu <b>13 lệnh</b>:
+          <br><code>M<sub>B</sub> P T<sub>A</sub> P P T<sub>C</sub> P P M<sub>A</sub> P T<sub>C</sub> P P</code></p>
+        <p class="re">Chênh nhau <b>16 và 14 so với 13</b>. Đúng một lệnh <code>MSET(A)</code> ở giữa — đặt sai chỗ là hỏng, mà chỉ dp mới tìm ra chỗ ấy.</p>
+      </div>
+    </div>
+
+    <div class="eipe">
+      <b>Nói bằng lời: <code>dp[i][c]</code> là gì?</b>
+      Trả lời bằng <b>một câu</b>, không được nhắc tới vòng <code>for</code> hay mảng.
+      <button>Hiện gợi ý</button>
+      <div class="dapan"><code>dp[i][c]</code> là <b>số lệnh ít nhất còn phải dùng để in nốt đoạn từ ký tự thứ i tới hết</b>, biết rằng lúc đó bộ nhớ máy in đang giữ chữ <b>c</b>.</div>
+    </div>
+
+    <div class="eipe">
+      <b>Vì sao bảng dp phải điền từ PHẢI sang TRÁI, không được điền từ trái sang phải?</b>
+      Gợi ý: nhìn xem công thức của dp[i][c] cần biết những ô nào.
+      <button>Hiện gợi ý</button>
+      <div class="dapan">Vì dp[i][c] được tính từ <b>dp[i+1][…]</b> — tức cột <b>bên phải</b> nó. Muốn ô nào cũng có sẵn dữ liệu khi tới lượt thì phải điền cột n trước, rồi lùi dần về cột 1. Điền xuôi thì lúc tính dp[i] cột dp[i+1] vẫn còn trống.</div>
+    </div>
+  </div></section>
+</main>
+
+<script>
+/* ============================ MOPHONG — runtime chung ============================
+   Dung chung cho moi deck mo phong. KHONG sua file nay khi lam bai moi;
+   bai moi chi viet: noidung.html (9 slide) + thuattoan.js (tinh + dung KHUNG).
+
+   KHAI NIEM "KHUNG" (frame) — mot anh chup trang thai, dung cho MOT buoc:
+     { b: 'ten buoc lon',          // mo dau bang ✓ => moc ket thuc buoc lon
+       e: 'mot cau giai thich',
+       h: [1,2],                   // cac dong ma gia to sang
+       v: {...}                    // trang thai rieng cua module ve (xem tung module)
+       r: { tenHang: {vals:[], cls:[]} },
+       ans: so|null,               // gia tri o "Dap an" (neu co)
+       glow: ['secX', ...],        // cac khoi vien phat sang
+       hoi: 'cau do tuy chon' }    // che do hoi lop dung thay cau do mac dinh
+
+   MODULE VE — moi module co hai ham:
+     dung(svg, cfg)   dung DOM mot lan (khi doi du lieu)
+     ve(svg, v)       ve lai theo trang thai v cua khung hien tai
+================================================================================= */
+window.MP = (function () {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const NS = "http://www.w3.org/2000/svg";
+
+  function el(tag, attrs, txt) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+  function xoa(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+  /* Kich thuoc khung ve, LAY TU viewBox — moi module phai xep hinh theo day,
+     tuyet doi khong gan cung 380/300. (Ban thu tung phoi ra loi nay.) */
+  function kt(svg) {
+    const v = (svg.getAttribute("viewBox") || "0 0 380 270").split(/[\s,]+/).map(Number);
+    return { x: v[0], y: v[1], W: v[2], H: v[3] };
+  }
+  function cls(base, c) { return base + (c ? " " + c : ""); }
+  const MK = { seen: "gray", hot: "blue", tree: "muted", kept: "green", drop: "red", cut: "red" };
+  function mui(c) { return MK[c] ? "url(#mk_" + MK[c] + ")" : "none"; }
+
+  /* ---------------------------------------------------------------- HANG O
+     Hang o HTML (khong phai SVG). Dung cho moi bai.
+       tao(rowId, n, nhan)  -> ve n o, nhan[i] la chu duoi o (mac dinh 1..n)
+       ve(rowId, {vals, cls})                                                  */
+  const hang = {
+    tao(rowId, n, nhan) {
+      const r = $(rowId); if (!r) return;
+      r.innerHTML = "";
+      for (let i = 0; i < n; i++) {
+        const t = document.createElement("div");
+        t.className = "tri";
+        t.innerHTML = '<div class="cell" id="' + rowId + '_' + i + '">·</div>' +
+                      '<div class="idx">' + (nhan ? nhan[i] : (i + 1)) + '</div>';
+        r.appendChild(t);
+      }
+    },
+    ve(rowId, row) {
+      const r = $(rowId); if (!r || !row) return;
+      const n = r.children.length;
+      for (let i = 0; i < n; i++) {
+        const c = $(rowId + '_' + i); if (!c) continue;
+        c.textContent = (row.vals[i] == null ? "·" : row.vals[i]);
+        c.className = cls("cell", row.cls && row.cls[i]);
+      }
+    }
+  };
+
+  const mod = {};
+
+  /* ------------------------------------------------------------ BIEU DO COT
+     cfg = { gtri:[...], nhan:[...] , cao:214, tren:44 }
+     v   = { cot:['','hot','cnt','big', ...] }                                */
+  mod.bieudocot = {
+    dung(svg, cfg) {
+      xoa(svg);
+      const g = cfg.gtri, n = g.length, K = kt(svg);
+      const W = K.W, base = cfg.cao || (K.y + K.H - 56), top = cfg.tren || (K.y + 44), gap = 5;
+      const maxA = Math.max(1, ...g);
+      const bw = Math.min(38, (W - 50 - gap * (n - 1)) / n);
+      const total = bw * n + gap * (n - 1), x0 = K.x + (W - total) / 2;
+      svg.appendChild(el("line", { x1: x0 - 10, y1: base, x2: x0 + total + 10, y2: base, "class": "axis" }));
+      for (let i = 0; i < n; i++) {
+        const h = 14 + (g[i] / maxA) * (base - top - 14), x = x0 + i * (bw + gap);
+        svg.appendChild(el("rect", {
+          id: svg.id + "b" + i, "class": "bar", x: x.toFixed(1), y: (base - h).toFixed(1),
+          width: bw.toFixed(1), height: h.toFixed(1), rx: 3
+        }));
+        svg.appendChild(el("text", {
+          id: svg.id + "v" + i, "class": "barv",
+          x: (x + bw / 2).toFixed(1), y: (base - h - 7).toFixed(1)
+        }, g[i]));
+        svg.appendChild(el("text", {
+          id: svg.id + "i" + i, "class": "baridx",
+          x: (x + bw / 2).toFixed(1), y: (base + 18).toFixed(1)
+        }, cfg.nhan ? cfg.nhan[i] : (i + 1)));
+      }
+      svg._n = n;
+      // hinh hoc cot — module cuaso ghep chong len dung lai
+      svg._geo = { x0: x0, bw: bw, gap: gap, base: base, top: top };
+    },
+    ve(svg, v) {
+      const n = svg._n || 0, st = (v && v.cot) || [];
+      for (let i = 0; i < n; i++) {
+        const c = st[i] || "";
+        const b = $(svg.id + "b" + i), t = $(svg.id + "v" + i), q = $(svg.id + "i" + i);
+        if (b) b.setAttribute("class", cls("bar", c));
+        if (t) t.setAttribute("class", cls("barv", c));
+        if (q) q.setAttribute("class", cls("baridx", c === "hot" ? "hot" : ""));
+      }
+    }
+  };
+
+  /* ----------------------------------------------------------- BANG 2 CHIEU
+     cfg = { n, che:(i,j)=>bool, tieuDe:'...', nhanCot:[], nhanHang:[] }
+           hoac { h, w, ... } cho luoi CHU NHAT (n = h = w khi chi co n)
+     v   = { o: { 'i_j': {v: giatri, cls:'hot|src|neg|base|wall'} } }
+     mod.luoi2c la BI DANH cua module nay (dung {h, w} + lop 'wall' cho loang/BFS) */
+  mod.bang2c = {
+    dung(svg, cfg) {
+      xoa(svg);
+      const h = cfg.h || cfg.n, w = cfg.w || cfg.n, K = kt(svg);
+      const x0 = K.x + 52, y0 = K.y + 54;
+      const cao = K.y + K.H - y0 - (cfg.tieuDe ? 34 : 8), rong = K.x + K.W - x0 - 12;
+      const cs = Math.max(16, Math.min(44, Math.floor(cao / h), Math.floor(rong / w)));
+      for (let j = 1; j <= w; j++)
+        svg.appendChild(el("text", { "class": "ghdr", x: x0 + (j - 1) * cs + cs / 2, y: y0 - 9 },
+          cfg.nhanCot ? cfg.nhanCot[j - 1] : j));
+      for (let i = 1; i <= h; i++)
+        svg.appendChild(el("text", { "class": "ghdr", x: x0 - 14, y: y0 + (i - 1) * cs + cs / 2 + 4 },
+          cfg.nhanHang ? cfg.nhanHang[i - 1] : i));
+      for (let i = 1; i <= h; i++) for (let j = 1; j <= w; j++) {
+        if (cfg.che && !cfg.che(i, j)) continue;
+        svg.appendChild(el("rect", {
+          id: svg.id + "c" + i + "_" + j, "class": "gcell",
+          x: x0 + (j - 1) * cs + 1.5, y: y0 + (i - 1) * cs + 1.5,
+          width: cs - 3, height: cs - 3, rx: 4
+        }));
+        svg.appendChild(el("text", {
+          id: svg.id + "t" + i + "_" + j, "class": "gtxt",
+          x: x0 + (j - 1) * cs + cs / 2, y: y0 + (i - 1) * cs + cs / 2 + 4
+        }, "·"));
+      }
+      if (cfg.tieuDe)
+        svg.appendChild(el("text", { "class": "gcap2", x: K.x + K.W / 2, y: y0 + h * cs + 24 }, cfg.tieuDe));
+      svg._h = h; svg._w = w;
+    },
+    ve(svg, v) {
+      const h = svg._h || 0, w = svg._w || 0, o = (v && v.o) || {};
+      for (let i = 1; i <= h; i++) for (let j = 1; j <= w; j++) {
+        const r = $(svg.id + "c" + i + "_" + j); if (!r) continue;
+        const d = o[i + "_" + j] || null;
+        r.setAttribute("class", cls("gcell", d && d.cls));
+        const t = $(svg.id + "t" + i + "_" + j);
+        if (t) { t.setAttribute("class", cls("gtxt", d && d.cls)); t.textContent = (d && d.v != null) ? d.v : "·"; }
+      }
+    }
+  };
+  mod.luoi2c = mod.bang2c;
+
+  /* ---------------------------------------------------------------- DO THI
+     cfg = { n, ke:[A_1..A_n] , gia:[C_1..C_n], thuTu:[...] }
+        ke[i-1] = dinh ma i tro toi  (do thi ham: moi dinh mot cung ra)
+        thuTu   = thu tu xep quanh vong tron (mac dinh 1..n)
+     v   = { canh:['','seen','hot','tree','kept','drop','cut'], dinh:['','hot','cyc','tree'] }  */
+  mod.dothi = {
+    dung(svg, cfg) {
+      xoa(svg);
+      const n = cfg.n, ke = cfg.ke, gia = cfg.gia || [], K = kt(svg);
+      const order = cfg.thuTu && cfg.thuTu.length === n ? cfg.thuTu
+                  : Array.from({ length: n }, (_, k) => k + 1);
+      const cx = K.x + K.W / 2, cy = K.y + K.H / 2;
+      // chua cho ban kinh dinh (16) + nhan trong so day ra (~22)
+      const Rmax = Math.min(K.W / 2 - 40, K.H / 2 - 40);
+      const R = Math.max(46, Math.min(n <= 3 ? 70 : (n <= 5 ? 96 : 112), Rmax));
+      const pos = [];
+      order.forEach((v, k) => {
+        const th = -Math.PI / 2 + 2 * Math.PI * k / n;
+        pos[v] = { x: cx + R * Math.cos(th), y: cy + R * Math.sin(th) };
+      });
+      const off = (a, b, d) => {
+        const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1;
+        return { x: a.x + dx / l * d, y: a.y + dy / l * d };
+      };
+      const geo = [];
+      for (let i = 1; i <= n; i++) {
+        const p1 = pos[i], p2 = pos[ke[i - 1]];
+        const dx = p2.x - p1.x, dy = p2.y - p1.y, len = Math.hypot(dx, dy) || 1;
+        const px = dy / len, py = -dx / len;
+        const bow = Math.min(len * 0.26, 30) + 9;
+        const mx = (p1.x + p2.x) / 2 + px * bow, my = (p1.y + p2.y) / 2 + py * bow;
+        const s = off(p1, { x: mx, y: my }, 17), e = off(p2, { x: mx, y: my }, 21);
+        geo.push({
+          d: "M" + s.x.toFixed(1) + "," + s.y.toFixed(1) + " Q" + mx.toFixed(1) + "," + my.toFixed(1) +
+             " " + e.x.toFixed(1) + "," + e.y.toFixed(1),
+          bx: (s.x + 2 * mx + e.x) / 4, by: (s.y + 2 * my + e.y) / 4, px: px, py: py
+        });
+        svg.appendChild(el("path", { id: svg.id + "e" + i, "class": "edge", d: geo[i - 1].d }));
+      }
+      for (let v = 1; v <= n; v++) {
+        const g = el("g", { id: svg.id + "n" + v, "class": "gnode" });
+        g.appendChild(el("circle", { cx: pos[v].x, cy: pos[v].y, r: 16 }));
+        g.appendChild(el("text", { x: pos[v].x, y: pos[v].y + 5, "text-anchor": "middle" }, v));
+        svg.appendChild(g);
+      }
+      // nhan trong so: thu vai khoang doc phap tuyen, tranh dam dinh va dam nhan khac
+      if (gia.length) {
+        const RN = 24, RL = 15, dat = [];
+        for (let i = 1; i <= n; i++) {
+          const g = geo[i - 1]; let best = null, sc0 = -1;
+          for (const d of [9, 13, 5, 17, 1, 21, -4]) {
+            const x = g.bx + g.px * d, y = g.by + g.py * d;
+            let dn = 1e9; for (let v = 1; v <= n; v++) dn = Math.min(dn, Math.hypot(x - pos[v].x, y - pos[v].y));
+            let dl = 1e9; for (const o of dat) dl = Math.min(dl, Math.hypot(x - o.x, y - o.y));
+            if (dn >= RN && dl >= RL) { best = { x: x, y: y }; break; }
+            const sc = Math.min(dn / RN, dl / RL);
+            if (sc > sc0) { sc0 = sc; best = { x: x, y: y }; }
+          }
+          dat.push(best);
+          svg.appendChild(el("text", {
+            id: svg.id + "w" + i, "class": "wlab", x: best.x.toFixed(1), y: best.y.toFixed(1),
+            "dominant-baseline": "central"
+          }, gia[i - 1]));
+        }
+      }
+      svg._n = n;
+    },
+    ve(svg, v) {
+      const n = svg._n || 0;
+      for (let i = 1; i <= n; i++) {
+        const e = $(svg.id + "e" + i); if (!e) continue;
+        const c = (v && v.canh && v.canh[i - 1]) || "";
+        e.setAttribute("class", cls("edge", c));
+        e.setAttribute("marker-end", mui(c));
+        const w = $(svg.id + "w" + i);
+        if (w) w.setAttribute("class", "wlab" + (c ? " on " + c : ""));
+      }
+      for (let u = 1; u <= n; u++) {
+        const g = $(svg.id + "n" + u); if (!g) continue;
+        g.setAttribute("class", cls("gnode", (v && v.dinh && v.dinh[u - 1]) || ""));
+      }
+    }
+  };
+
+  /* ------------------------------------------------------------------- CAY
+     cfg = { n, canh:[[cha, con, gia], ...], dai:'chu thich dai duoi' }
+       Xep kieu "cay gon": la lay o ke tiep, dinh trong nam giua cac con.
+     v   = { canh:[cls,...], dinh:{v:cls} }                                   */
+  mod.cay = {
+    dung(svg, cfg) {
+      xoa(svg);
+      const n = cfg.n, E = cfg.canh || [];
+      const par = Array(n + 1).fill(0), ch = Array.from({ length: n + 1 }, () => []);
+      E.forEach(e => { par[e[1]] = e[0]; });
+      for (let v = 2; v <= n; v++) if (par[v]) ch[par[v]].push(v);
+      for (let v = 1; v <= n; v++) ch[v].sort((a, b) => a - b);
+      const dep = Array(n + 1).fill(0);
+      for (let v = 2; v <= n; v++) { let d = 0, u = v; while (par[u]) { d++; u = par[u]; } dep[v] = d; }
+      const D = Math.max(1, ...dep);
+      const X = Array(n + 1).fill(0); let slot = 0;
+      (function gan(v) {
+        if (!ch[v].length) { X[v] = slot++; return; }
+        ch[v].forEach(gan);
+        X[v] = (X[ch[v][0]] + X[ch[v][ch[v].length - 1]]) / 2;
+      })(1);
+      const K = kt(svg);
+      const span = Math.max(1, slot - 1);
+      const y0 = K.y + 44;
+      // chua cho dai thu tu duoi day (neu co) va vien duoi
+      const chuaDay = cfg.dai ? 74 : 24;
+      const dx = Math.min(78, (K.W - 94) / span);
+      const dy = Math.min(56, (K.y + K.H - y0 - chuaDay) / D);
+      const x0 = K.x + (K.W - span * dx) / 2;
+      const P = []; for (let v = 1; v <= n; v++) P[v] = { x: x0 + X[v] * dx, y: y0 + dep[v] * dy };
+      E.forEach((e, k) => {
+        const A = P[e[0]], B = P[e[1]];
+        const dxx = B.x - A.x, dyy = B.y - A.y, L = Math.hypot(dxx, dyy) || 1;
+        const s = { x: A.x + dxx / L * 17, y: A.y + dyy / L * 17 };
+        const t = { x: B.x - dxx / L * 21, y: B.y - dyy / L * 21 };
+        svg.appendChild(el("path", {
+          id: svg.id + "e" + k, "class": "edge",
+          d: "M" + s.x.toFixed(1) + "," + s.y.toFixed(1) + " L" + t.x.toFixed(1) + "," + t.y.toFixed(1)
+        }));
+        if (e[2] != null) {
+          const px = dyy / L, py = -dxx / L;
+          svg.appendChild(el("text", {
+            id: svg.id + "w" + k, "class": "wlab",
+            x: ((s.x + t.x) / 2 + px * 11).toFixed(1), y: ((s.y + t.y) / 2 + py * 11).toFixed(1),
+            "dominant-baseline": "central"
+          }, e[2]));
+        }
+      });
+      for (let v = 1; v <= n; v++) {
+        const g = el("g", { id: svg.id + "n" + v, "class": "gnode" });
+        g.appendChild(el("circle", { cx: P[v].x.toFixed(1), cy: P[v].y.toFixed(1), r: 16 }));
+        g.appendChild(el("text", { x: P[v].x.toFixed(1), y: (P[v].y + 5).toFixed(1), "text-anchor": "middle" }, v));
+        svg.appendChild(g);
+      }
+      if (cfg.dai) {
+        const sy = y0 + D * dy + 40, sw = Math.min(34, (K.W - 80) / n),
+              sx0 = K.x + (K.W - sw * n - 4 * (n - 1)) / 2;
+        for (let v = 1; v <= n; v++) {
+          svg.appendChild(el("rect", {
+            x: (sx0 + (v - 1) * (sw + 4)).toFixed(1), y: sy, width: sw.toFixed(1),
+            height: 26, rx: 4, "class": "gcell src"
+          }));
+          svg.appendChild(el("text", {
+            x: (sx0 + (v - 1) * (sw + 4) + sw / 2).toFixed(1), y: sy + 18, "class": "gtxt src"
+          }, v));
+        }
+        svg.appendChild(el("text", { "class": "gcap2", x: K.x + K.W / 2, y: sy - 8 }, cfg.dai));
+      }
+      svg._n = n; svg._m = E.length;
+    },
+    ve(svg, v) {
+      const m = svg._m || 0, n = svg._n || 0;
+      for (let k = 0; k < m; k++) {
+        const e = $(svg.id + "e" + k); if (!e) continue;
+        const c = (v && v.canh && v.canh[k]) || "";
+        e.setAttribute("class", cls("edge", c));
+        e.setAttribute("marker-end", mui(c));
+        const w = $(svg.id + "w" + k);
+        if (w) w.setAttribute("class", "wlab" + (c ? " on " + c : ""));
+      }
+      for (let u = 1; u <= n; u++) {
+        const g = $(svg.id + "n" + u); if (!g) continue;
+        g.setAttribute("class", cls("gnode", (v && v.dinh && v.dinh[u]) || ""));
+      }
+    }
+  };
+
+  /* --------------------------------------------------------------- NGAN XEP
+     cfg = { cao: so o toi da, nhan:'chu thich duoi' }
+     v   = { o:[{v, cls}, ...],   // phan tu tu DAY len DINH; o.length = kich thuoc
+             vao: gia_tri|null,   // dang duoc DAY vao (mui ten xanh duong di xuong)
+             ra:  gia_tri|null }  // vua duoc LAY ra (mui ten xanh la di len)      */
+  mod.nganxep = {
+    dung(svg, cfg) {
+      xoa(svg);
+      const cao = Math.max(1, cfg.cao || 6), K = kt(svg);
+      const top = K.y + 46, bot = K.y + K.H - (cfg.nhan ? 36 : 16);
+      const sh = Math.min(34, (bot - top) / cao);
+      const sw = Math.min(110, K.W * 0.36);
+      const sx = K.x + (K.W - sw) / 2;
+      // long chua hinh chu U (ho mieng tren)
+      svg.appendChild(el("path", {
+        "class": "axis", fill: "none",
+        d: "M" + (sx - 7) + "," + top + " L" + (sx - 7) + "," + (bot + 4) +
+           " L" + (sx + sw + 7) + "," + (bot + 4) + " L" + (sx + sw + 7) + "," + top
+      }));
+      for (let i = 0; i < cao; i++) {
+        const y = bot - (i + 1) * sh;
+        svg.appendChild(el("rect", {
+          id: svg.id + "s" + i, "class": "gcell base",
+          x: sx + 2, y: (y + 2).toFixed(1), width: sw - 4, height: (sh - 4).toFixed(1), rx: 5
+        }));
+        svg.appendChild(el("text", {
+          id: svg.id + "t" + i, "class": "gtxt base",
+          x: sx + sw / 2, y: (y + sh / 2 + 4).toFixed(1)
+        }, ""));
+      }
+      // hai mui ten tren mieng: VAO di xuong (trai) · RA di len (phai)
+      const xv = sx + sw * 0.3, xr = sx + sw * 0.7;
+      svg.appendChild(el("path", { id: svg.id + "av", "class": "edge",
+        d: "M" + xv + "," + (K.y + 10) + " L" + xv + "," + (top - 8) }));
+      svg.appendChild(el("text", { id: svg.id + "avt", "class": "wlab",
+        x: xv - 12, y: K.y + 20, "text-anchor": "end", "dominant-baseline": "central" }, ""));
+      svg.appendChild(el("path", { id: svg.id + "ar", "class": "edge",
+        d: "M" + xr + "," + (top - 8) + " L" + xr + "," + (K.y + 10) }));
+      svg.appendChild(el("text", { id: svg.id + "art", "class": "wlab",
+        x: xr + 12, y: K.y + 20, "text-anchor": "start", "dominant-baseline": "central" }, ""));
+      if (cfg.nhan)
+        svg.appendChild(el("text", { "class": "gcap2", x: K.x + K.W / 2, y: K.y + K.H - 10 }, cfg.nhan));
+      svg._cao = cao;
+    },
+    ve(svg, v) {
+      const cao = svg._cao || 0, o = (v && v.o) || [];
+      for (let i = 0; i < cao; i++) {
+        const r = $(svg.id + "s" + i), t = $(svg.id + "t" + i);
+        const d = o[i];
+        if (r) r.setAttribute("class", d ? cls("gcell", d.cls) : "gcell base");
+        if (t) { t.setAttribute("class", d ? cls("gtxt", d.cls) : "gtxt base"); t.textContent = d ? d.v : ""; }
+      }
+      const av = $(svg.id + "av"), avt = $(svg.id + "avt");
+      const coVao = v && v.vao != null;
+      if (av) { av.setAttribute("class", cls("edge", coVao ? "hot" : "")); av.setAttribute("marker-end", coVao ? mui("hot") : "none"); }
+      if (avt) { avt.setAttribute("class", "wlab" + (coVao ? " on hot" : "")); avt.textContent = coVao ? v.vao : ""; }
+      const ar = $(svg.id + "ar"), art = $(svg.id + "art");
+      const coRa = v && v.ra != null;
+      if (ar) { ar.setAttribute("class", cls("edge", coRa ? "kept" : "")); ar.setAttribute("marker-end", coRa ? mui("kept") : "none"); }
+      if (art) { art.setAttribute("class", "wlab" + (coRa ? " on kept" : "")); art.textContent = coRa ? v.ra : ""; }
+    }
+  };
+
+  /* ---------------------------------------------------------- CUA SO TRUOT
+     Ghep chong len bieudocot: cot + khung cua so + hai con tro l/r duoi truc.
+     cfg = { gtri:[...], nhan:[...] }   (nhu bieudocot)
+     v   = { cot:[cls], trai, phai }    // 1-based, ca hai dau nam TRONG cua so;
+                                        // trai/phai == null => an cua so + con tro */
+  mod.cuaso = {
+    dung(svg, cfg) {
+      mod.bieudocot.dung(svg, cfg);
+      const G = svg._geo;
+      svg.appendChild(el("rect", { id: svg.id + "wn", "class": "win off",
+        x: G.x0, y: G.top - 14, width: 0, height: (G.base - G.top + 16).toFixed(1), rx: 8 }));
+      /* con tro dat TOA DO TRUC TIEP, khong dung transform tren <g> — getBBox
+         (quy uoc do lot khung cua KIEM/ban thu) khong tinh transform */
+      ["l", "r"].forEach(ch => {
+        svg.appendChild(el("path", { id: svg.id + "p" + ch, "class": "ptr off", d: "M0,0" }));
+        svg.appendChild(el("text", { id: svg.id + "q" + ch, "class": "ptrt off",
+          x: 0, y: G.base + 44 }, ch));
+      });
+    },
+    ve(svg, v) {
+      mod.bieudocot.ve(svg, v);
+      const G = svg._geo, n = svg._n || 0;
+      const cx = i => G.x0 + (i - 1) * (G.bw + G.gap) + G.bw / 2;
+      const t = v && v.trai, p = v && v.phai;
+      const co = t != null && p != null && t >= 1 && p <= n && t <= p;
+      const wn = $(svg.id + "wn");
+      if (wn) {
+        wn.setAttribute("class", co ? "win" : "win off");
+        if (co) {
+          wn.setAttribute("x", (cx(t) - G.bw / 2 - 4).toFixed(1));
+          wn.setAttribute("width", (cx(p) - cx(t) + G.bw + 8).toFixed(1));
+        }
+      }
+      const de = t === p ? 8 : 0;   // hai con tro cung cot => tach sang hai ben
+      const dat = (ch, x) => {
+        const pt = $(svg.id + "p" + ch), q = $(svg.id + "q" + ch);
+        if (pt) { pt.setAttribute("class", co ? "ptr" : "ptr off");
+          if (co) pt.setAttribute("d", "M" + x.toFixed(1) + "," + (G.base + 22) + " l-5.5,9 l11,0 z"); }
+        if (q) { q.setAttribute("class", co ? "ptrt" : "ptrt off");
+          if (co) q.setAttribute("x", x.toFixed(1)); }
+      };
+      dat("l", co ? cx(t) - de : 0);
+      dat("r", co ? cx(p) + de : 0);
+    }
+  };
+
+  /* ------------------------------------------------------- CAY PHAN DOAN
+     cfg = { n: so la (toi da 8), nhan:'chu thich duoi' }
+     v   = { o: { 'l_r': {v, cls} } }   // nut = doan [l..r]; la co l == r     */
+  mod.doan = {
+    dung(svg, cfg) {
+      xoa(svg);
+      const n = Math.max(1, Math.min(8, cfg.n || 1)), K = kt(svg);
+      const segs = [];
+      (function di(l, r, d, cha) {
+        segs.push({ l: l, r: r, d: d, cha: cha });
+        if (l < r) { const m = (l + r) >> 1; di(l, m, d + 1, [l, r]); di(m + 1, r, d + 1, [l, r]); }
+      })(1, n, 0, null);
+      const D = Math.max(1, ...segs.map(s => s.d));
+      const hh = 26;
+      const y0 = K.y + 26, yBot = K.y + K.H - (cfg.nhan ? 34 : 16) - hh;
+      const dy = (yBot - y0) / D;
+      const dx = (K.W - 20) / n, x0 = K.x + 10;
+      const cx = s => x0 + (s.l - 1 + (s.r - s.l + 1) / 2) * dx;
+      const ny = s => y0 + s.d * dy;
+      const P = {}; segs.forEach(s => { P[s.l + "_" + s.r] = s; });
+      // canh cha->con truoc, de nut de len tren
+      segs.forEach(s => {
+        if (!s.cha) return;
+        const c = P[s.cha[0] + "_" + s.cha[1]];
+        svg.appendChild(el("path", { "class": "edge seen",
+          d: "M" + cx(c).toFixed(1) + "," + (ny(c) + hh).toFixed(1) +
+             " L" + cx(s).toFixed(1) + "," + (ny(s) - 3).toFixed(1) }));
+      });
+      segs.forEach(s => {
+        const key = s.l + "_" + s.r;
+        const w = Math.min(56, dx * (s.r - s.l + 1) - 6);
+        svg.appendChild(el("rect", { id: svg.id + "c" + key, "class": "gcell",
+          x: (cx(s) - w / 2).toFixed(1), y: ny(s).toFixed(1), width: w.toFixed(1), height: hh, rx: 6 }));
+        svg.appendChild(el("text", { id: svg.id + "t" + key, "class": "gtxt",
+          x: cx(s).toFixed(1), y: (ny(s) + hh / 2 + 4.5).toFixed(1) }, "·"));
+        svg.appendChild(el("text", { "class": "dseg",
+          x: cx(s).toFixed(1), y: (ny(s) - 3.5).toFixed(1) },
+          s.l === s.r ? s.l : s.l + "–" + s.r));
+      });
+      if (cfg.nhan)
+        svg.appendChild(el("text", { "class": "gcap2", x: K.x + K.W / 2, y: K.y + K.H - 8 }, cfg.nhan));
+      svg._segs = segs.map(s => s.l + "_" + s.r);
+    },
+    ve(svg, v) {
+      const o = (v && v.o) || {};
+      (svg._segs || []).forEach(key => {
+        const d = o[key] || null;
+        const r = $(svg.id + "c" + key), t = $(svg.id + "t" + key);
+        if (r) r.setAttribute("class", cls("gcell", d && d.cls));
+        if (t) { t.setAttribute("class", cls("gtxt", d && d.cls)); t.textContent = (d && d.v != null) ? d.v : "·"; }
+      });
+    }
+  };
+
+  /* -------------------------------------------------------- TRINH PHAT
+     tao({ sfx, ve:[{svg,mod}], code, hang:{ten:rowId}, glow:{ten:secId},
+           ans:'ans3', pens:'pens3', khung:()=>mangKhung })
+     Ma gia: dong DANG chay mang lop .on; dong VUA chay xong (o khung truoc)
+     giu lop .was (vach xam trai) — nguoi xem thay duoc luong dieu khien.
+     Diem dung: bam so dong de dat/bo (lop .bp); ▶ chay toi dong do thi tu dung. */
+  function tao(cfg) {
+    const g = n => $(n + cfg.sfx);
+    let idx = 0, timer = null;
+    const bp = new Set();
+    if (cfg.code) document.querySelectorAll(cfg.code + " .ln .no").forEach(no => {
+      no.title = "Bấm để đặt/bỏ điểm dừng";
+      no.onclick = e => {
+        e.stopPropagation();
+        const ln = no.parentElement, n = +ln.dataset.line;
+        bp.has(n) ? bp.delete(n) : bp.add(n);
+        ln.classList.toggle("bp", bp.has(n));
+      };
+    });
+    const trungBp = k => (k.h || []).some(n => bp.has(n));
+    /* mucHoi: 0 = tat · 1 = doan roi doi chieu · 2 = tu CHI O se doi gia tri.
+       Muc 2 la "visual program simulation" — hoc sinh dong vai may tinh; thang
+       muc tham gia (Naps) do duoc tac dung hoc tu muc "dap" tro len. */
+    let mucHoi = 0, cho = false;
+    const laMoc = k => (k.b || "").charAt(0) === "✓";
+
+    /* O nao DOI GIA TRI giua hai khung. Chi so gia tri, khong so lop:
+       lop doi gan nhu moi buoc (o dang xet), hoi the thi doan gi cung trung. */
+    function oDoi(kTruoc, kSau) {
+      const ds = [];
+      for (const ten in (cfg.hang || {})) {
+        const a = (kTruoc.r && kTruoc.r[ten]) || {}, b = (kSau.r && kSau.r[ten]) || {};
+        const va = a.vals || [], vb = b.vals || [];
+        for (let i = 0; i < Math.max(va.length, vb.length); i++)
+          if (String(va[i]) !== String(vb[i])) ds.push(cfg.hang[ten] + "_" + i);
+      }
+      return ds;
+    }
+    function dongChon() {
+      for (const ten in (cfg.hang || {})) {
+        const r = $(cfg.hang[ten]); if (!r) continue;
+        for (let i = 0; i < r.children.length; i++) {
+          const c = $(cfg.hang[ten] + "_" + i);
+          if (c) { c.classList.remove("doan", "dung", "sai"); c.onclick = null; }
+        }
+      }
+    }
+    function moChon(dich) {
+      const bo = {}; dich.forEach(id => { bo[id] = 1; });
+      for (const ten in (cfg.hang || {})) {
+        const r = $(cfg.hang[ten]); if (!r) continue;
+        for (let i = 0; i < r.children.length; i++) {
+          const id = cfg.hang[ten] + "_" + i, c = $(id);
+          if (!c) continue;
+          c.classList.add("doan");
+          c.onclick = () => { if (cho) c.classList.add(bo[id] ? "dung" : "sai"); };
+        }
+      }
+    }
+    function veLai() {
+      const F = cfg.khung(); if (!F || !F.length) return;
+      idx = Math.max(0, Math.min(F.length - 1, idx));
+      const k = F[idx];
+      /* pha "do": banner + ma gia lay tu khung MOI (k), nhung DU LIEU van la khung
+         TRUOC (kd) — ca lop doan ket qua, bam ▶ lan nua moi lo */
+      const kd = (cho && idx > 0) ? F[idx - 1] : k;
+      (cfg.ve || []).forEach(x => {
+        const svg = $(x.svg); if (!svg) return;
+        // x.mod: ten module, hoac ham tra ve ten (dung khi doi module dong)
+        const m = mod[typeof x.mod === "function" ? x.mod() : x.mod];
+        if (m) m.ve(svg, (kd.v && kd.v[x.svg]) || {});
+      });
+      for (const ten in (cfg.hang || {})) hang.ve(cfg.hang[ten], kd.r && kd.r[ten]);
+      for (const ten in (cfg.glow || {}))
+        $(cfg.glow[ten]) && $(cfg.glow[ten]).classList.toggle("glow", !!(kd.glow && kd.glow.indexOf(ten) >= 0));
+      if (cfg.code) {
+        const cur = k.h || [], truoc = idx > 0 ? (F[idx - 1].h || []) : [];
+        document.querySelectorAll(cfg.code + " .ln").forEach(l => {
+          const n = +l.dataset.line, dang = cur.indexOf(n) >= 0;
+          l.classList.toggle("on", dang);
+          l.classList.toggle("was", !dang && truoc.indexOf(n) >= 0);
+        });
+      }
+      const b = g("banner"); if (b) { b.textContent = k.b; b.classList.toggle("done", laMoc(k)); }
+      /* muc 2: mo cho hoc sinh chi o. Buoc nao khong doi gia tri o nao thi
+         tu ha ve muc 1 (van doan bang mieng) — khong bay ra o de bam vu vo. */
+      dongChon();
+      let dich = [];
+      if (cho && mucHoi >= 2 && idx > 0) {
+        dich = oDoi(F[idx - 1], k);
+        if (dich.length) moChon(dich);
+      }
+      const ex = g("expl");
+      if (ex) {
+        ex.textContent = !cho ? k.e
+          : dich.length ? "Chỉ vào ô sẽ ĐỔI GIÁ TRỊ ở bước này (bấm thẳng lên ô), rồi bấm ▶ để lộ."
+          : (k.hoi || "Đố cả lớp: dòng đang sáng sẽ thay đổi dữ liệu thế nào? Đoán xong bấm ▶ để xem.");
+        ex.classList.toggle("hoi", cho);
+      }
+      if (cfg.ans && $(cfg.ans)) $(cfg.ans).textContent = (kd.ans == null ? "·" : kd.ans);
+      const ab = $("ansbox" + cfg.sfx);
+      if (ab) ab.classList.toggle("glow", !!(kd.glow && kd.glow.indexOf("ans") >= 0));
+      if (cfg.pens && $(cfg.pens)) $(cfg.pens).innerHTML = kd.pens || "";
+      const st = g("step");
+      if (st) st.textContent = (idx + 1) + "/" + F.length + (cho ? " · đố" + (mucHoi >= 2 ? " 2" : "") : "");
+      g("first").disabled = g("prev").disabled = (idx === 0);
+      g("last").disabled = (idx === F.length - 1);
+      g("next").disabled = (idx === F.length - 1) && !cho;
+    }
+    function di(i) { cho = false; idx = i; veLai(); }
+    /* buoc TOI bang tay: o che do hoi lop thi di hai pha (do -> lo);
+       moc ✓ khong co gi de doan nen van mot pha */
+    function toi() {
+      const F = cfg.khung();
+      if (cho) { cho = false; veLai(); return; }
+      if (idx >= F.length - 1) return;
+      if (mucHoi && !laMoc(F[idx + 1])) { idx++; cho = true; veLai(); }
+      else di(idx + 1);
+    }
+    function dung() { if (timer) { clearInterval(timer); timer = null; } g("play").textContent = "▶"; }
+    function chay() {
+      cho = false;                     // chay tu dong = che do xem, bo qua pha do
+      const F = cfg.khung(); if (idx >= F.length - 1) idx = 0;
+      g("play").textContent = "⏸";
+      timer = setInterval(() => {
+        const F2 = cfg.khung();
+        if (idx < F2.length - 1) {
+          idx++; veLai();
+          if (bp.size && trungBp(F2[idx])) dung();   // cham diem dung => dung lai
+        } else dung();
+      }, +g("speed").value);
+    }
+    g("first").onclick = () => { dung(); di(0); };
+    g("prev").onclick = () => { dung(); di(idx - 1); };
+    g("next").onclick = () => { dung(); toi(); };
+    g("last").onclick = () => { dung(); di(cfg.khung().length - 1); };
+    g("play").onclick = () => { timer ? dung() : chay(); };
+    g("speed").oninput = () => { if (timer) { dung(); chay(); } };
+    /* nut "Đố" — bam de xoay ba muc: tat -> 1 (doan bang mieng) -> 2 (chi o).
+       Tiem tu runtime de moi deck co ngay, khong phai sua noidung.html. */
+    const nutLast = g("last");
+    if (nutLast) {
+      const nd = document.createElement("button");
+      nd.id = "hoi" + cfg.sfx; nd.className = "hoi"; nd.textContent = "Đố";
+      nd.title = "Bấm để xoay mức: tắt → Đố 1 (cả lớp đoán rồi bấm ▶ để lộ) "
+        + "→ Đố 2 (học sinh chỉ thẳng ô sẽ đổi giá trị)";
+      nd.onclick = () => {
+        mucHoi = (mucHoi + 1) % 3;
+        nd.textContent = mucHoi ? "Đố " + mucHoi : "Đố";
+        nd.classList.toggle("on", mucHoi > 0);
+        if (!mucHoi && cho) { cho = false; }
+        veLai();
+      };
+      nutLast.insertAdjacentElement("afterend", nd);
+    }
+    return { datLai() { dung(); cho = false; idx = 0; veLai(); } };
+  }
+
+  /* ------------------------------------------------- CHUYEN SLIDE + PHIM TAT */
+  function slides(ids) {
+    const deck = $("deck");
+    const ss = ids.map($), links = document.querySelectorAll(".snav a");
+    let cur = 0;
+    function hien(k) {
+      cur = Math.max(0, Math.min(ss.length - 1, k));
+      ss.forEach((s, i) => { s.classList.toggle("active", i === cur); s.classList.toggle("back", i < cur); });
+      links.forEach((x, i) => x.classList.toggle("active", i === cur));
+    }
+    links.forEach((x, i) => x.addEventListener("click", e => { e.preventDefault(); hien(i); }));
+    const rail = () => document.body.classList.toggle("rail");
+    const theme = () => {
+      const r = document.documentElement;
+      const sysDark = window.matchMedia && window.matchMedia("(prefers-color-scheme:dark)").matches;
+      const now = r.getAttribute("data-theme") || (sysDark ? "dark" : "light");
+      r.setAttribute("data-theme", now === "dark" ? "light" : "dark");
+    };
+    $("btnRail") && ($("btnRail").onclick = rail);
+    $("btnTheme") && ($("btnTheme").onclick = theme);
+    document.addEventListener("keydown", e => {
+      const t = (e.target.tagName || "").toUpperCase();
+      if (t === "INPUT" || t === "SELECT" || t === "TEXTAREA") return;
+      const k = (e.key || "").toLowerCase();
+      const ctrl = (e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey;
+      const plain = !e.ctrlKey && !e.metaKey && !e.altKey;
+      if ((ctrl || plain) && k === "h") { rail(); e.preventDefault(); return; }
+      if ((ctrl || plain) && k === "d") { theme(); e.preventDefault(); return; }
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.key === "ArrowRight" || e.key === "PageDown") { hien(cur + 1); e.preventDefault(); }
+      else if (e.key === "ArrowLeft" || e.key === "PageUp") { hien(cur - 1); e.preventDefault(); }
+      else if (e.key === "Home") { hien(0); e.preventDefault(); }
+      else if (e.key === "End") { hien(ss.length - 1); e.preventDefault(); }
+    });
+    /* Khoi "noi bang loi" (EiPE): cau hoi mo + goi y an, bam nut moi lo.
+       Uy quyen o cap document nen bai chi can viet HTML, khong gan tay.
+       Vi sao co: chay tay va GIAI THICH BANG LOI la hai nac khac nhau —
+       deck day duoc nac chay tay, nac giai thich phai hoi thanh cau. */
+    document.addEventListener("click", e => {
+      const nut = e.target && e.target.closest && e.target.closest(".eipe > button");
+      if (!nut) return;
+      const h = nut.parentElement;
+      h.classList.toggle("mo");
+      nut.textContent = h.classList.contains("mo") ? "Ẩn gợi ý" : "Hiện gợi ý";
+    });
+    let lock = 0;
+    deck.addEventListener("wheel", e => {
+      if (Math.abs(e.deltaY) < 18) return;
+      const now = (new Date()).getTime(); if (now - lock < 640) return;
+      lock = now; hien(cur + (e.deltaY > 0 ? 1 : -1));
+    }, { passive: true });
+    hien(0);
+  }
+
+  /* ------------------------------------------------------------- TIEN ICH */
+  const tienIch = {
+    day: (n, x) => Array(n).fill(x),
+    chip: t => '<div class="pchip">' + t + '</div>',
+    so: s => (s.trim().split(/\s+/).map(Number)).filter(v => Number.isFinite(v))
+  };
+
+  return { $: $, NS: NS, el: el, mod: mod, hang: hang, tao: tao, slides: slides, t: tienIch };
+})();
+
+</script>
+<script>
+/* Bài 4 — Máy in. HÀM TÍNH THUẦN, không đụng DOM.
+   Dùng chung cho deck (trình duyệt) và tools/doichung.js (Node).
+
+   dp[i][c] = số lệnh ít nhất để in đoạn S[i..n] khi bộ nhớ đang giữ chữ c.
+     dp[n+1][c] = 0
+     S[i] = c   →  dp[i][c] = 1 + dp[i+1][c]                     (PRINT)
+     S[i] ≠ c   →  dp[i][c] = 2 + min( dp[i+1][c],               (TEMP + PRINT)
+                                       dp[i+1][S[i]] )           (MSET + PRINT)
+   Đáp án = 1 + dp[1][S[1]]  (lệnh đầu tiên bắt buộc là MSET).
+
+   Chỉ cần xét c là các chữ CÓ MẶT trong S: truy hồi chỉ nhảy tới c hoặc S[i],
+   mà điểm xuất phát là S[1] — nên tập ấy đóng kín. Lời giải chuẩn duyệt cả 26
+   chữ cho gọn mã; kết quả y hệt. */
+(function (goc) {
+  "use strict";
+
+  function GIAI(vao) {
+    /* chuẩn hoá NGAY TRONG NÀY để deck và bộ đối chứng thấy cùng một dữ liệu */
+    var s = String(vao == null ? "" : vao).toUpperCase().replace(/[^A-Z]/g, "").slice(0, 8);
+    if (!s) s = "A";
+    var n = s.length;
+
+    var CHU = [];
+    for (var i = 0; i < n; i++) if (CHU.indexOf(s[i]) < 0) CHU.push(s[i]);
+    CHU.sort();
+    var m = CHU.length;
+    var a = [0];                                   // a[1..n] = chỉ số chữ trong CHU
+    for (var i2 = 1; i2 <= n; i2++) a.push(CHU.indexOf(s[i2 - 1]));
+
+    /* dp[i][c], i = 1..n+1 */
+    var dp = [];
+    for (var i3 = 0; i3 <= n + 2; i3++) dp.push(new Array(m).fill(0));
+    for (var i4 = n; i4 >= 1; i4--)
+      for (var c = 0; c < m; c++)
+        dp[i4][c] = (c === a[i4])
+          ? 1 + dp[i4 + 1][c]
+          : 2 + Math.min(dp[i4 + 1][c], dp[i4 + 1][a[i4]]);
+
+    var dap = 1 + dp[1][a[1]];
+
+    /* truy vết dãy lệnh tối ưu — hoà thì ưu tiên TEMP (giữ bộ nhớ cũ) */
+    var VET = [], nho = a[1], LENH = ["MSET(" + CHU[a[1]] + ")"];
+    for (var i5 = 1; i5 <= n; i5++) {
+      var truoc = nho, loai, them;
+      if (nho === a[i5]) { loai = "P"; them = ["PRINT"]; }
+      else if (dp[i5 + 1][nho] <= dp[i5 + 1][a[i5]]) {
+        loai = "T"; them = ["TEMP(" + CHU[a[i5]] + ")", "PRINT"];
+      } else {
+        loai = "M"; them = ["MSET(" + CHU[a[i5]] + ")", "PRINT"]; nho = a[i5];
+      }
+      LENH = LENH.concat(them);
+      VET.push({ i: i5, ch: s[i5 - 1], loai: loai, so: them.length,
+                 nhoTruoc: CHU[truoc], nhoSau: CHU[nho], them: them, tong: LENH.length });
+    }
+
+    return { s: s, n: n, CHU: CHU, a: a, dp: dp, dap: dap, VET: VET, LENH: LENH };
+  }
+
+  goc.GIAI = GIAI;
+  if (typeof module !== "undefined" && module.exports) module.exports = GIAI;
+})(typeof window !== "undefined" ? window : globalThis);
+
+</script>
+<script>
+/* Bài 4 — Máy in. Hai giai đoạn: điền bảng dp → truy vết dãy lệnh.
+   Dùng module: bang2c (g1 bảng dp), luoi2c (g2 ba hàng: ký tự / bộ nhớ / số lệnh). */
+(function () {
+  "use strict";
+  const $ = MP.$, T = MP.t;
+  let S = null, f1 = [], f2 = [];
+
+  /* Doc o nhap roi goi GIAI() — phan TINH nam o giai.js, khong cai lai o day. */
+  function tinh() { S = GIAI($("inpS").value); }
+
+  /* viet gon mot lenh: MSET(A) -> M_A · TEMP(B) -> T_B · PRINT -> P */
+  const gon = l => l === "PRINT" ? "P" : l[0] + "<sub>" + l[5] + "</sub>";
+
+  function dung() {
+    tinh();
+    const n = S.n, m = S.CHU.length;
+    MP.mod.bang2c.dung($("g1"), {
+      h: m, w: n + 1,
+      nhanHang: S.CHU,
+      nhanCot: Array.from({ length: n + 1 }, (_, k) => k + 1),
+      tieuDe: "dp[i][c] — cột i, hàng c;  cột " + (n + 1) + " là cơ sở"
+    });
+    MP.mod.luoi2c.dung($("g2"), {
+      h: 3, w: n,
+      nhanHang: ["S", "nhớ", "lệnh"],
+      nhanCot: Array.from({ length: n }, (_, k) => k + 1),
+      tieuDe: "ký tự cần in · bộ nhớ sau bước · số lệnh dùng cho bước"
+    });
+    MP.hang.tao("rowP5D", n + 1, S.s.split("").concat(["hết"]));
+    MP.hang.tao("rowP6L", n, S.s.split(""));
+
+    /* ============ Bước 1/2 — điền bảng dp ============ */
+    /* cot = cot nho nhat DA dien (n+1 luc dau); dang = cot dang dien (0 = khong co) */
+    const bangDp = (cot, dang) => {
+      const o = {};
+      for (let c = 0; c < m; c++) for (let i = 1; i <= n + 1; i++) {
+        const k = (c + 1) + "_" + i;
+        if (i === dang) o[k] = { v: S.dp[i][c], cls: "hot" };
+        else if (i >= cot) o[k] = { v: S.dp[i][c], cls: (i === n + 1 ? "src" : (i === dang + 1 ? "src" : "")) };
+        else o[k] = { v: null, cls: "base" };
+      }
+      return o;
+    };
+    const hangD = (cot, dang) => ({
+      D: {
+        vals: Array.from({ length: n + 1 }, (_, k) => {
+          const i = k + 1;
+          return (i >= cot || i === dang) ? (i === n + 1 ? 0 : S.dp[i][S.a[i]]) : "·";
+        }),
+        cls: Array.from({ length: n + 1 }, (_, k) => {
+          const i = k + 1;
+          return i === dang ? "hot" : (i >= cot ? "prime" : "zero");
+        })
+      }
+    });
+
+    f1 = [];
+    f1.push({
+      b: "Bước 1/2 — Cơ sở: cột i = " + (n + 1) + " toàn số 0",
+      e: "In xong hết chuỗi rồi thì không tốn thêm lệnh nào, bất kể bộ nhớ đang giữ chữ gì ⇒ dp[" +
+         (n + 1) + "][c] = 0 với mọi c. Bảng chỉ liệt kê " + m + " chữ có mặt trong chuỗi.",
+      h: [1], v: { g1: { o: bangDp(n + 1, 0) } }, r: hangD(n + 1, 0),
+      pens: T.chip("đã điền <b>1</b>/" + (n + 1) + " cột")
+    });
+    for (let i = n; i >= 1; i--) {
+      const ch = S.s[i - 1];
+      const chiTiet = S.CHU.map((c, k) => {
+        if (k === S.a[i]) return "dp[" + i + "][" + c + "] = 1 + " + S.dp[i + 1][k] + " = " + S.dp[i][k];
+        return "dp[" + i + "][" + c + "] = 2 + min(" + S.dp[i + 1][k] + ", " +
+               S.dp[i + 1][S.a[i]] + ") = " + S.dp[i][k];
+      }).join(";  ");
+      f1.push({
+        b: "Bước 1/2 — Cột i = " + i + ",  S[" + i + "] = " + ch,
+        e: "Hàng c = " + ch + " khớp ký tự nên chỉ tốn 1 lệnh PRINT; các hàng còn lại tốn 2 lệnh và " +
+           "chọn nhánh rẻ hơn giữa giữ bộ nhớ (TEMP) hay đổi sang " + ch + " (MSET).  " + chiTiet + ".",
+        h: [2, 3, 4, 5], v: { g1: { o: bangDp(i, i) } }, r: hangD(i, i),
+        pens: T.chip("đã điền <b>" + (n + 2 - i) + "</b>/" + (n + 1) + " cột")
+      });
+    }
+    f1.push({
+      b: "✓ Xong Bước 1 — đáp án = 1 + dp[1][" + S.s[0] + "] = " + S.dap, glow: ["D"],
+      e: "Dữ liệu nhận được: cả bảng dp. Ô cần đọc là dp[1][" + S.s[0] + "] = " + S.dp[1][S.a[1]] +
+         "; cộng thêm 1 lệnh MSET(" + S.s[0] + ") bắt buộc ở đầu ⇒ " + S.dap +
+         " lệnh. Tiếp theo → Bước 2: bảng dp còn chỉ ra dãy lệnh cụ thể.",
+      h: [6], v: { g1: { o: bangDp(1, 0) } }, r: hangD(1, 0),
+      pens: T.chip("đáp án <b>" + S.dap + "</b> lệnh")
+    });
+
+    /* ============ Bước 2/2 — truy vết ============ */
+    const bangVet = t => {                        // t = so ky tu DA xu ly (0..n)
+      const o = {};
+      for (let i = 1; i <= n; i++) {
+        const cur = (i === t);
+        o["1_" + i] = { v: S.s[i - 1], cls: cur ? "hot" : (i < t ? "src" : "") };
+        o["2_" + i] = { v: i <= t ? S.VET[i - 1].nhoSau : null, cls: cur ? "hot" : (i < t ? "src" : "base") };
+        o["3_" + i] = { v: i <= t ? S.VET[i - 1].so : null, cls: cur ? "hot" : (i < t ? "src" : "base") };
+      }
+      return o;
+    };
+    const hangL = t => ({
+      L: {
+        vals: S.VET.map((v, k) => k < t ? v.tong : "·"),
+        cls: S.VET.map((_, k) => k === t - 1 ? "hot" : (k < t ? "prime" : "zero"))
+      }
+    });
+    const chuoiLenh = t => {
+      const het = t === 0 ? 1 : S.VET[t - 1].tong;
+      return T.chip(S.LENH.slice(0, het).map(gon).join(" "));
+    };
+
+    f2 = [];
+    f2.push({
+      b: "Bước 2/2 — Lệnh bắt buộc đầu tiên: MSET(" + S.s[0] + ")",
+      e: "Đề quy định lệnh đầu luôn là MSET, và đặt bộ nhớ thành ký tự đầu tiên là hợp lý nhất — " +
+         "đó cũng chính là lý do đáp án có dạng 1 + dp[1][S[1]]. Sau lệnh này bộ nhớ giữ " + S.s[0] + ".",
+      h: [1], v: { g2: { o: bangVet(0) } }, r: hangL(0),
+      ans: 1, pens: chuoiLenh(0)
+    });
+    S.VET.forEach((v, k) => {
+      const i = v.i, ke = S.dp[i + 1];
+      const giaiThich = v.loai === "P"
+        ? "Bộ nhớ đang giữ " + v.nhoTruoc + ", đúng bằng ký tự cần in ⇒ chỉ một lệnh PRINT."
+        : (v.loai === "T"
+            ? ("Bộ nhớ giữ " + v.nhoTruoc + " nhưng cần in " + v.ch + ". So hai ngả: giữ bộ nhớ tốn tiếp " +
+               ke[S.CHU.indexOf(v.nhoTruoc)] + ", đổi bộ nhớ tốn tiếp " + ke[S.a[i]] +
+               " ⇒ GIỮ rẻ hơn (hoặc bằng) nên dùng TEMP(" + v.ch + "), bộ nhớ vẫn là " + v.nhoSau + ".")
+            : ("Bộ nhớ giữ " + v.nhoTruoc + " nhưng cần in " + v.ch + ". So hai ngả: giữ bộ nhớ tốn tiếp " +
+               ke[S.CHU.indexOf(v.nhoTruoc)] + ", đổi bộ nhớ tốn tiếp " + ke[S.a[i]] +
+               " ⇒ ĐỔI rẻ hơn nên dùng MSET(" + v.ch + "), từ giờ bộ nhớ là " + v.nhoSau + "."));
+      f2.push({
+        b: "Bước 2/2 — Ký tự " + i + "/" + n + ":  " + v.ch + "   →   " +
+           (v.loai === "P" ? "PRINT" : (v.loai === "T" ? "TEMP + PRINT" : "MSET + PRINT")),
+        e: giaiThich + "  Tổng lệnh: " + v.tong + ".",
+        h: v.loai === "P" ? [2, 3] : (v.loai === "T" ? [2, 4, 5] : [2, 4, 6]),
+        v: { g2: { o: bangVet(i) } }, r: hangL(i),
+        ans: v.tong, pens: chuoiLenh(i)
+      });
+    });
+    f2.push({
+      b: "✓ Xong — " + S.dap + " lệnh, khớp đúng đáp án của bảng dp", glow: ["ans"],
+      e: "Dãy lệnh đầy đủ: " + S.LENH.join(", ") + ". Đếm được " + S.LENH.length +
+         " lệnh, bằng đúng 1 + dp[1][" + S.s[0] + "] = " + S.dap +
+         ". Đề chỉ hỏi CON SỐ, nhưng dựng lại được dãy lệnh là cách chắc chắn nhất để tin bảng dp đúng.",
+      h: [7], v: { g2: { o: bangVet(n) } },
+      r: { L: { vals: S.VET.map(v => v.tong), cls: T.day(n, "prime") } },
+      ans: S.dap, pens: chuoiLenh(n)
+    });
+
+    P1.datLai(); P2.datLai();
+  }
+
+  const P1 = MP.tao({
+    sfx: "1", ve: [{ svg: "g1", mod: "bang2c" }], code: "#code1",
+    hang: { D: "rowP5D" }, glow: { D: "secP5D" }, pens: "pens5", khung: () => f1
+  });
+  const P2 = MP.tao({
+    sfx: "2", ve: [{ svg: "g2", mod: "luoi2c" }], code: "#code2",
+    hang: { L: "rowP6L" }, glow: { L: "secP6L" }, ans: "ans2", pens: "pens6", khung: () => f2
+  });
+
+  $("inpS").addEventListener("change", dung);
+  $("preset").onchange = e => {
+    if (!e.target.value) return;
+    $("inpS").value = e.target.value; e.target.selectedIndex = 0; dung();
+  };
+  $("rnd").onclick = () => {
+    const k = 2 + Math.floor(Math.random() * 3), bang = "ABCD".slice(0, k);
+    const n = 4 + Math.floor(Math.random() * 5);
+    let s = "";
+    for (let i = 0; i < n; i++) s += bang[Math.floor(Math.random() * k)];
+    $("inpS").value = s; dung();
+  };
+
+  MP.slides(["s1", "s2", "s3", "s4", "s5", "s6", "s7"]);
+  dung();
+
+  /* Cau hinh cho bo do nhung san — mo deck voi ?kiem=1 de tu cham.
+     `ans` lay tu loi giai chuan (doi chung 500 bo + 11 ca bien deu khop).
+     Phu nhanh: BB cham dong 4 (mot chu duy nhat), BABCBACA cham ca TEMP lan MSET
+     (dong 5 va 6 cua khoi 2), ABBBB cham nhanh MSET thang ro. */
+  window.KIEM_CFG = {
+    slides: 7, players: ["1", "2"], svgs: ["g1", "g2"], ansId: "ans2",
+    dulieu: [
+      { o: { inpS: "BABCBACA" }, ans: 13 },
+      { o: { inpS: "IOIA" }, ans: 7 },
+      { o: { inpS: "BB" }, ans: 3 },
+      { o: { inpS: "AABAA" }, ans: 7 },
+      { o: { inpS: "ABBBB" }, ans: 7 }
+    ]
+  };
+})();
+
+</script>
+<script>
+/* Mo deck voi ?kiem=1 de tu cham bang bo do nhung san (KIEM + window.KIEM_CFG). */
+(function () {
+  if (!/[?&]kiem=1/.test(location.search)) return;
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      var kq, ok = false;
+      if (typeof KIEM !== 'function') kq = 'LOI: bo do chua duoc nhung (dung lai dung_deck.py).';
+      else if (!window.KIEM_CFG) kq = 'CHUA CO window.KIEM_CFG trong thuattoan.js — khai bao roi dung lai.';
+      else { try { kq = KIEM(window.KIEM_CFG); ok = true; } catch (e) { kq = 'LOI KHI CHAY KIEM: ' + e.message; } }
+      try { console.log(kq); } catch (e) {}
+      var p = document.createElement('pre');
+      p.id = '__kiemout';
+      p.style.cssText = 'position:fixed;right:10px;bottom:10px;z-index:999;max-width:46vw;'
+        + 'max-height:62vh;overflow:auto;background:var(--frame);color:var(--fg);'
+        + 'border:2px solid var(--line);border-radius:10px;padding:10px 12px;'
+        + 'font:11px/1.45 ui-monospace,Consolas,monospace;white-space:pre-wrap';
+      if (ok) { try { p.textContent = 'KIEM: ' + JSON.parse(kq).KETLUAN + '\n\n' + kq; } catch (e) { p.textContent = String(kq); } }
+      else p.textContent = String(kq);
+      document.body.appendChild(p);
+    }, 350);
+  });
+})();
+</script>
+</body>
+</html>
