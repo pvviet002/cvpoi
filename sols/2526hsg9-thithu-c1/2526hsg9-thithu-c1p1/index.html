@@ -309,13 +309,26 @@
   .bacbo .mhsai h4{color:var(--neg)}
   .bacbo .mhdung h4{color:var(--pos)}
   .bacbo .re{font-weight:700;margin-top:8px}
-/* Nen rieng slide 3 — noi dung day, tung tran 11px o man hinh cao 720. */
-#s3 h2{font-size:1.3rem}
-#s3 .ask{font-size:1.0rem;margin:.15em 0 .3em}
-#s3 .qlist{font-size:.95rem;line-height:1.54}
-#s3 .qlist li{margin:.26em 0}
-#s3 .keyline{font-size:.92rem;margin-top:6px;line-height:1.48}
-#s3 .subprob p{font-size:.95rem}
+/* Bai ngan: sau khi rut con 4 slide thi hai slide it chu bi long leo (62% va 64%
+   o 720p). Bu bang cach PHONG TO CHU — khong don them loi — nen chieu may chieu
+   cung de doc hon. */
+#s1 h2{font-size:1.62rem}
+#s1 p{font-size:1.07rem;line-height:1.58}
+#s1 .iobox > div{font-size:1.0rem;line-height:1.55}
+#s1 .exlab{font-size:.84rem}
+#s1 .minote{font-size:1.02rem}
+#s1 .muted{font-size:.96rem}
+#s1 .mini{padding:14px 18px}
+#s1 .mini .cell{width:46px;min-width:46px;height:38px;font-size:1.12rem}
+#s1 .mlab{font-size:.78rem}
+
+#s4 h2{font-size:1.52rem}
+#s4 .bacbo{gap:16px;margin:14px 0}
+#s4 .bacbo > div{padding:13px 16px}
+#s4 .bacbo h4{font-size:1.14rem;margin-bottom:8px}
+#s4 .bacbo p{font-size:1.05rem;line-height:1.6}
+#s4 .eipe{padding:15px 17px;font-size:1.04rem;line-height:1.6}
+#s4 .eipe > b{font-size:1.1rem}
 </style>
 </head>
 <body>
@@ -634,9 +647,8 @@ if (!window.__KIEM_ERR) {
   <nav class="snav">
     <a href="#s1"><span class="n">1</span><span class="t">Tóm tắt đề bài</span></a>
     <a href="#s2"><span class="n">2</span><span class="t">Có mấy cách đặt dấu?</span></a>
-    <a href="#s3"><span class="n">3</span><span class="t">Thử theo thứ tự nào?</span></a>
-    <a href="#s4"><span class="n">4</span><span class="t">Chạy: thử bốn khả năng</span></a>
-    <a href="#s5"><span class="n">5</span><span class="t">Kiểm tra hiểu</span></a>
+    <a href="#s3"><span class="n">3</span><span class="t">Chạy: thử bốn khả năng</span></a>
+    <a href="#s4"><span class="n">4</span><span class="t">Kiểm tra hiểu</span></a>
   </nav>
   <div class="sfoot">
     <div class="hint">← → chuyển trang<br>Ctrl+H thanh bên<br>Ctrl+D sáng/tối</div>
@@ -652,8 +664,8 @@ if (!window.__KIEM_ERR) {
   <section id="s1" class="slide"><div class="frame">
     <div class="stag">Phần 1 · Tóm tắt đề bài</div>
     <h2>Đẳng thức đúng</h2>
-    <p>Cho ba số một chữ số <b>A</b>, <b>B</b>, <b>C</b> (từ 1 đến 9), viết liền nhau theo <b>đúng thứ tự đã cho</b>. Giữa chúng có <b>hai khe trống</b>.</p>
-    <p>Hãy đặt vào hai khe ấy <b>một dấu <code>=</code></b> và <b>một dấu phép tính</b> — hoặc <code>+</code> (cộng) hoặc <code>*</code> (nhân) — sao cho được một đẳng thức <b>đúng</b>. Nếu không cách nào được thì in <code>NO</code>.</p>
+    <p>Cho ba số một chữ số <b>A</b>, <b>B</b>, <b>C</b> (từ 1 đến 9), viết theo <b>đúng thứ tự đã cho</b>, giữa chúng có <b>hai khe trống</b>.</p>
+    <p>Đặt vào hai khe ấy <b>một dấu <code>=</code></b> và <b>một dấu phép tính</b> — <code>+</code> hoặc <code>*</code> — sao cho được một đẳng thức <b>đúng</b>. Không cách nào được thì in <code>NO</code>.</p>
     <div class="iobox">
       <div><b>Dữ liệu vào</b>Ba dòng, mỗi dòng một số: A, B, C.</div>
       <div><b>Kết quả ra</b>Một dòng — đẳng thức tạo được, hoặc <code>NO</code>. Đề bảo đảm chỉ có một đẳng thức hợp lệ.</div>
@@ -672,25 +684,24 @@ if (!window.__KIEM_ERR) {
       <div class="mgrp"><div class="mlab">kết quả</div>
         <div class="mrow"><div class="cell prime">N</div><div class="cell prime">O</div></div></div>
     </div>
-    <p class="minote">Chú ý bộ thứ hai: dấu <code>=</code> nằm ở <b>khe thứ nhất</b>, tức là vế trái chỉ có <b>một số</b>. Bỏ sót dạng này là lỗi hay gặp nhất của bài.</p>
-    <p class="minote">Mọi số đều từ 1 đến 9 nên phép tính rất gọn — tích lớn nhất chỉ là 9 &#215; 9 = 81. Không cần vòng lặp, không lo tràn số: cả bài chỉ là <b>vài phép so sánh</b> rồi in ra.</p>
-    <p class="muted">Ràng buộc: 1 ≤ A, B, C ≤ 9. Subtask 1 (50%): luôn tạo được bằng dấu <code>=</code> và dấu <code>+</code> · Subtask 2 (50%): không thêm ràng buộc.</p>
+    <p class="minote">Chú ý bộ thứ hai: dấu <code>=</code> nằm ở <b>khe thứ nhất</b>, vế trái chỉ có <b>một số</b>. Bỏ sót dạng này là lỗi hay gặp nhất của bài.</p>
+    <p class="muted">Ràng buộc: 1 ≤ A, B, C ≤ 9. Subtask 1 (50%): luôn tạo được bằng dấu <code>=</code> và <code>+</code> · Subtask 2 (50%): không thêm ràng buộc.</p>
   </div></section>
 
-  <!-- SLIDE 2 — SUY LUẬN 1/2 -->
+  <!-- SLIDE 2 — SUY LUẬN -->
   <section id="s2" class="slide"><div class="frame">
-    <div class="stag">Phần 2 · Suy luận 1/2</div>
+    <div class="stag">Phần 2 · Suy luận</div>
     <h2>Đếm hết các cách đặt hai ký hiệu</h2>
     <div class="why">
       <div class="whytxt">
         <p class="ask">Có bao nhiêu biểu thức khác nhau có thể tạo ra?</p>
         <ul class="qlist">
           <li>Thứ tự ba số <b>không được đổi</b>, nên hình dạng luôn là <b>số _ số _ số</b> — đúng <b>hai khe</b>.</li>
-          <li>Dấu <code>=</code> phải chiếm một khe: <b>2 lựa chọn</b> (khe 1 hoặc khe 2).</li>
-          <li>Khe còn lại nhận dấu phép tính: <b>2 lựa chọn</b> (<code>+</code> hoặc <code>*</code>).</li>
-          <li>Hai lựa chọn độc lập nhau ⇒ tất cả có <b>2 × 2 = 4</b> biểu thức, không hơn không kém.</li>
+          <li>Dấu <code>=</code> chiếm một khe: <b>2 cách</b>. Khe còn lại nhận <code>+</code> hoặc <code>*</code>: <b>2 cách</b>. Hai lựa chọn độc lập ⇒ <b>2 × 2 = 4</b> biểu thức, không hơn không kém.</li>
+          <li>Bốn khả năng ấy là <b>A+B=C</b>, <b>A=B+C</b>, <b>A*B=C</b>, <b>A=B*C</b>. Thử lần lượt, gặp cái đúng đầu tiên thì in ra rồi dừng.</li>
         </ul>
-        <p class="keyline">Bốn khả năng ấy là: <b>A+B=C</b>, <b>A=B+C</b>, <b>A*B=C</b>, <b>A=B*C</b>. Bài toán "sáng tạo" vừa biến thành bài toán <b>thử hết một danh sách bốn phần tử</b>.</p>
+        <p class="keyline">Xếp <b>hai dạng dùng dấu <code>+</code> lên trước</b> thì subtask 1 chính là hai lệnh <code>if</code> đầu tiên — subtask 2 chỉ viết tiếp hai lệnh nữa, không phải làm lại từ đầu.</p>
+        <p class="keyline">Ba chi tiết dễ mất điểm: nhánh <code>NO</code> phải ở <code>else</code> <b>cuối cùng</b> · phải in <b>cả đẳng thức</b> (<code>7=5+2</code>), không phải mỗi con số · có bộ hai đẳng thức cùng đúng (<b>2 2 4</b>) nên cứ <b>cố định thứ tự thử</b>.</p>
       </div>
       <div class="whyfig">
         <svg viewBox="0 0 620 238">
@@ -723,68 +734,15 @@ if (!window.__KIEM_ERR) {
         <div class="figcap">Cây lựa chọn hai tầng: chọn chỗ cho dấu =, rồi chọn phép tính</div>
       </div>
     </div>
-    <div class="restate"><b>Phát biểu lại (lần 1)</b>
-      <p>Không cần "nghĩ ra" đẳng thức nào cả. Chỉ cần <b>thử lần lượt bốn biểu thức</b> đã liệt kê, cái nào đúng thì in ra; cả bốn đều sai thì in <code>NO</code>. Câu hỏi còn lại: <b>thử theo thứ tự nào</b>, và có bẫy gì không?</p>
-    </div>
-  </div></section>
-
-  <!-- SLIDE 3 — SUY LUẬN 2/2 -->
-  <section id="s3" class="slide"><div class="frame">
-    <div class="stag">Phần 3 · Suy luận 2/2</div>
-    <h2>Thứ tự thử và ba chỗ dễ sai</h2>
-    <div class="why">
-      <div class="whytxt">
-        <p class="ask">Thử theo thứ tự nào cho khớp với hai subtask?</p>
-        <ul class="qlist">
-          <li><b>Subtask 1</b> hứa rằng luôn tạo được bằng dấu <code>=</code> và <code>+</code> ⇒ chỉ cần hai dạng <b>A+B=C</b> và <b>A=B+C</b>. Viết hai lệnh <code>if</code> là ăn 50%.</li>
-          <li><b>Subtask 2</b> mở thêm dấu <code>*</code> ⇒ nối thêm hai lệnh <code>if</code> nữa cho <b>A*B=C</b> và <b>A=B*C</b>. Bài giải subtask 1 <b>không phải bỏ đi</b>, chỉ viết tiếp.</li>
-          <li>Cả bốn cùng trượt mới in <code>NO</code> — nên <code>NO</code> phải nằm ở nhánh <code>else</code> <b>cuối cùng</b>, không phải trong thân vòng thử.</li>
-        </ul>
-        <p class="keyline"><b>Chỗ dễ sai 1:</b> bỏ quên hai dạng có dấu <code>=</code> ở khe đầu (vế trái chỉ một số). Với <b>7 5 2</b> lời giải thiếu sẽ in <code>NO</code> thay vì <code>7=5+2</code>.</p>
-        <p class="keyline"><b>Chỗ dễ sai 2:</b> có bộ dữ liệu <b>hai đẳng thức cùng đúng</b> — với <b>2 2 4</b> thì cả <code>2+2=4</code> lẫn <code>2*2=4</code> đều hợp lệ. Đề bảo đảm không ra ca này, nhưng cứ cố định thứ tự thử thì chương trình luôn cho một kết quả xác định.</p>
-        <p class="keyline"><b>Chỗ dễ sai 3:</b> in thiếu ký tự. Kết quả phải là <b>cả đẳng thức</b> (<code>7=5+2</code>), không phải chỉ một con số.</p>
-      </div>
-      <div class="whyfig">
-        <svg viewBox="0 0 620 216">
-          <text x="310" y="14" text-anchor="middle" font-size="12" fill="var(--accent)" font-weight="700">Thử lần lượt với A = 7, B = 5, C = 2</text>
-          <g class="ghdr">
-            <text x="125" y="36">khả năng</text><text x="290" y="36">vế trái</text>
-            <text x="380" y="36">vế phải</text><text x="520" y="36">kết luận</text>
-          </g>
-          <rect x="20" y="44" width="210" height="32" rx="5" class="gcell"/><text x="125" y="65" class="gtxt">1.  A + B = C</text>
-          <rect x="250" y="44" width="80" height="32" rx="5" class="gcell"/><text x="290" y="65" class="gtxt">12</text>
-          <rect x="340" y="44" width="80" height="32" rx="5" class="gcell"/><text x="380" y="65" class="gtxt">2</text>
-          <text x="520" y="65" font-size="11.5" fill="var(--neg)" font-weight="700" text-anchor="middle">khác nhau — bỏ</text>
-
-          <rect x="20" y="82" width="210" height="32" rx="5" class="gcell src"/><text x="125" y="103" class="gtxt src">2.  A = B + C</text>
-          <rect x="250" y="82" width="80" height="32" rx="5" class="gcell src"/><text x="290" y="103" class="gtxt src">7</text>
-          <rect x="340" y="82" width="80" height="32" rx="5" class="gcell src"/><text x="380" y="103" class="gtxt src">7</text>
-          <text x="520" y="103" font-size="11.5" fill="var(--pos)" font-weight="700" text-anchor="middle">bằng nhau — in ra</text>
-
-          <rect x="20" y="120" width="210" height="32" rx="5" class="gcell base"/><text x="125" y="141" class="gtxt base">3.  A * B = C</text>
-          <rect x="250" y="120" width="80" height="32" rx="5" class="gcell base"/><text x="290" y="141" class="gtxt base">·</text>
-          <rect x="340" y="120" width="80" height="32" rx="5" class="gcell base"/><text x="380" y="141" class="gtxt base">·</text>
-          <text x="520" y="141" font-size="11.5" fill="var(--muted)" text-anchor="middle">không cần thử nữa</text>
-
-          <rect x="20" y="158" width="210" height="32" rx="5" class="gcell base"/><text x="125" y="179" class="gtxt base">4.  A = B * C</text>
-          <rect x="250" y="158" width="80" height="32" rx="5" class="gcell base"/><text x="290" y="179" class="gtxt base">·</text>
-          <rect x="340" y="158" width="80" height="32" rx="5" class="gcell base"/><text x="380" y="179" class="gtxt base">·</text>
-          <text x="520" y="179" font-size="11.5" fill="var(--muted)" text-anchor="middle">không cần thử nữa</text>
-
-          <text x="310" y="208" text-anchor="middle" font-size="12" fill="var(--muted)">Gặp dòng đúng đầu tiên thì in ngay rồi dừng — mọi phép so sánh chỉ là số nguyên nhỏ</text>
-        </svg>
-        <div class="figcap">Bốn phép so sánh, dừng ở cái đúng đầu tiên</div>
-      </div>
-    </div>
     <div class="subprob"><b>Lời giải hoàn chỉnh</b>
-      <p>Đọc ba số, thử bốn đẳng thức theo thứ tự trên, in cái đúng đầu tiên, hết thì in <code>NO</code>. Thời gian <b>O(1)</b>, bộ nhớ <b>O(1)</b>. Vì A, B, C ≤ 9 nên tích lớn nhất là 81 — <b>không có nguy cơ tràn số</b>.</p>
+      <p>Đọc ba số, thử bốn đẳng thức theo thứ tự trên, in cái đúng đầu tiên; trượt cả bốn thì in <code>NO</code>. Thời gian và bộ nhớ đều <b>O(1)</b>; tích lớn nhất là 9 &#215; 9 = 81 nên <b>không có nguy cơ tràn số</b>.</p>
     </div>
   </div></section>
 
-  <!-- SLIDE 4 — MÔ PHỎNG -->
-  <section id="s4" class="slide"><div class="frame">
+  <!-- SLIDE 3 — MÔ PHỎNG -->
+  <section id="s3" class="slide"><div class="frame">
     <div class="simhead">
-      <div><div class="stag">Phần 4 · Mô phỏng — Bước 1/1</div><h2>Thử lần lượt bốn khả năng</h2></div>
+      <div><div class="stag">Phần 3 · Mô phỏng — Bước 1/1</div><h2>Thử lần lượt bốn khả năng</h2></div>
       <div class="src">
         <span class="ilab">A</span><input class="inp" id="inpA" type="text" value="2" size="2" style="width:44px">
         <span class="ilab">B</span><input class="inp" id="inpB" type="text" value="4" size="2" style="width:44px">
@@ -814,11 +772,11 @@ if (!window.__KIEM_ERR) {
           <div class="ln" data-line="6"><span class="no">6</span><span>ngược lại:      in "NO"</span></div>
         </div>
         <div class="rows">
-          <div class="vsec" id="secP4T"><div class="slab">Vế trái của bốn khả năng</div><div class="row" id="rowP4T"></div></div>
-          <div class="vsec" id="secP4P"><div class="slab">Vế phải của bốn khả năng</div><div class="row" id="rowP4P"></div></div>
+          <div class="vsec" id="secP3T"><div class="slab">Vế trái của bốn khả năng</div><div class="row" id="rowP3T"></div></div>
+          <div class="vsec" id="secP3P"><div class="slab">Vế phải của bốn khả năng</div><div class="row" id="rowP3P"></div></div>
         </div>
         <div class="vbot">
-          <div class="pens" id="pens4"></div>
+          <div class="pens" id="pens3"></div>
           <div class="ansbox" id="ansbox1">Đáp án <span class="av" id="ans1">·</span></div>
         </div>
       </div>
@@ -834,10 +792,10 @@ if (!window.__KIEM_ERR) {
     </div>
   </div></section>
 
-  <!-- SLIDE 5 — KIỂM TRA HIỂU -->
-  <section id="s5" class="slide"><div class="frame">
-    <div class="stag">Phần 5 · Kiểm tra hiểu</div>
-    <h2>Một mô hình sai rất hay gặp — và hai câu nói bằng lời</h2>
+  <!-- SLIDE 4 — KIỂM TRA HIỂU -->
+  <section id="s4" class="slide"><div class="frame">
+    <div class="stag">Phần 4 · Kiểm tra hiểu</div>
+    <h2>Một mô hình sai rất hay gặp</h2>
 
     <div class="bacbo">
       <div class="mhsai">
@@ -855,15 +813,8 @@ if (!window.__KIEM_ERR) {
     </div>
 
     <div class="eipe">
-      <b>Nói bằng lời: vì sao chắc chắn chỉ có đúng 4 khả năng, không phải 5 hay 6?</b>
-      Trả lời bằng <b>một câu</b>, phải nhắc tới hai chữ "khe" và "độc lập".
-      <button>Hiện gợi ý</button>
-      <div class="dapan">Vì có đúng <b>hai khe</b>, dấu <code>=</code> chọn một trong hai khe và dấu phép tính chọn một trong hai phép — hai lựa chọn <b>độc lập</b> nhau nên tổng cộng 2 &#215; 2 = 4, và thứ tự ba số không được đổi nên không sinh thêm khả năng nào.</div>
-    </div>
-
-    <div class="eipe">
       <b>Với A = 2, B = 2, C = 4 thì cả <code>2+2=4</code> lẫn <code>2*2=4</code> đều đúng. Chương trình in cái nào, và vì sao vẫn chấp nhận được?</b>
-      Gợi ý: nhìn lại thứ tự bốn lệnh <code>if</code>.
+      Trả lời bằng <b>một câu</b>. Gợi ý: nhìn lại thứ tự bốn lệnh <code>if</code>.
       <button>Hiện gợi ý</button>
       <div class="dapan">In <b>2+2=4</b>, vì dạng có dấu <code>+</code> được thử trước và gặp cái đúng đầu tiên là dừng. Đề đã bảo đảm dữ liệu chỉ có một đẳng thức hợp lệ nên ca này không xuất hiện khi chấm; dù vậy, <b>cố định thứ tự thử</b> khiến chương trình luôn cho một kết quả xác định thay vì phụ thuộc may rủi.</div>
     </div>
@@ -1685,8 +1636,8 @@ window.MP = (function () {
       h: 1, w: 5, nhanHang: [""], nhanCot: ["A", "khe 1", "B", "khe 2", "C"],
       tieuDe: "biểu thức đang thử"
     });
-    MP.hang.tao("rowP4T", 4, NHANT);
-    MP.hang.tao("rowP4P", 4, NHANP);
+    MP.hang.tao("rowP3T", 4, NHANT);
+    MP.hang.tao("rowP3P", 4, NHANP);
 
     f1 = [];
     f1.push({
@@ -1746,8 +1697,8 @@ window.MP = (function () {
 
   const P1 = MP.tao({
     sfx: "1", ve: [{ svg: "g1", mod: "bang2c" }], code: "#code1",
-    hang: { T: "rowP4T", P: "rowP4P" }, glow: { T: "secP4T", P: "secP4P" },
-    ans: "ans1", pens: "pens4", khung: () => f1
+    hang: { T: "rowP3T", P: "rowP3P" }, glow: { T: "secP3T", P: "secP3P" },
+    ans: "ans1", pens: "pens3", khung: () => f1
   });
 
   ["inpA", "inpB", "inpC"].forEach(id => $(id).addEventListener("change", dung));
@@ -1762,14 +1713,14 @@ window.MP = (function () {
     $("inpA").value = r(); $("inpB").value = r(); $("inpC").value = r(); dung();
   };
 
-  MP.slides(["s1", "s2", "s3", "s4", "s5"]);
+  MP.slides(["s1", "s2", "s3", "s4"]);
   dung();
 
   /* Cau hinh cho bo do nhung san — mo deck voi ?kiem=1 de tu cham.
      Cac gia tri `ans` lay tu loi giai chuan (da doi chung 729/729), khong tu tinh tay.
      Nam bo phu du sau nhanh cua ma gia: dong 2, 3, 4, 5 va 6 (ca NO). */
   window.KIEM_CFG = {
-    slides: 5, players: ["1"], svgs: ["g1"], ansId: "ans1",
+    slides: 4, players: ["1"], svgs: ["g1"], ansId: "ans1",
     dulieu: [
       { o: { inpA: "2", inpB: "4", inpC: "8" }, ans: "2*4=8" },
       { o: { inpA: "1", inpB: "2", inpC: "9" }, ans: "NO" },
