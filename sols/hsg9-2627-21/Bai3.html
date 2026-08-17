@@ -1,0 +1,1884 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bài 3: Trạm xăng</title>
+<style>
+  :root{
+    --sw:212px;
+    --bg:#d8dee8; --frame:#ffffff; --fg:#000000; --muted:#39414f; --line:#5b6572;
+    --accent:#1338c4; --accsoft:#c3d4ff; --pos:#04673a; --neg:#b01008;
+    --sidebar:#080d1a; --sideItem:#ced6e6; --cell:#ffffff; --card2:#e9edf4;
+    --shadow:0 10px 26px rgba(10,20,45,.22); color-scheme:light;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#000000; --frame:#0c1119; --fg:#ffffff; --muted:#c3ccdb; --line:#66707f;
+      --accent:#8fb4ff; --accsoft:#123a86; --pos:#3ff0a5; --neg:#ff8b82;
+      --sidebar:#000000; --sideItem:#d3dae7; --cell:#080c12; --card2:#151b25;
+      --shadow:0 12px 34px rgba(0,0,0,.7); color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+      --bg:#000000; --frame:#0c1119; --fg:#ffffff; --muted:#c3ccdb; --line:#66707f;
+      --accent:#8fb4ff; --accsoft:#123a86; --pos:#3ff0a5; --neg:#ff8b82;
+      --sidebar:#000000; --sideItem:#d3dae7; --cell:#080c12; --card2:#151b25;
+      --shadow:0 12px 34px rgba(0,0,0,.7); color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .sidebar{position:fixed;left:0;top:0;width:var(--sw);height:100vh;background:var(--sidebar);
+    color:var(--sideItem);padding:22px 12px;display:flex;flex-direction:column;gap:6px;z-index:30;
+    transition:width .25s ease}
+  .brand{color:#fff;font-weight:700;font-size:1rem;line-height:1.3;margin-bottom:6px}
+  .brand small{display:block;color:var(--sideItem);font-weight:500;font-size:.74rem;margin-top:3px}
+  .snav{display:flex;flex-direction:column;gap:4px;margin-top:10px}
+  .snav a{display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:10px;
+    color:var(--sideItem);text-decoration:none;font-size:.86rem;transition:background .15s,color .15s}
+  .snav a .n{width:22px;height:22px;border-radius:7px;background:rgba(255,255,255,.09);flex:none;
+    display:flex;align-items:center;justify-content:center;font-size:.74rem;font-weight:700}
+  .snav a:hover{background:rgba(255,255,255,.06);color:#fff}
+  .snav a.active{background:var(--accent);color:#fff}
+  .snav a.active .n{background:rgba(255,255,255,.22)}
+  .sfoot{margin-top:auto;font-size:.72rem;color:var(--sideItem)}
+  .sfoot .hint{opacity:.7;margin-bottom:9px;line-height:1.4}
+  .stools{display:flex;gap:6px}
+  .sbtn{width:26px;height:26px;padding:0;border-radius:7px;border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.06);color:var(--sideItem);cursor:pointer;
+    display:flex;align-items:center;justify-content:center}
+  .sbtn:hover{color:#fff;border-color:var(--accent)}
+  .sbtn.theme::before{content:"";width:13px;height:13px;border-radius:50%;
+    border:1.6px solid currentColor;background:linear-gradient(90deg,currentColor 0 50%,transparent 50% 100%)}
+  .sbtn.rail::before{content:"";width:7px;height:7px;margin-left:3px;
+    border-left:1.8px solid currentColor;border-bottom:1.8px solid currentColor;
+    transform:rotate(45deg);transition:transform .2s ease}
+  body.rail{--sw:58px}
+  body.rail .brand small,body.rail .snav a .t,body.rail .sfoot .hint{display:none}
+  body.rail .brand{font-size:.86rem;text-align:center}
+  body.rail .snav a{justify-content:center;padding:9px 0;gap:0}
+  body.rail .stools{flex-direction:column;align-items:center}
+  body.rail .sbtn.rail::before{transform:rotate(-135deg);margin-left:-3px}
+  .deck{margin-left:var(--sw);height:100vh;position:relative;overflow:hidden;
+    transition:margin-left .25s ease}
+  .slide{position:absolute;inset:0;display:flex;padding:18px;
+    opacity:0;transform:translateX(56px) scale(.985);pointer-events:none;
+    transition:opacity .34s ease,transform .34s ease}
+  .slide.active{opacity:1;transform:none;pointer-events:auto}
+  .slide.back{transform:translateX(-56px) scale(.985)}
+  .frame{flex:1;background:var(--frame);border:2px solid var(--line);border-radius:18px;
+    box-shadow:var(--shadow);padding:14px 24px;display:flex;flex-direction:column;
+    align-items:stretch;justify-content:flex-start;overflow:auto}
+  .stag{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  h2{font-size:1.42rem;margin:.08em 0 .3em}
+  p{margin:.3em 0;line-height:1.5;max-width:980px}
+  .muted{color:var(--muted);font-size:.9rem}
+  code{background:var(--card2);padding:1px 6px;border-radius:6px;font-size:.95em}
+  .iobox{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0 2px}
+  .iobox > div{flex:1 1 260px;background:var(--card2);border:2px solid var(--line);
+    border-radius:12px;padding:11px 15px;font-size:.94rem;line-height:1.5}
+  .iobox b{display:block;color:var(--accent);font-size:.74rem;text-transform:uppercase;
+    letter-spacing:.09em;margin-bottom:5px}
+  .exlab{font-size:.78rem;font-weight:700;color:var(--muted);margin-top:8px}
+  .mini{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;
+    background:var(--card2);border:2px solid var(--line);border-radius:14px;padding:10px 18px;margin:8px 0 6px}
+  .mgrp{text-align:center}
+  .mlab{font-size:.72rem;color:var(--accent);font-weight:700;text-transform:uppercase;
+    letter-spacing:.09em;margin-bottom:6px;height:16px}
+  .mar{color:var(--muted);font-size:1.5rem;align-self:center}
+  /* hang o trong dai minh hoa slide Tom tat. Thieu luat nay thi cac o XEP DOC
+     ma khong bao tran — deck 018/Bai1 tung xuat xuong o dang do. */
+  .mrow{display:flex;gap:8px;justify-content:center}
+  .minote{font-size:.94rem;color:var(--muted);max-width:980px;margin:.1em 0}
+  /* Dong Tags cuoi slide Tom tat — the chu de/ky thuat cua bai */
+  .tags{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:12px 0 2px}
+  .tags > .tglab{font-size:.82rem;font-weight:700;color:var(--muted)}
+  .tags > .tg{font-size:.84rem;font-weight:600;color:var(--accent);
+    background:var(--card2);border:1.5px solid var(--accent);border-radius:999px;padding:2px 12px}
+  .lead{font-size:1.0rem;line-height:1.5;max-width:1000px;margin:.12em 0 .45em}
+  .ideas{display:flex;gap:14px;align-items:stretch;flex-wrap:wrap;margin:4px 0 10px}
+  .ibox{flex:1 1 250px;background:var(--card2);border:2px solid var(--line);border-radius:14px;padding:12px 15px 10px;text-align:center}
+  .ibox .ic{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto 7px}
+  .ibox > b{display:block;font-size:1.0rem;margin-bottom:6px}
+  .ibox ul{text-align:left;margin:0;padding-left:18px;font-size:.87rem;color:var(--muted);line-height:1.5}
+  .ibox li{margin:.22em 0}
+  .iar{display:flex;align-items:center;color:var(--muted);font-size:1.7rem}
+  .egwork{background:var(--accsoft);border:2px solid var(--line);border-radius:14px;padding:11px 18px;margin:2px 0 8px}
+  .egttl{font-weight:650;margin-bottom:9px;font-size:.97rem}
+  .egflow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+  .egstep{background:var(--frame);border:2px solid var(--line);border-radius:10px;padding:9px 14px;
+    font-variant-numeric:tabular-nums;font-size:.93rem}
+  .egstep .eglab{display:block;font-size:.67rem;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+  .egar{color:var(--muted);font-size:1.4rem}
+  .egnote{margin-top:9px;font-size:.9rem;color:var(--muted);text-align:center}
+  .pos{color:var(--pos);font-weight:700}
+  /* ---- slide suy luan (y tuong) ---- */
+  .why{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;margin:2px 0}
+  .whytxt{flex:1 1 300px;min-width:280px}
+  .whyfig{flex:1 1 380px;min-width:330px;background:var(--card2);border:2px solid var(--line);
+    border-radius:12px;padding:8px 10px}
+  .whyfig svg{width:100%;height:auto;display:block}
+  .figcap{font-size:.75rem;color:var(--muted);text-align:center;margin-top:3px}
+  .qlist{margin:.2em 0;padding-left:20px;font-size:1.0rem;line-height:1.68}
+  .qlist li{margin:.4em 0}
+  .ask{font-size:1.06rem;font-weight:650;color:var(--accent);margin:.25em 0 .4em}
+  .restate,.subprob{border-radius:12px;padding:9px 15px;margin:8px 0 4px;
+    background:var(--accsoft);border:2px solid var(--accent);border-left-width:7px}
+  .subprob{background:var(--card2);border-color:var(--pos)}
+  .restate > b,.subprob > b{display:block;font-size:.71rem;text-transform:uppercase;
+    letter-spacing:.09em;margin-bottom:3px;color:var(--accent)}
+  .subprob > b{color:var(--pos)}
+  .restate p,.subprob p{margin:.1em 0;font-size:.97rem;line-height:1.5}
+  .keyline{font-size:.99rem;color:var(--muted);margin-top:9px;line-height:1.55}
+  .restate p,.subprob p{font-size:1.0rem}
+  .why{gap:20px;margin:6px 0}
+  .whyfig{padding:10px 12px}
+  /* ---- header slide mo phong ---- */
+  .simhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .src{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  select,button{font-family:inherit;color:var(--fg);background:var(--card2);
+    border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-size:.82rem;cursor:pointer}
+  button:hover,select:hover{border-color:var(--accent)}
+  select option{background:var(--card2);color:var(--fg)}
+  .inp{padding:5px 8px;font-size:.88rem;border:1px solid var(--line);border-radius:8px;
+    background:var(--cell);color:var(--fg);text-align:center;font-variant-numeric:tabular-nums}
+  .inp.a{min-width:120px}
+  .ilab{font-size:.74rem;color:var(--muted)}
+  .banner{text-align:center;font-weight:700;font-size:.98rem;padding:7px 12px;border-radius:10px;
+    background:var(--accsoft);border:2px solid var(--line);margin:8px 0}
+  .banner.done{color:var(--pos);border-color:var(--pos)}
+  /* ---- vung mo phong: do thi | code+hang ---- */
+  .simg{display:flex;gap:14px;align-items:stretch;flex-wrap:wrap}
+  .graphbox{flex:1 1 330px;min-width:300px;background:var(--card2);border:2px solid var(--line);
+    border-radius:12px;padding:4px;display:flex;align-items:center;justify-content:center}
+  .graph{width:100%;height:auto;display:block}
+  .simr{flex:1 1 360px;min-width:320px;display:flex;flex-direction:column;gap:8px}
+  .code{background:var(--card2);border:2px solid var(--line);border-radius:12px;
+    padding:9px 10px;font-family:ui-monospace,Consolas,monospace;font-size:.79rem;line-height:1.5}
+  .code .ln{display:flex;gap:8px;padding:2px 8px;border-radius:6px;color:var(--fg);opacity:.72;white-space:pre-wrap}
+  .code .ln.on{background:var(--accsoft);opacity:1;font-weight:700}
+  .code .ln .no{width:14px;text-align:right;opacity:.6;flex:none;cursor:pointer}
+  /* dong VUA chay xong (khung truoc): vach xam trai, khong dung opacity thap */
+  .code .ln.was{opacity:1;box-shadow:inset 4px 0 0 var(--muted)}
+  /* diem dung: bam so dong de dat/bo; de sau .was de vach do thang vach xam */
+  .code .ln.bp{box-shadow:inset 4px 0 0 var(--neg)}
+  .code .ln.bp .no{opacity:1;color:var(--neg);font-weight:800}
+  .rows{display:flex;flex-direction:column;gap:5px}
+  .rows .cell{width:42px;min-width:42px;padding:0}
+  .vsec{text-align:left}
+  .vsec.glow > .row{outline:3px solid var(--pos);outline-offset:4px;border-radius:10px}
+  .slab{font-size:.72rem;color:var(--fg);opacity:.85;font-weight:600;margin-bottom:3px}
+  .row{display:flex;gap:5px;justify-content:flex-start;align-items:flex-start;flex-wrap:wrap;min-height:36px}
+  .tri{display:flex;flex-direction:column;align-items:center;gap:1px}
+  .cell{min-width:36px;height:32px;padding:0 6px;border:3px solid var(--line);border-radius:8px;
+    background:var(--cell);display:flex;align-items:center;justify-content:center;
+    font-size:1.0rem;font-weight:600;font-variant-numeric:tabular-nums;transition:.18s}
+  .cell.hot{border-color:var(--accent);background:var(--accsoft);transform:scale(1.08)}
+  .cell.prime{border-color:var(--pos);color:var(--pos)}
+  .cell.zero{color:var(--muted);border-style:dashed}
+  .cell.cyc{border-color:var(--pos);box-shadow:0 0 0 3px var(--accsoft) inset}
+  .idx{font-size:.63rem;color:var(--fg);opacity:.78}
+  .vbot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-top:4px}
+  .pens{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .pchip{border:2px solid var(--line);border-radius:10px;background:var(--cell);padding:5px 10px;
+    font-size:.84rem;font-variant-numeric:tabular-nums}
+  .pchip.cur{border-color:var(--accent);background:var(--accsoft)}
+  .pchip b{color:var(--pos)}
+  .ansbox{font-size:1.0rem;font-weight:700;background:var(--accsoft);border:2px solid var(--line);
+    border-radius:10px;padding:6px 14px}
+  .ansbox.glow{outline:3px solid var(--pos);outline-offset:3px}
+  .ansbox .av{color:var(--pos);font-size:1.18rem;margin-left:6px}
+  .expl{text-align:center;font-size:.93rem;font-weight:500;margin-top:auto;padding-top:8px;min-height:20px}
+  .ctrl{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .ctrl button{width:38px;height:34px;padding:0;font-size:.92rem}
+  .ctrl button.play{width:50px;background:var(--accent);color:#fff;border-color:var(--accent)}
+  /* nut "Đố" — che do hoi lop, runtime tu tiem vao sau nut ⏭ */
+  .ctrl button.hoi{width:auto;padding:0 10px;font-weight:700}
+  .ctrl button.hoi.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .expl.hoi{color:var(--accent);font-weight:700}
+  .ctrl .step{font-size:.8rem;color:var(--muted);margin:0 4px}
+  .ctrl .spd{display:flex;align-items:center;gap:5px;font-size:.74rem;color:var(--muted)}
+  .ctrl input[type=range]{width:78px}
+  #s1 h2{font-size:1.5rem;margin:.05em 0 .22em}
+  #s1 p{font-size:1.0rem;line-height:1.5;margin:.22em 0}
+  #s1 .muted{font-size:.9rem}
+  @media (max-width:820px){
+    :root{--sw:58px}
+    .brand small,.snav a .t,.sfoot .hint{display:none}
+    .brand{font-size:.86rem;text-align:center}
+    .snav a{justify-content:center;padding:9px 0;gap:0}
+    .stools{flex-direction:column;align-items:center}
+  }
+  /* ---- do thi ---- */
+  .edge{fill:none;stroke:var(--line);stroke-width:1.9;opacity:.18;transition:.18s;stroke-linecap:round}
+  .edge.seen{opacity:1}
+  .edge.hot{opacity:1;stroke:var(--accent);stroke-width:2.8}
+  .edge.tree{opacity:1;stroke:var(--muted);stroke-dasharray:6 4;stroke-width:1.9}
+  .edge.kept{opacity:1;stroke:var(--pos);stroke-width:2.8}
+  .edge.drop{opacity:1;stroke:var(--neg);stroke-dasharray:6 4;stroke-width:2.1}
+  .edge.cut{opacity:1;stroke:var(--neg);stroke-width:2.8}
+  /* trong so canh: chu co vien nen (halo) mau nen the de doc khi de len net */
+  .wlab{font-size:11.5px;font-weight:700;fill:var(--fg);text-anchor:middle;
+    paint-order:stroke;stroke:var(--card2);stroke-width:3.4px;stroke-linejoin:round;
+    opacity:.2;transition:.18s;pointer-events:none}
+  .wlab.on{opacity:1}
+  .wlab.hot{fill:var(--accent)}
+  .wlab.kept{fill:var(--pos)}
+  .wlab.drop,.wlab.cut{fill:var(--neg)}
+  .wlab.tree{fill:var(--muted)}
+  .gnode circle{fill:var(--cell);stroke:var(--line);stroke-width:2.6;transition:.18s}
+  .gnode text{fill:var(--fg);font-weight:700;font-size:15px}
+  .gnode.hot circle{stroke:var(--accent);fill:var(--accsoft)}
+  .gnode.cyc circle{stroke:var(--pos);stroke-width:3.6}
+  .gnode.tree circle{stroke:var(--muted);stroke-dasharray:4 3}
+  .gnode.tree text{fill:var(--muted)}
+  #mk_gray path{fill:var(--line)} #mk_blue path{fill:var(--accent)} #mk_green path{fill:var(--pos)}
+  #mk_red path{fill:var(--neg)} #mk_muted path{fill:var(--muted)}
+  .glegend{display:flex;gap:12px;flex-wrap:wrap;font-size:.74rem;color:var(--muted);justify-content:center;margin-top:2px}
+  .glegend span{display:flex;align-items:center;gap:4px}
+  .glegend i{width:16px;height:0;border-top:3px solid var(--line);display:inline-block}
+  .glegend i.g{border-color:var(--pos)} .glegend i.r{border-top-style:dashed;border-color:var(--neg)}
+  .glegend i.c{border-color:var(--neg)} .glegend i.b{border-color:var(--accent)}
+
+  /* ===== module: bieu do cot =====*/
+  /* ---- bieu do cot (thung nuoc) cho bai 1 ---- */
+  .bar{fill:var(--cell);stroke:var(--line);stroke-width:2.4;transition:.18s}
+  .bar.hot{fill:var(--accsoft);stroke:var(--accent);stroke-width:3.4}
+  .bar.cnt{fill:var(--accsoft);stroke:var(--pos);stroke-width:3.4}
+  .bar.big{stroke:var(--muted);stroke-dasharray:5 4}
+  .barv{font-size:12px;font-weight:700;fill:var(--fg);text-anchor:middle;
+    paint-order:stroke;stroke:var(--card2);stroke-width:3.2px;stroke-linejoin:round;transition:.18s}
+  .barv.hot{fill:var(--accent)} .barv.cnt{fill:var(--pos)} .barv.big{fill:var(--muted)}
+  .baridx{font-size:11px;fill:var(--fg);opacity:.78;text-anchor:middle}
+  .baridx.hot{opacity:1;fill:var(--accent);font-weight:700}
+  .axis{stroke:var(--line);stroke-width:2}
+  .cell.pick{border-color:var(--accent);background:var(--accsoft)}
+
+  /* ===== module: bang 2 chieu =====*/
+  /* ---- bang o vuong (ma tran a / bang QHD f) cho bai 3 ---- */
+  .gcell{fill:var(--cell);stroke:var(--line);stroke-width:2;transition:.18s}
+  .gcell.hot{fill:var(--accsoft);stroke:var(--accent);stroke-width:3.2}
+  .gcell.src{fill:var(--accsoft);stroke:var(--pos);stroke-width:3.2}
+  .gcell.neg{fill:var(--accsoft);stroke:var(--neg);stroke-width:3.2}
+  .gcell.base{stroke-dasharray:5 4;stroke:var(--muted)}
+  .gtxt{font-size:12.5px;font-weight:700;fill:var(--fg);text-anchor:middle;transition:.18s}
+  .gtxt.hot{fill:var(--accent)} .gtxt.src{fill:var(--pos)}
+  .gtxt.neg{fill:var(--neg)} .gtxt.base{fill:var(--muted)}
+  .ghdr{font-size:11.5px;fill:var(--fg);opacity:.82;text-anchor:middle;font-weight:600}
+  .ghdr.hot{opacity:1;fill:var(--accent);font-weight:700}
+  .gcap2{font-size:11.5px;fill:var(--muted);text-anchor:middle}
+
+  /* ===== module: luoi 2 chieu (bi danh cua bang2c) =====*/
+  .gcell.wall{fill:var(--line);stroke:var(--line)}
+  .gtxt.wall{fill:var(--frame)}
+
+  /* ===== module: cua so truot =====*/
+  .win{fill:var(--accsoft);fill-opacity:.34;stroke:var(--accent);stroke-width:2.5;transition:.18s}
+  .win.off{display:none}
+  .ptr{fill:var(--accent)}
+  .ptrt{font-size:11.5px;font-weight:700;fill:var(--accent);text-anchor:middle}
+  .ptr.off,.ptrt.off{display:none}
+
+  /* ===== module: cay phan doan =====*/
+  /* nhan doan "l–r" tren dinh nut: halo nen de doc duoc khi de len canh */
+  .dseg{font-size:9.5px;font-weight:600;fill:var(--muted);text-anchor:middle;
+    paint-order:stroke;stroke:var(--frame);stroke-width:3px;stroke-linejoin:round}
+
+  /* ===== Đố mức 2: học sinh chỉ ô sẽ đổi giá trị =====*/
+  /* Không dùng opacity để phân biệt (mờ là mất trên máy chiếu) — dùng nét và viền. */
+  .cell.doan{cursor:pointer;border-style:dotted}
+  .cell.doan:hover{border-color:var(--accent)}
+  .cell.dung{border-color:var(--pos);box-shadow:0 0 0 3px var(--pos) inset}
+  .cell.sai{border-color:var(--neg);box-shadow:0 0 0 3px var(--neg) inset}
+
+  /* ===== khối "nói bằng lời" (EiPE) =====*/
+  .eipe{border:3px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0;
+    background:var(--card2)}
+  .eipe > b{display:block;font-size:1rem;margin-bottom:6px}
+  .eipe > button{margin-top:8px;padding:4px 12px;font-weight:700}
+  .eipe .dapan{display:none;margin-top:10px;padding-top:10px;border-top:2px dashed var(--line);
+    color:var(--fg)}
+  .eipe.mo .dapan{display:block}
+
+  /* ===== slide bác bỏ: mô hình SAI cạnh mô hình ĐÚNG =====*/
+  .bacbo{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0}
+  .bacbo > div{border:3px solid var(--line);border-radius:12px;padding:10px 14px;
+    background:var(--card2)}
+  .bacbo > div.mhsai{border-color:var(--neg)}
+  .bacbo > div.mhdung{border-color:var(--pos)}
+  /* tieu de phai LON hon chu trong khoi — .98rem hoa ra nho hon 16px cua <p> */
+  .bacbo h4{margin:0 0 6px;font-size:1.06rem}
+  .bacbo .mhsai h4{color:var(--neg)}
+  .bacbo .mhdung h4{color:var(--pos)}
+  .bacbo .re{font-weight:700;margin-top:8px}
+/* Slide mô phỏng: trục số (quãng đường) trải NGANG full-width phía trên, rồi
+   mã giả | hàng dữ liệu nằm cạnh nhau bên dưới. Siết khoảng cách cho vừa một màn. */
+#s5 .trucwrap{background:var(--card2);border:2px solid var(--line);border-radius:12px;
+  padding:6px 10px 2px;margin-bottom:8px}
+#s5 .truclab{font-size:.82rem;color:var(--muted);margin-bottom:2px}
+#s5 .trucwrap .graph{width:100%;height:auto;max-height:180px;display:block}
+#s5 .code{font-size:.86rem;line-height:1.42;flex:1 1 340px}
+#s5 .simr{flex:1 1 300px}
+#s5 .slab{font-size:.82rem;margin-bottom:2px}
+#s5 .vsec{margin-bottom:4px}
+#s5 .expl{font-size:.92rem;line-height:1.42}
+#s5 .simhead h2{font-size:1.2rem}
+#s5 .banner{padding:5px 10px}
+
+/* Slide 6 là Hỏi — Đáp cho học sinh TỰ đọc: bỏ nút, hiện luôn đáp, lưới 2×3. */
+#s6 .qa{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+#s6 .eipe{margin:0;padding:12px 14px}
+#s6 .eipe > b{font-size:.98rem}
+#s6 .eipe .dapan{display:block;margin-top:8px;padding-top:8px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="mk_gray" markerWidth="11" markerHeight="8" refX="10" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 L2.9,4 Z"/></marker>
+  <marker id="mk_blue" markerWidth="11" markerHeight="8" refX="10" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 L2.9,4 Z"/></marker>
+  <marker id="mk_green" markerWidth="11" markerHeight="8" refX="10" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 L2.9,4 Z"/></marker>
+  <marker id="mk_red" markerWidth="11" markerHeight="8" refX="10" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 L2.9,4 Z"/></marker>
+  <marker id="mk_muted" markerWidth="11" markerHeight="8" refX="10" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L10,4 L0,8 L2.9,4 Z"/></marker>
+</defs></svg>
+<script>
+/* ===================== BO KIEM CHUNG DECK MO PHONG =====================
+   Dan nguyen file nay vao javascript_tool (hoac console) roi goi:
+
+       KIEM({ slides:9, players:['1','2','3'],
+              svgs:['g1','g2','g3'],
+              dulieu:[ {o:{arrA:'2 1 1 3', arrC:'2 4 3 1'}, ans:4}, ... ] })
+
+   `ans` nhan CA SO LAN CHUOI: bai in nhieu gia tri thi ghi nguyen van, vd
+       { o:{inpW:'ab', inpS:'  ab abc  ab  '}, ans:'2 3' }
+   Bo nao khong co `ans` thi khong duoc kiem va bi dem vao dapAn.boQua.
+
+   Tra ve JSON: moi muc co truong  dat:true/false  de nhin phat ra ngay.
+   Cac phep do (deu la loi that da tung vap):
+     1. dapAn      — chay tung bo du lieu, so voi dap an mong doi (so hoac chuoi)
+     2. vuaManHinh — tran khung o 1280x720 / 1366x768 / 1920x1080 + do lap day
+     3. svgLotKhung— phan tu SVG nam ngoai viewBox (bang/cot/nhan bi cat)
+     4. nhanChong  — nhan trong so de len nhau hoac de len dinh
+                     (bao kem VEC-TO TACH TOI THIEU: doi bao nhieu, theo truc nao)
+     5. buocKhacNhau— moi buoc phai doi trang thai (khong co buoc "chet")
+     6. tuongPhan  — WCAG hai nen (chu >= 7:1, vien >= 3:1)
+     7. emoji      — ky tu co the vo glyph tren may thieu font
+     8. console    — loi JS (tu bat qua window.onerror neu cai truoc khi load)
+     9. classLa    — class dung trong HTML nhung KHONG co luat CSS nao khop
+    10. phuMaGia   — moi dong ma gia phai duoc to sang it nhat mot lan
+                     (dong khong bao gio sang = deck bo quen mot nhanh thuat toan,
+                      hoac ma gia thua mot dong khong ai chay toi)
+======================================================================== */
+function KIEM(cfg) {
+  const $ = id => document.getElementById(id);
+  const R = {};
+  const IDS = Array.from({ length: cfg.slides || 9 }, (_, i) => 's' + (i + 1));
+  const PL = cfg.players || ['1', '2', '3'];
+  const SV = cfg.svgs || [];
+
+  function datInput(o) {
+    for (const k in o) { const e = $(k); if (e) { e.value = o[k]; e.dispatchEvent(new Event('change')); } }
+  }
+  function toiCuoi() { PL.forEach(p => { const b = $('last' + p); if (b) b.click(); }); }
+  let boChinh = null;                    // bo du lieu nhieu buoc nhat — dung do bo cuc
+
+  /* 1. dap an.
+     So sanh theo CHUOI da chuan hoa, khong ep ve so — bai in nhieu gia tri
+     ("2 1") hay in chu deu kiem duoc. Van bat "07" == 7 nho nhanh so phia sau.
+     (Da vap: `+el.textContent` cho NaN voi dap an "2 1" => phep do im lang bo qua.) */
+  if (cfg.dulieu && cfg.dulieu.length) {
+    const chuan = x => String(x).trim().replace(/\s+/g, ' ');
+    const khop = (mong, duoc) => {
+      if (duoc == null) return false;
+      const a = chuan(mong), b = chuan(duoc);
+      if (a === b) return true;
+      const na = Number(a), nb = Number(b);
+      return Number.isFinite(na) && Number.isFinite(nb) && na === nb;
+    };
+    const ra = [];
+    let ok = true, boQua = 0;
+    cfg.dulieu.forEach(d => {
+      datInput(d.o); toiCuoi();
+      const id = cfg.ansId || 'ans3';
+      const el = $(id);
+      const duoc = el ? chuan(el.textContent) : null;
+      const pass = (d.ans == null) || khop(d.ans, duoc);
+      if (d.ans == null) boQua++;
+      if (!pass) ok = false;
+      ra.push({
+        vao: JSON.stringify(d.o), mong: d.ans,
+        duoc: el ? duoc : '(KHONG TIM THAY #' + id + ')', dat: pass
+      });
+    });
+    R.dapAn = { dat: ok, boQua: boQua, chiTiet: ra };
+    if (boQua)
+      R.dapAn.canhBao = boQua + '/' + cfg.dulieu.length +
+        ' bo KHONG neu `ans` nen khong duoc kiem — dien dap an that vao KIEM_CFG.';
+
+    /* Sau khi cham xong, bo du lieu CUOI con nam do — thuong la ca suy bien,
+       do bo cuc/hoat hinh tren no se bo sot loi. Chon bo NHIEU BUOC NHAT
+       (hoac cfg.chinh neu chi dinh) roi moi do tiep. */
+    let idx0 = 0, nhieu = -1;
+    cfg.dulieu.forEach((d, i) => {
+      datInput(d.o); toiCuoi();
+      let s = 0;
+      PL.forEach(p => { const st = $('step' + p); if (st) s += (+st.textContent.split('/')[1] || 0); });
+      if (s > nhieu) { nhieu = s; idx0 = i; }
+    });
+    if (cfg.chinh != null) idx0 = cfg.chinh;
+    boChinh = cfg.dulieu[idx0];
+    datInput(boChinh.o); toiCuoi();
+    R.dapAn.doTrenBo = JSON.stringify(cfg.dulieu[idx0].o) + ' (' + nhieu + ' bước)';
+  }
+
+  /* 2. vua man hinh + do lap day */
+  (function () {
+    const de = document.documentElement, bo = document.body, dk = $('deck');
+    const luu = [de.style.cssText, bo.style.cssText, dk ? dk.style.cssText : ''];
+    function do_(W, H) {
+      de.style.width = W + 'px'; de.style.height = H + 'px';
+      bo.style.width = W + 'px'; bo.style.height = H + 'px';
+      if (dk) { dk.style.width = (W - 212) + 'px'; dk.style.height = H + 'px'; void dk.offsetWidth; }
+      const r = {};
+      IDS.forEach(id => {
+        const s = $(id); if (!s) return;
+        const f = s.querySelector('.frame'); const k = [...f.children];
+        const ext = Math.round(k[k.length - 1].getBoundingClientRect().bottom - k[0].getBoundingClientRect().top);
+        r[id] = { tran: f.scrollHeight - f.clientHeight, lap: Math.round(ext / f.clientHeight * 100) };
+      });
+      return r;
+    }
+    const a = do_(1280, 720), b = do_(1366, 768), c = do_(1920, 1080);
+    de.style.cssText = luu[0]; bo.style.cssText = luu[1]; if (dk) dk.style.cssText = luu[2];
+    const tran = [];
+    [['720', a], ['768', b], ['1080', c]].forEach(([n, r]) =>
+      Object.keys(r).forEach(id => { if (r[id].tran > 0) tran.push(n + ':' + id + '+' + r[id].tran + 'px'); }));
+    const thap = Object.keys(a).filter(id => a[id].lap < 65).map(id => id + ':' + a[id].lap + '%');
+    R.vuaManHinh = {
+      dat: tran.length === 0,
+      tranO: tran,
+      lapThap720: thap,                     // < 65% => slide bi long leo, nen bo sung noi dung
+      lap720: Object.fromEntries(Object.keys(a).map(id => [id, a[id].lap + '%']))
+    };
+  })();
+
+  /* 3. SVG lot khung + 4. nhan chong nhau / de len dinh */
+  (function () {
+    const lot = {}, chong = {};
+    let okLot = true, okChong = true;
+    const allSvg = SV.length ? SV : [...document.querySelectorAll('svg[id]')].map(s => s.id);
+    allSvg.concat([...document.querySelectorAll('.whyfig svg')].map((s, i) => s)).forEach(function (ref) {
+      const s = (typeof ref === 'string') ? $(ref) : ref;
+      if (!s || !s.getAttribute('viewBox')) return;
+      const key = (typeof ref === 'string') ? ref : ('hình:' + (s.closest('section') || {}).id);
+      const vb = s.getAttribute('viewBox').split(/[\s,]+/).map(Number);
+      const bad = [...s.querySelectorAll('rect,text,circle,path,line')].filter(e => {
+        let b; try { b = e.getBBox(); } catch (x) { return false; }
+        if (!b.width && !b.height) return false;
+        return b.x < vb[0] - 1 || b.y < vb[1] - 1 || b.x + b.width > vb[0] + vb[2] + 1 || b.y + b.height > vb[1] + vb[3] + 1;
+      });
+      if (bad.length) { lot[key] = bad.length; okLot = false; }
+      // nhan trong so
+      const L = [...s.querySelectorAll('.wlab')].map(t => { const b = t.getBBox(); return { t: t.textContent, x: b.x + b.width / 2, y: b.y + b.height / 2, w: b.width, h: b.height }; });
+      const N = [...s.querySelectorAll('.gnode circle')].map(c => ({ x: +c.getAttribute('cx'), y: +c.getAttribute('cy'), r: +c.getAttribute('r') }));
+      /* Bao kem VEC-TO TACH TOI THIEU: chong nhau bao nhieu don vi viewBox va nen
+         doi theo truc nao. Bao "co chong" thi con phai do lai bang mat moi sua duoc;
+         bao kem so do thi sua thang. */
+      let ov = 0, on = 0; const tach = [];
+      for (let i = 0; i < L.length; i++) for (let j = i + 1; j < L.length; j++) {
+        const dx = (L[i].w + L[j].w) / 2 - Math.abs(L[i].x - L[j].x);
+        const dy = (L[i].h + L[j].h) / 2 - Math.abs(L[i].y - L[j].y);
+        if (dx > 0 && dy > 0) {
+          ov++;
+          tach.push("'" + L[i].t + "' ↔ '" + L[j].t + "': dời " +
+            (dx <= dy ? Math.ceil(dx) + ' theo x' : Math.ceil(dy) + ' theo y'));
+        }
+      }
+      L.forEach(l => N.forEach(n => {
+        const d = Math.hypot(l.x - n.x, l.y - n.y);
+        if (d < n.r + 3) {
+          on++;
+          tach.push("'" + l.t + "' đè đỉnh (" + Math.round(n.x) + ',' + Math.round(n.y) +
+            '): dời ' + Math.ceil(n.r + 3 - d) + ' ra xa tâm');
+        }
+      }));
+      if (ov || on) { chong[key] = { chongNhau: ov, deLenDinh: on, tach: tach.slice(0, 8) }; okChong = false; }
+    });
+    R.svgLotKhung = { dat: okLot, chiTiet: lot };
+    R.nhanChong = { dat: okChong, chiTiet: chong };
+  })();
+
+  /* 5. moi buoc phai doi trang thai */
+  (function () {
+    const r = {}; let ok = true;
+    PL.forEach(p => {
+      const first = $('first' + p), next = $('next' + p);
+      if (!first || !next) return;
+      const chup = () => {
+        const sec = next.closest('section');
+        const svg = sec ? [...sec.querySelectorAll('svg')].map(s => s.innerHTML.length + ':' +
+          [...s.querySelectorAll('[class]')].map(e => e.getAttribute('class')).join(',')).join('|') : '';
+        const rows = sec ? [...sec.querySelectorAll('.row .cell')].map(c => c.textContent + c.className).join('|') : '';
+        const ban = $('banner' + p) ? $('banner' + p).textContent : '';
+        return svg + '##' + rows + '##' + ban;
+      };
+      first.click(); const seq = [];
+      for (let guard = 0; guard < 400; guard++) { seq.push(chup()); if (next.disabled) break; next.click(); }
+      const kh = new Set(seq).size;
+      r['bo' + p] = seq.length + ' bước / ' + kh + ' khác nhau';
+      if (kh < seq.length) ok = false;
+    });
+    R.buocKhacNhau = { dat: ok, chiTiet: r };
+  })();
+
+  /* 6. tuong phan WCAG */
+  (function () {
+    function lum(c) {
+      const m = c.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number)
+        .map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+      return 0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2];
+    }
+    const ratio = (a, b) => { const x = lum(a), y = lum(b); return Math.round((Math.max(x, y) + .05) / (Math.min(x, y) + .05) * 10) / 10; };
+    const cs = getComputedStyle(document.documentElement), V = n => cs.getPropertyValue(n).trim();
+    function h2r(h) {
+      h = h.replace('#', ''); if (h.length === 3) h = h.split('').map(c => c + c).join('');
+      return 'rgb(' + parseInt(h.slice(0, 2), 16) + ',' + parseInt(h.slice(2, 4), 16) + ',' + parseInt(h.slice(4, 6), 16) + ')';
+    }
+    const Rr = (a, b) => ratio(h2r(V(a)), h2r(V(b)));
+    function do_(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      return { chu: Rr('--fg', '--frame'), phu: Rr('--muted', '--frame'), vien: Rr('--line', '--frame'), xanh: Rr('--pos', '--frame'), do: Rr('--neg', '--frame') };
+    }
+    const s = do_('light'), d = do_('dark');
+    document.documentElement.removeAttribute('data-theme');
+    const ok = s.chu >= 7 && d.chu >= 7 && s.phu >= 7 && d.phu >= 7 && s.vien >= 3 && d.vien >= 3;
+    R.tuongPhan = { dat: ok, sang: s, toi: d };
+  })();
+
+  /* 7. emoji de vo glyph.
+     AN TOAN: nut dieu khien + mui ten + ky hieu toan pho bien (co trong moi font he thong).
+     BAO LOI: emoji mau (dai U+1F300+) va cac hinh trang tri de thanh o vuong. */
+  (function () {
+    const AT = '✓⏮◀▶⏭⏸' + '←↑→↓↔⇒⇔' + '−×÷±≠≤≥≈∈∉⊂⊆∅∑∏√∞∫∂' + '…·°';
+    const found = [...new Set((document.body.innerText.match(/[\uD83C-\uDBFF][\uDC00-\uDFFF]|[←-➿⬀-⯿]/g) || []))]
+      .filter(c => AT.indexOf(c) < 0);
+    R.emoji = { dat: found.length === 0, kyTu: found };
+  })();
+
+  /* 8. loi JS da bat duoc */
+  R.loiJS = { dat: !(window.__KIEM_ERR && window.__KIEM_ERR.length), chiTiet: window.__KIEM_ERR || [] };
+
+  /* 9. class dung trong HTML nhung khong co luat CSS nao khop.
+     Loi that: `.mrow` (dai minh hoa slide Tom tat) bi roi khi tach CSS ra khung.css
+     => 4 o xep DOC thay vi thanh hang, ma phep do "tran" van bao 0. */
+  (function () {
+    const dung = new Set();
+    document.querySelectorAll('[class]').forEach(e => e.classList.forEach(c => dung.add(c)));
+    const coLuat = new Set();
+    (function quet(list) {
+      for (const r of list) {
+        if (r.selectorText) (r.selectorText.match(/\.[-\w]+/g) || []).forEach(s => coLuat.add(s.slice(1)));
+        if (r.cssRules) quet(r.cssRules);          // @media, @supports
+      }
+    })([...document.styleSheets].flatMap(sh => { try { return [...sh.cssRules]; } catch (e) { return []; } }));
+    const la = [...dung].filter(c => !coLuat.has(c)).sort();
+    R.classLa = { dat: la.length === 0, chiTiet: la };
+  })();
+
+  /* 10. phu ma gia: moi dong phai duoc to sang (class .on) it nhat mot lan.
+     Dong khong bao gio sang = deck bo quen mot nhanh (vd nhanh "da la mot vong phu het"),
+     hoac ma gia thua mot dong. Dong CHU THICH (bat dau bang //) duoc mien. */
+  (function () {
+    const r = {}; let ok = true;
+    const chuThich = e => {
+      const sp = e.querySelectorAll('span');
+      return (sp.length > 1 ? sp[sp.length - 1].textContent : e.textContent).trim().startsWith('//');
+    };
+    const can = {}, da = {};
+    /* Gop TAT CA bo du lieu: mot nhanh chi chay o mot bo (vd "da la mot vong phu het")
+       van duoc tinh la co phu. Do rieng bo "nhieu buoc nhat" se bao oan. */
+    const boDu = (cfg.dulieu && cfg.dulieu.length) ? cfg.dulieu : [null];
+    boDu.forEach(d => {
+      if (d) datInput(d.o);
+      PL.forEach(p => {
+        const first = $('first' + p), next = $('next' + p);
+        if (!first || !next) return;
+        const sec = next.closest('section'); if (!sec) return;
+        const code = sec.querySelector('.code'); if (!code) return;
+        if (!can[p]) can[p] = [...code.querySelectorAll('.ln')]
+          .filter(e => !chuThich(e)).map(e => +e.getAttribute('data-line')).filter(Boolean);
+        if (!da[p]) da[p] = new Set();
+        first.click();
+        for (let guard = 0; guard < 400; guard++) {
+          code.querySelectorAll('.ln.on').forEach(e => da[p].add(+e.getAttribute('data-line')));
+          if (next.disabled) break;
+          next.click();
+        }
+      });
+    });
+    Object.keys(can).forEach(p => {
+      const thieu = can[p].filter(d => !da[p].has(d));
+      r['bo' + p] = thieu.length
+        ? ('dòng chưa bao giờ tô sáng: ' + thieu.join(', '))
+        : (can[p].length + '/' + can[p].length + ' dòng');
+      if (thieu.length) ok = false;
+    });
+    R.phuMaGia = { dat: ok, chiTiet: r, doTrenBo: boDu.length + ' bộ dữ liệu' };
+    if (!(cfg.dulieu && cfg.dulieu.length))
+      R.phuMaGia.canhBao = 'goi KIEM khong kem `dulieu` — chi do tren bo dang hien, ' +
+        'nhanh chi chay o bo du lieu khac se bi bao oan.';
+    if (boChinh) { datInput(boChinh.o); toiCuoi(); }   // tra deck ve bo chinh
+  })();
+
+  R.TONG = Object.keys(R).filter(k => k !== 'TONG' && R[k] && R[k].dat === false);
+  R.KETLUAN = R.TONG.length ? ('LỖI ở: ' + R.TONG.join(', ')) : 'TẤT CẢ ĐẠT';
+  // bo nao khong neu `ans` thi khong duoc kiem — noi ro, dung de "TAT CA DAT" danh lua
+  if (R.dapAn && R.dapAn.boQua)
+    R.KETLUAN += ' — nhưng ' + R.dapAn.boQua + ' bộ dữ liệu chưa nêu đáp án nên KHÔNG được kiểm';
+  return JSON.stringify(R, null, 1);
+}
+/* bat loi JS ngay khi dan file nay som */
+if (!window.__KIEM_ERR) {
+  window.__KIEM_ERR = [];
+  window.addEventListener('error', e => window.__KIEM_ERR.push(String(e.message)));
+}
+
+</script>
+<aside class="sidebar">
+  <div class="brand">Bài 3<small>Trạm xăng</small></div>
+  <nav class="snav">
+    <a href="#s1"><span class="n">1</span><span class="t">Tóm tắt đề bài</span></a>
+    <a href="#s2"><span class="n">2</span><span class="t">Mua ở trạm nào?</span></a>
+    <a href="#s3"><span class="n">3</span><span class="t">Mua bao nhiêu lít?</span></a>
+    <a href="#s4"><span class="n">4</span><span class="t">Phần xăng dư đi đâu?</span></a>
+    <a href="#s5"><span class="n">5</span><span class="t">Chạy: đi dọc tuyến</span></a>
+    <a href="#s6"><span class="n">6</span><span class="t">Hỏi — Đáp</span></a>
+  </nav>
+  <div class="sfoot">
+    <div class="hint">← → chuyển trang<br>Ctrl+H thanh bên<br>Ctrl+D sáng/tối</div>
+    <div class="stools">
+      <button class="sbtn theme" id="btnTheme" title="Đổi nền sáng/tối (Ctrl+D hoặc D)"></button>
+      <button class="sbtn rail" id="btnRail" title="Thu gọn / mở rộng thanh bên (Ctrl+H hoặc H)"></button>
+    </div>
+  </div>
+</aside>
+
+<main class="deck" id="deck">
+  <!-- SLIDE 1 -->
+  <section id="s1" class="slide"><div class="frame">
+    <div class="stag">Phần 1 · Tóm tắt đề bài</div>
+    <h2>Trạm xăng</h2>
+    <p>Tuyến đường có <b>n</b> trạm xăng thẳng hàng; trạm <b>i</b> cách trạm <b>i + 1</b> đúng <b>v<sub>i</sub></b> ki-lô-mét. Xe xuất phát từ trạm 1 với bình rỗng, cần tới trạm n. Mỗi lít xăng chạy được <b>d</b> ki-lô-mét, bình chứa bao nhiêu cũng được.</p>
+    <p>Tại trạm <b>i</b>, một lít giá <b>a<sub>i</sub></b> đồng và <b>chỉ bán theo lít nguyên</b>. Xe chỉ mua được ở trạm đã đi tới. Hỏi <b>số tiền ít nhất</b>.</p>
+    <div class="iobox">
+      <div><b>Dữ liệu vào</b>Dòng 1: n và d.<br>Dòng 2: n − 1 khoảng cách v.<br>Dòng 3: n giá xăng a.</div>
+      <div><b>Kết quả ra</b>Một số nguyên — số tiền ít nhất phải trả.</div>
+    </div>
+    <div class="exlab">Ví dụ trong đề — n = 5, d = 4, đáp án 79</div>
+    <div class="mini">
+      <div class="mgrp"><div class="mlab">Khoảng cách giữa các trạm</div>
+        <div class="mrow"><div class="cell">10</div><div class="cell">10</div><div class="cell">10</div><div class="cell">10</div></div></div>
+      <div class="mar">·</div>
+      <div class="mgrp"><div class="mlab">Giá một lít tại từng trạm</div>
+        <div class="mrow"><div class="cell">9</div><div class="cell prime">8</div><div class="cell">9</div><div class="cell prime">6</div><div class="cell zero">5</div></div></div>
+    </div>
+    <p class="minote">Trạm 5 rẻ nhất (5 đồng) nhưng nằm ở <b>cuối tuyến</b> — mua ở đó không giúp gì cho quãng đường đã đi. Giá 8 ở trạm 2 và giá 6 ở trạm 4 mới là chỗ đáng mua.</p>
+    <p class="muted">Ràng buộc: 2 ≤ n ≤ 2·10⁵; 1 ≤ d, v<sub>i</sub>, a<sub>i</sub> ≤ 10⁵. Subtask: n ≤ 2·10⁴ (40%) · đầy đủ (60%). Đáp án có thể tới ~7·10¹⁴ nên phải dùng số nguyên 64 bit.</p>
+    <div class="tags"><span class="tglab">Thẻ:</span><span class="tg">Tham lam</span><span class="tg">Giá nhỏ nhất tiền tố</span><span class="tg">Xử lý phần dư</span><span class="tg">long long</span></div>
+  </div></section>
+
+  <!-- SLIDE 2 -->
+  <section id="s2" class="slide"><div class="frame">
+    <div class="stag">Phần 2 · Suy luận 1/3</div>
+    <h2>Mỗi ki-lô-mét nên trả tiền theo giá nào?</h2>
+    <div class="why">
+      <div class="whytxt">
+        <p class="ask">Bình chứa vô hạn thì điều đó cho ta quyền gì?</p>
+        <ul class="qlist">
+          <li>Vì bình không giới hạn, xăng mua ở một trạm dùng được cho <b>mọi</b> ki-lô-mét về sau — không có lý do gì phải chia nhỏ việc mua.</li>
+          <li>Xét một ki-lô-mét cụ thể trên tuyến. Xăng chạy nó phải mua ở một trạm <b>đứng trước</b> nó, nên giá rẻ nhất có thể là <b>giá nhỏ nhất trong các trạm đã đi qua</b>.</li>
+          <li>Giá ấy luôn đạt được: cứ mua sẵn tại trạm rẻ nhất đã gặp rồi mang theo.</li>
+          <li>Vậy chi phí tối ưu là: mỗi đoạn đường trả theo <b>giá nhỏ nhất tính từ đầu tuyến tới đó</b> — một giá trị chỉ giảm dần khi đi tiếp.</li>
+        </ul>
+        <p class="keyline">Trạm rẻ nhất của cả tuyến <b>không</b> phải câu trả lời: nếu nó nằm ở cuối thì phần đường trước đó vẫn phải mua đắt. Đây là chỗ mô hình sai hay mắc nhất.</p>
+      </div>
+      <div class="whyfig">
+        <svg viewBox="0 0 620 200">
+          <line x1="30" y1="120" x2="590" y2="120" class="axis"/>
+          <g class="gcell"><rect x="40" y="80" width="80" height="40" rx="5"/></g><text x="80" y="106" text-anchor="middle" class="gtxt">giá 9</text>
+          <g class="gcell kept"><rect x="160" y="80" width="80" height="40" rx="5"/></g><text x="200" y="106" text-anchor="middle" class="gtxt" font-weight="700">giá 8</text>
+          <g class="gcell"><rect x="280" y="80" width="80" height="40" rx="5"/></g><text x="320" y="106" text-anchor="middle" class="gtxt">giá 9</text>
+          <g class="gcell kept"><rect x="400" y="80" width="80" height="40" rx="5"/></g><text x="440" y="106" text-anchor="middle" class="gtxt" font-weight="700">giá 6</text>
+          <g class="gcell"><rect x="520" y="80" width="80" height="40" rx="5"/></g><text x="560" y="106" text-anchor="middle" class="gtxt">giá 5</text>
+          <text x="80" y="150" text-anchor="middle" font-size="12.5" fill="var(--muted)">nhỏ nhất 9</text>
+          <text x="200" y="150" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--pos)">nhỏ nhất 8</text>
+          <text x="320" y="150" text-anchor="middle" font-size="12.5" fill="var(--muted)">vẫn 8</text>
+          <text x="440" y="150" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--pos)">nhỏ nhất 6</text>
+          <text x="560" y="150" text-anchor="middle" font-size="12.5" fill="var(--muted)">quá muộn</text>
+          <text x="310" y="182" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--accent)">giá nhỏ nhất tính từ đầu tuyến: 9 → 8 → 8 → 6 (chỉ giảm, không tăng)</text>
+          <text x="310" y="40" text-anchor="middle" font-size="13" font-weight="700" fill="var(--accent)">Giá dùng cho mỗi chặng chỉ phụ thuộc các trạm ĐÃ đi qua</text>
+        </svg>
+        <div class="figcap">Trạm rẻ nhất nằm cuối tuyến thì không cứu được phần đường trước</div>
+      </div>
+    </div>
+    <div class="restate"><b>Phát biểu lại (lần 1)</b>
+      <p>Đi từ trái sang phải, giữ <b>gmin</b> = giá nhỏ nhất trong các trạm đã qua. Mọi lít xăng cần cho chặng hiện tại đều mua với giá gmin. Câu hỏi tiếp theo: mỗi chặng cần mua <b>bao nhiêu lít</b>?</p>
+    </div>
+  </div></section>
+
+  <!-- SLIDE 3 -->
+  <section id="s3" class="slide"><div class="frame">
+    <div class="stag">Phần 3 · Suy luận 2/3</div>
+    <h2>Chỉ bán lít nguyên — mua thiếu thì kẹt, mua thừa thì phí</h2>
+    <div class="why">
+      <div class="whytxt">
+        <p class="ask">Cần đi thêm s ki-lô-mét thì mua mấy lít?</p>
+        <ul class="qlist">
+          <li>Mỗi lít đi được d ki-lô-mét, mà xăng chỉ bán nguyên lít, nên phải mua <b>số lít nhỏ nhất đủ dùng</b>: lit = s ÷ d làm tròn <b>lên</b>.</li>
+          <li>Trong lập trình, phép làm tròn lên cho số nguyên dương viết gọn là <b>(s + d − 1) ÷ d</b> với phép chia lấy phần nguyên.</li>
+          <li>Mua ít hơn thì không tới được trạm sau; mua nhiều hơn thì trả tiền cho xăng chưa cần tới, mà lần sau vẫn mua được với giá không đắt hơn (gmin chỉ giảm).</li>
+          <li>Vậy tại mỗi chặng: cộng tiền <b>lit × gmin</b>.</li>
+        </ul>
+        <p class="keyline">Chú ý kiểu dữ liệu: n tới 2·10⁵ chặng, mỗi chặng 10⁵ km, giá tới 10⁵ ⇒ tổng tiền có thể tới khoảng 7·10¹⁴ — vượt xa sức chứa của số nguyên 32 bit. Phải khai <code>long long</code> cho tiền và cho số km còn nợ.</p>
+      </div>
+      <div class="whyfig">
+        <svg viewBox="0 0 620 190">
+          <text x="310" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="var(--accent)">Cần đi 10 km, mỗi lít chạy 4 km</text>
+          <g class="gcell drop"><rect x="60" y="48" width="200" height="44" rx="5"/></g>
+          <text x="160" y="76" text-anchor="middle" class="gtxt">mua 2 lít = 8 km</text>
+          <text x="160" y="112" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--neg)">thiếu 2 km — không tới nơi</text>
+          <g class="gcell kept"><rect x="360" y="48" width="200" height="44" rx="5"/></g>
+          <text x="460" y="76" text-anchor="middle" class="gtxt" font-weight="700">mua 3 lít = 12 km</text>
+          <text x="460" y="112" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--pos)">đủ đi, còn dư 2 km</text>
+          <text x="310" y="150" text-anchor="middle" font-size="13" font-weight="700" fill="var(--accent)">lit = (10 + 4 − 1) ÷ 4 = 3</text>
+          <text x="310" y="174" text-anchor="middle" font-size="12.5" fill="var(--muted)">phần dư 2 km không bỏ đi — xem slide sau</text>
+        </svg>
+        <div class="figcap">Làm tròn lên, nhưng phần thừa vẫn nằm trong bình</div>
+      </div>
+    </div>
+    <div class="subprob"><b>Bài toán con</b>
+      <p>Sau khi mua, trong bình còn dư một ít xăng. Nếu bỏ qua phần dư ấy thì tính tiền <b>thừa</b> ở các chặng sau. Cần một cách ghi nhớ phần dư cho gọn.</p>
+    </div>
+  </div></section>
+
+  <!-- SLIDE 4 -->
+  <section id="s4" class="slide"><div class="frame">
+    <div class="stag">Phần 4 · Suy luận 3/3</div>
+    <h2>Ghi phần dư bằng một biến "số km còn nợ"</h2>
+    <div class="why">
+      <div class="whytxt">
+        <p class="ask">Làm sao mang phần xăng dư sang chặng sau mà không cần mảng phụ?</p>
+        <ul class="qlist">
+          <li>Giữ một biến <b>s</b> = số ki-lô-mét <b>còn nợ</b>: quãng đường đã phải đi mà chưa được trả bằng xăng đã mua.</li>
+          <li>Qua chặng thứ i: <b>s ← s + v<sub>i</sub></b>. Nếu s ≤ 0 thì xăng trong bình còn thừa, không phải mua gì cả.</li>
+          <li>Nếu s &gt; 0: mua lit = (s + d − 1) ÷ d lít, trả lit × gmin đồng, rồi <b>s ← s − lit × d</b>. Lúc này s thành số âm — chính là phần dư đang nằm trong bình.</li>
+          <li>Nhờ vậy phần dư tự động được dùng cho chặng sau, chỉ với một biến.</li>
+        </ul>
+        <p class="keyline">Đây là chỗ tách hai mô hình: cách làm sai phổ biến là <b>tính riêng từng chặng</b>, chặng nào cũng làm tròn lên rồi vứt phần dư. Cách ấy trả tiền cho những lít không tồn tại.</p>
+      </div>
+      <div class="whyfig">
+        <svg viewBox="0 0 620 200">
+          <text x="310" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="var(--accent)">d = 4, hai chặng liên tiếp dài 10 km và 10 km</text>
+          <g class="gcell kept"><rect x="40" y="44" width="250" height="48" rx="6"/></g>
+          <text x="165" y="66" text-anchor="middle" class="gtxt" font-weight="700">Dồn phần dư</text>
+          <text x="165" y="86" text-anchor="middle" font-size="12.5" fill="var(--muted)">3 lít rồi 2 lít = 5 lít</text>
+          <g class="gcell drop"><rect x="330" y="44" width="250" height="48" rx="6"/></g>
+          <text x="455" y="66" text-anchor="middle" class="gtxt" font-weight="700">Tính riêng từng chặng</text>
+          <text x="455" y="86" text-anchor="middle" font-size="12.5" fill="var(--muted)">3 lít rồi 3 lít = 6 lít</text>
+          <text x="165" y="124" text-anchor="middle" font-size="12.5" fill="var(--pos)">s: 10 → −2 → 8 → 0</text>
+          <text x="455" y="124" text-anchor="middle" font-size="12.5" fill="var(--neg)">bỏ mất 2 km dư của chặng đầu</text>
+          <text x="310" y="164" text-anchor="middle" font-size="13" font-weight="700" fill="var(--accent)">20 km cần đúng 5 lít — cách bên phải mua thừa hẳn một lít</text>
+          <text x="310" y="186" text-anchor="middle" font-size="12.5" fill="var(--muted)">Chênh lệch càng lớn khi tuyến có nhiều chặng</text>
+        </svg>
+        <div class="figcap">Một biến s là đủ để không bao giờ mua thừa</div>
+      </div>
+    </div>
+    <div class="subprob"><b>Lời giải hoàn chỉnh</b>
+      <p>Duyệt i từ 1 đến n − 1: cập nhật <b>gmin ← min(gmin, a<sub>i</sub>)</b>; <b>s ← s + v<sub>i</sub></b>; nếu s &gt; 0 thì mua lit = (s + d − 1) ÷ d, cộng <b>lit × gmin</b> vào đáp án và <b>s ← s − lit × d</b>. Độ phức tạp <b>O(n)</b>, chỉ vài biến 64 bit.</p>
+    </div>
+  </div></section>
+
+  <!-- SLIDE 5 -->
+  <section id="s5" class="slide"><div class="frame">
+    <div class="simhead">
+      <div><div class="stag">Phần 5 · Mô phỏng — Bước 1/1</div><h2>Đi dọc tuyến, mua theo giá rẻ nhất đã gặp</h2></div>
+      <div class="src">
+        <span class="ilab">d</span><input class="inp" id="inpD" type="text" value="4" size="3">
+        <span class="ilab">v[]</span><input class="inp a" id="inpV" type="text" value="10 10 10 10">
+        <span class="ilab">a[]</span><input class="inp a" id="inpA" type="text" value="9 8 9 6 5">
+        <select id="preset" title="Ví dụ mẫu">
+          <option value="">Ví dụ…</option>
+          <option value="4|10 10 10 10|9 8 9 6 5">Ví dụ trong đề (=79)</option>
+          <option value="4|9 9 9|2 5 8 9">Giá tăng dần (=14)</option>
+          <option value="4|9 9 9|9 8 5 1">Giá giảm dần (=53)</option>
+          <option value="7|3 3 3 3|5 9 2 8 6">Chặng lẻ so với d (=7)</option>
+          <option value="50|3 4 5 6|7 9 2 8 4">Một lít đi nhiều chặng (=7)</option>
+        </select>
+        <button id="rnd">Ngẫu nhiên</button>
+      </div>
+    </div>
+    <div class="banner" id="banner1"></div>
+    <div class="trucwrap">
+      <div class="truclab">Quãng đường — mỗi trạm ở đúng vị trí (theo km), cột cao là giá xăng tại trạm</div>
+      <svg id="c1" class="graph" viewBox="0 0 1000 190"></svg>
+    </div>
+    <div class="simg">
+      <div class="code" id="code1">
+        <div class="ln" data-line="1"><span class="no">1</span><span>gmin ← a[1] ; s ← 0 ; tiền ← 0</span></div>
+        <div class="ln" data-line="2"><span class="no">2</span><span>for i = 1..n−1:</span></div>
+        <div class="ln" data-line="3"><span class="no">3</span><span>    gmin ← min(gmin, a[i])</span></div>
+        <div class="ln" data-line="4"><span class="no">4</span><span>    s ← s + v[i]</span></div>
+        <div class="ln" data-line="5"><span class="no">5</span><span>    nếu s &gt; 0:</span></div>
+        <div class="ln" data-line="6"><span class="no">6</span><span>        lit ← (s + d − 1) ÷ d ; tiền ← tiền + lit × gmin ; s ← s − lit × d</span></div>
+      </div>
+      <div class="simr">
+        <div class="rows">
+          <div class="vsec"><div class="slab">a[] — giá xăng</div><div class="row" id="rowP5A"></div></div>
+          <div class="vsec" id="secP5L"><div class="slab">lít mua ở mỗi trạm</div><div class="row" id="rowP5L"></div></div>
+        </div>
+        <div class="vbot">
+          <div class="pens" id="pens5"></div>
+          <div class="ansbox" id="ansbox1">Đáp án <span class="av" id="ans1">·</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="glegend"><span><i class="b"></i> trạm đang xét</span><span><i class="g"></i> giá rẻ nhất đã gặp</span></div>
+    <div class="expl" id="expl1"></div>
+    <div class="ctrl">
+      <button id="first1" title="Về đầu">⏮</button><button id="prev1" title="Lùi">◀</button>
+      <button class="play" id="play1" title="Chạy/Dừng">▶</button>
+      <button id="next1" title="Tới">▶</button><button id="last1" title="Tới cuối">⏭</button>
+      <span class="step" id="step1">0/0</span>
+      <span class="spd">tốc độ <input id="speed1" type="range" min="200" max="1600" step="100" value="650"></span>
+    </div>
+  </div></section>
+
+  <!-- SLIDE 6 -->
+  <section id="s6" class="slide"><div class="frame">
+    <div class="stag">Phần 6 · Hỏi — Đáp</div>
+    <h2>Những thắc mắc thường gặp khi đọc lời giải</h2>
+
+    <div class="qa">
+      <div class="eipe">
+        <b>Biến s (số km còn nợ) mang ý nghĩa gì?</b>
+        <div class="dapan">s là số ki-lô-mét đã phải đi mà chưa có xăng trả cho nó; khi s âm thì |s| là số km xăng còn dư trong bình.</div>
+      </div>
+      <div class="eipe">
+        <b>Sao mua theo gmin của trạm đã qua, không phải trạm rẻ nhất cả tuyến?</b>
+        <div class="dapan">Xe chỉ mua được ở trạm đã tới. Trạm rẻ nhất nằm ở cuối thì không giúp gì cho quãng đường trước đó.</div>
+      </div>
+      <div class="eipe">
+        <b>Mỗi chặng mua bao nhiêu lít?</b>
+        <div class="dapan">Chỉ bán lít nguyên nên mua vừa đủ: (s + d − 1) ÷ d lít, làm tròn lên. Phần dư được giữ lại nên s thành số âm.</div>
+      </div>
+      <div class="eipe">
+        <b>Vì sao mua thừa xăng ở một trạm không bao giờ có lợi?</b>
+        <div class="dapan">Vì gmin chỉ giảm hoặc giữ nguyên khi đi tiếp, nên lít mua sớm không bao giờ rẻ hơn lít mua đúng lúc cần.</div>
+      </div>
+      <div class="eipe">
+        <b>Em mua hết ở trạm giá thấp nhất, sao sai?</b>
+        <div class="dapan">Với ví dụ đề, cách đó ra 50 — nhỏ hơn đáp án 79, tức phương án không thực hiện được: giá 5 nằm ở trạm cuối, tới đó thì đã đi hết đường.</div>
+      </div>
+      <div class="eipe">
+        <b>Đáp án có bị tràn số không?</b>
+        <div class="dapan">Có thể tới ~7·10¹⁴, vượt xa <code>int</code>. Phải khai <code>long long</code> cho tiền và cho số km còn nợ.</div>
+      </div>
+    </div>
+  </div></section>
+</main>
+
+<script>
+/* ============================ MOPHONG — runtime chung ============================
+   Dung chung cho moi deck mo phong. KHONG sua file nay khi lam bai moi;
+   bai moi chi viet: noidung.html (9 slide) + thuattoan.js (tinh + dung KHUNG).
+
+   KHAI NIEM "KHUNG" (frame) — mot anh chup trang thai, dung cho MOT buoc:
+     { b: 'ten buoc lon',          // mo dau bang ✓ => moc ket thuc buoc lon
+       e: 'mot cau giai thich',
+       h: [1,2],                   // cac dong ma gia to sang
+       v: {...}                    // trang thai rieng cua module ve (xem tung module)
+       r: { tenHang: {vals:[], cls:[]} },
+       ans: so|null,               // gia tri o "Dap an" (neu co)
+       glow: ['secX', ...],        // cac khoi vien phat sang
+       hoi: 'cau do tuy chon' }    // che do hoi lop dung thay cau do mac dinh
+
+   MODULE VE — moi module co hai ham:
+     dung(svg, cfg)   dung DOM mot lan (khi doi du lieu)
+     ve(svg, v)       ve lai theo trang thai v cua khung hien tai
+================================================================================= */
+window.MP = (function () {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const NS = "http://www.w3.org/2000/svg";
+
+  function el(tag, attrs, txt) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+  function xoa(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+  /* Kich thuoc khung ve, LAY TU viewBox — moi module phai xep hinh theo day,
+     tuyet doi khong gan cung 380/300. (Ban thu tung phoi ra loi nay.) */
+  function kt(svg) {
+    const v = (svg.getAttribute("viewBox") || "0 0 380 270").split(/[\s,]+/).map(Number);
+    return { x: v[0], y: v[1], W: v[2], H: v[3] };
+  }
+  function cls(base, c) { return base + (c ? " " + c : ""); }
+  const MK = { seen: "gray", hot: "blue", tree: "muted", kept: "green", drop: "red", cut: "red" };
+  function mui(c) { return MK[c] ? "url(#mk_" + MK[c] + ")" : "none"; }
+
+  /* ---------------------------------------------------------------- HANG O
+     Hang o HTML (khong phai SVG). Dung cho moi bai.
+       tao(rowId, n, nhan)  -> ve n o, nhan[i] la chu duoi o (mac dinh 1..n)
+       ve(rowId, {vals, cls})                                                  */
+  const hang = {
+    tao(rowId, n, nhan) {
+      const r = $(rowId); if (!r) return;
+      r.innerHTML = "";
+      for (let i = 0; i < n; i++) {
+        const t = document.createElement("div");
+        t.className = "tri";
+        t.innerHTML = '<div class="cell" id="' + rowId + '_' + i + '">·</div>' +
+                      '<div class="idx">' + (nhan ? nhan[i] : (i + 1)) + '</div>';
+        r.appendChild(t);
+      }
+    },
+    ve(rowId, row) {
+      const r = $(rowId); if (!r || !row) return;
+      const n = r.children.length;
+      for (let i = 0; i < n; i++) {
+        const c = $(rowId + '_' + i); if (!c) continue;
+        c.textContent = (row.vals[i] == null ? "·" : row.vals[i]);
+        c.className = cls("cell", row.cls && row.cls[i]);
+      }
+    }
+  };
+
+  const mod = {};
+
+  /* ------------------------------------------------------------ BIEU DO COT
+     cfg = { gtri:[...], nhan:[...] , cao:214, tren:44 }
+     v   = { cot:['','hot','cnt','big', ...] }                                */
+  mod.bieudocot = {
+    dung(svg, cfg) {
+      xoa(svg);
+      const g = cfg.gtri, n = g.length, K = kt(svg);
+      const W = K.W, base = cfg.cao || (K.y + K.H - 56), top = cfg.tren || (K.y + 44), gap = 5;
+      const maxA = Math.max(1, ...g);
+      const bw = Math.min(38, (W - 50 - gap * (n - 1)) / n);
+      const total = bw * n + gap * (n - 1), x0 = K.x + (W - total) / 2;
+      svg.appendChild(el("line", { x1: x0 - 10, y1: base, x2: x0 + total + 10, y2: base, "class": "axis" }));
+      for (let i = 0; i < n; i++) {
+        const h = 14 + (g[i] / maxA) * (base - top - 14), x = x0 + i * (bw + gap);
+        svg.appendChild(el("rect", {
+          id: svg.id + "b" + i, "class": "bar", x: x.toFixed(1), y: (base - h).toFixed(1),
+          width: bw.toFixed(1), height: h.toFixed(1), rx: 3
+        }));
+        svg.appendChild(el("text", {
+          id: svg.id + "v" + i, "class": "barv",
+          x: (x + bw / 2).toFixed(1), y: (base - h - 7).toFixed(1)
+        }, g[i]));
+        svg.appendChild(el("text", {
+          id: svg.id + "i" + i, "class": "baridx",
+          x: (x + bw / 2).toFixed(1), y: (base + 18).toFixed(1)
+        }, cfg.nhan ? cfg.nhan[i] : (i + 1)));
+      }
+      svg._n = n;
+      // hinh hoc cot — module cuaso ghep chong len dung lai
+      svg._geo = { x0: x0, bw: bw, gap: gap, base: base, top: top };
+    },
+    ve(svg, v) {
+      const n = svg._n || 0, st = (v && v.cot) || [];
+      for (let i = 0; i < n; i++) {
+        const c = st[i] || "";
+        const b = $(svg.id + "b" + i), t = $(svg.id + "v" + i), q = $(svg.id + "i" + i);
+        if (b) b.setAttribute("class", cls("bar", c));
+        if (t) t.setAttribute("class", cls("barv", c));
+        if (q) q.setAttribute("class", cls("baridx", c === "hot" ? "hot" : ""));
+      }
+    }
+  };
+
+  /* ----------------------------------------------------------- BANG 2 CHIEU
+     cfg = { n, che:(i,j)=>bool, tieuDe:'...', nhanCot:[], nhanHang:[] }
+           hoac { h, w, ... } cho luoi CHU NHAT (n = h = w khi chi co n)
+     v   = { o: { 'i_j': {v: giatri, cls:'hot|src|neg|base|wall'} } }
+     mod.luoi2c la BI DANH cua module nay (dung {h, w} + lop 'wall' cho loang/BFS) */
+  mod.bang2c = {
+    dung(svg, cfg) {
+      xoa(svg);
+      const h = cfg.h || cfg.n, w = cfg.w || cfg.n, K = kt(svg);
+      const x0 = K.x + 52, y0 = K.y + 54;
+      const cao = K.y + K.H - y0 - (cfg.tieuDe ? 34 : 8), rong = K.x + K.W - x0 - 12;
+      const cs = Math.max(16, Math.min(44, Math.floor(cao / h), Math.floor(rong / w)));
+      for (let j = 1; j <= w; j++)
+        svg.appendChild(el("text", { "class": "ghdr", x: x0 + (j - 1) * cs + cs / 2, y: y0 - 9 },
+          cfg.nhanCot ? cfg.nhanCot[j - 1] : j));
+      for (let i = 1; i <= h; i++)
+        svg.appendChild(el("text", { "class": "ghdr", x: x0 - 14, y: y0 + (i - 1) * cs + cs / 2 + 4 },
+          cfg.nhanHang ? cfg.nhanHang[i - 1] : i));
+      for (let i = 1; i <= h; i++) for (let j = 1; j <= w; j++) {
+        if (cfg.che && !cfg.che(i, j)) continue;
+        svg.appendChild(el("rect", {
+          id: svg.id + "c" + i + "_" + j, "class": "gcell",
+          x: x0 + (j - 1) * cs + 1.5, y: y0 + (i - 1) * cs + 1.5,
+          width: cs - 3, height: cs - 3, rx: 4
+        }));
+        svg.appendChild(el("text", {
+          id: svg.id + "t" + i + "_" + j, "class": "gtxt",
+          x: x0 + (j - 1) * cs + cs / 2, y: y0 + (i - 1) * cs + cs / 2 + 4
+        }, "·"));
+      }
+      if (cfg.tieuDe)
+        svg.appendChild(el("text", { "class": "gcap2", x: K.x + K.W / 2, y: y0 + h * cs + 24 }, cfg.tieuDe));
+      svg._h = h; svg._w = w;
+    },
+    ve(svg, v) {
+      const h = svg._h || 0, w = svg._w || 0, o = (v && v.o) || {};
+      for (let i = 1; i <= h; i++) for (let j = 1; j <= w; j++) {
+        const r = $(svg.id + "c" + i + "_" + j); if (!r) continue;
+        const d = o[i + "_" + j] || null;
+        r.setAttribute("class", cls("gcell", d && d.cls));
+        const t = $(svg.id + "t" + i + "_" + j);
+        if (t) { t.setAttribute("class", cls("gtxt", d && d.cls)); t.textContent = (d && d.v != null) ? d.v : "·"; }
+      }
+    }
+  };
+  mod.luoi2c = mod.bang2c;
+
+  /* ---------------------------------------------------------------- DO THI
+     cfg = { n, ke:[A_1..A_n] , gia:[C_1..C_n], thuTu:[...] }
+        ke[i-1] = dinh ma i tro toi  (do thi ham: moi dinh mot cung ra)
+        thuTu   = thu tu xep quanh vong tron (mac dinh 1..n)
+     v   = { canh:['','seen','hot','tree','kept','drop','cut'], dinh:['','hot','cyc','tree'] }  */
+  mod.dothi = {
+    dung(svg, cfg) {
+      xoa(svg);
+      const n = cfg.n, ke = cfg.ke, gia = cfg.gia || [], K = kt(svg);
+      const order = cfg.thuTu && cfg.thuTu.length === n ? cfg.thuTu
+                  : Array.from({ length: n }, (_, k) => k + 1);
+      const cx = K.x + K.W / 2, cy = K.y + K.H / 2;
+      // chua cho ban kinh dinh (16) + nhan trong so day ra (~22)
+      const Rmax = Math.min(K.W / 2 - 40, K.H / 2 - 40);
+      const R = Math.max(46, Math.min(n <= 3 ? 70 : (n <= 5 ? 96 : 112), Rmax));
+      const pos = [];
+      order.forEach((v, k) => {
+        const th = -Math.PI / 2 + 2 * Math.PI * k / n;
+        pos[v] = { x: cx + R * Math.cos(th), y: cy + R * Math.sin(th) };
+      });
+      const off = (a, b, d) => {
+        const dx = b.x - a.x, dy = b.y - a.y, l = Math.hypot(dx, dy) || 1;
+        return { x: a.x + dx / l * d, y: a.y + dy / l * d };
+      };
+      const geo = [];
+      for (let i = 1; i <= n; i++) {
+        const p1 = pos[i], p2 = pos[ke[i - 1]];
+        const dx = p2.x - p1.x, dy = p2.y - p1.y, len = Math.hypot(dx, dy) || 1;
+        const px = dy / len, py = -dx / len;
+        const bow = Math.min(len * 0.26, 30) + 9;
+        const mx = (p1.x + p2.x) / 2 + px * bow, my = (p1.y + p2.y) / 2 + py * bow;
+        const s = off(p1, { x: mx, y: my }, 17), e = off(p2, { x: mx, y: my }, 21);
+        geo.push({
+          d: "M" + s.x.toFixed(1) + "," + s.y.toFixed(1) + " Q" + mx.toFixed(1) + "," + my.toFixed(1) +
+             " " + e.x.toFixed(1) + "," + e.y.toFixed(1),
+          bx: (s.x + 2 * mx + e.x) / 4, by: (s.y + 2 * my + e.y) / 4, px: px, py: py
+        });
+        svg.appendChild(el("path", { id: svg.id + "e" + i, "class": "edge", d: geo[i - 1].d }));
+      }
+      for (let v = 1; v <= n; v++) {
+        const g = el("g", { id: svg.id + "n" + v, "class": "gnode" });
+        g.appendChild(el("circle", { cx: pos[v].x, cy: pos[v].y, r: 16 }));
+        g.appendChild(el("text", { x: pos[v].x, y: pos[v].y + 5, "text-anchor": "middle" }, v));
+        svg.appendChild(g);
+      }
+      // nhan trong so: thu vai khoang doc phap tuyen, tranh dam dinh va dam nhan khac
+      if (gia.length) {
+        const RN = 24, RL = 15, dat = [];
+        for (let i = 1; i <= n; i++) {
+          const g = geo[i - 1]; let best = null, sc0 = -1;
+          for (const d of [9, 13, 5, 17, 1, 21, -4]) {
+            const x = g.bx + g.px * d, y = g.by + g.py * d;
+            let dn = 1e9; for (let v = 1; v <= n; v++) dn = Math.min(dn, Math.hypot(x - pos[v].x, y - pos[v].y));
+            let dl = 1e9; for (const o of dat) dl = Math.min(dl, Math.hypot(x - o.x, y - o.y));
+            if (dn >= RN && dl >= RL) { best = { x: x, y: y }; break; }
+            const sc = Math.min(dn / RN, dl / RL);
+            if (sc > sc0) { sc0 = sc; best = { x: x, y: y }; }
+          }
+          dat.push(best);
+          svg.appendChild(el("text", {
+            id: svg.id + "w" + i, "class": "wlab", x: best.x.toFixed(1), y: best.y.toFixed(1),
+            "dominant-baseline": "central"
+          }, gia[i - 1]));
+        }
+      }
+      svg._n = n;
+    },
+    ve(svg, v) {
+      const n = svg._n || 0;
+      for (let i = 1; i <= n; i++) {
+        const e = $(svg.id + "e" + i); if (!e) continue;
+        const c = (v && v.canh && v.canh[i - 1]) || "";
+        e.setAttribute("class", cls("edge", c));
+        e.setAttribute("marker-end", mui(c));
+        const w = $(svg.id + "w" + i);
+        if (w) w.setAttribute("class", "wlab" + (c ? " on " + c : ""));
+      }
+      for (let u = 1; u <= n; u++) {
+        const g = $(svg.id + "n" + u); if (!g) continue;
+        g.setAttribute("class", cls("gnode", (v && v.dinh && v.dinh[u - 1]) || ""));
+      }
+    }
+  };
+
+  /* ------------------------------------------------------------------- CAY
+     cfg = { n, canh:[[cha, con, gia], ...], dai:'chu thich dai duoi' }
+       Xep kieu "cay gon": la lay o ke tiep, dinh trong nam giua cac con.
+     v   = { canh:[cls,...], dinh:{v:cls} }                                   */
+  mod.cay = {
+    dung(svg, cfg) {
+      xoa(svg);
+      const n = cfg.n, E = cfg.canh || [];
+      const par = Array(n + 1).fill(0), ch = Array.from({ length: n + 1 }, () => []);
+      E.forEach(e => { par[e[1]] = e[0]; });
+      for (let v = 2; v <= n; v++) if (par[v]) ch[par[v]].push(v);
+      for (let v = 1; v <= n; v++) ch[v].sort((a, b) => a - b);
+      const dep = Array(n + 1).fill(0);
+      for (let v = 2; v <= n; v++) { let d = 0, u = v; while (par[u]) { d++; u = par[u]; } dep[v] = d; }
+      const D = Math.max(1, ...dep);
+      const X = Array(n + 1).fill(0); let slot = 0;
+      (function gan(v) {
+        if (!ch[v].length) { X[v] = slot++; return; }
+        ch[v].forEach(gan);
+        X[v] = (X[ch[v][0]] + X[ch[v][ch[v].length - 1]]) / 2;
+      })(1);
+      const K = kt(svg);
+      const span = Math.max(1, slot - 1);
+      const y0 = K.y + 44;
+      // chua cho dai thu tu duoi day (neu co) va vien duoi
+      const chuaDay = cfg.dai ? 74 : 24;
+      const dx = Math.min(78, (K.W - 94) / span);
+      const dy = Math.min(56, (K.y + K.H - y0 - chuaDay) / D);
+      const x0 = K.x + (K.W - span * dx) / 2;
+      const P = []; for (let v = 1; v <= n; v++) P[v] = { x: x0 + X[v] * dx, y: y0 + dep[v] * dy };
+      E.forEach((e, k) => {
+        const A = P[e[0]], B = P[e[1]];
+        const dxx = B.x - A.x, dyy = B.y - A.y, L = Math.hypot(dxx, dyy) || 1;
+        const s = { x: A.x + dxx / L * 17, y: A.y + dyy / L * 17 };
+        const t = { x: B.x - dxx / L * 21, y: B.y - dyy / L * 21 };
+        svg.appendChild(el("path", {
+          id: svg.id + "e" + k, "class": "edge",
+          d: "M" + s.x.toFixed(1) + "," + s.y.toFixed(1) + " L" + t.x.toFixed(1) + "," + t.y.toFixed(1)
+        }));
+        if (e[2] != null) {
+          const px = dyy / L, py = -dxx / L;
+          svg.appendChild(el("text", {
+            id: svg.id + "w" + k, "class": "wlab",
+            x: ((s.x + t.x) / 2 + px * 11).toFixed(1), y: ((s.y + t.y) / 2 + py * 11).toFixed(1),
+            "dominant-baseline": "central"
+          }, e[2]));
+        }
+      });
+      for (let v = 1; v <= n; v++) {
+        const g = el("g", { id: svg.id + "n" + v, "class": "gnode" });
+        g.appendChild(el("circle", { cx: P[v].x.toFixed(1), cy: P[v].y.toFixed(1), r: 16 }));
+        g.appendChild(el("text", { x: P[v].x.toFixed(1), y: (P[v].y + 5).toFixed(1), "text-anchor": "middle" }, v));
+        svg.appendChild(g);
+      }
+      if (cfg.dai) {
+        const sy = y0 + D * dy + 40, sw = Math.min(34, (K.W - 80) / n),
+              sx0 = K.x + (K.W - sw * n - 4 * (n - 1)) / 2;
+        for (let v = 1; v <= n; v++) {
+          svg.appendChild(el("rect", {
+            x: (sx0 + (v - 1) * (sw + 4)).toFixed(1), y: sy, width: sw.toFixed(1),
+            height: 26, rx: 4, "class": "gcell src"
+          }));
+          svg.appendChild(el("text", {
+            x: (sx0 + (v - 1) * (sw + 4) + sw / 2).toFixed(1), y: sy + 18, "class": "gtxt src"
+          }, v));
+        }
+        svg.appendChild(el("text", { "class": "gcap2", x: K.x + K.W / 2, y: sy - 8 }, cfg.dai));
+      }
+      svg._n = n; svg._m = E.length;
+    },
+    ve(svg, v) {
+      const m = svg._m || 0, n = svg._n || 0;
+      for (let k = 0; k < m; k++) {
+        const e = $(svg.id + "e" + k); if (!e) continue;
+        const c = (v && v.canh && v.canh[k]) || "";
+        e.setAttribute("class", cls("edge", c));
+        e.setAttribute("marker-end", mui(c));
+        const w = $(svg.id + "w" + k);
+        if (w) w.setAttribute("class", "wlab" + (c ? " on " + c : ""));
+      }
+      for (let u = 1; u <= n; u++) {
+        const g = $(svg.id + "n" + u); if (!g) continue;
+        g.setAttribute("class", cls("gnode", (v && v.dinh && v.dinh[u]) || ""));
+      }
+    }
+  };
+
+  /* --------------------------------------------------------------- NGAN XEP
+     cfg = { cao: so o toi da, nhan:'chu thich duoi' }
+     v   = { o:[{v, cls}, ...],   // phan tu tu DAY len DINH; o.length = kich thuoc
+             vao: gia_tri|null,   // dang duoc DAY vao (mui ten xanh duong di xuong)
+             ra:  gia_tri|null }  // vua duoc LAY ra (mui ten xanh la di len)      */
+  mod.nganxep = {
+    dung(svg, cfg) {
+      xoa(svg);
+      const cao = Math.max(1, cfg.cao || 6), K = kt(svg);
+      const top = K.y + 46, bot = K.y + K.H - (cfg.nhan ? 36 : 16);
+      const sh = Math.min(34, (bot - top) / cao);
+      const sw = Math.min(110, K.W * 0.36);
+      const sx = K.x + (K.W - sw) / 2;
+      // long chua hinh chu U (ho mieng tren)
+      svg.appendChild(el("path", {
+        "class": "axis", fill: "none",
+        d: "M" + (sx - 7) + "," + top + " L" + (sx - 7) + "," + (bot + 4) +
+           " L" + (sx + sw + 7) + "," + (bot + 4) + " L" + (sx + sw + 7) + "," + top
+      }));
+      for (let i = 0; i < cao; i++) {
+        const y = bot - (i + 1) * sh;
+        svg.appendChild(el("rect", {
+          id: svg.id + "s" + i, "class": "gcell base",
+          x: sx + 2, y: (y + 2).toFixed(1), width: sw - 4, height: (sh - 4).toFixed(1), rx: 5
+        }));
+        svg.appendChild(el("text", {
+          id: svg.id + "t" + i, "class": "gtxt base",
+          x: sx + sw / 2, y: (y + sh / 2 + 4).toFixed(1)
+        }, ""));
+      }
+      // hai mui ten tren mieng: VAO di xuong (trai) · RA di len (phai)
+      const xv = sx + sw * 0.3, xr = sx + sw * 0.7;
+      svg.appendChild(el("path", { id: svg.id + "av", "class": "edge",
+        d: "M" + xv + "," + (K.y + 10) + " L" + xv + "," + (top - 8) }));
+      svg.appendChild(el("text", { id: svg.id + "avt", "class": "wlab",
+        x: xv - 12, y: K.y + 20, "text-anchor": "end", "dominant-baseline": "central" }, ""));
+      svg.appendChild(el("path", { id: svg.id + "ar", "class": "edge",
+        d: "M" + xr + "," + (top - 8) + " L" + xr + "," + (K.y + 10) }));
+      svg.appendChild(el("text", { id: svg.id + "art", "class": "wlab",
+        x: xr + 12, y: K.y + 20, "text-anchor": "start", "dominant-baseline": "central" }, ""));
+      if (cfg.nhan)
+        svg.appendChild(el("text", { "class": "gcap2", x: K.x + K.W / 2, y: K.y + K.H - 10 }, cfg.nhan));
+      svg._cao = cao;
+    },
+    ve(svg, v) {
+      const cao = svg._cao || 0, o = (v && v.o) || [];
+      for (let i = 0; i < cao; i++) {
+        const r = $(svg.id + "s" + i), t = $(svg.id + "t" + i);
+        const d = o[i];
+        if (r) r.setAttribute("class", d ? cls("gcell", d.cls) : "gcell base");
+        if (t) { t.setAttribute("class", d ? cls("gtxt", d.cls) : "gtxt base"); t.textContent = d ? d.v : ""; }
+      }
+      const av = $(svg.id + "av"), avt = $(svg.id + "avt");
+      const coVao = v && v.vao != null;
+      if (av) { av.setAttribute("class", cls("edge", coVao ? "hot" : "")); av.setAttribute("marker-end", coVao ? mui("hot") : "none"); }
+      if (avt) { avt.setAttribute("class", "wlab" + (coVao ? " on hot" : "")); avt.textContent = coVao ? v.vao : ""; }
+      const ar = $(svg.id + "ar"), art = $(svg.id + "art");
+      const coRa = v && v.ra != null;
+      if (ar) { ar.setAttribute("class", cls("edge", coRa ? "kept" : "")); ar.setAttribute("marker-end", coRa ? mui("kept") : "none"); }
+      if (art) { art.setAttribute("class", "wlab" + (coRa ? " on kept" : "")); art.textContent = coRa ? v.ra : ""; }
+    }
+  };
+
+  /* ---------------------------------------------------------- CUA SO TRUOT
+     Ghep chong len bieudocot: cot + khung cua so + hai con tro l/r duoi truc.
+     cfg = { gtri:[...], nhan:[...] }   (nhu bieudocot)
+     v   = { cot:[cls], trai, phai }    // 1-based, ca hai dau nam TRONG cua so;
+                                        // trai/phai == null => an cua so + con tro */
+  mod.cuaso = {
+    dung(svg, cfg) {
+      mod.bieudocot.dung(svg, cfg);
+      const G = svg._geo;
+      svg.appendChild(el("rect", { id: svg.id + "wn", "class": "win off",
+        x: G.x0, y: G.top - 14, width: 0, height: (G.base - G.top + 16).toFixed(1), rx: 8 }));
+      /* con tro dat TOA DO TRUC TIEP, khong dung transform tren <g> — getBBox
+         (quy uoc do lot khung cua KIEM/ban thu) khong tinh transform */
+      ["l", "r"].forEach(ch => {
+        svg.appendChild(el("path", { id: svg.id + "p" + ch, "class": "ptr off", d: "M0,0" }));
+        svg.appendChild(el("text", { id: svg.id + "q" + ch, "class": "ptrt off",
+          x: 0, y: G.base + 44 }, ch));
+      });
+    },
+    ve(svg, v) {
+      mod.bieudocot.ve(svg, v);
+      const G = svg._geo, n = svg._n || 0;
+      const cx = i => G.x0 + (i - 1) * (G.bw + G.gap) + G.bw / 2;
+      const t = v && v.trai, p = v && v.phai;
+      const co = t != null && p != null && t >= 1 && p <= n && t <= p;
+      const wn = $(svg.id + "wn");
+      if (wn) {
+        wn.setAttribute("class", co ? "win" : "win off");
+        if (co) {
+          wn.setAttribute("x", (cx(t) - G.bw / 2 - 4).toFixed(1));
+          wn.setAttribute("width", (cx(p) - cx(t) + G.bw + 8).toFixed(1));
+        }
+      }
+      const de = t === p ? 8 : 0;   // hai con tro cung cot => tach sang hai ben
+      const dat = (ch, x) => {
+        const pt = $(svg.id + "p" + ch), q = $(svg.id + "q" + ch);
+        if (pt) { pt.setAttribute("class", co ? "ptr" : "ptr off");
+          if (co) pt.setAttribute("d", "M" + x.toFixed(1) + "," + (G.base + 22) + " l-5.5,9 l11,0 z"); }
+        if (q) { q.setAttribute("class", co ? "ptrt" : "ptrt off");
+          if (co) q.setAttribute("x", x.toFixed(1)); }
+      };
+      dat("l", co ? cx(t) - de : 0);
+      dat("r", co ? cx(p) + de : 0);
+    }
+  };
+
+  /* ------------------------------------------------------- CAY PHAN DOAN
+     cfg = { n: so la (toi da 8), nhan:'chu thich duoi' }
+     v   = { o: { 'l_r': {v, cls} } }   // nut = doan [l..r]; la co l == r     */
+  mod.doan = {
+    dung(svg, cfg) {
+      xoa(svg);
+      const n = Math.max(1, Math.min(8, cfg.n || 1)), K = kt(svg);
+      const segs = [];
+      (function di(l, r, d, cha) {
+        segs.push({ l: l, r: r, d: d, cha: cha });
+        if (l < r) { const m = (l + r) >> 1; di(l, m, d + 1, [l, r]); di(m + 1, r, d + 1, [l, r]); }
+      })(1, n, 0, null);
+      const D = Math.max(1, ...segs.map(s => s.d));
+      const hh = 26;
+      const y0 = K.y + 26, yBot = K.y + K.H - (cfg.nhan ? 34 : 16) - hh;
+      const dy = (yBot - y0) / D;
+      const dx = (K.W - 20) / n, x0 = K.x + 10;
+      const cx = s => x0 + (s.l - 1 + (s.r - s.l + 1) / 2) * dx;
+      const ny = s => y0 + s.d * dy;
+      const P = {}; segs.forEach(s => { P[s.l + "_" + s.r] = s; });
+      // canh cha->con truoc, de nut de len tren
+      segs.forEach(s => {
+        if (!s.cha) return;
+        const c = P[s.cha[0] + "_" + s.cha[1]];
+        svg.appendChild(el("path", { "class": "edge seen",
+          d: "M" + cx(c).toFixed(1) + "," + (ny(c) + hh).toFixed(1) +
+             " L" + cx(s).toFixed(1) + "," + (ny(s) - 3).toFixed(1) }));
+      });
+      segs.forEach(s => {
+        const key = s.l + "_" + s.r;
+        const w = Math.min(56, dx * (s.r - s.l + 1) - 6);
+        svg.appendChild(el("rect", { id: svg.id + "c" + key, "class": "gcell",
+          x: (cx(s) - w / 2).toFixed(1), y: ny(s).toFixed(1), width: w.toFixed(1), height: hh, rx: 6 }));
+        svg.appendChild(el("text", { id: svg.id + "t" + key, "class": "gtxt",
+          x: cx(s).toFixed(1), y: (ny(s) + hh / 2 + 4.5).toFixed(1) }, "·"));
+        svg.appendChild(el("text", { "class": "dseg",
+          x: cx(s).toFixed(1), y: (ny(s) - 3.5).toFixed(1) },
+          s.l === s.r ? s.l : s.l + "–" + s.r));
+      });
+      if (cfg.nhan)
+        svg.appendChild(el("text", { "class": "gcap2", x: K.x + K.W / 2, y: K.y + K.H - 8 }, cfg.nhan));
+      svg._segs = segs.map(s => s.l + "_" + s.r);
+    },
+    ve(svg, v) {
+      const o = (v && v.o) || {};
+      (svg._segs || []).forEach(key => {
+        const d = o[key] || null;
+        const r = $(svg.id + "c" + key), t = $(svg.id + "t" + key);
+        if (r) r.setAttribute("class", cls("gcell", d && d.cls));
+        if (t) { t.setAttribute("class", cls("gtxt", d && d.cls)); t.textContent = (d && d.v != null) ? d.v : "·"; }
+      });
+    }
+  };
+
+  /* ------------------------------------------------------------- TRUC SO
+     Cot dat tai VI TRI THUC tren mot truc ngang (khong deu nhau nhu bieudocot).
+     Dung cho: tram xang / diem nghi tren duong, su kien theo thoi gian —
+     hoanh do = khoang cach tich luy, tung do (chieu cao cot) = gia tri tai diem.
+     Truc dai nen dat SVG rong-thap tren MOT hang full-width (xem them.css cua bai).
+     cfg = { pos:[toa do thuc], gtri:[chieu cao], nhan:[nhan diem], khoang:[n-1 khoang cach] }
+     v   = { cot:['','hot','prime','drop','cnt', ...] }   (nhu bieudocot)          */
+  mod.trucso = {
+    dung(svg, cfg) {
+      xoa(svg);
+      const pos = cfg.pos, g = cfg.gtri, n = g.length, K = kt(svg);
+      const base = K.y + K.H - 40, top = K.y + 30;
+      const xL = K.x + 30, xR = K.x + K.W - 30;
+      const pmax = Math.max(...pos), pspan = pmax > 0 ? pmax : 1;
+      const X = i => (pmax > 0 ? xL + (pos[i] / pspan) * (xR - xL) : (xL + xR) / 2);
+      const maxA = Math.max(1, ...g), bw = Math.min(11, (xR - xL) / (n * 1.6) || 11);
+      // truc ngang (la quang duong) + hai dau mut
+      svg.appendChild(el("line", { x1: (xL - 10).toFixed(1), y1: base, x2: (xR + 10).toFixed(1), y2: base, "class": "axis" }));
+      // nhan khoang cach giua hai diem (cho thay vi tri thuc)
+      if (cfg.khoang) for (let i = 0; i < n - 1 && i < cfg.khoang.length; i++)
+        svg.appendChild(el("text", { "class": "baridx", x: ((X(i) + X(i + 1)) / 2).toFixed(1), y: (base + 30).toFixed(1) }, cfg.khoang[i]));
+      for (let i = 0; i < n; i++) {
+        const h = 14 + (g[i] / maxA) * (base - top - 14), x = X(i);
+        // vach danh dau vi tri tram tren truc
+        svg.appendChild(el("line", { x1: x.toFixed(1), y1: (base - 4).toFixed(1), x2: x.toFixed(1), y2: (base + 4).toFixed(1), "class": "axis" }));
+        svg.appendChild(el("rect", {
+          id: svg.id + "b" + i, "class": "bar",
+          x: (x - bw / 2).toFixed(1), y: (base - h).toFixed(1), width: bw.toFixed(1), height: h.toFixed(1), rx: 2
+        }));
+        svg.appendChild(el("text", {
+          id: svg.id + "v" + i, "class": "barv", x: x.toFixed(1), y: (base - h - 7).toFixed(1)
+        }, g[i]));
+        svg.appendChild(el("text", {
+          id: svg.id + "i" + i, "class": "baridx", x: x.toFixed(1), y: (base + 16).toFixed(1)
+        }, cfg.nhan ? cfg.nhan[i] : (i + 1)));
+      }
+      svg._n = n;
+    },
+    ve(svg, v) {
+      const n = svg._n || 0, st = (v && v.cot) || [];
+      for (let i = 0; i < n; i++) {
+        const c = st[i] || "";
+        const b = $(svg.id + "b" + i), t = $(svg.id + "v" + i), q = $(svg.id + "i" + i);
+        if (b) b.setAttribute("class", cls("bar", c));
+        if (t) t.setAttribute("class", cls("barv", c));
+        if (q) q.setAttribute("class", cls("baridx", c === "hot" ? "hot" : ""));
+      }
+    }
+  };
+
+  /* -------------------------------------------------------- TRINH PHAT
+     tao({ sfx, ve:[{svg,mod}], code, hang:{ten:rowId}, glow:{ten:secId},
+           ans:'ans3', pens:'pens3', khung:()=>mangKhung })
+     Ma gia: dong DANG chay mang lop .on; dong VUA chay xong (o khung truoc)
+     giu lop .was (vach xam trai) — nguoi xem thay duoc luong dieu khien.
+     Diem dung: bam so dong de dat/bo (lop .bp); ▶ chay toi dong do thi tu dung. */
+  function tao(cfg) {
+    const g = n => $(n + cfg.sfx);
+    let idx = 0, timer = null;
+    const bp = new Set();
+    if (cfg.code) document.querySelectorAll(cfg.code + " .ln .no").forEach(no => {
+      no.title = "Bấm để đặt/bỏ điểm dừng";
+      no.onclick = e => {
+        e.stopPropagation();
+        const ln = no.parentElement, n = +ln.dataset.line;
+        bp.has(n) ? bp.delete(n) : bp.add(n);
+        ln.classList.toggle("bp", bp.has(n));
+      };
+    });
+    const trungBp = k => (k.h || []).some(n => bp.has(n));
+    /* mucHoi: 0 = tat · 1 = doan roi doi chieu · 2 = tu CHI O se doi gia tri.
+       Muc 2 la "visual program simulation" — hoc sinh dong vai may tinh; thang
+       muc tham gia (Naps) do duoc tac dung hoc tu muc "dap" tro len. */
+    let mucHoi = 0, cho = false;
+    const laMoc = k => (k.b || "").charAt(0) === "✓";
+
+    /* O nao DOI GIA TRI giua hai khung. Chi so gia tri, khong so lop:
+       lop doi gan nhu moi buoc (o dang xet), hoi the thi doan gi cung trung. */
+    function oDoi(kTruoc, kSau) {
+      const ds = [];
+      for (const ten in (cfg.hang || {})) {
+        const a = (kTruoc.r && kTruoc.r[ten]) || {}, b = (kSau.r && kSau.r[ten]) || {};
+        const va = a.vals || [], vb = b.vals || [];
+        for (let i = 0; i < Math.max(va.length, vb.length); i++)
+          if (String(va[i]) !== String(vb[i])) ds.push(cfg.hang[ten] + "_" + i);
+      }
+      return ds;
+    }
+    function dongChon() {
+      for (const ten in (cfg.hang || {})) {
+        const r = $(cfg.hang[ten]); if (!r) continue;
+        for (let i = 0; i < r.children.length; i++) {
+          const c = $(cfg.hang[ten] + "_" + i);
+          if (c) { c.classList.remove("doan", "dung", "sai"); c.onclick = null; }
+        }
+      }
+    }
+    function moChon(dich) {
+      const bo = {}; dich.forEach(id => { bo[id] = 1; });
+      for (const ten in (cfg.hang || {})) {
+        const r = $(cfg.hang[ten]); if (!r) continue;
+        for (let i = 0; i < r.children.length; i++) {
+          const id = cfg.hang[ten] + "_" + i, c = $(id);
+          if (!c) continue;
+          c.classList.add("doan");
+          c.onclick = () => { if (cho) c.classList.add(bo[id] ? "dung" : "sai"); };
+        }
+      }
+    }
+    function veLai() {
+      const F = cfg.khung(); if (!F || !F.length) return;
+      idx = Math.max(0, Math.min(F.length - 1, idx));
+      const k = F[idx];
+      /* pha "do": banner + ma gia lay tu khung MOI (k), nhung DU LIEU van la khung
+         TRUOC (kd) — ca lop doan ket qua, bam ▶ lan nua moi lo */
+      const kd = (cho && idx > 0) ? F[idx - 1] : k;
+      (cfg.ve || []).forEach(x => {
+        const svg = $(x.svg); if (!svg) return;
+        // x.mod: ten module, hoac ham tra ve ten (dung khi doi module dong)
+        const m = mod[typeof x.mod === "function" ? x.mod() : x.mod];
+        if (m) m.ve(svg, (kd.v && kd.v[x.svg]) || {});
+      });
+      for (const ten in (cfg.hang || {})) hang.ve(cfg.hang[ten], kd.r && kd.r[ten]);
+      for (const ten in (cfg.glow || {}))
+        $(cfg.glow[ten]) && $(cfg.glow[ten]).classList.toggle("glow", !!(kd.glow && kd.glow.indexOf(ten) >= 0));
+      if (cfg.code) {
+        const cur = k.h || [], truoc = idx > 0 ? (F[idx - 1].h || []) : [];
+        document.querySelectorAll(cfg.code + " .ln").forEach(l => {
+          const n = +l.dataset.line, dang = cur.indexOf(n) >= 0;
+          l.classList.toggle("on", dang);
+          l.classList.toggle("was", !dang && truoc.indexOf(n) >= 0);
+        });
+      }
+      const b = g("banner"); if (b) { b.textContent = k.b; b.classList.toggle("done", laMoc(k)); }
+      /* muc 2: mo cho hoc sinh chi o. Buoc nao khong doi gia tri o nao thi
+         tu ha ve muc 1 (van doan bang mieng) — khong bay ra o de bam vu vo. */
+      dongChon();
+      let dich = [];
+      if (cho && mucHoi >= 2 && idx > 0) {
+        dich = oDoi(F[idx - 1], k);
+        if (dich.length) moChon(dich);
+      }
+      const ex = g("expl");
+      if (ex) {
+        ex.textContent = !cho ? k.e
+          : dich.length ? "Chỉ vào ô sẽ ĐỔI GIÁ TRỊ ở bước này (bấm thẳng lên ô), rồi bấm ▶ để lộ."
+          : (k.hoi || "Đố cả lớp: dòng đang sáng sẽ thay đổi dữ liệu thế nào? Đoán xong bấm ▶ để xem.");
+        ex.classList.toggle("hoi", cho);
+      }
+      if (cfg.ans && $(cfg.ans)) $(cfg.ans).textContent = (kd.ans == null ? "·" : kd.ans);
+      const ab = $("ansbox" + cfg.sfx);
+      if (ab) ab.classList.toggle("glow", !!(kd.glow && kd.glow.indexOf("ans") >= 0));
+      if (cfg.pens && $(cfg.pens)) $(cfg.pens).innerHTML = kd.pens || "";
+      const st = g("step");
+      if (st) st.textContent = (idx + 1) + "/" + F.length + (cho ? " · đố" + (mucHoi >= 2 ? " 2" : "") : "");
+      g("first").disabled = g("prev").disabled = (idx === 0);
+      g("last").disabled = (idx === F.length - 1);
+      g("next").disabled = (idx === F.length - 1) && !cho;
+    }
+    function di(i) { cho = false; idx = i; veLai(); }
+    /* buoc TOI bang tay: o che do hoi lop thi di hai pha (do -> lo);
+       moc ✓ khong co gi de doan nen van mot pha */
+    function toi() {
+      const F = cfg.khung();
+      if (cho) { cho = false; veLai(); return; }
+      if (idx >= F.length - 1) return;
+      if (mucHoi && !laMoc(F[idx + 1])) { idx++; cho = true; veLai(); }
+      else di(idx + 1);
+    }
+    function dung() { if (timer) { clearInterval(timer); timer = null; } g("play").textContent = "▶"; }
+    function chay() {
+      cho = false;                     // chay tu dong = che do xem, bo qua pha do
+      const F = cfg.khung(); if (idx >= F.length - 1) idx = 0;
+      g("play").textContent = "⏸";
+      timer = setInterval(() => {
+        const F2 = cfg.khung();
+        if (idx < F2.length - 1) {
+          idx++; veLai();
+          if (bp.size && trungBp(F2[idx])) dung();   // cham diem dung => dung lai
+        } else dung();
+      }, +g("speed").value);
+    }
+    g("first").onclick = () => { dung(); di(0); };
+    g("prev").onclick = () => { dung(); di(idx - 1); };
+    g("next").onclick = () => { dung(); toi(); };
+    g("last").onclick = () => { dung(); di(cfg.khung().length - 1); };
+    g("play").onclick = () => { timer ? dung() : chay(); };
+    g("speed").oninput = () => { if (timer) { dung(); chay(); } };
+    /* nut "Đố" — bam de xoay ba muc: tat -> 1 (doan bang mieng) -> 2 (chi o).
+       Tiem tu runtime de moi deck co ngay, khong phai sua noidung.html. */
+    const nutLast = g("last");
+    if (nutLast) {
+      const nd = document.createElement("button");
+      nd.id = "hoi" + cfg.sfx; nd.className = "hoi"; nd.textContent = "Đố";
+      nd.title = "Bấm để xoay mức: tắt → Đố 1 (cả lớp đoán rồi bấm ▶ để lộ) "
+        + "→ Đố 2 (học sinh chỉ thẳng ô sẽ đổi giá trị)";
+      nd.onclick = () => {
+        mucHoi = (mucHoi + 1) % 3;
+        nd.textContent = mucHoi ? "Đố " + mucHoi : "Đố";
+        nd.classList.toggle("on", mucHoi > 0);
+        if (!mucHoi && cho) { cho = false; }
+        veLai();
+      };
+      nutLast.insertAdjacentElement("afterend", nd);
+    }
+    return { datLai() { dung(); cho = false; idx = 0; veLai(); } };
+  }
+
+  /* ------------------------------------------------- CHUYEN SLIDE + PHIM TAT */
+  function slides(ids) {
+    const deck = $("deck");
+    const ss = ids.map($), links = document.querySelectorAll(".snav a");
+    let cur = 0;
+    function hien(k) {
+      cur = Math.max(0, Math.min(ss.length - 1, k));
+      ss.forEach((s, i) => { s.classList.toggle("active", i === cur); s.classList.toggle("back", i < cur); });
+      links.forEach((x, i) => x.classList.toggle("active", i === cur));
+    }
+    links.forEach((x, i) => x.addEventListener("click", e => { e.preventDefault(); hien(i); }));
+    const rail = () => document.body.classList.toggle("rail");
+    const theme = () => {
+      const r = document.documentElement;
+      const sysDark = window.matchMedia && window.matchMedia("(prefers-color-scheme:dark)").matches;
+      const now = r.getAttribute("data-theme") || (sysDark ? "dark" : "light");
+      r.setAttribute("data-theme", now === "dark" ? "light" : "dark");
+    };
+    $("btnRail") && ($("btnRail").onclick = rail);
+    $("btnTheme") && ($("btnTheme").onclick = theme);
+    document.addEventListener("keydown", e => {
+      const t = (e.target.tagName || "").toUpperCase();
+      if (t === "INPUT" || t === "SELECT" || t === "TEXTAREA") return;
+      const k = (e.key || "").toLowerCase();
+      const ctrl = (e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey;
+      const plain = !e.ctrlKey && !e.metaKey && !e.altKey;
+      if ((ctrl || plain) && k === "h") { rail(); e.preventDefault(); return; }
+      if ((ctrl || plain) && k === "d") { theme(); e.preventDefault(); return; }
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.key === "ArrowRight" || e.key === "PageDown") { hien(cur + 1); e.preventDefault(); }
+      else if (e.key === "ArrowLeft" || e.key === "PageUp") { hien(cur - 1); e.preventDefault(); }
+      else if (e.key === "Home") { hien(0); e.preventDefault(); }
+      else if (e.key === "End") { hien(ss.length - 1); e.preventDefault(); }
+    });
+    /* Khoi "noi bang loi" (EiPE): cau hoi mo + goi y an, bam nut moi lo.
+       Uy quyen o cap document nen bai chi can viet HTML, khong gan tay.
+       Vi sao co: chay tay va GIAI THICH BANG LOI la hai nac khac nhau —
+       deck day duoc nac chay tay, nac giai thich phai hoi thanh cau. */
+    document.addEventListener("click", e => {
+      const nut = e.target && e.target.closest && e.target.closest(".eipe > button");
+      if (!nut) return;
+      const h = nut.parentElement;
+      h.classList.toggle("mo");
+      nut.textContent = h.classList.contains("mo") ? "Ẩn gợi ý" : "Hiện gợi ý";
+    });
+    let lock = 0;
+    deck.addEventListener("wheel", e => {
+      if (Math.abs(e.deltaY) < 18) return;
+      const now = (new Date()).getTime(); if (now - lock < 640) return;
+      lock = now; hien(cur + (e.deltaY > 0 ? 1 : -1));
+    }, { passive: true });
+    hien(0);
+  }
+
+  /* ------------------------------------------------------------- TIEN ICH */
+  const tienIch = {
+    day: (n, x) => Array(n).fill(x),
+    chip: t => '<div class="pchip">' + t + '</div>',
+    so: s => (s.trim().split(/\s+/).map(Number)).filter(v => Number.isFinite(v))
+  };
+
+  return { $: $, NS: NS, el: el, mod: mod, hang: hang, tao: tao, slides: slides, t: tienIch };
+})();
+
+</script>
+<script>
+/* Bài 3 — Trạm xăng (P9749). HÀM TÍNH THUẦN, không đụng DOM.
+   Dùng chung cho deck (trình duyệt) và tools/doichung.js (Node).
+
+   Tham lam: đi từ trạm 1 sang phải, luôn dùng xăng mua ở trạm RẺ NHẤT đã đi qua.
+   s = số km còn nợ (chưa được trả bằng xăng); tới mỗi chặng cộng thêm v[i] vào s,
+   nếu s > 0 thì mua vừa đủ số lít nguyên: lit = ceil(s / d), phần xăng dư (lit*d − s)
+   được giữ lại dưới dạng s âm để dùng cho chặng sau. Đây đúng là sol_full. */
+(function (goc) {
+  "use strict";
+
+  function GIAI(d, v, a) {
+    var n = Math.min(a.length, v.length + 1);
+    n = Math.max(2, Math.min(8, n));
+    d = Math.max(1, Math.min(99, Math.round(d)));
+    v = v.slice(0, n - 1).map(function (x) { return Math.max(1, Math.min(99, Math.round(x))); });
+    a = a.slice(0, n).map(function (x) { return Math.max(1, Math.min(99, Math.round(x))); });
+    while (v.length < n - 1) v.push(1);
+    while (a.length < n) a.push(1);
+
+    var gmin = a[0], s = 0, tien = 0, vet = [];
+    for (var i = 0; i < n - 1; i++) {
+      if (a[i] < gmin) gmin = a[i];
+      var truoc = s;
+      s += v[i];
+      var lit = 0, chi = 0, sTruocMua = s;
+      if (s > 0) {
+        lit = Math.ceil(s / d);
+        chi = lit * gmin;
+        tien += chi;
+        s -= lit * d;
+      }
+      vet.push({
+        i: i, gia: a[i], gmin: gmin, v: v[i],
+        noTruoc: truoc, noSauCong: sTruocMua, lit: lit, chi: chi, tien: tien, du: -s
+      });
+    }
+    return { n: n, d: d, v: v, a: a, vet: vet, dap: tien };
+  }
+
+  goc.GIAI = GIAI;
+  if (typeof module !== "undefined" && module.exports) module.exports = GIAI;
+})(typeof window !== "undefined" ? window : globalThis);
+
+</script>
+<script>
+/* Bài 3 — Trạm xăng (P9749). Tham lam giá nhỏ nhất tiền tố + dồn phần lít dư.
+   Dùng module: bieudocot (biểu đồ c1 vẽ giá xăng từng trạm). */
+(function () {
+  "use strict";
+  const $ = MP.$, T = MP.t;
+  let N = 5, D = 4, V = [], A = [], VET = [], DAP = 0, f1 = [];
+
+  /* Ban de hoc sinh tu doc: mac dinh thu gon thanh ben (Ctrl+H mo lai). */
+  document.body.classList.add("rail");
+
+  /* Doc o nhap roi goi GIAI() — phan TINH nam o giai.js, khong cai lai o day. */
+  function tinh() {
+    let d = parseInt(String($("inpD").value).replace(/[^0-9]/g, ""), 10);
+    if (!(d >= 1)) d = 4;
+    let v = T.so($("inpV").value).filter(x => x >= 1);
+    let a = T.so($("inpA").value).filter(x => x >= 1);
+    if (a.length < 2) a = [9, 8, 9, 6, 5];
+    if (v.length < a.length - 1) {
+      while (v.length < a.length - 1) v.push(10);
+    }
+    const kq = GIAI(d, v, a);
+    N = kq.n; D = kq.d; V = kq.v; A = kq.a; VET = kq.vet; DAP = kq.dap;
+    /* KHONG ghi de lai o nhap: bo do dat gia tri tung o mot, ghi de o nay se lam
+       lan du lieu cua o chua kip dat (da vap — deck ra 9 thay vi 7). */
+  }
+
+  function dung() {
+    tinh();
+    /* Truc so: tram i o hoanh do = khoang cach tich luy tu tram 1; cot cao = gia. */
+    const pos = [0];
+    for (let i = 1; i < N; i++) pos.push(pos[i - 1] + V[i - 1]);
+    MP.mod.trucso.dung($("c1"), { pos: pos, gtri: A, nhan: A.map((_, i) => i + 1), khoang: V.slice() });
+    ["rowP5A", "rowP5L"].forEach(r => MP.hang.tao(r, N));
+    $("pens5").innerHTML = "";
+
+    const day = x => T.day(N, x), cham = () => day("·");
+    const chip = (s, g) => T.chip('còn nợ <b>' + Math.max(0, s) + '</b> km · dư <b>' +
+      Math.max(0, -s) + '</b> km · giá đang dùng <b>' + g + '</b>');
+
+    f1 = [];
+    f1.push({
+      b: "Bước 1/1 — Xuất phát ở trạm 1, bình rỗng",
+      e: "Chưa đi ki-lô-mét nào nên chưa nợ gì; giá rẻ nhất đã gặp mới chỉ là giá của trạm 1 = " + A[0] + " đồng.",
+      h: [1], v: { c1: { cot: day("") } },
+      r: { A: { vals: A.slice(), cls: day("") },
+           L: { vals: cham(), cls: day("zero") } },
+      ans: 0, pens: chip(0, A[0])
+    });
+
+    const gs = cham(), ls = cham();
+    for (let i = 0; i < VET.length; i++) {
+      const o = VET[i];
+      gs[i] = o.gmin;
+      /* (a) cap nhat gia re nhat */
+      const cotA = day(""), acA = day(""), gcA = day("zero");
+      for (let j = 0; j < i; j++) { cotA[j] = "cnt"; gcA[j] = "prime"; }
+      cotA[i] = "hot"; acA[i] = "hot"; gcA[i] = "hot";
+      f1.push({
+        b: "Bước 1/1 — Tới trạm " + (i + 1) + "/" + N + ": giá " + o.gia,
+        e: "Giá tại trạm " + (i + 1) + " là " + o.gia + " đồng ⇒ giá rẻ nhất trong các trạm đã đi qua là " +
+           o.gmin + " đồng. Mọi lít mua từ đây trở đi (cho tới khi gặp trạm rẻ hơn) đều tính theo giá này.",
+        h: [2, 3], v: { c1: { cot: cotA } },
+        r: { A: { vals: A.slice(), cls: acA },
+             L: { vals: ls.slice(), cls: day("zero") } },
+        ans: i === 0 ? 0 : VET[i - 1].tien, pens: chip(o.noTruoc, o.gmin)
+      });
+      /* (b) di het chang va mua xang */
+      ls[i] = o.lit;
+      const cotB = day(""), acB = day(""), gcB = day("zero"), lcB = day("zero");
+      for (let j = 0; j <= i; j++) { gcB[j] = "prime"; if (ls[j] !== "·") lcB[j] = ls[j] > 0 ? "prime" : "zero"; }
+      cotB[i] = "hot"; acB[i] = "hot"; gcB[i] = "hot"; lcB[i] = o.lit > 0 ? "hot" : "zero";
+      const eMua = o.lit > 0
+        ? "Chặng " + (i + 1) + " dài " + o.v + " km ⇒ tổng cần trả là " + o.noSauCong +
+          " km. Mua " + o.lit + " lít (mỗi lít " + D + " km) với giá " + o.gmin + " ⇒ hết " + o.chi +
+          " đồng, cộng dồn " + o.tien + ". Dư lại " + o.du + " km xăng trong bình."
+        : "Chặng " + (i + 1) + " dài " + o.v + " km nhưng trong bình còn dư " + (-o.noSauCong) +
+          " km xăng ⇒ không phải mua gì. Tiền vẫn là " + o.tien + " đồng.";
+      f1.push({
+        b: "Bước 1/1 — Đi chặng " + (i + 1) + " dài " + o.v + " km" + (o.lit > 0 ? "  (mua " + o.lit + " lít)" : "  (không phải mua)"),
+        e: eMua,
+        h: o.lit > 0 ? [4, 5, 6] : [4, 5], v: { c1: { cot: cotB } },
+        r: { A: { vals: A.slice(), cls: acB },
+             L: { vals: ls.slice(), cls: lcB } },
+        ans: o.tien, pens: chip(-o.du, o.gmin)
+      });
+    }
+
+    /* Moc ket thuc luot di — chot lai "da mua gi o dau" truoc khi cong tong. */
+    const lcQ = day("zero");
+    for (let j = 0; j < VET.length; j++) lcQ[j] = ls[j] > 0 ? "prime" : "zero";
+    const cuoi = VET.length ? VET[VET.length - 1] : { tien: 0 };
+    f1.push({
+      b: "✓ Xong lượt đi — đã tới trạm " + N, glow: ["L"],
+      e: "Dữ liệu nhận được: số lít đã mua tại từng trạm (" +
+         VET.map((o, k) => "trạm " + (k + 1) + ": " + o.lit).join(", ") +
+         "). Không còn chặng nào phía sau nên không mua thêm. Tiếp theo → cộng tiền của các lần mua.",
+      h: [2], v: { c1: { cot: day("") } },
+      r: { A: { vals: A.slice(), cls: day("") }, L: { vals: ls.slice(), cls: lcQ } },
+      ans: cuoi.tien, pens: T.chip('đã đi hết <b>' + (N - 1) + '</b> chặng')
+    });
+
+    const gcE = day("zero"), lcE = day("zero");
+    for (let j = 0; j < VET.length; j++) { gcE[j] = "prime"; lcE[j] = ls[j] > 0 ? "prime" : "zero"; }
+    const tongLit = VET.reduce((s, o) => s + o.lit, 0);
+    f1.push({
+      b: "✓ Xong — đáp án = " + DAP + " đồng", glow: ["ans", "L"],
+      e: "Đã tới trạm " + N + ". Tổng cộng mua " + tongLit + " lít, hết " + DAP +
+         " đồng. Trạm cuối không cần mua thêm vì không còn chặng nào phía sau.",
+      h: [2], v: { c1: { cot: day("") } },
+      r: { A: { vals: A.slice(), cls: day("") },
+           L: { vals: ls.slice(), cls: lcE } },
+      ans: DAP, pens: T.chip('tổng <b>' + tongLit + '</b> lít · <b>' + DAP + '</b> đồng')
+    });
+
+    P1.datLai();
+  }
+
+  const P1 = MP.tao({ sfx: "1", ve: [{ svg: "c1", mod: "trucso" }], code: "#code1",
+    hang: { A: "rowP5A", L: "rowP5L" }, glow: { L: "secP5L" }, pens: "pens5",
+    ans: "ans1", khung: () => f1 });
+
+  ["inpD", "inpV", "inpA"].forEach(id => $(id).addEventListener("change", dung));
+  $("rnd").onclick = () => {
+    const n = 3 + Math.floor(Math.random() * 5), v = [], a = [];
+    for (let i = 0; i < n - 1; i++) v.push(1 + Math.floor(Math.random() * 20));
+    for (let i = 0; i < n; i++) a.push(1 + Math.floor(Math.random() * 20));
+    $("inpD").value = 1 + Math.floor(Math.random() * 9);
+    $("inpV").value = v.join(" "); $("inpA").value = a.join(" "); dung();
+  };
+  $("preset").onchange = e => {
+    if (!e.target.value) return;
+    const p = e.target.value.split("|");
+    $("inpD").value = p[0]; $("inpV").value = p[1]; $("inpA").value = p[2];
+    e.target.selectedIndex = 0; dung();
+  };
+
+  MP.slides(["s1", "s2", "s3", "s4", "s5", "s6"]);
+  dung();
+
+  /* Cau hinh cho bo do nhung san — mo deck voi ?kiem=1 de tu cham.
+     Cac gia tri `ans` lay tu sol_full (da doi chung), khong tu tinh tay. */
+  window.KIEM_CFG = {
+    slides: 6, players: ["1"], svgs: ["c1"], ansId: "ans1",
+    dulieu: [
+      { o: { inpD: "4", inpV: "10 10 10 10", inpA: "9 8 9 6 5" }, ans: 79 },
+      { o: { inpD: "4", inpV: "9 9 9", inpA: "2 5 8 9" }, ans: 14 },
+      { o: { inpD: "4", inpV: "9 9 9", inpA: "9 8 5 1" }, ans: 53 },
+      { o: { inpD: "7", inpV: "3 3 3 3", inpA: "5 9 2 8 6" }, ans: 7 },
+      { o: { inpD: "50", inpV: "3 4 5 6", inpA: "7 9 2 8 4" }, ans: 7 }
+    ]
+  };
+})();
+
+</script>
+<script>
+/* Mo deck voi ?kiem=1 de tu cham bang bo do nhung san (KIEM + window.KIEM_CFG). */
+(function () {
+  if (!/[?&]kiem=1/.test(location.search)) return;
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      var kq, ok = false;
+      if (typeof KIEM !== 'function') kq = 'LOI: bo do chua duoc nhung (dung lai dung_deck.py).';
+      else if (!window.KIEM_CFG) kq = 'CHUA CO window.KIEM_CFG trong thuattoan.js — khai bao roi dung lai.';
+      else { try { kq = KIEM(window.KIEM_CFG); ok = true; } catch (e) { kq = 'LOI KHI CHAY KIEM: ' + e.message; } }
+      try { console.log(kq); } catch (e) {}
+      var p = document.createElement('pre');
+      p.id = '__kiemout';
+      p.style.cssText = 'position:fixed;right:10px;bottom:10px;z-index:999;max-width:46vw;'
+        + 'max-height:62vh;overflow:auto;background:var(--frame);color:var(--fg);'
+        + 'border:2px solid var(--line);border-radius:10px;padding:10px 12px;'
+        + 'font:11px/1.45 ui-monospace,Consolas,monospace;white-space:pre-wrap';
+      if (ok) { try { p.textContent = 'KIEM: ' + JSON.parse(kq).KETLUAN + '\n\n' + kq; } catch (e) { p.textContent = String(kq); } }
+      else p.textContent = String(kq);
+      document.body.appendChild(p);
+    }, 350);
+  });
+})();
+</script>
+</body>
+</html>
