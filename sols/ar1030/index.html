@@ -1,0 +1,534 @@
+<title>Đoạn con tổng bằng K</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef1f0;
+    --panel: #ffffff;
+    --panel-2: #f4f6f5;
+    --ink: #131813;
+    --muted: #59635f;
+    --faint: #98a19c;
+    --line: #d9dfdb;
+    --accent: #0e9a63;
+    --accent-ink: #0a7a4e;
+    --accent-soft: #e1f5ea;
+    --rose: #c1463e;
+    --rose-soft: #f8e3e1;
+    --gold: #b8860a;
+    --gold-soft: #f6ecd0;
+    --shadow: 0 24px 60px -30px rgba(15, 25, 20, 0.35);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d1310; --panel: #151d18; --panel-2: #1a231e;
+      --ink: #e9f0eb; --muted: #9fada5; --faint: #566058; --line: #283530;
+      --accent: #35d68f; --accent-ink: #7be8b6; --accent-soft: #16332590;
+      --rose: #e2837c; --rose-soft: #3a2422;
+      --gold: #e6b94c; --gold-soft: #3a3013;
+      --shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d1310; --panel: #151d18; --panel-2: #1a231e;
+    --ink: #e9f0eb; --muted: #9fada5; --faint: #566058; --line: #283530;
+    --accent: #35d68f; --accent-ink: #7be8b6; --accent-soft: #16332590;
+    --rose: #e2837c; --rose-soft: #3a2422;
+    --gold: #e6b94c; --gold-soft: #3a3013;
+    --shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Be Vietnam Pro", "Segoe UI", sans-serif;
+    display: flex; justify-content: center; padding: clamp(16px, 2.5vw, 44px);
+  }
+  .layout { display: flex; align-items: stretch; gap: 24px; width: 100%; max-width: 1680px; }
+  @media (max-width: 880px) { .layout { flex-direction: column; } }
+
+  .sidebar {
+    width: 320px; flex-shrink: 0; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 18px; box-shadow: var(--shadow); padding: clamp(22px, 2vw, 32px);
+  }
+  @media (max-width: 880px) { .sidebar { width: 100%; } }
+  .sidebar h2 { margin: 0 0 14px; font-size: 17px; font-weight: 700; }
+  .sidebar p { margin: 0 0 14px; font-size: 15px; line-height: 1.68; color: var(--muted); }
+  .sidebar p:last-child { margin-bottom: 0; }
+  .sidebar strong { color: var(--ink); font-weight: 700; }
+  .sidebar .rule { margin: 6px 0 18px; border: none; border-top: 1px solid var(--line); }
+  .sidebar ul { margin: 0 0 14px; padding-left: 19px; }
+  .sidebar li { font-size: 15px; line-height: 1.62; color: var(--muted); margin-bottom: 8px; }
+  .sidebar .key {
+    background: var(--panel-2); border-left: 3px solid var(--gold); border-radius: 0 10px 10px 0;
+    padding: 12px 14px; font-size: 14px; line-height: 1.62; color: var(--ink);
+  }
+
+  .stage {
+    flex: 1; min-width: 0; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 18px; box-shadow: var(--shadow); padding: clamp(24px, 2.6vw, 40px);
+    display: flex; flex-direction: column; gap: 20px; position: relative;
+  }
+
+  .eyebrow {
+    font-family: "JetBrains Mono", monospace; font-size: 17px; letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--muted); font-weight: 700;
+  }
+  .eyebrow .brand { color: var(--accent); font-weight: 800; letter-spacing: 0.1em; }
+
+  .head { display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: 18px; }
+  .badge {
+    display: flex; flex-direction: column; align-items: center;
+    padding-right: 16px; border-right: 3px solid var(--accent); min-width: 62px;
+  }
+  .badge .num {
+    font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 34px;
+    color: var(--accent); line-height: 1; font-variant-numeric: tabular-nums;
+  }
+  .badge .lbl { font-size: 12px; color: var(--muted); margin-top: 4px; letter-spacing: .03em; }
+  .titlebox {
+    height: 84px; display: flex; align-items: flex-start; justify-content: flex-start;
+    padding-top: 2px; overflow: hidden;
+  }
+  .headtext h1 {
+    margin: 0; width: 100%; font-size: 25px; font-weight: 700;
+    line-height: 1.32; text-wrap: balance;
+  }
+  .headtext .note { margin: 6px 0 0; font-size: 15px; color: var(--muted); line-height: 1.5; }
+  .headtext .note strong { color: var(--ink); font-weight: 700; }
+
+  .infofloat {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px 18px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 8px; min-width: 140px;
+  }
+  .ifrow { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .ifrow .ifk { font-family: "JetBrains Mono", monospace; font-size: 13.5px; color: var(--muted); }
+  .ifrow .ifv {
+    font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums;
+    font-size: 21px; font-weight: 700; color: var(--accent-ink);
+  }
+  .ifrow.res .ifv { color: var(--gold); }
+  .infofloat.pulse { box-shadow: var(--shadow), 0 0 0 4px var(--gold-soft); }
+
+  @media (max-width: 620px) {
+    .head { grid-template-columns: auto 1fr; }
+    .infofloat { grid-column: 1 / -1; flex-direction: row; justify-content: space-around; }
+  }
+
+  .arrblock { display: flex; flex-direction: column; gap: 2px; }
+  .arrwrap { display: flex; align-items: center; gap: 14px; }
+  .arrtag { font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 15px; color: var(--faint); flex-shrink: 0; min-width: 66px; }
+  .cell .cellval { pointer-events: none; }
+  .cells { display: flex; justify-content: center; gap: 9px; overflow-x: auto; padding: 15px 2px 14px; position: relative; flex: 1; }
+  .cell.ghost { visibility: hidden; }
+  .cellcol { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; position: relative; }
+  .idx { font-family: "JetBrains Mono", monospace; font-size: 10.5px; color: var(--faint); margin-bottom: 4px; font-variant-numeric: tabular-nums; }
+  .cell {
+    width: 44px; height: 44px; border: 2px solid var(--line); border-radius: 10px; background: var(--panel);
+    display: flex; align-items: center; justify-content: center;
+    font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums;
+    position: relative; transition: background .35s ease, border-color .35s ease, opacity .35s ease, box-shadow .35s ease;
+  }
+  .cell.future { opacity: .5; }
+  .cell.dropped { background: var(--panel-2); border-color: var(--line); color: var(--muted); }
+  .cell.active { background: var(--accent-soft); border-color: var(--accent); }
+  .cell.best { box-shadow: 0 0 0 3px var(--gold-soft), inset 0 0 0 2px var(--gold); }
+  .arrow {
+    position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+    font-size: 12px; color: var(--accent); font-weight: 700; opacity: 0; transition: opacity .3s ease;
+  }
+  .cellcol.now .arrow { opacity: 1; }
+  .ilabel {
+    position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%);
+    font-family: "JetBrains Mono", monospace; font-size: 9.5px; font-weight: 700;
+    color: var(--accent); opacity: 0; transition: opacity .3s ease;
+  }
+  .cellcol.now .ilabel { opacity: 1; }
+
+  .rowlink {
+    text-align: center;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11.5px;
+    color: var(--faint);
+    letter-spacing: .04em;
+  }
+
+  .caption { display: flex; align-items: center; gap: 14px; }
+  .caption .ln { flex: 1; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
+  .caption .ln.right { background: linear-gradient(270deg, var(--accent), transparent); }
+  .caption span { font-size: 12.5px; color: var(--muted); letter-spacing: .03em; white-space: nowrap; }
+
+  .code {
+    margin: 0; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px;
+    padding: 14px 16px; font-family: "JetBrains Mono", monospace; font-size: 14.5px;
+    line-height: 1.8; overflow-x: auto; color: var(--muted);
+  }
+  .code .ln2 { display: block; padding: 1px 8px; border-radius: 6px; white-space: pre; }
+  .code .ln2.on { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+  .code .ln2.on.record { background: var(--gold-soft); }
+
+  .controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .ctrl-btns { display: flex; gap: 6px; }
+  button.ctl {
+    font-family: "JetBrains Mono", monospace; font-size: 15px; width: 38px; height: 34px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--panel-2); color: var(--ink); cursor: pointer;
+    transition: background .2s ease, border-color .2s ease;
+  }
+  button.ctl:hover { border-color: var(--accent); }
+  button.ctl:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button.ctl#btnPlay { width: 56px; font-weight: 700; }
+  button.ctl:disabled { opacity: .35; cursor: default; }
+
+  .dots { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; }
+  .dot {
+    width: 10px; height: 10px; border-radius: 50%; background: var(--line); border: none; cursor: pointer; padding: 0;
+    transition: background .2s ease, transform .2s ease;
+  }
+  .dot:hover { transform: scale(1.2); }
+  .dot.done { background: var(--faint); }
+  .dot.now { background: var(--accent); transform: scale(1.3); }
+  .dot.record { background: var(--gold); }
+
+  .stepno { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition-duration: .001ms !important; } }
+</style>
+
+<div class="layout">
+<div class="sidebar">
+  <h2>Ý tưởng thuật toán</h2>
+  <p>
+    Gọi <strong>s[r]</strong> là tổng của r số đầu tiên (<strong>s[0] = 0</strong>
+    là "tiền tố rỗng"). Tổng đoạn con từ vị trí l+1 đến r bằng K khi và chỉ khi
+    s[r] − s[l] = K, tức là <strong>s[l] = s[r] − K</strong>.
+  </p>
+  <hr class="rule">
+  <p>Duyệt r từ 1 đến n. Tại mỗi r chỉ có một việc:</p>
+  <ul>
+    <li><strong>Tra ngay</strong> trong bảng đếm <strong>cnt</strong> xem đã có bao nhiêu tiền tố s[l] = s[r] − K xuất hiện trước đó (l &lt; r) — cộng thẳng số đó vào ans, không cần dò lại từ đầu.</li>
+    <li><strong>Ghi nhận</strong> thêm một lần xuất hiện của s[r] vào cnt, để dùng cho các r về sau.</li>
+  </ul>
+  <p>
+    <strong>ans</strong> luôn là tổng số đoạn con đã đếm được tính đến vị trí r
+    đang xét — duyệt xong dãy thì đó chính là đáp số.
+  </p>
+  <div class="key">
+    Điểm mấu chốt: không cần vòng lặp con để tìm l — bảng đếm cnt trả lời tức
+    thì trong O(1), nhờ vậy cả thuật toán chỉ mất O(n) thay vì O(n²) như vét cạn
+    mọi cặp (l, r).
+  </div>
+</div>
+
+<div class="stage">
+  <div class="eyebrow"><strong class="brand">TIỀN TỐ + BẢNG BĂM</strong> · đoạn con tổng bằng K · ví dụ minh hoạ [3,-2,3,-1,3,-3,-3,4,3], K=3 → 9</div>
+
+  <div class="head">
+    <div class="badge">
+      <span class="num" id="stepNum">01</span>
+      <span class="lbl">Bước</span>
+    </div>
+    <div class="headtext">
+      <div class="titlebox"><h1 id="stepTitle"></h1></div>
+      <p class="note" id="stepNote"></p>
+    </div>
+    <div class="infofloat" id="infoFloat">
+      <div class="ifrow cur"><span class="ifk">s</span><span class="ifv" id="ifCur">–</span></div>
+      <div class="ifrow res" id="ifResRow"><span class="ifk">ans</span><span class="ifv" id="ifRes">–</span></div>
+    </div>
+  </div>
+
+  <div class="arrblock">
+    <div class="arrwrap">
+      <span class="arrtag">a[ ] =</span>
+      <div class="cells" id="cellsA"></div>
+    </div>
+    <div class="rowlink">tổng dồn ↓</div>
+    <div class="arrwrap">
+      <span class="arrtag">s[ ] =</span>
+      <div class="cells" id="cellsS"></div>
+    </div>
+    <div class="rowlink">cnt[s[i]] tại từng vị trí i ↓</div>
+    <div class="arrwrap">
+      <span class="arrtag">cnt[ ] =</span>
+      <div class="cells" id="cellsCnt"></div>
+    </div>
+  </div>
+
+  <div class="caption">
+    <div class="ln"></div>
+    <span>Đoạn con tổng bằng K — tiền tố cộng dồn + bảng băm</span>
+    <div class="ln right"></div>
+  </div>
+
+  <pre class="code" id="code"></pre>
+
+  <div class="controls">
+    <div class="ctrl-btns">
+      <button class="ctl" id="btnFirst" title="Về đầu (Home)">⏮</button>
+      <button class="ctl" id="btnPrev" title="Bước trước (←)">◀</button>
+      <button class="ctl" id="btnPlay" title="Chạy / Dừng (Space)">▶</button>
+      <button class="ctl" id="btnNext" title="Bước sau (→)">▶</button>
+      <button class="ctl" id="btnLast" title="Đến cuối (End)">⏭</button>
+    </div>
+    <div class="dots" id="dots"></div>
+    <span class="stepno" id="stepno"></span>
+  </div>
+</div>
+</div>
+
+<script>
+(function () {
+  var arr = [3, -2, 3, -1, 3, -3, -3, 4, 3];
+  var K = 3;
+  var n = arr.length;
+
+  // ---- chay thuat toan that, ghi lai tung buoc ----
+  function snap(map) { var o = {}; for (var kk in map) o[kk] = map[kk]; return o; }
+
+  var s = [0];
+  var cntMap = {}; cntMap[0] = 1;
+  var ans = 0;
+  var steps = [];
+
+  steps.push({
+    r: 0, sVal: 0, ans: 0, found: 0, branch: "init", hitIdx: [],
+    sr: 0, target: null, cntSnap: snap(cntMap),
+    title: "Khởi tạo: coi tiền tố rỗng (0 phần tử) đã xuất hiện một lần.",
+    note: "cnt[0] = 1, s = 0, ans = 0."
+  });
+
+  for (var r = 1; r <= n; r++) {
+    var sr = s[r - 1] + arr[r - 1];
+    s.push(sr);
+    var target = sr - K;
+    var found = cntMap[target] || 0;
+    var hitIdx = [];
+    for (var l = 0; l < r; l++) if (s[l] === target) hitIdx.push(l);
+
+    var before = ans;
+    ans += found;
+    cntMap[sr] = (cntMap[sr] || 0) + 1;
+
+    var branch = found > 0 ? "hit" : "miss";
+    var title, note;
+    if (branch === "hit") {
+      title = "Tính s[" + r + "], tra cnt[s[" + r + "] − K] — tìm thấy " + found + " tiền tố trùng!";
+      note = "s[" + r + "] = " + sr + "; cnt[" + target + "] = " + found + " → ans = " + before + " + " + found + " = " + ans + ". Ghi nhận thêm s[" + r + "] = " + sr + " vào cnt.";
+    } else {
+      title = "Tính s[" + r + "], tra cnt[s[" + r + "] − K] — chưa từng xuất hiện.";
+      note = "s[" + r + "] = " + sr + "; cnt[" + target + "] = 0 nên ans không đổi (vẫn = " + ans + "). Ghi nhận thêm s[" + r + "] = " + sr + " vào cnt.";
+    }
+    steps.push({
+      r: r, sVal: sr, ans: ans, found: found, branch: branch, hitIdx: hitIdx,
+      sr: sr, target: target, cntSnap: snap(cntMap), title: title, note: note
+    });
+  }
+
+  steps.push({
+    r: n, sVal: s[n], ans: ans, found: 0, branch: "final", hitIdx: [],
+    sr: null, target: null, cntSnap: snap(cntMap),
+    title: "Duyệt xong dãy — in ra ans.",
+    note: "ans = " + ans + " — có đúng " + ans + " đoạn con liên tiếp tổng bằng K = " + K + "."
+  });
+
+  // ---- dung luoi o vuong cho hang a[] ----
+  var cellsAEl = document.getElementById("cellsA");
+  var colsA = [], cellDivsA = [];
+  var ghostCol = document.createElement("div");
+  ghostCol.className = "cellcol";
+  ghostCol.innerHTML = '<div class="idx">&nbsp;</div><div class="cell ghost"></div>';
+  cellsAEl.appendChild(ghostCol);
+  for (var j = 1; j <= n; j++) {
+    var colA = document.createElement("div");
+    colA.className = "cellcol";
+    colA.innerHTML =
+      '<div class="idx">' + j + '</div>' +
+      '<div class="arrow">↓</div>' +
+      '<div class="cell">' + arr[j - 1] + '</div>' +
+      '<div class="ilabel">r</div>';
+    cellsAEl.appendChild(colA);
+    colsA.push(colA);
+    cellDivsA.push(colA.querySelector(".cell"));
+  }
+
+  // ---- dung luoi o vuong cho hang s[] (co them s[0]) ----
+  var cellsSEl = document.getElementById("cellsS");
+  var colsS = [], cellDivsS = [];
+  for (var jj = 0; jj <= n; jj++) {
+    var colS = document.createElement("div");
+    colS.className = "cellcol";
+    colS.innerHTML =
+      '<div class="idx">' + jj + '</div>' +
+      '<div class="arrow">↓</div>' +
+      '<div class="cell">' + s[jj] + '</div>' +
+      '<div class="ilabel">r</div>';
+    cellsSEl.appendChild(colS);
+    colsS.push(colS);
+    cellDivsS.push(colS.querySelector(".cell"));
+  }
+
+  // ---- dung luoi o vuong cho hang cnt[] — cung chi so vi tri i nhu s[], de thang cot ----
+  var cellsCntEl = document.getElementById("cellsCnt");
+  var colsCnt = [], cellDivsCnt = [], cellValsCnt = [];
+  for (var ii = 0; ii <= n; ii++) {
+    var colC = document.createElement("div");
+    colC.className = "cellcol";
+    colC.innerHTML =
+      '<div class="idx">' + ii + '</div>' +
+      '<div class="arrow">↓</div>' +
+      '<div class="cell"><span class="cellval">–</span></div>' +
+      '<div class="ilabel">r</div>';
+    cellsCntEl.appendChild(colC);
+    colsCnt.push(colC);
+    cellDivsCnt.push(colC.querySelector(".cell"));
+    cellValsCnt.push(colC.querySelector(".cellval"));
+  }
+
+  // ---- ma gia ----
+  var codeLines = [
+    "cnt[0] ← 1",
+    "với r từ 1 đến n:",
+    "    s ← s + a[r]",
+    "    ans ← ans + cnt[s − K]",
+    "    cnt[s] ← cnt[s] + 1",
+    "in ra ans"
+  ];
+  var codeEl = document.getElementById("code");
+  codeLines.forEach(function (t, k) {
+    var sp = document.createElement("span");
+    sp.className = "ln2";
+    sp.id = "ln" + (k + 1);
+    sp.textContent = t;
+    codeEl.appendChild(sp);
+  });
+
+  // ---- cham buoc ----
+  var dotsEl = document.getElementById("dots");
+  steps.forEach(function (st, i) {
+    var b = document.createElement("button");
+    b.className = "dot";
+    b.title = "Bước " + (i + 1);
+    b.addEventListener("click", function () { goto(i); });
+    dotsEl.appendChild(b);
+  });
+
+  var cursor = 0, timer = null;
+  function pad2(x) { return x < 10 ? "0" + x : String(x); }
+
+  var titleEl = document.getElementById("stepTitle");
+  var titleBox = titleEl.parentElement;
+  var TITLE_MAX = 25, TITLE_MIN = 14;
+  function fitTitle() {
+    var size = TITLE_MAX;
+    titleEl.style.fontSize = size + "px";
+    while (size > TITLE_MIN && (titleEl.scrollHeight > titleBox.clientHeight || titleEl.scrollWidth > titleBox.clientWidth)) {
+      size -= 1;
+      titleEl.style.fontSize = size + "px";
+    }
+  }
+
+  function render() {
+    var st = steps[cursor];
+    var effR = (st.branch === "final") ? (n + 1) : st.r;
+
+    document.getElementById("stepNum").textContent = pad2(cursor + 1);
+    titleEl.textContent = st.title;
+    fitTitle();
+    document.getElementById("stepNote").textContent = st.note;
+    document.getElementById("ifCur").textContent = st.sVal;
+    document.getElementById("ifRes").textContent = st.ans;
+    document.getElementById("infoFloat").classList.toggle("pulse", st.found > 0);
+
+    for (var j = 1; j <= n; j++) {
+      var clsA = "cell";
+      if (j > effR) clsA += " future";
+      else if (j < effR) clsA += " dropped";
+      else clsA += " active";
+      cellDivsA[j - 1].className = clsA;
+      colsA[j - 1].classList.toggle("now", j === st.r && st.branch !== "init" && st.branch !== "final");
+    }
+
+    for (var jj = 0; jj <= n; jj++) {
+      var clsS = "cell";
+      if (jj > effR) clsS += " future";
+      else if (jj < effR) clsS += " dropped";
+      else clsS += " active";
+      if (st.hitIdx.indexOf(jj) !== -1) clsS += " best";
+      cellDivsS[jj].className = clsS;
+      colsS[jj].classList.toggle("now", jj === effR && st.branch !== "final");
+    }
+
+    for (var ii = 0; ii <= n; ii++) {
+      var clsC = "cell";
+      if (ii > effR) {
+        clsC += " future";
+        cellValsCnt[ii].textContent = "–";
+      } else {
+        clsC += (ii === effR && st.branch !== "final") ? " active" : " dropped";
+        cellValsCnt[ii].textContent = st.cntSnap[s[ii]];
+      }
+      if (st.hitIdx.indexOf(ii) !== -1) clsC += " best";
+      cellDivsCnt[ii].className = clsC;
+      colsCnt[ii].classList.toggle("now", ii === effR && st.branch !== "final");
+    }
+
+    for (var k = 1; k <= 6; k++) document.getElementById("ln" + k).className = "ln2";
+    var onIds = [];
+    if (st.branch === "init") onIds = [1];
+    else if (st.branch === "hit" || st.branch === "miss") onIds = [3, 4, 5];
+    else if (st.branch === "final") onIds = [6];
+    onIds.forEach(function (id) {
+      var lnEl = document.getElementById("ln" + id);
+      lnEl.classList.add("on");
+      if (id === 4 && st.found > 0) lnEl.classList.add("record");
+    });
+
+    var dots = dotsEl.querySelectorAll(".dot");
+    dots.forEach(function (d, i) {
+      d.className = "dot" + (i < cursor ? " done" : "") + (i === cursor ? " now" : "") + (steps[i].found > 0 ? " record" : "");
+    });
+
+    document.getElementById("stepno").textContent = "Bước " + (cursor + 1) + " / " + steps.length;
+    document.getElementById("btnPrev").disabled = cursor === 0;
+    document.getElementById("btnFirst").disabled = cursor === 0;
+    document.getElementById("btnNext").disabled = cursor === steps.length - 1;
+    document.getElementById("btnLast").disabled = cursor === steps.length - 1;
+  }
+
+  function goto(i) { cursor = Math.max(0, Math.min(steps.length - 1, i)); render(); }
+  function next() { if (cursor < steps.length - 1) goto(cursor + 1); else stop(); }
+  function prev() { goto(cursor - 1); }
+
+  function play() {
+    if (timer) return;
+    document.getElementById("btnPlay").textContent = "❚❚";
+    timer = setInterval(function () {
+      if (cursor >= steps.length - 1) { stop(); return; }
+      next();
+    }, 1400);
+  }
+  function stop() {
+    clearInterval(timer); timer = null;
+    document.getElementById("btnPlay").textContent = "▶";
+  }
+  function toggle() { timer ? stop() : play(); }
+
+  document.getElementById("btnNext").addEventListener("click", function () { stop(); next(); });
+  document.getElementById("btnPrev").addEventListener("click", function () { stop(); prev(); });
+  document.getElementById("btnFirst").addEventListener("click", function () { stop(); goto(0); });
+  document.getElementById("btnLast").addEventListener("click", function () { stop(); goto(steps.length - 1); });
+  document.getElementById("btnPlay").addEventListener("click", toggle);
+
+  window.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight") { stop(); next(); }
+    else if (e.key === "ArrowLeft") { stop(); prev(); }
+    else if (e.key === "Home") { stop(); goto(0); }
+    else if (e.key === "End") { stop(); goto(steps.length - 1); }
+    else if (e.key === " ") { e.preventDefault(); toggle(); }
+  });
+
+  render();
+})();
+</script>
