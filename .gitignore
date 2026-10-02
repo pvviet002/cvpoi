@@ -1,3 +1,6 @@
 # Rác build của các công cụ Python trong tools/
 __pycache__/
 *.pyc
+
+# Mật khẩu vừa cấp do tools/tai-khoan.py nhap ghi ra — không bao giờ đưa lên GitHub
+*.matkhau.csv

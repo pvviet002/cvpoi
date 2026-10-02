@@ -129,6 +129,11 @@
     /* đưa mục hiện tại vào tầm nhìn của sidebar */
     var onEl = navEl.querySelector('.cv-secs a.on') || navEl.querySelector('.cv-ch.cur');
     if (onEl && onEl.scrollIntoView) try { onEl.scrollIntoView({ block:'center' }); } catch(e){}
+
+    /* ô tài khoản (Đăng nhập / Đăng xuất) ở cuối sidebar + dấu khoá trên liên kết */
+    var tk = document.createElement('script');
+    tk.src = '/assets/taikhoan.js';
+    document.body.appendChild(tk);
   }
 
   global.CVNav = { mount: mount };

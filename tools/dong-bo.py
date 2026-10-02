@@ -497,7 +497,10 @@ def dung_footer(pfx):
         '&middot; Chuyên đề lập trình thi đấu</span>\n'
         f'  <span>SĐT 0987072896 &middot; <a href="{nha}">Trang chủ</a> '
         '&middot; <a href="https://cvpoi.id.vn" target="_blank" rel="noopener">cvpoi.id.vn</a></span>\n'
-        '</footer>\n<!--/cv-foot-->'
+        '</footer>\n'
+        # Ô tài khoản trên thanh điều hướng + dấu khoá ở liên kết chưa được mở.
+        f'<script src="{pfx}assets/taikhoan.js" defer></script>\n'
+        '<!--/cv-foot-->'
     )
 
 

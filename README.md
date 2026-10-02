@@ -56,6 +56,48 @@ thật (`--ghi`). Chạy lại nhiều lần không nhân đôi nội dung.
   CDN (cdnjs/jsdelivr) rồi đổi sang bản đã tải về `assets/`, tự tính số
   `../` theo độ sâu thư mục.
 
+## Đăng nhập và phân quyền
+
+Lý thuyết mở cho mọi người; lời giải và tài liệu từng lớp phải đăng nhập.
+Việc chặn làm **trên máy chủ Vercel** (`middleware.js` chạy trước mọi trang),
+nên trang bị khoá không tới được trình duyệt của người chưa có quyền. Vì vậy
+repo GitHub phải để **riêng tư** — repo công khai thì đọc thẳng được nội dung.
+
+- `middleware.js` — kiểm tra phiên và luật; tự trả lời `/api/dang-nhap`,
+  `/api/dang-xuat`, `/api/toi`; chặn luôn `_auth/`, `tools/`, `README.md`.
+- `_auth/taikhoan.js` — tài khoản (mật khẩu chỉ lưu mã băm). Không sửa tay,
+  dùng `tools/tai-khoan.py`.
+- `_auth/quyen.js` — luật "thư mục nào cho nhóm nào", sửa tay. Trang không
+  khớp luật nào thì mở. Nhóm `giaovien` xem được mọi trang.
+- `dang-nhap/index.html` — trang đăng nhập.
+- `assets/taikhoan.js` — ô tài khoản trên thanh điều hướng và dấu khoá ở
+  liên kết chưa được mở (chỉ là chỉ dẫn, không phải lớp chặn).
+- Biến môi trường **`CV_SECRET`** trên Vercel (Project → Settings →
+  Environment Variables, ít nhất 32 ký tự ngẫu nhiên) dùng để ký phiên đăng
+  nhập. Thiếu biến này thì không ai đăng nhập được; đổi giá trị thì mọi
+  người phải đăng nhập lại.
+
+Việc thường làm (xong thì `git commit` + `git push`, khoảng một phút sau có
+hiệu lực):
+
+```bash
+python tools/tai-khoan.py them an.nv --ten "Nguyễn Văn An" --nhom hsg9
+python tools/tai-khoan.py nhap lop9.csv     # cả lớp; mật khẩu ghi ra lop9.matkhau.csv
+python tools/tai-khoan.py dat-lai an.nv     # học sinh quên mật khẩu
+python tools/tai-khoan.py xoa an.nv
+python tools/tai-khoan.py ds
+python tools/tai-khoan.py quyen             # soát: trang nào mở, trang nào khoá
+```
+
+**Thêm thư mục lời giải mới thì phải thêm một dòng vào `_auth/quyen.js`**,
+nếu không trang đó mở cho mọi người. Chạy `tai-khoan.py quyen` để soát.
+
+Chạy thử trên máy có cả lớp đăng nhập (thay cho `python -m http.server`):
+
+```bash
+node tools/chay-thu.mjs
+```
+
 ## Thêm một trang mới
 
 Thêm chuyên đề hoặc lời giải phải ghi danh tay ở đúng 3 chỗ, thiếu một chỗ
