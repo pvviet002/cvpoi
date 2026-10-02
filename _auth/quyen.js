@@ -21,6 +21,7 @@ export default [
   {"duong": "/sols/2526hsg9-thithu-c1/", "nhom": ["hsg9"]},
   {"duong": "/sols/hsg9-2627-21/", "nhom": ["hsg9"]},
   {"duong": "/hsg9/", "nhom": ["hsg9"]},
+  {"duong": "/hsg9/hsg9_2627_33/", "nhom": ["mo"]},
 
   {"duong": "/array-1d/sols/", "nhom": ["*"]},
   {"duong": "/array-2d/arr2d_", "nhom": ["*"]},
