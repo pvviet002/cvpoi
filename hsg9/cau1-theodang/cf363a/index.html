@@ -1,0 +1,574 @@
+<!--
+  Mô phỏng bài «Bàn tính trí tuệ» (cf363a) — dựng từ template.html của sk-mo-phong-don.
+  Mỗi ví dụ là một số n (stdin "<n>\n"), đáp số khớp sol_full (kiểm bằng doi_chieu.py).
+-->
+<title>Bàn tính trí tuệ — mô phỏng</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f1efea; --panel: #ffffff; --panel-2: #f6f4ef;
+    --ink: #1b1813; --muted: #5f5a50; --faint: #a39c8f; --line: #ddd7cc;
+    --accent: #0e9a63; --accent-ink: #0a7a4e; --accent-soft: #dff3e8;
+    --rose: #c1463e; --rose-soft: #f8e1de;
+    --gold: #b8860a; --gold-soft: #f6ecd0;
+    --wood: #a8743f; --wood-in: #f7efe2; --rod: #7a6650; --bar: #5b4330;
+    --shadow: 0 24px 60px -30px rgba(25, 20, 10, 0.35);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12110e; --panel: #1b1914; --panel-2: #221f19;
+      --ink: #efeae0; --muted: #b0a896; --faint: #6b6456; --line: #35312a;
+      --accent: #35d68f; --accent-ink: #7be8b6; --accent-soft: #173426;
+      --rose: #e2837c; --rose-soft: #3d2522;
+      --gold: #e6b94c; --gold-soft: #3a3013;
+      --wood: #8a6034; --wood-in: #241f18; --rod: #a8957b; --bar: #c49a6c;
+      --shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12110e; --panel: #1b1914; --panel-2: #221f19;
+    --ink: #efeae0; --muted: #b0a896; --faint: #6b6456; --line: #35312a;
+    --accent: #35d68f; --accent-ink: #7be8b6; --accent-soft: #173426;
+    --rose: #e2837c; --rose-soft: #3d2522;
+    --gold: #e6b94c; --gold-soft: #3a3013;
+    --wood: #8a6034; --wood-in: #241f18; --rod: #a8957b; --bar: #c49a6c;
+    --shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
+  }
+
+  /* ==== KHUNG BỐ CỤC — không cần sửa ==== */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Be Vietnam Pro", "Segoe UI", sans-serif;
+    display: flex; justify-content: center; align-items: flex-start; padding: clamp(16px, 2.5vw, 44px);
+  }
+  .layout { display: flex; align-items: stretch; gap: 24px; width: 100%; max-width: 1680px; }
+  @media (max-width: 880px) { .layout { flex-direction: column; } }
+
+  .sidebar {
+    width: 320px; flex-shrink: 0; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 18px; box-shadow: var(--shadow); padding: clamp(22px, 2vw, 32px);
+  }
+  @media (max-width: 880px) { .sidebar { width: 100%; } }
+  .sidebar h2 { margin: 0 0 14px; font-size: 17px; font-weight: 700; }
+  .sidebar p { margin: 0 0 14px; font-size: 15px; line-height: 1.68; color: var(--muted); }
+  .sidebar strong { color: var(--ink); font-weight: 700; }
+  .sidebar ul, .sidebar ol { margin: 0 0 14px; padding-left: 20px; }
+  .sidebar li { font-size: 15px; line-height: 1.62; color: var(--muted); margin-bottom: 8px; }
+  .sidebar .key {
+    background: var(--panel-2); border-left: 3px solid var(--gold); border-radius: 0 10px 10px 0;
+    padding: 12px 14px; font-size: 14px; line-height: 1.62; color: var(--ink);
+  }
+
+  .stage {
+    flex: 1; min-width: 0; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 18px; box-shadow: var(--shadow); padding: clamp(24px, 2.6vw, 40px);
+    display: flex; flex-direction: column; gap: 14px; position: relative;
+  }
+  .stage > * { flex-shrink: 0; min-width: 0; }
+
+  .exsw { display: flex; gap: 6px; flex-wrap: wrap; }
+  .exsw[hidden] { display: none; }
+  .exsw button {
+    font-family: "JetBrains Mono", monospace; font-size: 12.5px; padding: 6px 10px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--panel-2); color: var(--muted); cursor: pointer;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 1px; line-height: 1.25; text-align: left;
+  }
+  .exsw button small { font-family: "Be Vietnam Pro", sans-serif; font-size: 11px; }
+  .exsw button:hover { border-color: var(--accent); }
+  .exsw button.on { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); font-weight: 700; }
+  .exsw button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .head { display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: 18px; }
+  .badge {
+    display: flex; flex-direction: column; align-items: center;
+    padding-right: 16px; border-right: 3px solid var(--accent); min-width: 62px;
+  }
+  .badge .num { font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 34px; color: var(--accent); line-height: 1; font-variant-numeric: tabular-nums; }
+  .badge .lbl { font-size: 12px; color: var(--muted); margin-top: 4px; letter-spacing: .03em; }
+  .titlebox { height: 66px; display: flex; align-items: flex-start; justify-content: flex-start; padding-top: 2px; overflow: hidden; }
+  .headtext h1 { margin: 0; width: 100%; font-size: 25px; font-weight: 700; line-height: 1.32; text-wrap: balance; }
+  .headtext .note { margin: 2px 0 0; font-size: 15px; color: var(--muted); line-height: 1.5; }
+
+  .infofloat {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px 18px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 8px; min-width: 150px;
+  }
+  .ifrow { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .ifrow .ifk { font-family: "JetBrains Mono", monospace; font-size: 13.5px; color: var(--muted); }
+  .ifrow .ifv { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; font-size: 21px; font-weight: 700; color: var(--accent-ink); }
+  .ifrow.res .ifv { color: var(--gold); }
+  .infofloat.pulse { box-shadow: var(--shadow), 0 0 0 4px var(--gold-soft); }
+  @media (max-width: 620px) {
+    .head { grid-template-columns: auto 1fr; }
+    .infofloat { grid-column: 1 / -1; flex-direction: row; justify-content: space-around; }
+  }
+
+  /* ==== VÙNG TRỰC QUAN: bàn tính thật, mỗi thanh một chữ số ==== */
+  .bantinh { display: flex; justify-content: center; padding: 6px 0 2px; }
+  .bantinh svg { width: 100%; max-width: 640px; height: auto; display: block; }
+  .bantinh .ncs { fill: var(--panel-2); stroke: var(--line); stroke-width: 1.4; transition: fill .35s ease; }
+  .bantinh .ncs.xong { fill: none; stroke-dasharray: 3 3; }
+  .bantinh .ncs.cur { fill: var(--gold-soft); stroke: var(--gold); stroke-width: 2.4; }
+  .bantinh .nso { fill: var(--ink); font: 700 22px "JetBrains Mono", monospace; }
+  .bantinh .nso.xong { fill: var(--faint); }
+  .bantinh .nso.cur { fill: var(--gold); }
+  .bantinh .nlbl { fill: var(--muted); font: 600 20px "JetBrains Mono", monospace; }
+  .bantinh .khung { fill: var(--wood-in); stroke: var(--wood); stroke-width: 10; }
+  .bantinh .nen-cur { fill: var(--gold-soft); }
+  .bantinh .truc { stroke: var(--rod); stroke-width: 3; }
+  .bantinh .chan { fill: var(--bar); }
+  .bantinh .hat5 { fill: var(--rose); stroke: var(--rose); stroke-width: 1.5; }
+  .bantinh .hat5.xa { fill: var(--rose-soft); }
+  .bantinh .hat1 { fill: var(--accent); stroke: var(--accent); stroke-width: 1.5; }
+  .bantinh .hat1.xa { fill: var(--accent-soft); }
+  .bantinh .cho { opacity: .3; }
+  .bantinh .hang { fill: var(--muted); font: 600 15px "Be Vietnam Pro", sans-serif; }
+  .bantinh .hang.cur { fill: var(--gold); font-weight: 800; }
+  .bantinh .chuoi { fill: var(--ink); font: 600 21px "JetBrains Mono", monospace; }
+  .bantinh .chuoi.cur { fill: var(--gold); font-weight: 800; }
+
+  /* ==== MÃ GIẢ — không cần sửa ==== */
+  .code {
+    margin: 0; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px;
+    padding: 8px 12px; font-family: "JetBrains Mono", monospace; font-size: 13.5px;
+    line-height: 1.55; color: var(--muted);
+  }
+  .code .ln2 { display: block; padding: 1px 8px 1px calc(8px + 4ch); text-indent: -4ch; border-radius: 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .code .ln2.on { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+  .code .ln2.on.reset { background: var(--rose-soft); }
+  .code .ln2.on.record { background: var(--gold-soft); }
+
+  .controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .ctrl-btns { display: flex; gap: 6px; }
+  button.ctl {
+    font-family: "JetBrains Mono", monospace; font-size: 15px; width: 38px; height: 34px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--panel-2); color: var(--ink); cursor: pointer;
+    transition: background .2s ease, border-color .2s ease;
+  }
+  button.ctl:hover { border-color: var(--accent); }
+  button.ctl:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button.ctl#btnPlay { width: 56px; font-weight: 700; }
+  button.ctl:disabled { opacity: .35; cursor: default; }
+  .dots { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); border: none; cursor: pointer; padding: 0; transition: background .2s ease, transform .2s ease; }
+  .dot:hover { transform: scale(1.2); }
+  .dot.done { background: var(--faint); }
+  .dot.now { background: var(--accent); transform: scale(1.3); }
+  .dot.record { background: var(--gold); }
+  .stepno { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: var(--muted); white-space: nowrap; margin-left: auto; }
+
+  .nofx * { transition: none !important; }
+  @media (prefers-reduced-motion: reduce) { * { transition-duration: .001ms !important; } }
+  .sidebar { position: relative; }
+  .sbtoggle {
+    font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 700; letter-spacing: -1px;
+    width: 38px; height: 32px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--panel-2); color: var(--accent); cursor: pointer; flex-shrink: 0;
+  }
+  .sbtoggle:hover { border-color: var(--accent); }
+  .sbtoggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .sidebar:not(.collapsed) .sbtoggle { position: absolute; top: 16px; right: 16px; }
+  .sidebar:not(.collapsed) .sbbody h2 { padding-right: 46px; }
+  .sbrail {
+    writing-mode: vertical-rl; transform: rotate(180deg); margin-top: 14px;
+    font-size: 13.5px; font-weight: 700; color: var(--muted); letter-spacing: .04em; cursor: pointer; user-select: none;
+  }
+  .sbrail:hover { color: var(--accent); }
+  .sidebar:not(.collapsed) .sbrail { display: none; }
+  .sidebar.collapsed { width: 56px; padding: 14px 8px; display: flex; flex-direction: column; align-items: center; }
+  .sidebar.collapsed .sbbody { display: none; }
+  @media (max-width: 880px) {
+    .sidebar.collapsed { width: 100%; flex-direction: row; padding: 10px 14px; gap: 12px; }
+    .sidebar.collapsed .sbrail { writing-mode: horizontal-tb; transform: none; margin: 0; }
+  }
+
+  .stage { container-type: inline-size; }
+  html { scrollbar-gutter: stable; }
+  .main2 { display: flex; flex-direction: column; gap: 14px; }
+  .vizcol { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .vizcol > * { flex-shrink: 0; min-width: 0; }
+  .codecol { min-width: 0; }
+  @container (min-width: 1050px) {
+    .main2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 36%); gap: 26px; align-items: center; }
+  }
+</style>
+
+<div class="layout">
+<aside class="sidebar collapsed" id="sidebar">
+  <button class="sbtoggle" id="sbToggle" aria-expanded="false" aria-controls="sbBody" title="Mở rộng ý tưởng thuật toán">&gt;&gt;</button>
+  <span class="sbrail" id="sbRail">Ý tưởng thuật toán</span>
+  <div class="sbbody" id="sbBody">
+  <h2>Ý tưởng thuật toán</h2>
+  <p>Lấy từng chữ số <strong>từ hàng đơn vị lên</strong>, mỗi chữ số in một thanh 8 ký tự.</p>
+  <ul>
+    <li>d = n mod 10 là chữ số cuối, rồi <strong>n ← n chia nguyên 10</strong>.</li>
+    <li>Hạt năm: <strong>O-|</strong> nếu d &lt; 5, <strong>-O|</strong> nếu d ≥ 5.</li>
+    <li>r = d mod 5: in <strong>r chữ O</strong>, một dấu -, rồi <strong>4 − r chữ O</strong>.</li>
+  </ul>
+  <div class="key">Kiểm tra n &gt; 0 <strong>sau</strong> khi in một thanh (làm… lặp lại khi): số 0 vẫn có đúng một thanh.</div>
+</div>
+</aside>
+
+<div class="stage">
+  <div class="exsw" id="exsw"></div>
+
+  <div class="head">
+    <div class="badge">
+      <span class="num" id="stepNum">01</span>
+      <span class="lbl">Bước</span>
+    </div>
+    <div class="headtext">
+      <div class="titlebox"><h1 id="stepTitle"></h1></div>
+      <p class="note" id="stepNote"></p>
+    </div>
+    <div class="infofloat" id="infoFloat">
+      <div class="ifrow cur"><span class="ifk">Chữ số d</span><span class="ifv" id="ifCur">–</span></div>
+      <div class="ifrow res"><span class="ifk">n còn</span><span class="ifv" id="ifRes">–</span></div>
+    </div>
+  </div>
+
+  <div class="main2">
+    <div class="vizcol">
+    <div class="bantinh" id="bantinh"></div>
+    </div>
+    <div class="codecol">
+      <pre class="code" id="code"></pre>
+    </div>
+  </div>
+
+
+  <div class="controls">
+    <div class="ctrl-btns">
+      <button class="ctl" id="btnFirst" title="Về đầu (Home)">⏮</button>
+      <button class="ctl" id="btnPrev" title="Bước trước (←)">◀</button>
+      <button class="ctl" id="btnPlay" title="Chạy / Dừng (Space)">▶</button>
+      <button class="ctl" id="btnNext" title="Bước sau (→)">▶</button>
+      <button class="ctl" id="btnLast" title="Đến cuối (End)">⏭</button>
+    </div>
+    <div class="dots" id="dots"></div>
+    <span class="stepno" id="stepno"></span>
+    <button class="ctl" id="btnTheme" title="Giao diện">◐</button>
+  </div>
+</div>
+</div>
+
+<script>
+(function () {
+  // Mỗi ví dụ là một số n cần biểu diễn trên bàn tính.
+  var EXAMPLES = [
+    { lbl: "ví dụ mẫu: 9 và 5", n: "59" },
+    { lbl: "chữ số < 5 và ≥ 5", n: "486" },
+    { lbl: "bẫy while (n > 0)", n: "0" },
+    { lbl: "một chữ số ≥ 5", n: "7" }
+  ];
+  EXAMPLES.forEach(function (e) { e.input = e.n + "\n"; });
+  function exLabel(e) { return "n = " + e.n; }
+  var HANG = ["đơn vị", "chục", "trăm", "nghìn", "chục nghìn", "trăm nghìn", "triệu", "chục triệu", "trăm triệu"];
+
+  var ex, steps = [], answer = "";
+
+  function thanh(d) {
+    var r = d % 5, s = d < 5 ? "O-|" : "-O|", i;
+    for (i = 0; i < r; i++) s += "O";
+    s += "-";
+    for (i = 0; i < 4 - r; i++) s += "O";
+    return s;
+  }
+
+  function build(e) {
+    ex = e;
+    steps = [];
+    var n = Number(e.n), lines = [], k = 0, d, r;
+    steps.push({ done: 0, cur: -1, d: "–", con: n, lines: [], branch: "init",
+      title: "Số n = " + n + ": lấy chữ số từ hàng đơn vị lên.",
+      note: "Mỗi vòng: d = n mod 10 là chữ số cuối, rồi bỏ chữ số đó khỏi n." });
+    do {
+      d = n % 10;
+      n = Math.floor(n / 10);
+      r = d % 5;
+      lines.push(thanh(d));
+      k++;
+      steps.push({ done: k, cur: k - 1, d: d, con: n, lines: lines.slice(), branch: "rod", first: k === 1,
+        title: "Thanh " + k + " (hàng " + HANG[k - 1] + "): chữ số " + d +
+               (d >= 5 ? " = 5 + " + r + "." : (d === 0 ? ", không gảy hạt nào." : ", chỉ gảy hạt một.")),
+        note: (d >= 5 ? "d ≥ 5: hạt năm sát thanh chắn (-O|)" : "d < 5: hạt năm để xa (O-|)") +
+              "; r = " + r + " hạt một sát thanh chắn → in " + thanh(d) + ". n còn " + n + "." });
+    } while (n > 0);
+    steps.push({ done: k, cur: -1, d: "–", con: 0, lines: lines.slice(), branch: "end", record: true,
+      title: "n = 0: dừng, bàn tính có " + k + " thanh.",
+      note: e.n === "0" ? "Kiểm tra n > 0 SAU khi in nên số 0 vẫn có một thanh; viết while (n > 0) ở đầu vòng thì không in gì."
+                        : "In " + k + " dòng, thanh hàng đơn vị đứng đầu." });
+    answer = lines.join("\n");
+  }
+
+  var btEl = document.getElementById("bantinh");
+  function hat(cls, cx, cy) {
+    var p = [[-15, -4], [-2, -21], [2, -21], [15, -4], [15, 4], [2, 21], [-2, 21], [-15, 4]];
+    return '<polygon class="' + cls + '" points="' + p.map(function (q) { return (cx + q[0]) + "," + (cy + q[1]); }).join(" ") + '"/>';
+  }
+  function drawViz(s) {
+    var str = ex.n, L = str.length, W = 600;
+    var fx = 112, sw = 34, sx0 = fx + 16, fw = 8 * sw + 32, rowH = 52, y0 = 68, fh = L * rowH + 16;
+    var H = y0 + fh + 10;
+    var g = '<svg viewBox="0 0 ' + W + ' ' + H + '">';
+    // các chữ số của n: chữ số đã lấy mờ đi, chữ số đang lấy tô vàng
+    g += '<text class="nlbl" x="20" y="38">n =</text>';
+    for (var j = 0; j < L; j++) {
+      var rod = L - 1 - j, st = rod === s.cur ? " cur" : (rod < s.done ? " xong" : "");
+      g += '<rect class="ncs' + st + '" x="' + (70 + j * 34) + '" y="10" width="30" height="40" rx="5"/>';
+      g += '<text class="nso' + st + '" text-anchor="middle" x="' + (85 + j * 34) + '" y="38">' + str.charAt(j) + '</text>';
+    }
+    // khung gỗ + trục + thanh chắn
+    g += '<rect class="khung" x="' + fx + '" y="' + y0 + '" width="' + fw + '" height="' + fh + '" rx="8"/>';
+    for (var i = 0; i < L; i++) {
+      var cy = y0 + 8 + rowH * (i + 0.5);
+      if (i === s.cur) g += '<rect class="nen-cur" x="' + (fx + 5) + '" y="' + (cy - rowH / 2 + 1) + '" width="' + (fw - 10) + '" height="' + (rowH - 2) + '"/>';
+      g += '<line class="truc" x1="' + (fx + 5) + '" x2="' + (fx + fw - 5) + '" y1="' + cy + '" y2="' + cy + '"/>';
+    }
+    g += '<rect class="chan" x="' + (sx0 + 2.5 * sw - 5) + '" y="' + (y0 + 5) + '" width="10" height="' + (fh - 10) + '" rx="2"/>';
+    // hạt trên từng thanh: vị trí hạt = đúng vị trí ký tự O trong chuỗi in ra
+    for (i = 0; i < L; i++) {
+      var cy2 = y0 + 8 + rowH * (i + 0.5), xong = i < s.done;
+      var line = xong ? s.lines[i] : "O-|-OOOO", rr = line.indexOf("-", 3) - 3;
+      g += '<g' + (xong ? '' : ' class="cho"') + '>';
+      for (var p = 0; p < 8; p++) {
+        if (line.charAt(p) !== "O") continue;
+        var cx = sx0 + (p + 0.5) * sw;
+        if (p < 2) g += hat("hat5" + (p === 1 ? "" : " xa"), cx, cy2);
+        else g += hat("hat1" + (p - 3 < rr ? "" : " xa"), cx, cy2);
+      }
+      g += '</g>';
+      var cur = i === s.cur ? " cur" : "";
+      g += '<text class="hang' + cur + '" text-anchor="end" x="' + (fx - 14) + '" y="' + (cy2 + 5) + '">' + HANG[i] + '</text>';
+      if (xong) g += '<text class="chuoi' + cur + '" x="' + (fx + fw + 22) + '" y="' + (cy2 + 7) + '">' + line + '</text>';
+    }
+    g += '</svg>';
+    btEl.innerHTML = g;
+    document.getElementById("ifCur").textContent = s.d;
+    document.getElementById("ifRes").textContent = s.con;
+  }
+
+  var codeLines = [
+    "đọc n",
+    "làm:",
+    "  d ← n mod 10;  n ← n chia nguyên 10",
+    "  r ← d mod 5",
+    "  nếu d < 5: in \"O-|\"",
+    "  ngược lại: in \"-O|\"",
+    "  in r chữ O, một dấu -, rồi 4 − r chữ O",
+    "lặp lại khi n > 0"
+  ];
+  function codeOn(s) {
+    if (s.branch === "init") return { on: [1] };
+    if (s.branch === "end") return { on: [8], extra: { 8: "record" } };
+    var on = s.first ? [2, 3, 4, 5] : [3, 4, 5];
+    if (s.d >= 5) on.push(6);
+    on.push(7);
+    return { on: on, extra: s.d >= 5 ? { 6: "record" } : { 5: "record" } };
+  }
+
+  // ==== TỪ ĐÂY TRỞ XUỐNG: ĐỘNG CƠ — không cần sửa ====
+  var codeEl = document.getElementById("code");
+  codeLines.forEach(function (t, k) {
+    var sp = document.createElement("span");
+    sp.className = "ln2"; sp.id = "ln" + (k + 1); sp.textContent = t;
+    codeEl.appendChild(sp);
+  });
+
+  var exEl = document.getElementById("exsw");
+  exEl.hidden = EXAMPLES.length < 2;
+  var exBtns = EXAMPLES.map(function (e, i) {
+    var b = document.createElement("button");
+    b.innerHTML = exLabel(e) + "<small>" + e.lbl + "</small>";
+    b.addEventListener("click", function () { stop(); load(i); });
+    exEl.appendChild(b);
+    return b;
+  });
+
+  var dotsEl = document.getElementById("dots");
+  var cursor = 0, timer = null, exIdx = 0;
+  function p2(x) { return x < 10 ? "0" + x : String(x); }
+
+  var titleEl = document.getElementById("stepTitle");
+  var titleBox = titleEl.parentElement;
+  var TITLE_MAX = 25, TITLE_MIN = 14;
+  function fitTitle() {
+    var size = TITLE_MAX;
+    titleEl.style.fontSize = size + "px";
+    while (size > TITLE_MIN && (titleEl.scrollHeight > titleBox.clientHeight || titleEl.scrollWidth > titleBox.clientWidth)) {
+      size -= 1; titleEl.style.fontSize = size + "px";
+    }
+  }
+  // do lai khi khung tieu de doi be rong (thanh cuon hien/an, doi co cua so)
+  var lastW = 0;
+  if (window.ResizeObserver) new ResizeObserver(function () {
+    if (titleBox.clientWidth !== lastW) { lastW = titleBox.clientWidth; fitTitle(); }
+  }).observe(titleBox);
+
+  function render() {
+    var s = steps[cursor];
+    document.getElementById("stepNum").textContent = p2(cursor + 1);
+    titleEl.textContent = s.title;
+    document.getElementById("stepNote").textContent = s.note;
+    document.getElementById("infoFloat").classList.toggle("pulse", !!s.record);
+    drawViz(s);
+
+    for (var q = 1; q <= codeLines.length; q++) document.getElementById("ln" + q).className = "ln2";
+    var c = codeOn(s) || { on: [] }, extra = c.extra || {};
+    c.on.forEach(function (id) {
+      var el = document.getElementById("ln" + id);
+      el.classList.add("on");
+      if (extra[id]) el.classList.add(extra[id]);
+    });
+
+    dotsEl.querySelectorAll(".dot").forEach(function (d, i) {
+      d.className = "dot" + (i < cursor ? " done" : "") + (i === cursor ? " now" : "") + (steps[i].record ? " record" : "");
+    });
+    document.getElementById("stepno").textContent = "Bước " + (cursor + 1) + " / " + steps.length;
+    document.getElementById("btnPrev").disabled = cursor === 0;
+    document.getElementById("btnFirst").disabled = cursor === 0;
+    document.getElementById("btnNext").disabled = cursor === steps.length - 1;
+    document.getElementById("btnLast").disabled = cursor === steps.length - 1;
+    fitTitle();   // de CUOI: sau khi ve xong moi thu, be rong khung da on dinh
+  }
+
+  function goto(i) { cursor = Math.max(0, Math.min(steps.length - 1, i)); render(); }
+  function next() { if (cursor < steps.length - 1) goto(cursor + 1); else stop(); }
+  function prev() { goto(cursor - 1); }
+  function play() {
+    if (timer) return;
+    document.getElementById("btnPlay").textContent = "❚❚";
+    timer = setInterval(function () {
+      if (cursor >= steps.length - 1) { stop(); return; }
+      next();
+    }, 1500);
+  }
+  function stop() {
+    clearInterval(timer); timer = null;
+    document.getElementById("btnPlay").textContent = "▶";
+  }
+  function toggle() { timer ? stop() : play(); }
+
+  // thu nho ca trang vua chieu cao man hinh; lay buoc CAO NHAT de khong nhay khi chuyen buoc
+  var layoutEl = document.querySelector(".layout");
+  function fitPage() {
+    // vua khit chieu cao man hinh: thu nho khi tran, phong to (toi da ZMAX) khi con cho trong.
+    // Do theo buoc CAO NHAT; tim nhi phan vi doi ti le co the lam bo cuc chuyen 1 cot <-> 2 cot.
+    var ZMAX = 1.3, ZMIN = 0.4;
+    function applyZ(z) {
+      layoutEl.style.zoom = z === 1 ? "" : z;
+      layoutEl.style.width = "";   // % tu hien dung bang khung cha du co zoom
+      layoutEl.style.maxWidth = z === 1 ? "" : (1680 / z) + "px";
+    }
+    function tallest() {
+      var save = cursor, h = 0;
+      for (var i = 0; i < steps.length; i++) { cursor = i; render(); h = Math.max(h, layoutEl.getBoundingClientRect().height); }
+      cursor = save;
+      return h;
+    }
+    document.body.classList.add("nofx");
+    var z = 1;
+    applyZ(1);
+    if (innerWidth > 880) {
+      var pad = parseFloat(getComputedStyle(document.body).paddingTop) * 2, avail = innerHeight - pad;
+      // tim nhi phan ti le LON NHAT ma buoc cao nhat van vua man hinh.
+      // Uu tien bo cuc 2 cot (hinh | ma gia): phong to lam khung hep lai -> co the rot ve 1 cot.
+      var mainEl = document.querySelector(".main2");
+      var twoCol = function () { return !mainEl || getComputedStyle(mainEl).gridTemplateColumns !== "none"; };
+      var fits = function (t) { applyZ(t); return tallest() <= avail + 1; };
+      var fits2 = function (t) { return fits(t) && twoCol(); };
+      var ok = fits2(ZMIN) ? fits2 : fits;
+      if (ok(ZMAX)) z = ZMAX;
+      else {
+        var lo = ZMIN, hi = ZMAX;
+        for (var it = 0; it < 8; it++) { var mid = (lo + hi) / 2; if (ok(mid)) lo = mid; else hi = mid; }
+        z = lo;
+      }
+      applyZ(z);
+    }
+    render();
+    void layoutEl.offsetHeight;
+    document.body.classList.remove("nofx");
+  }
+  var fitTimer = null;
+  window.addEventListener("resize", function () { clearTimeout(fitTimer); fitTimer = setTimeout(fitPage, 120); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPage);
+
+  function load(i) {
+    exIdx = i;
+    build(EXAMPLES[i]);
+    exBtns.forEach(function (b, j) { b.classList.toggle("on", i === j); });
+    dotsEl.innerHTML = "";
+    steps.forEach(function (s, k) {
+      var b = document.createElement("button");
+      b.className = "dot"; b.title = "Bước " + (k + 1);
+      b.addEventListener("click", function () { stop(); goto(k); });
+      dotsEl.appendChild(b);
+    });
+    cursor = 0;
+    fitPage();
+  }
+
+  // nut doi giao dien: theo may -> sang -> toi (de kiem nen toi ngay ca khi khung xem truoc chi hien nen sang)
+  var THEMES = ["auto", "light", "dark"], theme = "auto", themeBtn = document.getElementById("btnTheme");
+  function applyTheme(t) {
+    theme = t;
+    if (t === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", t);
+    themeBtn.textContent = t === "auto" ? "◐" : (t === "light" ? "☀" : "☾");
+    themeBtn.title = "Giao diện: " + (t === "auto" ? "theo máy" : (t === "light" ? "sáng" : "tối"));
+  }
+  try { theme = localStorage.getItem("mp-theme") || "auto"; } catch (err) {}
+  applyTheme(THEMES.indexOf(theme) >= 0 ? theme : "auto");
+  themeBtn.addEventListener("click", function () {
+    applyTheme(THEMES[(THEMES.indexOf(theme) + 1) % 3]);
+    try { localStorage.setItem("mp-theme", theme); } catch (err) {}
+  });
+
+  document.getElementById("btnNext").addEventListener("click", function () { stop(); next(); });
+  document.getElementById("btnPrev").addEventListener("click", function () { stop(); prev(); });
+  document.getElementById("btnFirst").addEventListener("click", function () { stop(); goto(0); });
+  document.getElementById("btnLast").addEventListener("click", function () { stop(); goto(steps.length - 1); });
+  document.getElementById("btnPlay").addEventListener("click", toggle);
+  window.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight") { stop(); next(); }
+    else if (e.key === "ArrowLeft") { stop(); prev(); }
+    else if (e.key === "Home") { stop(); goto(0); }
+    else if (e.key === "End") { stop(); goto(steps.length - 1); }
+    else if (e.key === " ") { e.preventDefault(); toggle(); }
+  });
+
+  // giao dien cho kiemtra.js (duyet moi vi du x moi buoc, lay dap so de doi chieu sol_full)
+  // panel y tuong: mac dinh thu gon; mo/dong xong thi do lai ti le vua man hinh
+  var sbEl = document.getElementById("sidebar"), sbBtn = document.getElementById("sbToggle");
+  function setSidebar(open) {
+    sbEl.classList.toggle("collapsed", !open);
+    sbBtn.innerHTML = open ? "&lt;&lt;" : "&gt;&gt;";
+    sbBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    sbBtn.title = open ? "Thu gọn ý tưởng" : "Mở rộng ý tưởng thuật toán";
+    fitPage();
+  }
+  sbBtn.addEventListener("click", function () { setSidebar(sbEl.classList.contains("collapsed")); });
+  document.getElementById("sbRail").addEventListener("click", function () { setSidebar(true); });
+
+  window.MP = {
+    count: function () { return EXAMPLES.length; },
+    load: load,
+    steps: function () { return steps.length; },
+    goto: goto,
+    input: function (i) { return EXAMPLES[i].input; },
+    answer: function () { return answer; },
+    codeLines: function () { return codeLines.length; },
+    litLines: function () { var o = {}; for (var k = 0; k < steps.length; k++) (codeOn(steps[k]) || { on: [] }).on.forEach(function (id) { o[id] = 1; }); return Object.keys(o).map(Number); }
+  };
+
+  load(0);
+})();
+</script>
+

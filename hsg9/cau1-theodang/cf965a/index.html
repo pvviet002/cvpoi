@@ -1,0 +1,592 @@
+<!--
+  Mô phỏng bài «Làm hoa giấy» (cf965a) — dựng từ template.html của sk-mo-phong-don.
+  Mỗi ví dụ là MỘT dòng vào (stdin "m n a b"), đáp số khớp sol_full (kiểm bằng doi_chieu.py).
+-->
+<title>Làm hoa giấy — mô phỏng</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f1efea; --panel: #ffffff; --panel-2: #f6f4ef;
+    --ink: #1b1813; --muted: #5f5a50; --faint: #a39c8f; --line: #ddd7cc;
+    --accent: #0e9a63; --accent-ink: #0a7a4e; --accent-soft: #dff3e8;
+    --rose: #c1463e; --rose-soft: #f8e1de;
+    --gold: #b8860a; --gold-soft: #f6ecd0;
+    --paper: #fffdf6; --person: #4c5f86;
+    --shadow: 0 24px 60px -30px rgba(25, 20, 10, 0.35);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12110e; --panel: #1b1914; --panel-2: #221f19;
+      --ink: #efeae0; --muted: #b0a896; --faint: #6b6456; --line: #35312a;
+      --accent: #35d68f; --accent-ink: #7be8b6; --accent-soft: #173426;
+      --rose: #e2837c; --rose-soft: #3d2522;
+      --gold: #e6b94c; --gold-soft: #3a3013;
+      --paper: #2a2620; --person: #8ea4d0;
+      --shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12110e; --panel: #1b1914; --panel-2: #221f19;
+    --ink: #efeae0; --muted: #b0a896; --faint: #6b6456; --line: #35312a;
+    --accent: #35d68f; --accent-ink: #7be8b6; --accent-soft: #173426;
+    --rose: #e2837c; --rose-soft: #3d2522;
+    --gold: #e6b94c; --gold-soft: #3a3013;
+    --paper: #2a2620; --person: #8ea4d0;
+    --shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
+  }
+  /* ==== KHUNG BỐ CỤC — không cần sửa ==== */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Be Vietnam Pro", "Segoe UI", sans-serif;
+    display: flex; justify-content: center; align-items: flex-start; padding: clamp(16px, 2.5vw, 44px);
+  }
+  .layout { display: flex; align-items: stretch; gap: 24px; width: 100%; max-width: 1680px; }
+  @media (max-width: 880px) { .layout { flex-direction: column; } }
+
+  .sidebar {
+    width: 320px; flex-shrink: 0; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 18px; box-shadow: var(--shadow); padding: clamp(22px, 2vw, 32px);
+  }
+  @media (max-width: 880px) { .sidebar { width: 100%; } }
+  .sidebar h2 { margin: 0 0 14px; font-size: 17px; font-weight: 700; }
+  .sidebar p { margin: 0 0 14px; font-size: 15px; line-height: 1.68; color: var(--muted); }
+  .sidebar strong { color: var(--ink); font-weight: 700; }
+  .sidebar ul, .sidebar ol { margin: 0 0 14px; padding-left: 20px; }
+  .sidebar li { font-size: 15px; line-height: 1.62; color: var(--muted); margin-bottom: 8px; }
+  .sidebar .key {
+    background: var(--panel-2); border-left: 3px solid var(--gold); border-radius: 0 10px 10px 0;
+    padding: 12px 14px; font-size: 14px; line-height: 1.62; color: var(--ink);
+  }
+
+  .stage {
+    flex: 1; min-width: 0; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 18px; box-shadow: var(--shadow); padding: clamp(24px, 2.6vw, 40px);
+    display: flex; flex-direction: column; gap: 14px; position: relative;
+  }
+  .stage > * { flex-shrink: 0; min-width: 0; }
+
+  .exsw { display: flex; gap: 6px; flex-wrap: wrap; }
+  .exsw[hidden] { display: none; }
+  .exsw button {
+    font-family: "JetBrains Mono", monospace; font-size: 12.5px; padding: 6px 10px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--panel-2); color: var(--muted); cursor: pointer;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 1px; line-height: 1.25; text-align: left;
+  }
+  .exsw button small { font-family: "Be Vietnam Pro", sans-serif; font-size: 11px; }
+  .exsw button:hover { border-color: var(--accent); }
+  .exsw button.on { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); font-weight: 700; }
+  .exsw button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .head { display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: 18px; }
+  .badge {
+    display: flex; flex-direction: column; align-items: center;
+    padding-right: 16px; border-right: 3px solid var(--accent); min-width: 62px;
+  }
+  .badge .num { font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 34px; color: var(--accent); line-height: 1; font-variant-numeric: tabular-nums; }
+  .badge .lbl { font-size: 12px; color: var(--muted); margin-top: 4px; letter-spacing: .03em; }
+  .titlebox { height: 66px; display: flex; align-items: flex-start; justify-content: flex-start; padding-top: 2px; overflow: hidden; }
+  .headtext h1 { margin: 0; width: 100%; font-size: 25px; font-weight: 700; line-height: 1.32; text-wrap: balance; }
+  .headtext .note { margin: 2px 0 0; font-size: 15px; color: var(--muted); line-height: 1.5; }
+
+  .infofloat {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px 18px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 8px; min-width: 150px;
+  }
+  .ifrow { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .ifrow .ifk { font-family: "JetBrains Mono", monospace; font-size: 13.5px; color: var(--muted); }
+  .ifrow .ifv { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; font-size: 21px; font-weight: 700; color: var(--accent-ink); }
+  .ifrow.res .ifv { color: var(--gold); }
+  .infofloat.pulse { box-shadow: var(--shadow), 0 0 0 4px var(--gold-soft); }
+  @media (max-width: 620px) {
+    .head { grid-template-columns: auto 1fr; }
+    .infofloat { grid-column: 1 / -1; flex-direction: row; justify-content: space-around; }
+  }
+  /* ==== VÙNG TRỰC QUAN: các bạn nhận tờ giấy, rồi gom tờ thành tập ==== */
+  .lop { display: flex; justify-content: center; padding: 6px 0 2px; }
+  .lop svg { width: 100%; max-width: 700px; height: auto; display: block; }
+  .lop .ng { fill: var(--person); transition: fill .35s ease, opacity .35s ease; }
+  .lop .ng.cho { opacity: .28; }
+  .lop .ng.moi { fill: var(--gold); }
+  .lop .ten { fill: var(--ink); font: 700 14px "Be Vietnam Pro", sans-serif; }
+  .lop .cap { fill: var(--muted); font: 600 12.5px "JetBrains Mono", monospace; }
+  .lop .to { fill: var(--paper); stroke: var(--accent); stroke-width: 1.6; }
+  .lop .to.moi { fill: var(--gold-soft); stroke: var(--gold); stroke-width: 2.4; }
+  .lop .hoa circle { fill: var(--rose); }
+  .lop .hoa .tam { fill: var(--gold); }
+  .lop .hoa.thua circle { fill: none; stroke: var(--faint); stroke-width: 1; stroke-dasharray: 2 1.5; }
+  .lop .hdr { fill: var(--ink); font: 600 14px "Be Vietnam Pro", sans-serif; }
+  .lop .hdr2 { fill: var(--faint); font: 500 13px "Be Vietnam Pro", sans-serif; }
+  .lop .tap { fill: var(--panel-2); stroke: var(--ink); stroke-width: 1.8; }
+  .lop .tap.moi { stroke: var(--gold); stroke-width: 2.8; }
+  .lop .o { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.3; }
+  .lop .o.thua { fill: none; stroke: var(--faint); stroke-dasharray: 3 3; }
+  .lop .tlb { fill: var(--muted); font: 600 12.5px "Be Vietnam Pro", sans-serif; }
+
+  /* ==== MÃ GIẢ — không cần sửa ==== */
+  .code {
+    margin: 0; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px;
+    padding: 8px 12px; font-family: "JetBrains Mono", monospace; font-size: 13.5px;
+    line-height: 1.55; color: var(--muted);
+  }
+  .code .ln2 { display: block; padding: 1px 8px 1px calc(8px + 4ch); text-indent: -4ch; border-radius: 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .code .ln2.on { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+  .code .ln2.on.reset { background: var(--rose-soft); }
+  .code .ln2.on.record { background: var(--gold-soft); }
+
+  .controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .ctrl-btns { display: flex; gap: 6px; }
+  button.ctl {
+    font-family: "JetBrains Mono", monospace; font-size: 15px; width: 38px; height: 34px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--panel-2); color: var(--ink); cursor: pointer;
+    transition: background .2s ease, border-color .2s ease;
+  }
+  button.ctl:hover { border-color: var(--accent); }
+  button.ctl:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button.ctl#btnPlay { width: 56px; font-weight: 700; }
+  button.ctl:disabled { opacity: .35; cursor: default; }
+  .dots { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); border: none; cursor: pointer; padding: 0; transition: background .2s ease, transform .2s ease; }
+  .dot:hover { transform: scale(1.2); }
+  .dot.done { background: var(--faint); }
+  .dot.now { background: var(--accent); transform: scale(1.3); }
+  .dot.record { background: var(--gold); }
+  .stepno { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: var(--muted); white-space: nowrap; margin-left: auto; }
+
+  .nofx * { transition: none !important; }
+  @media (prefers-reduced-motion: reduce) { * { transition-duration: .001ms !important; } }
+  .sidebar { position: relative; }
+  .sbtoggle {
+    font-family: "JetBrains Mono", monospace; font-size: 14px; font-weight: 700; letter-spacing: -1px;
+    width: 38px; height: 32px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--panel-2); color: var(--accent); cursor: pointer; flex-shrink: 0;
+  }
+  .sbtoggle:hover { border-color: var(--accent); }
+  .sbtoggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .sidebar:not(.collapsed) .sbtoggle { position: absolute; top: 16px; right: 16px; }
+  .sidebar:not(.collapsed) .sbbody h2 { padding-right: 46px; }
+  .sbrail {
+    writing-mode: vertical-rl; transform: rotate(180deg); margin-top: 14px;
+    font-size: 13.5px; font-weight: 700; color: var(--muted); letter-spacing: .04em; cursor: pointer; user-select: none;
+  }
+  .sbrail:hover { color: var(--accent); }
+  .sidebar:not(.collapsed) .sbrail { display: none; }
+  .sidebar.collapsed { width: 56px; padding: 14px 8px; display: flex; flex-direction: column; align-items: center; }
+  .sidebar.collapsed .sbbody { display: none; }
+  @media (max-width: 880px) {
+    .sidebar.collapsed { width: 100%; flex-direction: row; padding: 10px 14px; gap: 12px; }
+    .sidebar.collapsed .sbrail { writing-mode: horizontal-tb; transform: none; margin: 0; }
+  }
+
+  .stage { container-type: inline-size; }
+  html { scrollbar-gutter: stable; }
+  .main2 { display: flex; flex-direction: column; gap: 14px; }
+  .vizcol { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .vizcol > * { flex-shrink: 0; min-width: 0; }
+  .codecol { min-width: 0; }
+  @container (min-width: 1050px) {
+    .main2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, 36%); gap: 26px; align-items: center; }
+  }
+</style>
+
+<div class="layout">
+<aside class="sidebar collapsed" id="sidebar">
+  <button class="sbtoggle" id="sbToggle" aria-expanded="false" aria-controls="sbBody" title="Mở rộng ý tưởng thuật toán">&gt;&gt;</button>
+  <span class="sbrail" id="sbRail">Ý tưởng thuật toán</span>
+  <div class="sbbody" id="sbBody">
+  <h2>Ý tưởng thuật toán</h2>
+  <p>Làm tròn lên <strong>hai lần</strong>: một lần cho từng bạn, một lần cho số tập.</p>
+  <ul>
+    <li>Mỗi bạn cần <strong>to</strong> = n chia a, làm tròn lên, tờ giấy.</li>
+    <li>Cả lớp cần <strong>tong</strong> = m × to tờ (kiểu long long, có thể tới 10<sup>18</sup>).</li>
+    <li>Số tập = tong chia b, <strong>làm tròn lên</strong>.</li>
+  </ul>
+  <div class="key">Đừng gộp bông của cả lớp rồi mới chia cho a: bông thừa trên tờ của bạn này không đưa được cho bạn khác.</div>
+</div>
+</aside>
+
+<div class="stage">
+  <div class="exsw" id="exsw"></div>
+
+  <div class="head">
+    <div class="badge">
+      <span class="num" id="stepNum">01</span>
+      <span class="lbl">Bước</span>
+    </div>
+    <div class="headtext">
+      <div class="titlebox"><h1 id="stepTitle"></h1></div>
+      <p class="note" id="stepNote"></p>
+    </div>
+    <div class="infofloat" id="infoFloat">
+      <div class="ifrow"><span class="ifk">Tờ / bạn</span><span class="ifv" id="ifTo">–</span></div>
+      <div class="ifrow cur"><span class="ifk">Tổng tờ</span><span class="ifv" id="ifCur">–</span></div>
+      <div class="ifrow res"><span class="ifk">Số tập</span><span class="ifv" id="ifRes">–</span></div>
+    </div>
+  </div>
+
+  <div class="main2">
+    <div class="vizcol">
+    <div class="lop" id="lop"></div>
+    </div>
+    <div class="codecol">
+      <pre class="code" id="code"></pre>
+    </div>
+  </div>
+
+
+  <div class="controls">
+    <div class="ctrl-btns">
+      <button class="ctl" id="btnFirst" title="Về đầu (Home)">⏮</button>
+      <button class="ctl" id="btnPrev" title="Bước trước (←)">◀</button>
+      <button class="ctl" id="btnPlay" title="Chạy / Dừng (Space)">▶</button>
+      <button class="ctl" id="btnNext" title="Bước sau (→)">▶</button>
+      <button class="ctl" id="btnLast" title="Đến cuối (End)">⏭</button>
+    </div>
+    <div class="dots" id="dots"></div>
+    <span class="stepno" id="stepno"></span>
+    <button class="ctl" id="btnTheme" title="Giao diện">◐</button>
+  </div>
+</div>
+</div>
+
+<script>
+(function () {
+  // Mỗi ví dụ là một dòng vào: m bạn, mỗi bạn n bông, một tờ a bông, một tập b tờ.
+  var EXAMPLES = [
+    { lbl: "ví dụ mẫu", m: 4, n: 7, a: 3, b: 5 },
+    { lbl: "không dùng chung tờ", m: 3, n: 4, a: 3, b: 2 },
+    { lbl: "n chia hết cho a", m: 3, n: 6, a: 3, b: 4 },
+    { lbl: "a > n: mỗi bạn 1 tờ", m: 5, n: 2, a: 4, b: 3 }
+  ];
+  EXAMPLES.forEach(function (e) { e.input = e.m + " " + e.n + " " + e.a + " " + e.b + "\n"; });
+  function exLabel(e) { return "m=" + e.m + " n=" + e.n + " a=" + e.a + " b=" + e.b; }
+
+  var ex, steps = [], answer = "";
+
+  function build(e) {
+    ex = e;
+    steps = [];
+    var m = e.m, n = e.n, a = e.a, b = e.b;
+    steps.push({ g: 0, s1: 0, hi: -1, hs: -1, p: 0, toV: "–", tongV: "–", tapV: "–", branch: "init",
+      title: m + " bạn, mỗi bạn làm " + n + " bông; 1 tờ cắt " + a + " bông.",
+      note: "Giấy bán theo tập " + b + " tờ; mỗi tờ chỉ thuộc về một bạn." });
+    // số tờ của một bạn: phát từng tờ cho bạn 1 tới khi đủ n bông
+    var to = 0, hoa = 0;
+    while (hoa < n) {
+      to++; hoa += a;
+      var du = hoa >= n;
+      steps.push({ g: 0, s1: to, hi: 0, hs: to - 1, p: 0, toV: du ? to : "–", tongV: "–", tapV: "–", branch: "to",
+        title: "Bạn 1: tờ thứ " + to + " → " + hoa + " bông" + (du ? " ≥ " + n + ", đủ." : ", chưa đủ " + n + "."),
+        note: du ? "to = (" + n + " + " + a + " − 1) chia nguyên " + a + " = " + to +
+                   (hoa > n ? "; thừa " + (hoa - n) + " bông, không đưa bạn khác được." : "; vừa khít, không thừa bông nào.")
+                 : "Mỗi tờ cắt được " + a + " bông." });
+    }
+    ex.to = to;
+    // phát cho các bạn còn lại, cộng dồn tổng số tờ
+    var tong = to;
+    for (var i = 2; i <= m; i++) {
+      tong += to;
+      steps.push({ g: i, s1: 0, hi: i - 1, hs: -1, p: 0, toV: to, tongV: tong, tapV: "–", branch: "tong",
+        title: "Bạn " + i + " nhận " + to + " tờ: đã chia " + tong + " tờ.",
+        note: i === m ? "tong = " + m + " × " + to + " = " + tong + " tờ." : "Bạn nào cũng cần đúng " + to + " tờ như bạn 1." });
+    }
+    ex.tong = tong;
+    // mở từng tập tới khi đủ tong tờ
+    var p = 0;
+    while (p * b < tong) {
+      p++;
+      var du2 = p * b >= tong;
+      steps.push({ g: m, s1: 0, hi: -1, hs: -1, p: p, toV: to, tongV: tong, tapV: du2 ? p : "–", branch: "tap",
+        title: "Mở tập " + p + ": có " + (p * b) + (du2 ? " ≥ " + tong + " tờ, đủ." : " / " + tong + " tờ, chưa đủ."),
+        note: du2 ? "tap = (" + tong + " + " + b + " − 1) chia nguyên " + b + " = " + p + "."
+                  : "Mỗi tập " + b + " tờ; còn thiếu " + (tong - p * b) + " tờ." });
+    }
+    ex.p = p;
+    var toGop = Math.ceil(m * n / a), sai = Math.ceil(toGop / b);
+    steps.push({ g: m, s1: 0, hi: -1, hs: -1, p: p, toV: to, tongV: tong, tapV: p, branch: "in", record: true, fin: true,
+      title: "Cần mua ít nhất " + p + " tập giấy.",
+      note: sai !== p ? "Gộp cả lớp: " + (m * n) + " bông cần " + toGop + " tờ → " + sai + " tập — sai, vì không dùng chung tờ."
+                      : "Tập cuối thừa " + (p * b - tong) + " tờ — không mua lẻ từng tờ được." });
+    answer = String(p);
+  }
+
+  var lopEl = document.getElementById("lop");
+  function hoaSvg(cx, cy, thua) {
+    var g = '<g class="hoa' + (thua ? ' thua' : '') + '">';
+    for (var k = 0; k < 5; k++) {
+      var ang = (k * 72 - 90) * Math.PI / 180;
+      g += '<circle cx="' + (cx + 3.8 * Math.cos(ang)).toFixed(1) + '" cy="' + (cy + 3.8 * Math.sin(ang)).toFixed(1) + '" r="2.9"/>';
+    }
+    return g + '<circle class="tam" cx="' + cx + '" cy="' + cy + '" r="2.1"/></g>';
+  }
+  function drawViz(s) {
+    var m = ex.m, n = ex.n, a = ex.a, b = ex.b, T = ex.to, P = ex.p;
+    var rows = Math.ceil(a / 2), SW = 34, SH = Math.max(44, rows * 16 + 12), GAP = 6;
+    var sheetsW = T * SW + (T - 1) * GAP, CW = Math.max(110, sheetsW + 16);
+    var PW = b * 22 + 10, PG = 16;
+    var W = Math.max(m * CW, P * (PW + PG)) + 20;
+    var yS = 90, yP = yS + SH + 46, H = yP + 12 + 36 + 26;
+    var g = '<svg viewBox="0 0 ' + W + ' ' + H + '">';
+    var x0 = (W - m * CW) / 2;
+    for (var i = 0; i < m; i++) {
+      var cx = x0 + i * CW + CW / 2;
+      var cnt = i < s.g ? T : (i === 0 ? s.s1 : 0);
+      var cls = "ng" + (cnt === 0 ? " cho" : (i === s.hi ? " moi" : ""));
+      g += '<circle class="' + cls + '" cx="' + cx + '" cy="22" r="11"/>';
+      g += '<path class="' + cls + '" d="M' + (cx - 17) + ',62 L' + (cx - 17) + ',48 Q' + (cx - 17) + ',36 ' + cx + ',36 Q' + (cx + 17) + ',36 ' + (cx + 17) + ',48 L' + (cx + 17) + ',62 Z"/>';
+      g += '<text class="ten" text-anchor="middle" x="' + cx + '" y="80">Bạn ' + (i + 1) + '</text>';
+      var sx = cx - sheetsW / 2;
+      for (var k = 0; k < cnt; k++) {
+        var x = sx + k * (SW + GAP);
+        var moi = i === s.hi && (s.hs < 0 || s.hs === k);
+        g += '<rect class="to' + (moi ? ' moi' : '') + '" x="' + x + '" y="' + yS + '" width="' + SW + '" height="' + SH + '" rx="3"/>';
+        for (var f = 0; f < a; f++) {
+          var r = Math.floor(f / 2), c = f % 2, le = (f === a - 1 && a % 2 === 1);
+          var fx = x + SW / 2 + (le ? 0 : (c === 0 ? -8 : 8));
+          var fy = yS + SH / 2 + (r - (rows - 1) / 2) * 16;
+          g += hoaSvg(fx, fy, k * a + f + 1 > n);
+        }
+      }
+      if (cnt > 0)
+        g += '<text class="cap" text-anchor="middle" x="' + cx + '" y="' + (yS + SH + 20) + '">' + cnt + ' tờ = ' + (cnt * a) + ' bông</text>';
+    }
+    // hàng các tập giấy
+    var hdr = s.fin ? "Mua " + P + " tập = " + (P * b) + " tờ, dùng " + ex.tong + ", thừa " + (P * b - ex.tong) + " tờ"
+            : (s.p > 0 ? "Cần " + ex.tong + " tờ · đã mua " + (s.p * b) + " tờ" : "Giấy bán theo tập, mỗi tập " + b + " tờ");
+    g += '<text class="hdr" x="10" y="' + yP + '">' + hdr + '</text>';
+    if (s.p === 0) g += '<text class="hdr2" x="10" y="' + (yP + 36) + '">(chưa mua tập nào)</text>';
+    for (var j = 0; j < s.p; j++) {
+      var px = 10 + j * (PW + PG), py = yP + 12;
+      g += '<rect class="tap' + (s.branch === "tap" && j === s.p - 1 ? ' moi' : '') + '" x="' + px + '" y="' + py + '" width="' + PW + '" height="36" rx="6"/>';
+      for (var q = 0; q < b; q++) {
+        var idx = j * b + q;
+        g += '<rect class="o' + (idx >= ex.tong ? ' thua' : '') + '" x="' + (px + 5 + q * 22) + '" y="' + (py + 6) + '" width="18" height="24" rx="2"/>';
+      }
+      g += '<text class="tlb" text-anchor="middle" x="' + (px + PW / 2) + '" y="' + (py + 54) + '">Tập ' + (j + 1) + '</text>';
+    }
+    g += '</svg>';
+    lopEl.innerHTML = g;
+    document.getElementById("ifTo").textContent = s.toV;
+    document.getElementById("ifCur").textContent = s.tongV;
+    document.getElementById("ifRes").textContent = s.tapV;
+  }
+
+  var codeLines = [
+    "đọc m, n, a, b",
+    "to ← (n + a − 1) chia nguyên a      (số tờ mỗi bạn, làm tròn lên)",
+    "tong ← m × to                       (tổng số tờ, kiểu long long)",
+    "tap ← (tong + b − 1) chia nguyên b  (số tập, làm tròn lên)",
+    "in tap"
+  ];
+  function codeOn(s) {
+    if (s.branch === "init") return { on: [1] };
+    if (s.branch === "to") return { on: [2] };
+    if (s.branch === "tong") return { on: [3] };
+    if (s.branch === "tap") return { on: [4] };
+    return { on: [5], extra: { 5: "record" } };
+  }
+
+  // ==== TỪ ĐÂY TRỞ XUỐNG: ĐỘNG CƠ — không cần sửa ====
+  var codeEl = document.getElementById("code");
+  codeLines.forEach(function (t, k) {
+    var sp = document.createElement("span");
+    sp.className = "ln2"; sp.id = "ln" + (k + 1); sp.textContent = t;
+    codeEl.appendChild(sp);
+  });
+
+  var exEl = document.getElementById("exsw");
+  exEl.hidden = EXAMPLES.length < 2;
+  var exBtns = EXAMPLES.map(function (e, i) {
+    var b = document.createElement("button");
+    b.innerHTML = exLabel(e) + "<small>" + e.lbl + "</small>";
+    b.addEventListener("click", function () { stop(); load(i); });
+    exEl.appendChild(b);
+    return b;
+  });
+
+  var dotsEl = document.getElementById("dots");
+  var cursor = 0, timer = null, exIdx = 0;
+  function p2(x) { return x < 10 ? "0" + x : String(x); }
+
+  var titleEl = document.getElementById("stepTitle");
+  var titleBox = titleEl.parentElement;
+  var TITLE_MAX = 25, TITLE_MIN = 14;
+  function fitTitle() {
+    var size = TITLE_MAX;
+    titleEl.style.fontSize = size + "px";
+    while (size > TITLE_MIN && (titleEl.scrollHeight > titleBox.clientHeight || titleEl.scrollWidth > titleBox.clientWidth)) {
+      size -= 1; titleEl.style.fontSize = size + "px";
+    }
+  }
+  // do lai khi khung tieu de doi be rong (thanh cuon hien/an, doi co cua so)
+  var lastW = 0;
+  if (window.ResizeObserver) new ResizeObserver(function () {
+    if (titleBox.clientWidth !== lastW) { lastW = titleBox.clientWidth; fitTitle(); }
+  }).observe(titleBox);
+
+  function render() {
+    var s = steps[cursor];
+    document.getElementById("stepNum").textContent = p2(cursor + 1);
+    titleEl.textContent = s.title;
+    document.getElementById("stepNote").textContent = s.note;
+    document.getElementById("infoFloat").classList.toggle("pulse", !!s.record);
+    drawViz(s);
+
+    for (var q = 1; q <= codeLines.length; q++) document.getElementById("ln" + q).className = "ln2";
+    var c = codeOn(s) || { on: [] }, extra = c.extra || {};
+    c.on.forEach(function (id) {
+      var el = document.getElementById("ln" + id);
+      el.classList.add("on");
+      if (extra[id]) el.classList.add(extra[id]);
+    });
+
+    dotsEl.querySelectorAll(".dot").forEach(function (d, i) {
+      d.className = "dot" + (i < cursor ? " done" : "") + (i === cursor ? " now" : "") + (steps[i].record ? " record" : "");
+    });
+    document.getElementById("stepno").textContent = "Bước " + (cursor + 1) + " / " + steps.length;
+    document.getElementById("btnPrev").disabled = cursor === 0;
+    document.getElementById("btnFirst").disabled = cursor === 0;
+    document.getElementById("btnNext").disabled = cursor === steps.length - 1;
+    document.getElementById("btnLast").disabled = cursor === steps.length - 1;
+    fitTitle();   // de CUOI: sau khi ve xong moi thu, be rong khung da on dinh
+  }
+
+  function goto(i) { cursor = Math.max(0, Math.min(steps.length - 1, i)); render(); }
+  function next() { if (cursor < steps.length - 1) goto(cursor + 1); else stop(); }
+  function prev() { goto(cursor - 1); }
+  function play() {
+    if (timer) return;
+    document.getElementById("btnPlay").textContent = "❚❚";
+    timer = setInterval(function () {
+      if (cursor >= steps.length - 1) { stop(); return; }
+      next();
+    }, 1500);
+  }
+  function stop() {
+    clearInterval(timer); timer = null;
+    document.getElementById("btnPlay").textContent = "▶";
+  }
+  function toggle() { timer ? stop() : play(); }
+
+  // thu nho ca trang vua chieu cao man hinh; lay buoc CAO NHAT de khong nhay khi chuyen buoc
+  var layoutEl = document.querySelector(".layout");
+  function fitPage() {
+    // vua khit chieu cao man hinh: thu nho khi tran, phong to (toi da ZMAX) khi con cho trong.
+    // Do theo buoc CAO NHAT; tim nhi phan vi doi ti le co the lam bo cuc chuyen 1 cot <-> 2 cot.
+    var ZMAX = 1.3, ZMIN = 0.4;
+    function applyZ(z) {
+      layoutEl.style.zoom = z === 1 ? "" : z;
+      layoutEl.style.width = "";   // % tu hien dung bang khung cha du co zoom
+      layoutEl.style.maxWidth = z === 1 ? "" : (1680 / z) + "px";
+    }
+    function tallest() {
+      var save = cursor, h = 0;
+      for (var i = 0; i < steps.length; i++) { cursor = i; render(); h = Math.max(h, layoutEl.getBoundingClientRect().height); }
+      cursor = save;
+      return h;
+    }
+    document.body.classList.add("nofx");
+    var z = 1;
+    applyZ(1);
+    if (innerWidth > 880) {
+      var pad = parseFloat(getComputedStyle(document.body).paddingTop) * 2, avail = innerHeight - pad;
+      // tim nhi phan ti le LON NHAT ma buoc cao nhat van vua man hinh.
+      // Uu tien bo cuc 2 cot (hinh | ma gia): phong to lam khung hep lai -> co the rot ve 1 cot.
+      var mainEl = document.querySelector(".main2");
+      var twoCol = function () { return !mainEl || getComputedStyle(mainEl).gridTemplateColumns !== "none"; };
+      var fits = function (t) { applyZ(t); return tallest() <= avail + 1; };
+      var fits2 = function (t) { return fits(t) && twoCol(); };
+      var ok = fits2(ZMIN) ? fits2 : fits;
+      if (ok(ZMAX)) z = ZMAX;
+      else {
+        var lo = ZMIN, hi = ZMAX;
+        for (var it = 0; it < 8; it++) { var mid = (lo + hi) / 2; if (ok(mid)) lo = mid; else hi = mid; }
+        z = lo;
+      }
+      applyZ(z);
+    }
+    render();
+    void layoutEl.offsetHeight;
+    document.body.classList.remove("nofx");
+  }
+  var fitTimer = null;
+  window.addEventListener("resize", function () { clearTimeout(fitTimer); fitTimer = setTimeout(fitPage, 120); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPage);
+
+  function load(i) {
+    exIdx = i;
+    build(EXAMPLES[i]);
+    exBtns.forEach(function (b, j) { b.classList.toggle("on", i === j); });
+    dotsEl.innerHTML = "";
+    steps.forEach(function (s, k) {
+      var b = document.createElement("button");
+      b.className = "dot"; b.title = "Bước " + (k + 1);
+      b.addEventListener("click", function () { stop(); goto(k); });
+      dotsEl.appendChild(b);
+    });
+    cursor = 0;
+    fitPage();
+  }
+
+  // nut doi giao dien: theo may -> sang -> toi (de kiem nen toi ngay ca khi khung xem truoc chi hien nen sang)
+  var THEMES = ["auto", "light", "dark"], theme = "auto", themeBtn = document.getElementById("btnTheme");
+  function applyTheme(t) {
+    theme = t;
+    if (t === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", t);
+    themeBtn.textContent = t === "auto" ? "◐" : (t === "light" ? "☀" : "☾");
+    themeBtn.title = "Giao diện: " + (t === "auto" ? "theo máy" : (t === "light" ? "sáng" : "tối"));
+  }
+  try { theme = localStorage.getItem("mp-theme") || "auto"; } catch (err) {}
+  applyTheme(THEMES.indexOf(theme) >= 0 ? theme : "auto");
+  themeBtn.addEventListener("click", function () {
+    applyTheme(THEMES[(THEMES.indexOf(theme) + 1) % 3]);
+    try { localStorage.setItem("mp-theme", theme); } catch (err) {}
+  });
+
+  document.getElementById("btnNext").addEventListener("click", function () { stop(); next(); });
+  document.getElementById("btnPrev").addEventListener("click", function () { stop(); prev(); });
+  document.getElementById("btnFirst").addEventListener("click", function () { stop(); goto(0); });
+  document.getElementById("btnLast").addEventListener("click", function () { stop(); goto(steps.length - 1); });
+  document.getElementById("btnPlay").addEventListener("click", toggle);
+  window.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight") { stop(); next(); }
+    else if (e.key === "ArrowLeft") { stop(); prev(); }
+    else if (e.key === "Home") { stop(); goto(0); }
+    else if (e.key === "End") { stop(); goto(steps.length - 1); }
+    else if (e.key === " ") { e.preventDefault(); toggle(); }
+  });
+
+  // giao dien cho kiemtra.js (duyet moi vi du x moi buoc, lay dap so de doi chieu sol_full)
+  // panel y tuong: mac dinh thu gon; mo/dong xong thi do lai ti le vua man hinh
+  var sbEl = document.getElementById("sidebar"), sbBtn = document.getElementById("sbToggle");
+  function setSidebar(open) {
+    sbEl.classList.toggle("collapsed", !open);
+    sbBtn.innerHTML = open ? "&lt;&lt;" : "&gt;&gt;";
+    sbBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    sbBtn.title = open ? "Thu gọn ý tưởng" : "Mở rộng ý tưởng thuật toán";
+    fitPage();
+  }
+  sbBtn.addEventListener("click", function () { setSidebar(sbEl.classList.contains("collapsed")); });
+  document.getElementById("sbRail").addEventListener("click", function () { setSidebar(true); });
+
+  window.MP = {
+    count: function () { return EXAMPLES.length; },
+    load: load,
+    steps: function () { return steps.length; },
+    goto: goto,
+    input: function (i) { return EXAMPLES[i].input; },
+    answer: function () { return answer; },
+    codeLines: function () { return codeLines.length; },
+    litLines: function () { var o = {}; for (var k = 0; k < steps.length; k++) (codeOn(steps[k]) || { on: [] }).on.forEach(function (id) { o[id] = 1; }); return Object.keys(o).map(Number); }
+  };
+
+  load(0);
+})();
+</script>
+
