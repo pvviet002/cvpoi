@@ -96,10 +96,11 @@
   .legend span { display: inline-flex; align-items: center; gap: 5px; }
   .legend svg { width: 26px; height: 14px; }
 
-  /* cột phải: mọi cỡ chữ tính theo em, gốc co giãn theo bề rộng màn hình (13px ở 1280, 18px ở 1920) */
+  /* cột phải: mọi cỡ chữ tính theo em, gốc co giãn nhẹ theo màn hình (13px ở 1280, ~14px ở 1920) — ngang cỡ chữ
+     các khung khác (thầy chốt 13/10/2026: bản 18px ở 1920 to lệch hẳn so với sơ đồ / bảng mã) */
   .side { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: .9em 1.05em;
-          display: flex; flex-direction: column; gap: .75em; min-height: 0; overflow: auto;
-          font-size: clamp(13px, 0.75vw + 3.5px, 18px); }
+          display: flex; flex-direction: column; gap: .75em; min-height: 0; overflow: auto; position: relative;
+          font-size: clamp(13px, 0.2vw + 10.2px, 15px); }
   .side > * { flex-shrink: 0; }
   .now { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .9em; align-items: start; }
   .badge { display: flex; flex-direction: column; align-items: center; padding-right: .9em; border-right: 3px solid var(--accent); min-width: 4em; }
@@ -308,6 +309,24 @@
     font-size: 13px; font-weight: 700; letter-spacing: .04em; color: var(--muted); }
   .dbray:hover { color: var(--accent); }
   .debai:not(.thu) .dbray, .debai.thu .dbthan { display: none; }
+  /* ---- MỌI KHUNG thu gọn được như dải đề (thầy chốt 13/10/2026): khung sơ đồ, ô Hình / bảng mã, cột phải.
+     Thu gọn = dải hẹp có nút + nhãn dọc; bấm nút hoặc nhãn để mở lại. Mặc định mở, không nhớ giữa các lần mở trang. ---- */
+  .chart { position: relative; }
+  .chart.thu { padding: 8px 5px; align-items: center; }
+  .chart.thu > :not(.chartbar):not(.dbray), .chart.thu .chartbar > :not(#chartNut) { display: none; }
+  .chart:not(.thu) > .dbray { display: none; }
+  .side.thu { padding: 8px 5px; align-items: center; overflow: hidden; }
+  .side.thu > :not(.sidenut):not(.dbray) { display: none; }
+  .side:not(.thu) > .dbray { display: none; }
+  .sidenut { position: absolute; top: 8px; right: 8px; z-index: 2; }
+  .side.thu .sidenut { position: static; }
+  .side:not(.thu) .now { padding-right: 34px; }
+  .mabox.thu, .hinhbox.thu { width: 44px !important; align-items: center; }
+  .mabox.thu > :not(.mahead):not(.dbray), .hinhbox.thu > :not(.mahead):not(.dbray), .thu > .mahead > :not(.kemnut) { display: none; }
+  .thu > .mahead { border: 0; padding: 6px 2px; justify-content: center; }
+  .mabox:not(.thu) > .dbray, .hinhbox:not(.thu) > .dbray { display: none; }
+  .kemnut { font: 700 12px "JetBrains Mono", monospace !important; letter-spacing: -1px; color: var(--accent) !important; }
+  .main.dayDe .debai:not(.thu) { width: auto; }
   .dbthan { flex: 1; min-height: 0; overflow: auto; padding: 2px 6px 4px 2px; font-size: 14.5px; line-height: 1.6; color: var(--ink); }
   .dbthan h3 { margin: .8em 0 .25em; font-size: 14px; font-weight: 700; font-style: italic; }
   .dbthan h3:first-child { margin-top: .2em; }
@@ -333,7 +352,7 @@
   .tx.ghi { fill: var(--muted); font-style: italic; }
   .khso { font: 700 16px "Be Vietnam Pro", "Segoe UI", sans-serif; fill: var(--gold); }
   .mdsw button.kh.on { background: var(--gold-soft); border-color: var(--gold); }
-  .side.dangdien > :not(#khForm) { display: none; }
+  .side.dangdien > :not(#khForm):not(.sidenut):not(.dbray) { display: none; }
   .khform { display: flex; flex-direction: column; gap: .6em; }
   .khform[hidden] { display: none; }
   .khhd { margin: 0; font-size: .92em; color: var(--muted); line-height: 1.45; }
@@ -458,8 +477,9 @@
       <div class="dbthan" id="dbThan"></div>
     </aside>
     <div class="keo" id="keoDe" hidden role="separator" aria-orientation="vertical" tabindex="0" title="Kéo để đổi bề rộng · nháy đúp: về mặc định"></div>
-    <div class="chart">
+    <div class="chart" id="chart">
       <div class="chartbar">
+        <button class="dbnut" id="chartNut" aria-expanded="true" title="Thu gọn khung sơ đồ">&lt;&lt;</button>
         <div class="tabs" id="tabs"></div>
         <span class="loitip" id="loibar" hidden></span>
         <div class="masw" id="masw" title="Hiện mã chương trình sinh từ sơ đồ, tô dòng của khối đang chạy"><span id="maswNhan">Mã:</span>
@@ -469,7 +489,8 @@
         <div class="svgbox" id="svgbox"></div>
         <div class="keo" id="keoKem" hidden role="separator" aria-orientation="vertical" tabindex="0" title="Kéo để đổi bề rộng · nháy đúp: về mặc định"></div>
         <div class="mabox" id="mabox" hidden>
-          <div class="mahead"><span id="maten"></span><button id="maChep" title="Chép mã vào bộ nhớ tạm">Chép</button></div>
+          <div class="mahead"><span id="maten"></span><button id="maChep" title="Chép mã vào bộ nhớ tạm">Chép</button><button class="kemnut" id="maNut" aria-expanded="true" title="Thu gọn bảng mã">&gt;&gt;</button></div>
+          <span class="dbray" id="maRay">Mã</span>
           <div class="mawarn" id="mawarn" hidden></div>
           <pre id="mapre"></pre>
         </div>
@@ -477,16 +498,20 @@
           <div class="mahead"><span id="hinhten"></span><span class="mocbtns" id="mocbtns" hidden>
             <button id="mocTruoc" title="Về mốc trước (Shift + ←)" aria-label="Về mốc trước"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3 3.5 8 8 13M13 3 8.5 8l4.5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
             <button id="mocSau" title="Tới mốc sau (Shift + →)" aria-label="Tới mốc sau"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3l4.5 5L8 13M3 3l4.5 5L3 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-          </span></div>
+          </span><button class="kemnut" id="hinhNut" aria-expanded="true" title="Thu gọn ô Hình">&gt;&gt;</button></div>
+          <span class="dbray" id="hinhRay">Hình</span>
           <div class="hinhchu" id="hinhchu"></div>
           <div class="hinhsvg" id="hinhsvg"></div>
         </div>
       </div>
       <div class="legend" id="legend"></div>
       <div class="dapan" id="dapan" hidden></div>
+      <span class="dbray" id="chartRay">Sơ đồ khối</span>
     </div>
     <div class="keo" id="keoSide" role="separator" aria-orientation="vertical" tabindex="0" title="Kéo để đổi bề rộng · nháy đúp: về mặc định"></div>
     <div class="side" id="side">
+      <button class="dbnut sidenut" id="sideNut" aria-expanded="true" title="Thu gọn cột bước · biến">&gt;&gt;</button>
+      <span class="dbray" id="sideRay">Bước · Biến · Nhập / Xuất</span>
       <div class="now">
         <div class="badge"><span class="num" id="stepNum">01</span><span class="lbl">Bước</span></div>
         <div><div class="titlebox"><h2 id="stepTitle"></h2></div><div class="notebox"><p class="note" id="stepNote"></p></div></div>
@@ -3014,6 +3039,7 @@
   function datMa(nn, tam) {   // tam: đổi tạm (đường dẫn #, công cụ soát) — không ghi nhớ
     maNN = MA_NN.indexOf(nn) >= 0 || (coHinh && nn === "hinh") ? nn : "";
     if (!tam) try { localStorage.setItem("sdk-ma", maNN); } catch (err) {}
+    if (thuGon && thuGon.kem && maNN) { setThu("kem", false); }   // chọn lại Hình / C++ / Python: mở ô đang thu gọn
     veMa();
   }
   function veMa() {
@@ -3021,6 +3047,7 @@
     $("mabox").hidden = !maNN || maNN === "hinh";
     $("hinhbox").hidden = maNN !== "hinh";
     $("keoKem").hidden = !maNN;
+    if (TEN_NN[maNN]) $("maRay").textContent = TEN_NN[maNN];
     if (maNN === "hinh") { maKq = null; veHinh(); return; }
     if (!maNN) { maKq = null; return; }
     maKq = layMa(maNN);
@@ -3317,10 +3344,54 @@
     $("dbTabs").innerHTML = DB_THE.map(function (x) { return '<button data-k="' + x.k + '">' + x.ten + "</button>"; }).join("");
     $("dbTabs").querySelectorAll("button").forEach(function (b) { b.addEventListener("click", function () { setDe(true, b.getAttribute("data-k")); }); });
     $("dbNut").addEventListener("click", function () { setDe(!dbMo); });
-    $("dbRay").addEventListener("click", function () { setDe(true); });
+    $("dbRay").addEventListener("click", function () { setDe(true); datLuoi(); });
     $("keoDe").hidden = false;
     setDe(false);
   }
+
+  // ---- THU GỌN TỪNG KHUNG (thầy chốt 13/10/2026): khung sơ đồ, ô Hình / bảng mã, cột phải — như dải đề.
+  //      Lưới cột tính lại theo khung nào đang thu; không khung nào thu thì trả về CSS mặc định (số đo kiemtra.js giữ nguyên). ----
+  var thuGon = { chart: false, side: false, kem: false };
+  var HEP = window.matchMedia ? window.matchMedia("(max-width: 880px)") : { matches: false };
+  function datLuoi() {
+    var m = $("mainEl"), coDeKhung = !$("debai").hidden;
+    m.classList.remove("dayDe");
+    if (HEP.matches || (!thuGon.chart && !thuGon.side)) { m.style.removeProperty("grid-template-columns"); }
+    else {
+      var rongSide = "var(--wSide, clamp(300px, 26vw, 500px))", cot = [];
+      var deLap = thuGon.chart && thuGon.side && coDeKhung && dbMo;   // chỉ còn dải đề mở: cho nó lấp chỗ
+      if (coDeKhung) cot.push(deLap ? "minmax(0, 1fr)" : "auto", "12px");
+      if (deLap) m.classList.add("dayDe");
+      cot.push(thuGon.chart ? "46px" : "minmax(0, 1fr)", "12px");
+      cot.push(thuGon.side ? "46px" : thuGon.chart ? "minmax(0, 1fr)" : rongSide);
+      if (thuGon.chart && thuGon.side && !deLap) cot.push("minmax(0, 1fr)");   // cột trống lấp chỗ thừa
+      m.style.gridTemplateColumns = cot.join(" ");
+    }
+    $("keoSide").classList.toggle("tat", thuGon.side || thuGon.chart);
+    $("keoKem").classList.toggle("tat", thuGon.kem);
+  }
+  function datNut(nut, mo, moTrai, ten) {   // moTrai: khung mở ra về bên trái (cột phải, ô Hình / mã)
+    nut.innerHTML = (mo === moTrai) ? "&gt;&gt;" : "&lt;&lt;";
+    nut.setAttribute("aria-expanded", mo ? "true" : "false");
+    nut.title = (mo ? "Thu gọn " : "Mở ") + ten;
+  }
+  function sauThuGon() { tipAn(); if (svg) fitTitle(); if (maNN === "hinh" && !thuGon.kem) veHinh(); }
+  function setThu(k, thu) {
+    thuGon[k] = !!thu;
+    if (k === "chart") { $("chart").classList.toggle("thu", thuGon.chart); datNut($("chartNut"), !thuGon.chart, false, "khung sơ đồ"); }
+    if (k === "side") { $("side").classList.toggle("thu", thuGon.side); datNut($("sideNut"), !thuGon.side, true, "cột bước · biến"); }
+    if (k === "kem") {
+      $("mabox").classList.toggle("thu", thuGon.kem); $("hinhbox").classList.toggle("thu", thuGon.kem);
+      datNut($("maNut"), !thuGon.kem, true, "bảng mã"); datNut($("hinhNut"), !thuGon.kem, true, "ô Hình");
+    }
+    datLuoi(); sauThuGon();
+  }
+  [["chartNut", "chart"], ["chartRay", "chart"], ["sideNut", "side"], ["sideRay", "side"], ["maNut", "kem"], ["maRay", "kem"], ["hinhNut", "kem"], ["hinhRay", "kem"]]
+    .forEach(function (p) {
+      $(p[0]).addEventListener("click", function () { setThu(p[1], p[0].slice(-3) === "Ray" ? false : !thuGon[p[1]]); });
+    });
+  if (HEP.addEventListener) HEP.addEventListener("change", datLuoi);
+  if (DB_THE.length) $("dbNut").addEventListener("click", datLuoi);   // dải đề mở / thu cũng có thể đổi cột lấp chỗ
 
   // ---- TAY KÉO ĐỔI KÍCH THƯỚC KHUNG (thầy chốt 28/09/2026): dải đề | sơ đồ | ô Hình / bảng mã | cột biến.
   //      Kéo để đổi bề rộng, nháy đúp về mặc định, phím ← → khi tay kéo đang chọn; nhớ theo từng trang (localStorage). ----
@@ -4073,7 +4144,8 @@
       if (q.kh.indexOf("buoc") >= 0) { KH.dangDien = false; veKhForm(); veLoiBar(); }
     }
     if (q.ma) datMa(q.ma === "tat" ? "" : q.ma, true);   // ma=cpp|py|hinh|tat
-    if (q.de) setDe(q.de !== "0", q.de === "hd" ? "hd" : q.de === "de" ? "de" : null);   // de=1|de|hd: mở dải Đề bài · Hướng dẫn
+    if (q.de) { setDe(q.de !== "0", q.de === "hd" ? "hd" : q.de === "de" ? "de" : null); datLuoi(); }   // de=1|de|hd: mở dải Đề bài · Hướng dẫn
+    if (q.thu) q.thu.split(",").forEach(function (k) { if (k in thuGon) setThu(k, true); });   // thu=chart,kem,side: mở sẵn các khung thu gọn
     if (q.vd && q["in"]) { var iv0 = Number(q.vd) - 1; if (iv0 >= 0 && iv0 < VI_DU.length) load(iv0); }
     if (q["in"]) {   // in=sodo,bang,dapan: mở sẵn xem trước phiếu (để chụp / xuất PDF)
       var ds0 = q["in"].split(",");
