@@ -33,5 +33,6 @@ export default [
   {"duong": "/tree/viet_lvl", "nhom": ["*"]},
   {"duong": "/dp/range/", "nhom": ["*"]},
   {"duong": "/graph-basic/sodokhoi/", "nhom": ["*"]},
+  {"duong": "/two-pointers/sodokhoi/", "nhom": ["*"]},
   {"duong": "/inclusion-exclusion/includion-exclusion-01/", "nhom": ["*"]}
 ];
