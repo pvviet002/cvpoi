@@ -102,6 +102,8 @@
           display: flex; flex-direction: column; gap: .75em; min-height: 0; overflow: auto; position: relative;
           font-size: clamp(13px, 0.2vw + 10.2px, 15px); }
   .side > * { flex-shrink: 0; }
+  /* màn thấp (laptop 1280×720): khoảng cách giữa các khối cột phải hẹp lại để bảng QHĐ + mảng + nhập / xuất vẫn vừa (KNAP004, 13/10/2026) */
+  @media (max-height: 800px) { .side { gap: .45em; padding-top: .6em; padding-bottom: .6em; } }
   .now { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .9em; align-items: start; }
   .badge { display: flex; flex-direction: column; align-items: center; padding-right: .9em; border-right: 3px solid var(--accent); min-width: 4em; }
   .badge .num { font: 700 2.1em "JetBrains Mono", monospace; color: var(--accent); line-height: 1; font-variant-numeric: tabular-nums; }
