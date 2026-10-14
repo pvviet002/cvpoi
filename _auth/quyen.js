@@ -29,6 +29,7 @@ export default [
   {"duong": "/prefix-sum/1d/prefixsum_05/", "nhom": ["*"]},
   {"duong": "/prefix-sum/1d/prefixsum_optimize/", "nhom": ["*"]},
   {"duong": "/prefix-sum/2d/", "nhom": ["*"]},
+  {"duong": "/prefix-sum/sodokhoi/", "nhom": ["*"]},
   {"duong": "/tree/sols/", "nhom": ["*"]},
   {"duong": "/tree/viet_lvl", "nhom": ["*"]},
   {"duong": "/dp/range/", "nhom": ["*"]},
