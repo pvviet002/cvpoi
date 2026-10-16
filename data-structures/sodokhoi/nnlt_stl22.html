@@ -558,8 +558,8 @@
 (function () {
   "use strict";
   // ==================================================================
-  // ĐẶC TẢ — bài nnlt_stl22 «Đảo xâu bằng ngăn xếp»
-  // sol_full.cpp viết mới theo đúng các hàm PushAll / PopAll (ngăn xếp st[1..top]).
+  // ĐẶC TẢ — bài nnlt_stl22 “Đảo xâu bằng ngăn xếp”
+  // sol_full.cpp viết theo đúng các hàm PushAll / PopAll, ngăn xếp có sẵn stack<char> (thầy chốt 16/10/2026: không cài bằng mảng).
   // Bài không có saiN.cpp ⇒ hai bản lỗi là lỗi thường gặp: ghép ký tự vào ĐẦU res (in lại xâu cũ),
   // vòng đẩy bắt đầu từ 1 (bỏ sót ký tự đầu, xâu đếm từ 0).
   // ==================================================================
@@ -573,8 +573,7 @@
 
   var NGHIA_BIEN = {
     s: "xâu cần đảo, ký tự s[0], s[1], … (đếm từ 0)",
-    st: "ngăn xếp ký tự: st[1] là đáy, st[top] là đỉnh",
-    top: "số ký tự đang có trong ngăn xếp; đỉnh là st[top]",
+    st: "ngăn xếp ký tự (stack): chỉ xem / lấy được ký tự ở đỉnh",
     res: "xâu kết quả, ghép dần các ký tự lấy ra từ đỉnh",
     i: "vị trí ký tự đang đẩy vào ngăn xếp"
   };
@@ -586,28 +585,28 @@
         GOI("PopAll()", "lay"),
         XUAT("Xuất res")
     ] },
-    { id: "day", ten: "PushAll()", thamso: [], bien: ["i"], chung: ["st", "top"],
+    { id: "day", ten: "PushAll()", thamso: [], bien: ["i"], chung: ["st"],
       y_nghia: "Đẩy lần lượt từng ký tự của s vào ngăn xếp (ký tự cuối nằm ở đỉnh)", than: [
-        XU_LY("st[0..len(s)] ← \"\";  top ← 0"),
+        XU_LY("st ← ngăn xếp rỗng"),
         CHO("i", "0", "len(s) − 1", [
-          XU_LY("top ← top + 1;  st[top] ← s[i]", { id: "push", khuyet: "đẩy s[i] lên đỉnh ngăn xếp" })
+          XU_LY("Đẩy s[i] vào st", { id: "push", khuyet: "đẩy s[i] lên đỉnh ngăn xếp" })
         ], { id_dau: "dau" })
     ] },
-    { id: "lay", ten: "PopAll()", thamso: [], bien: [], chung: ["res", "top"],
+    { id: "lay", ten: "PopAll()", thamso: [], bien: [], chung: ["res", "st"],
       y_nghia: "Lấy lần lượt ký tự ở đỉnh ra, ghép vào cuối res, tới khi ngăn xếp rỗng", than: [
         XU_LY("res ← \"\""),
-        LAP({ chu: "top > 0 ?", id: "con", khuyet: "khi nào còn ký tự để lấy" }, [
-          XU_LY("res ← res + st[top];  top ← top − 1", { id: "pop", khuyet: "lấy ký tự ở đỉnh ghép vào res" })
+        LAP({ chu: "không rỗng(st) ?", id: "con", khuyet: "khi nào còn ký tự để lấy" }, [
+          XU_LY("res ← res + đỉnh(st);  Bỏ đỉnh st", { id: "pop", khuyet: "lấy ký tự ở đỉnh ghép vào res" })
         ])
     ] }
   ];
 
   var LOI = [
     { ten: "Tìm lỗi 1", goi_y: "lỗi thường gặp — trong PopAll()",
-      giai_thich: "Ghép ký tự vào ĐẦU res (res ← st[top] + res) thay vì vào cuối. Ký tự lấy ra lần lượt là e, d, c, b, a; ghép vào đầu thì res thành «abcde» — đảo hai lần nên in lại xâu cũ. Ví dụ mẫu in abcde, đúng phải là edcba.",
-      sua: function (S) { S.khoi("lay", "pop").chu = "res ← st[top] + res;  top ← top − 1"; } },
+      giai_thich: "Ghép ký tự vào ĐẦU res (res ← đỉnh(st) + res) thay vì vào cuối. Ký tự lấy ra lần lượt là e, d, c, b, a; ghép vào đầu thì res thành “abcde” — đảo hai lần nên in lại xâu cũ. Ví dụ mẫu in abcde, đúng phải là edcba.",
+      sua: function (S) { S.khoi("lay", "pop").chu = "res ← đỉnh(st) + res;  Bỏ đỉnh st"; } },
     { ten: "Tìm lỗi 2", goi_y: "lỗi thường gặp — trong PushAll()",
-      giai_thich: "Vòng đẩy bắt đầu từ i = 1, nhưng ký tự đầu của xâu là s[0] (đếm từ 0) nên bị bỏ sót. Ví dụ mẫu in «edcb» thiếu chữ a; ví dụ «một ký tự» in xâu rỗng.",
+      giai_thich: "Vòng đẩy bắt đầu từ i = 1, nhưng ký tự đầu của xâu là s[0] (đếm từ 0) nên bị bỏ sót. Ví dụ mẫu in “edcb” thiếu chữ a; ví dụ “một ký tự” in xâu rỗng.",
       sua: function (S) { S.khoi("day", "dau").chu = "i ← 1"; } }
   ];
 
@@ -620,11 +619,11 @@
     ]
   };
   var HUONG_DAN = {
-    dan: "Ngăn xếp có tính chất «vào sau, ra trước»: thứ tự lấy ra ngược hẳn thứ tự đẩy vào — đúng thứ ta cần để đảo xâu.",
+    dan: "Ngăn xếp có tính chất “vào sau, ra trước”: thứ tự lấy ra ngược hẳn thứ tự đẩy vào — đúng thứ ta cần để đảo xâu.",
     y: ["Đẩy lần lượt $s_0, s_1, …$ vào ngăn xếp: với abcde, đáy là a, đỉnh là e.",
         "Lấy dần từ đỉnh ra và ghép vào CUỐI xâu kết quả: e, d, c, b, a ⇒ edcba. Ghép vào đầu thì lại ra abcde.",
         "Mỗi ký tự vào một lần, ra một lần ⇒ $O(n)$."],
-    chot: "Ngăn xếp = mảng st cùng biến top: đẩy là top ← top + 1 rồi gán st[top]; lấy là đọc st[top] rồi top ← top − 1."
+    chot: "Dùng ngăn xếp có sẵn: Đẩy s[i] vào st (st.push), đọc đỉnh(st) (st.top), Bỏ đỉnh st (st.pop), hỏi rỗng(st) (st.empty)."
   };
   var HINH = (function () {
     var MAXN = 8;
@@ -646,7 +645,7 @@
         o += hangXau(Lg, 30, s, "s", (i !== undefined && i < s.length) ? i : -1);
         for (var k = 0; k < Math.min(s.length, MAXN); k++) o += HV.chu(Lg.cx(k), 86, String(k), { canh: "giua", co: 13, lop: "t-mo" });
         // ngăn xếp: cột đứng, đáy dưới
-        var top = v.top || 0, day = 440, ch = 34;
+        var top = v.st ? v.st.length - 1 : 0, day = 440, ch = 34;
         o += HV.chu(110, 120, "Ngăn xếp", { canh: "giua", co: 16, lop: "t-mo" });
         o += HV.duong(60, 130, 60, day, { lop: "net", day: 2 }) + HV.duong(160, 130, 160, day, { lop: "net", day: 2 }) + HV.duong(60, day, 160, day, { lop: "net", day: 2 });
         var hien = Math.min(top, 9);
@@ -654,19 +653,20 @@
           var idx = top - hien + q;
           o += HV.the(66, day - q * ch, 88, ch - 2, String(v.st && v.st[idx] !== undefined ? v.st[idx] : ""), { lop: idx === top ? "o-b" : "o-io", co: 17 });
         }
-        if (top > 0) o += HV.chu(172, day - hien * ch + 22, "← đỉnh (top = " + top + ")", { co: 14 });
+        if (top > 0) o += HV.chu(172, day - hien * ch + 22, "← đỉnh", { co: 14 });
         else o += HV.chu(110, day - 20, "rỗng", { canh: "giua", co: 15, lop: "t-mo" });
         if (v.res !== undefined) {
-          o += HV.chu(200, 300, "res =", { co: 16, lop: "t-mo" });
-          o += HV.chu(200, 330, "«" + (v.res.length > 12 ? v.res.slice(0, 12) + "…" : v.res) + "»", { co: 20, dam: true, lop: "t-a" });
+          // đặt DƯỚI đáy ngăn xếp: nhãn “← đỉnh” chạy dọc cột phải nên không được để res ở đó
+          o += HV.chu(60, 490, "res =", { co: 16, lop: "t-mo" });
+          o += HV.chu(110, 490, "“" + (v.res.length > 12 ? v.res.slice(0, 12) + "…" : v.res) + "”", { co: 20, dam: true, lop: "t-a" });
         }
         return o;
       },
       chu: function (v, b) {
         if (v.s === undefined) return "Chưa có xâu.";
-        if (v.res !== undefined) return "Đã lấy ra: res = «" + v.res + "»; ngăn xếp còn " + (v.top || 0) + " ký tự.";
+        if (v.res !== undefined) return "Đã lấy ra: res = “" + v.res + "”; ngăn xếp còn " + (v.st ? v.st.length - 1 : 0) + " ký tự.";
         if (v.i !== undefined && v.i < v.s.length) return "Đẩy s[" + v.i + "] = " + v.s[v.i] + " lên đỉnh ngăn xếp.";
-        return "Ngăn xếp có " + (v.top || 0) + " ký tự, đỉnh là ký tự cuối của s.";
+        return "Ngăn xếp có " + (v.st ? v.st.length - 1 : 0) + " ký tự, đỉnh là ký tự cuối của s.";
       }
     };
   })();
@@ -719,6 +719,25 @@
     if (typeof c !== "string" || !/^[0-9]$/.test(c)) throw new Error("số(…) cần đúng một ký tự chữ số, gặp " + JSON.stringify(c));
     return c.charCodeAt(0) - 48;
   };
+  // Ngăn xếp / hàng đợi / hàng đợi hai đầu CÓ SẴN (stack, queue, deque của C++; list / deque của Python) — thêm 16/10/2026,
+  // thầy chốt «cài bằng stack và queue có sẵn, đừng cài bằng vector» (CPH-Book Ch7). Giá trị khi chạy = mảng [null, …]
+  // (phần tử đếm từ 1, ô 1 là đáy / đầu); loại của từng tên ghi ở CTR khi đọc lệnh tạo «st ← ngăn xếp rỗng».
+  var CTR = {}, TEN_CTR = { ngx: "ngăn xếp", hd: "hàng đợi", hd2: "hàng đợi hai đầu" };
+  function ctrMang(x, ham) {
+    if (!Array.isArray(x)) throw new Error(ham + "(…) cần một ngăn xếp / hàng đợi");
+    return x;
+  }
+  function ctrPhan(x, ham, cuoi) {
+    ctrMang(x, ham);
+    if (x.length <= 1) throw new Error(ham + "(…) của ngăn xếp / hàng đợi rỗng");
+    return cuoi ? x[x.length - 1] : x[1];
+  }
+  HAM["đỉnh"] = function (x) { return ctrPhan(x, "đỉnh", true); };
+  HAM["đầu"] = function (x) { return ctrPhan(x, "đầu", false); };
+  HAM["cuối"] = function (x) { return ctrPhan(x, "cuối", true); };
+  HAM["cỡ"] = function (x) { return ctrMang(x, "cỡ").length - 1; };
+  HAM["rỗng"] = function (x) { return ctrMang(x, "rỗng").length <= 1; };
+  var TEN_CTR_HAM = { "đỉnh": 1, "đầu": 1, "cuối": 1, "cỡ": 1, "rỗng": 1 };
   var TEN_UCLN = { "ƯCLN": 1, UCLN: 1, ucln: 1, gcd: 1 }, TEN_CAN = { "căn": 1, can: 1, sqrt: 1 }, TEN_XOR = { xor: 1, XOR: 1 }, TEN_SO = { "số": 1, so: 1 };
   var GOM = { min: 1, max: 1, "tổng": 1 };   // hàm gom được: min(e với i = lo..hi) · max(…) · tổng(…)
   var SS_CHUAN = { "<=": "≤", ">=": "≥", "<>": "≠" };
@@ -878,6 +897,13 @@
         return { k: "sapxep", n: ts, lo: lo, hi: hi, giam: chieu === "giảm", theo: theo };
       }
       if (tk[0] === "Đổi" && tk[1] === "chỗ") { P.lay(); P.lay(); var a1 = bienTrai(); P.an(","); var b1 = bienTrai(); xong(P); return { k: "doicho", a: a1, b: b1 }; }
+      if (tk[0] === "Đẩy") { P.lay(); var xd = P.bt(); P.an("vào"); var nd = P.lay(); if (!P.laTen(nd)) throw new Error("sau «vào» phải là tên ngăn xếp / hàng đợi"); xong(P); return { k: "dayvao", x: xd, n: nd }; }
+      if (tk[0] === "Bỏ") {   // Bỏ đỉnh st · Bỏ đầu q · Bỏ cuối dq
+        P.lay(); var vi = P.lay();
+        if (["đỉnh", "đầu", "cuối"].indexOf(vi) < 0) throw new Error("viết «Bỏ đỉnh st», «Bỏ đầu q» hoặc «Bỏ cuối dq»");
+        var nb = P.lay(); if (!P.laTen(nb)) throw new Error("sau «Bỏ " + vi + "» phải là tên ngăn xếp / hàng đợi"); xong(P);
+        return { k: "bo", vi: vi, n: nb };
+      }
       if (tk[0] === "Thêm") { P.lay(); var x = P.bt(); P.an("vào"); P.an("cuối"); var nt = P.lay(); xong(P); return { k: "them", x: x, n: nt }; }
       if (tk[0] === "Tách") {   // Tách s thành a, b, c — lấy lần lượt các số (dãy chữ số liền nhau) trong xâu s
         P.lay(); var nguon = P.bt(); P.an("thành");
@@ -896,7 +922,16 @@
         if ((lo2 && !lo3) || (i && lo3)) throw new Error("mảng hai chiều: viết a[i][j] ← e hoặc a[0..n][0..m] ← e");
       }
       P.an("←");
-      if (P.peek() === "rỗng" && !i && !lo2) { P.lay(); xong(P); return { k: "rong", n: n }; }
+      if (P.peek() === "rỗng" && P.peek(1) !== "(" && !i && !lo2) { P.lay(); xong(P); return { k: "rong", n: n }; }
+      if ((P.peek() === "ngăn" || P.peek() === "hàng") && !i && !lo2) {   // st ← ngăn xếp rỗng · q ← hàng đợi rỗng · dq ← hàng đợi hai đầu rỗng
+        var w1 = P.lay(), loai;
+        if (w1 === "ngăn") { P.an("xếp"); loai = "ngx"; }
+        else { P.an("đợi"); loai = "hd"; if (P.peek() === "hai") { P.lay(); P.an("đầu"); loai = "hd2"; } }
+        P.an("rỗng"); xong(P);
+        if (CTR[n] && CTR[n] !== loai) throw new Error("«" + n + "» vừa là " + TEN_CTR[CTR[n]] + " vừa là " + TEN_CTR[loai]);
+        CTR[n] = loai;
+        return { k: "tao", n: n, loai: loai };
+      }
       var e = P.bt(), dsv = null;
       if (lo2 && P.peek() === ",") { dsv = [e]; while (P.peek() === ",") { P.lay(); dsv.push(P.bt()); } }   // T[1..12] ← 31, 28, …
       xong(P);
@@ -1061,7 +1096,14 @@
           V[L.n] = a;
         };
       }
-      if (L.k === "rong") return function (V) { V[L.n] = [null]; };
+      if (L.k === "rong" || L.k === "tao") return function (V) { V[L.n] = [null]; };
+      if (L.k === "dayvao") { var xv = tinh(L.x); return function (V) { var a = V[L.n]; if (!Array.isArray(a)) throw new Error("«" + L.n + "» chưa có — tạo trước, vd «" + L.n + " ← ngăn xếp rỗng»"); a.push(xv(V)); }; }
+      if (L.k === "bo") return function (V) {
+        var a = V[L.n];
+        if (!Array.isArray(a)) throw new Error("«" + L.n + "» chưa có");
+        if (a.length <= 1) throw new Error("bỏ " + L.vi + " của " + (TEN_CTR[CTR[L.n]] || "") + " " + L.n + " đang rỗng");
+        if (L.vi === "đầu") a.splice(1, 1); else a.pop();
+      };
       if (L.k === "them") { var x = tinh(L.x); return function (V) { var a = V[L.n]; if (!Array.isArray(a)) throw new Error("«" + L.n + "» chưa có — tạo trước bằng «" + L.n + " ← rỗng»"); a.push(x(V)); V[L.n] = a; }; }
       if (L.k === "sapxep") {
         var sl = L.lo && tinh(L.lo), sh = L.hi && tinh(L.hi);
@@ -1843,6 +1885,13 @@
     try { var r = Function("return " + e.replace(/−/g, "-").replace(/×/g, "*"))(); return typeof r === "number" && isFinite(r) ? r : undefined; } catch (x) { return undefined; }
   }
   function subst(expr, sn) {
+    // đỉnh(st), đầu(q), cuối(q), cỡ(st) → giá trị của bước (rỗng(st) để nguyên — kết quả Đúng/Sai đã ghi sau «→»)
+    expr = expr.replace(/(đỉnh|đầu|cuối|cỡ)\(\s*([\p{L}_][\p{L}\p{N}_]*)\s*\)/gu, function (m, f, n) {
+      var a = look(sn, n);
+      if (!Array.isArray(a)) return m;
+      if (f === "cỡ") return String(a.length - 1);
+      return a.length > 1 ? fmt(f === "đầu" ? a[1] : a[a.length - 1]) : m;
+    });
     return expr.replace(ID_RE, function (m, br) {
       var name = br ? m.slice(0, m.length - br.length) : m, v = look(sn, name);
       if (br) {
@@ -1894,13 +1943,14 @@
         for (var i = 0; i < parts.length; i++) {
           var m = parts[i].match(/^(.+?)\s*←\s*(.+)$/);
           if (!m) {   // lệnh không phải phép gán: Sắp xếp a[1..4] giảm dần · Thêm 5 vào cuối ds · Đổi chỗ a[1], a[4] · mô tả viết tay
-            var th = parts[i].match(/^Thêm\s+(.+?)\s+vào cuối\s+(.+)$/);
-            res.push(th ? "Thêm " + subst(th[1], s.before) + " vào cuối " + th[2] : chiSo(parts[i]));
+            var th = parts[i].match(/^Thêm\s+(.+?)\s+vào cuối\s+(.+)$/), dv = parts[i].match(/^Đẩy\s+(.+?)\s+vào\s+(.+)$/);
+            res.push(th ? "Thêm " + subst(th[1], s.before) + " vào cuối " + th[2] : dv ? "Đẩy " + subst(dv[1], s.before) + " vào " + dv[2] : chiSo(parts[i]));
             lenhChuan = true; continue;
           }
           var lhs = m[1].trim();
-          if (/\.\./.test(lhs) || m[2].trim() === "rỗng") {   // điền cả đoạn: f[0..4] ← ∞ · ds ← rỗng
-            res.push(chiSo(lhs) + " ← " + (m[2].trim() === "rỗng" ? "rỗng" : subst(m[2], s.before)));
+          var taoRong = /^(ngăn xếp |hàng đợi (hai đầu )?)?rỗng$/.test(m[2].trim());   // ds ← rỗng · st ← ngăn xếp rỗng
+          if (/\.\./.test(lhs) || taoRong) {   // điền cả đoạn: f[0..4] ← ∞ · ds ← rỗng
+            res.push(chiSo(lhs) + " ← " + (taoRong ? m[2].trim() : subst(m[2], s.before)));
             lenhChuan = true; continue;
           }
           var rhs = subst(m[2], s.before), lv = /\[/.test(lhs) ? subst(lhs, s.after) : fmt(look(s.after, lhs));
@@ -1930,11 +1980,15 @@
     return null;
   }
   function suyKieu(rs) {   // kiểu biến từ mọi bước của các lần chạy: G (biến chung), L[sơ đồ] (biến riêng), tra (kiểu trả về)
-    var K = { G: {}, L: {}, tra: {}, mot: {} };
+    var K = { G: {}, L: {}, tra: {}, mot: {}, ctr1: {} };
     function ghi(M, kv) {
       var t = kieuGT(kv[1]);
       if (t && (!M[kv[0]] || (M[kv[0]] === "mang_so" && t.indexOf("mang_") === 0))) M[kv[0]] = t;
-      if (Array.isArray(kv[1]) && kv[1][0] === null) K.mot[kv[0]] = true;   // mảng đếm từ 1 (ô 0 bỏ trống)
+      if (Array.isArray(kv[1]) && kv[1][0] === null && !CTR[kv[0]]) K.mot[kv[0]] = true;   // mảng đếm từ 1 (ô 0 bỏ trống)
+      if (CTR[kv[0]] && Array.isArray(kv[1])) kv[1].forEach(function (x) {   // ngăn xếp / hàng đợi chỉ chứa ký tự ⇒ C++ khai char
+        if (x === null || x === undefined) return;
+        K.ctr1[kv[0]] = (K.ctr1[kv[0]] !== false) && typeof x === "string" && x.length === 1;
+      });
     }
     rs.forEach(function (r) {
       if (!r) return;
@@ -2046,7 +2100,8 @@
       if (L.k === "gan") { bt(L.e); if (L.i) { bt(L.i); bt(L.j || []); doc[L.n] = ghi[L.n] = 1; } else ghi[L.n] = ganLai[L.n] = 1; }
       else if (L.k === "dien2") { bt(L.lo); bt(L.hi); bt(L.lo2); bt(L.hi2); bt(L.e); ghi[L.n] = ganLai[L.n] = 1; }
       else if (L.k === "dien") { bt(L.lo); bt(L.hi); bt(L.e); ghi[L.n] = ganLai[L.n] = 1; }
-      else if (L.k === "rong") ghi[L.n] = ganLai[L.n] = 1;
+      else if (L.k === "rong" || L.k === "tao") ghi[L.n] = ganLai[L.n] = 1;
+      else if (L.k === "dayvao" || L.k === "bo") { if (L.x) bt(L.x); doc[L.n] = ghi[L.n] = 1; }
       else if (L.k === "them" || L.k === "sapxep") { bt(L.x || []); bt(L.lo || []); bt(L.hi || []); doc[L.n] = ghi[L.n] = 1; (L.theo || []).forEach(function (t) { doc[t] = ghi[t] = 1; }); }
       else if (L.k === "tach") { bt(L.x); L.ds.forEach(function (n) { ghi[n] = ganLai[n] = 1; }); }
       else if (L.k === "doicho") [L.a, L.b].forEach(function (r) { if (r.i) bt(r.i); if (r.j) bt(r.j); doc[r.n] = ghi[r.n] = 1; if (!r.i) ganLai[r.n] = 1; });
@@ -2057,8 +2112,8 @@
   function boDau(s) { return String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D"); }
   var TU_CAM = {
     cpp: "alignas alignof and asm auto bool break case catch char class const constexpr continue default delete do double else enum explicit export extern false float for friend goto if inline int long mutable namespace new noexcept not nullptr operator or private protected public register return short signed sizeof static struct switch template this throw true try typedef typeid typename union unsigned using virtual void volatile while xor " +
-         "ll max min abs swap sort find count fill size begin end data left right next prev distance gcd lcm hash list map set stack queue array string vector pair tuple move copy remove replace reverse rotate search unique merge partition less greater plus minus y0 y1 yn j0 j1 jn index rank time exp log pow sqrt round floor ceil div main cin cout endl greater",
-    py: "False None True and as assert async await break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield max min abs len sorted print input int str range list sum map set dict id type iter next pow round sys exit"
+         "ll max min abs swap sort find count fill size begin end data left right next prev distance gcd lcm hash list map set stack queue deque array string vector pair tuple move copy remove replace reverse rotate search unique merge partition less greater plus minus y0 y1 yn j0 j1 jn index rank time exp log pow sqrt round floor ceil div main cin cout endl greater",
+    py: "False None True and as assert async await break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield max min abs len sorted print input int str range list sum map set dict id type iter next pow round sys exit deque"
   };
   var CAM = {};
   MA_NN.forEach(function (nn) { CAM[nn] = {}; TU_CAM[nn].split(" ").forEach(function (w) { CAM[nn][w] = 1; }); });
@@ -2086,8 +2141,11 @@
     function kieu(n) {
       var L = cur.k ? (K.L[cur.id] || {}) : {}, L0 = cur.k ? (K0.L[cur.id] || {}) : {}, p = cur.k ? (cur.thamso || []).indexOf(n) : -1;
       if (p >= 0 && kyTu[cur.id] && kyTu[cur.id][p]) return "kytu";
-      return L[n] || K.G[n] || L0[n] || K0.G[n] || "so";
+      var t0 = L[n] || K.G[n] || L0[n] || K0.G[n] || "so";
+      if (CTR[n]) return CTR[n] + "_" + ((K.ctr1 || {})[n] || (K0.ctr1 || {})[n] ? "kytu" : kieuPhan(t0));   // ngx_so · hd_kytu · hd2_xau
+      return t0;
     }
+    function ctrKyTu(n) { return /_kytu$/.test(kieu(n)); }
     function mot(n) { return !!(K.mot[n] || K0.mot[n]); }
     function laRieng(sd, n) { return sd.k > 0 && (own(K.L[sd.id] || {}, n) || own(K0.L[sd.id] || {}, n) || (sd.thamso || []).indexOf(n) >= 0 || (sd.bien || []).indexOf(n) >= 0); }
     function laXau(n) { return kieu(n) === "xau"; }
@@ -2137,7 +2195,8 @@
           return [boc(a, p) + " " + op + " " + boc(b, p + 1), p];
         case "kytu": return ["'" + (e.v === "'" || e.v === "\\" ? "\\" + e.v : e.v) + "'", U.goc];
         case "ss":
-          if (nn === "cpp" && e.ts.some(function (t) { return t.k === "chiso" && (t.j ? kieuPhan(kieu(t.n)) === "xau" : laXau(t.n)); })) {
+          if (nn === "cpp" && e.ts.some(function (t) { return (t.k === "chiso" && (t.j ? kieuPhan(kieu(t.n)) === "xau" : laXau(t.n)))
+              || (t.k === "ham" && (t.f === "đỉnh" || t.f === "đầu" || t.f === "cuối") && t.a[0] && t.a[0].k === "bien" && ctrKyTu(t.a[0].n)); })) {
             // g[a][b] = "." : so MỘT ký tự với xâu hằng một ký tự ⇒ C++ phải là '.' (so char với const char* là lỗi dịch)
             e = { k: "ss", ops: e.ops, ts: e.ts.map(function (t) { return t.k === "xau" && t.v.length === 1 ? { k: "kytu", v: t.v } : t; }) };
           }
@@ -2157,6 +2216,7 @@
           return [boc(E(e.a), U.va + 1) + w2 + boc(E(e.b), U.va + 1), U.hoac];
         case "khong":
           if (e.a.k === "cotrong") return E({ k: "cotrong", x: e.a.x, n: e.a.n, phu: true });   // «không (x có trong ds)» → x không có trong ds
+          if (nn === "py" && e.a.k === "ham" && e.a.f === "rỗng" && e.a.a[0] && e.a.a[0].k === "bien") return ["len(" + ten(e.a.a[0].n) + ") > 0", U.ss];   // không rỗng(st)
           var kh = E(e.a);
           if (nn === "cpp") return ["!" + boc(kh, U.mot), U.mot];
           return ["not " + boc(kh, U.ss + 1), U.khong];
@@ -2170,6 +2230,17 @@
     }
     function ham(e) {
       var as = e.a.map(function (x) { return E(x)[0]; });
+      if (TEN_CTR_HAM[e.f]) {   // đỉnh(st) · đầu(q) · cuối(q) · cỡ(st) · rỗng(st)
+        var cn0 = e.a[0] && e.a[0].k === "bien" ? e.a[0].n : null, lc = cn0 && CTR[cn0];
+        if (!lc) throw new Error(e.f + "(…) cần tên một ngăn xếp / hàng đợi tạo bằng «… ← ngăn xếp rỗng»");
+        var X = as[0];
+        if (e.f === "cỡ") return nn === "cpp" ? ["(long long)" + X + ".size()", U.mot] : ["len(" + X + ")", U.goc];
+        if (e.f === "rỗng") return nn === "cpp" ? [X + ".empty()", U.goc] : ["len(" + X + ") == 0", U.ss];
+        if (e.f === "đỉnh" && lc !== "ngx") throw new Error("đỉnh(…) chỉ dùng cho ngăn xếp; hàng đợi dùng đầu(…) / cuối(…)");
+        if (e.f !== "đỉnh" && lc === "ngx") throw new Error(e.f + "(…) dùng cho hàng đợi; ngăn xếp dùng đỉnh(…)");
+        if (nn === "cpp") return [X + (e.f === "đỉnh" ? ".top()" : e.f === "đầu" ? ".front()" : ".back()"), U.goc];
+        return [X + (e.f === "đầu" ? "[0]" : "[-1]"), U.goc];
+      }
       if (e.f === "len") {
         var x = e.a[0], nm = as[0], laMang = x.k === "bien" && kieu(x.n).indexOf("mang") === 0, tru = laMang && mot(x.n);
         var s = nn === "cpp" ? "(long long)" + nm + ".size()" : "len(" + nm + ")";
@@ -2206,6 +2277,9 @@
     }
     // ---- lệnh của một khối → các dòng (mỗi phần tử một dòng hoàn chỉnh) ----
     var TK = nn === "cpp" ? { so: "long long", bool: "bool", xau: "string", kytu: "char", mang_so: "vector<long long>", mang_xau: "vector<string>", mang_bool: "vector<bool>", mang2: "vector<vector<long long>>" } : {};
+    if (nn === "cpp") [["ngx", "stack"], ["hd", "queue"], ["hd2", "deque"]].forEach(function (c) {
+      [["so", "long long"], ["xau", "string"], ["kytu", "char"], ["bool", "bool"]].forEach(function (p) { TK[c[0] + "_" + p[0]] = c[1] + "<" + p[1] + ">"; });
+    });
     var dungTam = {};   // C++: đếm biến tạm của chương trình con đang sinh (_g của phép gom, _so của lệnh Tách)
     function dongLenh(n) {   // → { d: [dòng…], cau: số câu lệnh }
       var a = astDung(n);
@@ -2351,6 +2425,19 @@
           var px = kieuPhan(kieu(L.n)) === "xau";
           parts.push([nn === "cpp" ? nm + ".assign(1, " + (px ? '""' : "0") + ");" : nm + " = [None]"]);
           ghiP[parts.length - 1] = chuThich("ô 0 bỏ trống, phần tử đếm từ 1");   // chú thích cuối dòng — chỉ gắn khi lệnh đứng riêng một dòng
+        } else if (L.k === "tao") {   // st ← ngăn xếp rỗng
+          if (nn === "cpp") parts.push([nm + " = " + kieuMa(kieu(L.n)) + "();"]);
+          else { if (L.loai !== "ngx") can.deque = 1; parts.push([nm + " = " + (L.loai === "ngx" ? "[]" : "deque()")]); }
+        } else if (L.k === "dayvao") {   // Đẩy x vào st
+          var xd = bt(L.x);
+          if (nn === "cpp" && ctrKyTu(L.n) && L.x.k === "xau" && L.x.v.length === 1) xd = E({ k: "kytu", v: L.x.v })[0];
+          parts.push([nn === "cpp" ? nm + (CTR[L.n] === "hd2" ? ".push_back(" : ".push(") + xd + ");" : nm + ".append(" + xd + ")"]);
+        } else if (L.k === "bo") {   // Bỏ đỉnh st · Bỏ đầu q · Bỏ cuối dq
+          var lb = CTR[L.n];
+          if (!lb) throw new Error("«" + L.n + "» chưa tạo bằng «" + L.n + " ← ngăn xếp rỗng»");
+          if ((L.vi === "đỉnh") !== (lb === "ngx") || (lb === "hd" && L.vi === "cuối")) throw new Error("«Bỏ " + L.vi + "» không dùng cho " + TEN_CTR[lb]);
+          if (nn === "cpp") parts.push([nm + (lb === "hd2" ? (L.vi === "đầu" ? ".pop_front();" : ".pop_back();") : ".pop();")]);
+          else parts.push([nm + (L.vi === "đầu" ? ".popleft()" : ".pop()")]);
         } else if (L.k === "them") {
           var x = bt(L.x);
           if (nn === "cpp" && kieuPhan(kieu(L.n)) === "xau" && laKyTuE(L.x)) x = "string(1, " + x + ")";   // Thêm s[i] vào cuối ds (ds là mảng xâu)
@@ -2685,6 +2772,7 @@
       D(0, "import sys");
       if (can.re) D(0, "import re");
       if (can.mathPy) D(0, "import math");
+      if (can.deque) D(0, "from collections import deque");
       if (deQuy) D(0, "sys.setrecursionlimit(100000)");
       if (can.doc) { D(0, "_du_lieu = sys.stdin.read().split()"); D(0, "_vt = 0"); D(0, ""); D(0, "def doc():   # đọc một từ / một số tiếp theo"); D(1, "global _vt"); D(1, "_vt += 1"); D(1, "return _du_lieu[_vt - 1]"); }
       D(0, "");
