@@ -567,7 +567,7 @@
   var BAI = { ten: "Kiểm tra dãy ngoặc" };
 
   var VI_DU = [
-    { nhan: "ví dụ mẫu", vao: "2\n(())()((()))\n((())\n", ra: "YES\nNO" },
+    { nhan: "ví dụ mẫu", vao: "3\n(())()((()))\n((())\n(a)()\n", ra: "YES\nNO\nNO" },
     { nhan: "đóng trước", vao: "2\n)(\n()()\n", ra: "NO\nYES" },
     { nhan: "ký tự lạ", vao: "2\n(x\n(a)\n", ra: "NO\nNO" }
   ];
@@ -611,17 +611,17 @@
   ];
 
   var DE_BAI = {   // chưa có de.json — chép từ de.md
-    desc: ["Một dãy ngoặc đúng là một xâu gồm các ký tự ( và ) được định nghĩa như sau:",
+    desc: ["Cho $q$ xâu. Mỗi xâu có thể gồm ba loại ký tự: ngoặc mở (, ngoặc đóng ) và chữ cái thường từ a đến z. Với mỗi xâu, hãy kiểm tra xem xâu đó có phải là một dãy ngoặc đúng hay không.",
+           "Một dãy ngoặc đúng là xâu chỉ gồm các ký tự ( và ), được định nghĩa như sau:",
            "– Xâu rỗng là một dãy ngoặc đúng.",
            "– Nếu $A$ là dãy ngoặc đúng thì $(A)$ (thêm ( vào đầu và ) vào cuối $A$) là dãy ngoặc đúng.",
            "– Nếu $A$ và $B$ là hai dãy ngoặc đúng thì $AB$ (nối $B$ vào sau $A$) là dãy ngoặc đúng.",
-           "Xâu không dựng được theo cách trên (kể cả xâu có ký tự khác ( và )) không phải dãy ngoặc đúng.",
-           "Yêu cầu: với mỗi xâu cho trước, kiểm tra xem xâu đó có phải dãy ngoặc đúng hay không."],
+           "Như vậy, xâu nào có chứa dù chỉ một chữ cái thì không phải dãy ngoặc đúng, kể cả khi các ngoặc trong nó ghép cặp được với nhau. Chẳng hạn (a) và ()b() đều không phải dãy ngoặc đúng."],
     input: ["Dòng đầu chứa số nguyên $q$ ($1 ≤ q ≤ 10$): số xâu cần kiểm tra.",
-            "$q$ dòng tiếp theo, mỗi dòng chứa một xâu độ dài không quá $10^5$, không chứa dấu cách."],
+            "$q$ dòng tiếp theo, mỗi dòng chứa một xâu độ dài từ $1$ đến $10^5$, chỉ gồm các ký tự (, ) và chữ cái thường a–z (không có dấu cách)."],
     output: ["Ghi $q$ dòng, dòng thứ $i$ là YES nếu xâu thứ $i$ là dãy ngoặc đúng, ngược lại là NO."],
     examples: [
-      { inp: ["2", "(())()((()))", "((())"], out: ["YES", "NO"], exp: ["Xâu thứ hai có ba ngoặc mở nhưng chỉ có hai ngoặc đóng."] }
+      { inp: ["3", "(())()((()))", "((())", "(a)()"], out: ["YES", "NO", "NO"], exp: ["Xâu thứ hai có ba ngoặc mở nhưng chỉ có hai ngoặc đóng. Xâu thứ ba chứa chữ a nên không phải dãy ngoặc đúng, dù các ngoặc của nó ghép cặp được với nhau."] }
     ]
   };
   var HUONG_DAN = {
