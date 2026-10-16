@@ -607,8 +607,8 @@
 
   var DE_BAI = {   // chưa có de.json — chép từ de.md
     desc: ["Cho xâu $S = s_1 s_2 … s_n$ chỉ gồm ký tự ( và ).",
-           "Hãy đếm số cặp chỉ số $(i, j)$ thỏa mãn $i < j < n$, đồng thời $s_i = s_{i+1} =$ ( và $s_j = s_{j+1} =$ ). Nói cách khác: đếm số cách chọn một cặp (( đứng trước một cặp )) (hai cặp được phép dùng chung ký tự nằm giữa nếu chúng chồng nhau)."],
-    input: ["Một dòng chứa xâu $S$, độ dài không quá $10^5$."],
+           "Hãy đếm số cặp chỉ số $(i, j)$ thỏa mãn $i < j < n$, đồng thời $s_i = s_{i+1} =$ ( và $s_j = s_{j+1} =$ ). Nói cách khác: đếm số cách chọn một cặp (( đứng trước một cặp ))."],
+    input: ["Một dòng chứa xâu $S$, độ dài $n$ thỏa mãn $1 ≤ n ≤ 10^5$."],
     output: ["Một số nguyên duy nhất: số cặp $(i, j)$ đếm được."],
     examples: [
       { inp: [")((()())())"], out: ["4"], exp: ["Xâu có hai cặp (( (bắt đầu ở vị trí $2$ và $3$) và hai cặp )) (bắt đầu ở vị trí $7$ và $10$); mỗi cặp (( đứng trước cả hai cặp )), nên có $2 × 2 = 4$ cặp chỉ số."] }

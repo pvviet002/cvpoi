@@ -622,17 +622,19 @@
   ];
 
   var DE_BAI = {   // chưa có de.json — chép từ de.md
-    desc: ["Người ta định nghĩa một dãy ngoặc đúng theo đệ quy như sau:",
+    desc: ["Một dãy ngoặc đúng là một xâu gồm các ký tự ( và ) được định nghĩa như sau:",
            "– Xâu rỗng là một dãy ngoặc đúng.",
-           "– Nếu xâu A là dãy ngoặc đúng thì (A) cũng là dãy ngoặc đúng.",
-           "– Nếu xâu A và xâu B là dãy ngoặc đúng thì AB cũng là dãy ngoặc đúng.",
-           "Những xâu chứa ký tự khác ( và ) được gọi là xâu không hợp lệ. Ví dụ: (A()B) là xâu KHONG HOP LE vì chứa chữ cái A và B; ()()(()) là dãy ngoặc DUNG; ()()) là dãy ngoặc KHONG DUNG."],
-    input: ["Cho xâu S."],
-    output: ["Kiểm tra xâu S là dãy ngoặc DUNG, KHONG DUNG hay là xâu KHONG HOP LE."],
+           "– Nếu $A$ là dãy ngoặc đúng thì $(A)$ cũng là dãy ngoặc đúng.",
+           "– Nếu $A$ và $B$ là hai dãy ngoặc đúng thì $AB$ (nối $B$ vào sau $A$) cũng là dãy ngoặc đúng.",
+           "Xâu chứa ký tự khác ( và ) được gọi là xâu không hợp lệ.",
+           "Cho xâu $S$, hãy cho biết $S$ là xâu không hợp lệ, là dãy ngoặc đúng, hay chỉ gồm ( và ) nhưng không phải dãy ngoặc đúng."],
+    input: ["Một dòng chứa xâu $S$ không có dấu cách, độ dài từ $1$ đến $10^5$."],
+    output: ["In KHONG HOP LE nếu $S$ chứa ký tự khác ( và ).",
+             "Ngược lại, in DUNG nếu $S$ là dãy ngoặc đúng, in KHONG DUNG nếu không phải."],
     examples: [
-      { inp: ["(A()B)"], out: ["KHONG HOP LE"] },
+      { inp: ["(A()B)"], out: ["KHONG HOP LE"], exp: ["Xâu chứa chữ cái A và B nên không hợp lệ."] },
       { inp: ["()()(())"], out: ["DUNG"] },
-      { inp: ["((())"], out: ["KHONG DUNG"] }
+      { inp: ["((())"], out: ["KHONG DUNG"], exp: ["Xâu có ba ngoặc mở nhưng chỉ có hai ngoặc đóng."] }
     ]
   };
   var HUONG_DAN = {
