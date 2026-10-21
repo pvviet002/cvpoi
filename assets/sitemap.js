@@ -19,7 +19,8 @@ window.CVSITEMAP = {
         { slug:'for-loop', title:'Vòng lặp' },
         { slug:'array-1d', title:'Mảng một chiều' },
         { slug:'array-2d', title:'Mảng hai chiều' },
-        { slug:'string', title:'Xâu ký tự' }
+        { slug:'string', title:'Xâu ký tự' },
+        { slug:'string-bai-giang', title:'Xâu ký tự cho người mới (bài giảng)', href:'/string/bai-giang/' }
       ]},
       { n:1, title:'Giới thiệu', pages:[ { slug:'introduction', title:'Giới thiệu' } ] },
       { n:2, title:'Độ phức tạp thời gian', pages:[ { slug:'time-complexity', title:'Độ phức tạp thời gian' } ] },
