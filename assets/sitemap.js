@@ -28,7 +28,10 @@ window.CVSITEMAP = {
         { slug:'data-structures', title:'Cấu trúc dữ liệu (STL)' },
         { slug:'bst', title:'Cây tìm kiếm nhị phân' }
       ]},
-      { n:5, title:'Tìm kiếm hoàn chỉnh', pages:[ { slug:'complete-search', title:'Tìm kiếm hoàn chỉnh' } ] },
+      { n:5, title:'Tìm kiếm hoàn chỉnh', pages:[
+        { slug:'recursion', title:'Đệ quy cho người mới (bài giảng)', href:'/recursion/bai-giang/' },
+        { slug:'complete-search', title:'Tìm kiếm hoàn chỉnh' }
+      ]},
       { n:6, title:'Giải thuật tham lam', pages:[ { slug:'huffman', title:'Thuật toán Huffman' } ] },
       { n:7, title:'Quy hoạch động', pages:[
         { slug:'dp', title:'Quy hoạch động trên đoạn' },

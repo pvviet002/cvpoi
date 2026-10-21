@@ -37,5 +37,6 @@ export default [
   {"duong": "/graph-basic/sodokhoi/", "nhom": ["*"]},
   {"duong": "/two-pointers/sodokhoi/", "nhom": ["*"]},
   {"duong": "/data-structures/sodokhoi/", "nhom": ["*"]},
+  {"duong": "/recursion/sodokhoi/", "nhom": ["*"]},
   {"duong": "/inclusion-exclusion/includion-exclusion-01/", "nhom": ["*"]}
 ];
