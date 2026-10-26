@@ -637,17 +637,17 @@
   ];
 
   var DE_BAI = {   // chép từ đề cvpoi nx10_chauhoa.md
-    desc: ["Sau cơn mưa, nước từ mái hiên còn nhỏ giọt xuống khoảng sân phía dưới. Người làm vườn muốn đặt một chậu hoa dưới mái hiên để hứng những giọt nước này tưới cho cây.",
-           "Coi mặt sân là một trục số. Có $n$ giọt nước; giọt thứ $k$ rơi xuống sân tại điểm có toạ độ $x_k$ vào giây thứ $t_k$. Nhiều giọt có thể rơi tại cùng một điểm hoặc vào cùng một giây.",
+    desc: ["Sau cơn mưa, nước từ mái hiên còn nhỏ giọt xuống khoảng sân phía dưới. Người làm vườn muốn đặt một chậu cây dưới mái hiên để hứng những giọt nước này.",
+           "Coi mặt sân là một trục số. Có $n$ giọt nước; giọt thứ $k$ rơi xuống sân tại điểm có toạ độ $x_k$, vào thời điểm $t_k$ (tính bằng giây). Nhiều giọt có thể rơi tại cùng một điểm hoặc vào cùng một thời điểm.",
            "Miệng chậu là một đoạn trên trục số từ điểm $L$ đến điểm $R$, với $L$ và $R$ là các số nguyên, $L ≤ R$; độ rộng của chậu là $W = R - L$. Chậu hứng được mọi giọt rơi tại điểm $x$ thoả mãn $L ≤ x ≤ R$, kể cả giọt rơi đúng mép chậu. Chậu rộng $W = 0$ (khi $L = R$) vẫn hứng được các giọt rơi đúng tại điểm $L$.",
-           "Để đất trong chậu ngấm đều, khoảng thời gian từ lúc giọt đầu tiên đến lúc giọt cuối cùng rơi vào chậu phải ít nhất $D$ giây. Nói cách khác, trong các giọt chậu hứng được, thời điểm muộn nhất trừ thời điểm sớm nhất phải lớn hơn hoặc bằng $D$.",
-           "Hãy tìm độ rộng $W$ nhỏ nhất của một chậu thoả mãn điều kiện trên. Nếu không có cách đặt chậu nào thoả mãn thì in $-1$."],
-    input: ["Dòng đầu chứa hai số nguyên $n$ và $D$ — số giọt nước và khoảng thời gian tối thiểu ($1 ≤ n ≤ 10^5$; $1 ≤ D ≤ 10^6$).",
+           "Người làm vườn muốn cây được tưới rải rác trong một quãng thời gian đủ dài, nên đặt ra yêu cầu: giọt đầu tiên và giọt cuối cùng mà chậu hứng được phải rơi cách nhau ít nhất $D$ giây. Nói cách khác, trong các giọt chậu hứng được, thời điểm muộn nhất trừ thời điểm sớm nhất phải lớn hơn hoặc bằng $D$. Chậu càng rộng càng tốn chỗ và tốn tiền, nên người làm vườn muốn chọn chậu hẹp nhất có thể.",
+           "Hãy tìm độ rộng $W$ nhỏ nhất của một chậu đáp ứng yêu cầu trên. Nếu không có cách đặt chậu nào đáp ứng thì in $-1$."],
+    input: ["Dòng đầu chứa hai số nguyên $n$ và $D$ — số giọt nước và số giây tối thiểu giữa giọt đầu tiên và giọt cuối cùng ($1 ≤ n ≤ 10^5$; $1 ≤ D ≤ 10^6$).",
             "Dòng thứ $k$ trong $n$ dòng tiếp theo chứa hai số nguyên $x_k$ và $t_k$ — toạ độ điểm rơi và thời điểm rơi của giọt thứ $k$ ($0 ≤ x_k, t_k ≤ 10^6$)."],
     output: ["Một số nguyên duy nhất: độ rộng $W$ nhỏ nhất của chậu, hoặc $-1$ nếu không có cách đặt chậu nào thoả mãn."],
     examples: [
       { inp: ["6 10", "7 5", "0 11", "9 14", "5 0", "14 10", "4 6"], out: ["4"],
-        exp: ["Đặt chậu từ điểm $5$ đến điểm $9$ (rộng $4$): chậu hứng ba giọt rơi tại các điểm $5, 7, 9$ vào các giây $0, 5, 14$, và $14 - 0 = 14 ≥ 10$. Mọi chậu rộng không quá $3$ chỉ có khoảng thời gian nhiều nhất là $9$ (chẳng hạn chậu từ điểm $7$ đến điểm $9$: $14 - 5 = 9$)."] }
+        exp: ["Đặt chậu từ điểm $5$ đến điểm $9$ (rộng $4$): chậu hứng ba giọt rơi tại các điểm $5, 7, 9$ vào các thời điểm $0, 5, 14$, và $14 - 0 = 14 ≥ 10$. Với mọi chậu rộng không quá $3$, giọt đầu tiên và giọt cuối cùng chậu hứng được cách nhau nhiều nhất $9$ giây, chưa đủ $10$ (chẳng hạn chậu từ điểm $7$ đến điểm $9$ hứng hai giọt ở thời điểm $5$ và $14$: $14 - 5 = 9$)."] }
     ]
   };
   var HUONG_DAN = {
