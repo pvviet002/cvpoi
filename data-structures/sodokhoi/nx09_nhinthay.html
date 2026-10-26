@@ -14,7 +14,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tháp canh nhìn thấy nhau — sơ đồ khối</title>
+<title>Đếm cặp đẹp — sơ đồ khối</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -558,105 +558,105 @@
 (function () {
   "use strict";
   // ==================================================================
-  // ĐẶC TẢ — bài nx09_nhinthay “Tháp canh nhìn thấy nhau” (ngăn xếp giảm dần lưu NHÓM tháp cao bằng nhau)
-  // sol_full.cpp viết theo đúng hàm AddTower(j); ngăn xếp CÓ SẴN stack<int> lưu đại diện của nhóm, cnt[p] = số tháp trong nhóm.
-  // Bản lỗi: sai2 (lấy ra cả tháp cao bằng: “<” thành “≤”) → Tìm lỗi 1; sai3 (gộp nhóm xong quên cộng 1 cho tháp cao hơn) → Tìm lỗi 2.
-  // sai1 (đếm bằng int) KHÔNG vẽ: tràn số không lộ ở ví dụ nhỏ. sai4 (lưu từng tháp, quét tháp bằng nhau) cho đáp số đúng,
+  // ĐẶC TẢ — bài nx09_nhinthay “Đếm cặp đẹp” (ngăn xếp giảm dần lưu NHÓM các phần tử bằng nhau)
+  // sol_full.cpp viết theo đúng hàm AddElement(j); ngăn xếp CÓ SẴN stack<int> lưu đại diện của nhóm, cnt[p] = số phần tử trong nhóm.
+  // Bản lỗi: sai2 (lấy ra cả nhóm bằng a[j]: “<” thành “≤”) → Tìm lỗi 1; sai3 (gộp nhóm xong quên cộng 1 cho phần tử lớn hơn hẳn) → Tìm lỗi 2.
+  // sai1 (đếm bằng int) KHÔNG vẽ: tràn số không lộ ở ví dụ nhỏ. sai4 (lưu từng phần tử, quét các phần tử bằng nhau) cho đáp số đúng,
   // chỉ chậm ⇒ không phải bản lỗi.
   // ==================================================================
-  var BAI = { ten: "Tháp canh nhìn thấy nhau" };
+  var BAI = { ten: "Đếm cặp đẹp" };
 
   var VI_DU = [
     { nhan: "ví dụ mẫu", vao: "7\n5 3 1 2 2 2 4\n", ra: "14" },
-    { nhan: "ba tháp bằng", vao: "3\n3 3 3\n", ra: "3" },
-    { nhan: "cao rồi bằng", vao: "3\n5 2 2\n", ra: "3" }
+    { nhan: "ba phần tử bằng", vao: "3\n3 3 3\n", ra: "3" },
+    { nhan: "lớn rồi bằng", vao: "3\n5 2 2\n", ra: "3" }
   ];
 
   var NGHIA_BIEN = {
-    n: "số tháp canh",
-    h: "chiều cao các tháp, h[i] là tháp thứ i",
-    cnt: "cnt[p]: số tháp trong nhóm có đại diện p (các tháp chưa bị che cao bằng h[p])",
-    st: "ngăn xếp đại diện các nhóm tháp chưa bị che, chiều cao giảm hẳn từ đáy lên đỉnh",
-    ans: "số cặp tháp nhìn thấy nhau đã đếm được",
-    j: "tháp đang xét: đếm các tháp bên trái nhìn thấy nó"
+    n: "số phần tử của dãy",
+    a: "dãy số, a[i] là phần tử ở vị trí i",
+    cnt: "cnt[p]: số phần tử trong nhóm có đại diện p (các phần tử chưa bị chặn bằng a[p])",
+    st: "ngăn xếp đại diện các nhóm chưa bị chặn, giá trị giảm hẳn từ đáy lên đỉnh",
+    ans: "số cặp đẹp đã đếm được",
+    j: "vị trí đang xét: đếm các vị trí bên trái tạo cặp đẹp với nó"
   };
 
   function cauTruc(quenCong) {
-    var bang = { chu: ["không rỗng(st) và", "h[đỉnh(st)] = h[j] ?"], id: "bang" };
+    var bang = { chu: ["không rỗng(st) và", "a[đỉnh(st)] = a[j] ?"], id: "bang" };
     var gop = [XU_LY(["ans ← ans + cnt[đỉnh(st)]", "cnt[j] ← cnt[đỉnh(st)] + 1", "Bỏ đỉnh st"], { id: "gop" })];
-    var congTuy = quenCong ? {} : { khuyet: "tháp cao hơn hẳn gần nhất nhìn thấy tháp j" };
+    var congTuy = quenCong ? {} : { khuyet: "phần tử lớn hơn hẳn gần nhất tạo cặp đẹp với j" };
     congTuy.id = "cong";
-    var cao = NEU({ chu: "không rỗng(st) ?", id: "cao" }, [XU_LY("ans ← ans + 1", congTuy)]);
-    var dieuKien = { chu: ["không rỗng(st) và", "h[đỉnh(st)] < h[j] ?"], id: "bo" };
-    if (!quenCong) dieuKien.khuyet = "khi nào nhóm ở đỉnh bị tháp j che";
+    var lon = NEU({ chu: "không rỗng(st) ?", id: "lon" }, [XU_LY("ans ← ans + 1", congTuy)]);
+    var dieuKien = { chu: ["không rỗng(st) và", "a[đỉnh(st)] < a[j] ?"], id: "bo" };
+    if (!quenCong) dieuKien.khuyet = "khi nào nhóm ở đỉnh bị a[j] chặn";
     var than = [LAP(dieuKien, [XU_LY("ans ← ans + cnt[đỉnh(st)];  Bỏ đỉnh st", { id: "lay" })])];
-    if (quenCong) than.push(NEU(bang, gop, [cao]));
-    else { than.push(NEU(bang, gop)); than.push(cao); }
+    if (quenCong) than.push(NEU(bang, gop, [lon]));
+    else { than.push(NEU(bang, gop)); than.push(lon); }
     than.push(XU_LY("Đẩy j vào st", { id: "day" }));
     return [
       { id: "chinh", ten: "Chương trình chính", than: [
-          NHAP("Nhập n, h[1..n]"),
-          XU_LY("ans ← 0;  cnt[1..n] ← 1;  st ← ngăn xếp rỗng", { ghi: "mỗi tháp lúc đầu là một nhóm 1 tháp" }),
-          CHO("j", "1", "n", [GOI("AddTower(j)", "add")]),
+          NHAP("Nhập n, a[1..n]"),
+          XU_LY("ans ← 0;  cnt[1..n] ← 1;  st ← ngăn xếp rỗng", { ghi: "mỗi phần tử lúc đầu là một nhóm 1 phần tử" }),
+          CHO("j", "1", "n", [GOI("AddElement(j)", "add")]),
           XUAT("Xuất ans")
       ] },
-      { id: "add", ten: "AddTower(j)", thamso: ["j"], bien: [],
-        y_nghia: "Cộng số tháp bên trái nhìn thấy tháp j, rồi đưa tháp j vào ngăn xếp nhóm", than: than }
+      { id: "add", ten: "AddElement(j)", thamso: ["j"], bien: [],
+        y_nghia: "Cộng số vị trí bên trái tạo cặp đẹp với j, rồi đưa j vào ngăn xếp nhóm", than: than }
     ];
   }
   var CAU_TRUC = cauTruc(false);
 
   var LOI = [
     { ten: "Tìm lỗi 1", goi_y: "điều kiện lấy nhóm ra",
-      giai_thich: "Sơ đồ lấy ra cả nhóm CAO BẰNG tháp j (≤ thay vì <), nên tháp j không được gộp vào nhóm đó và những tháp bằng nhau cũ bị quên. Ví dụ “ba tháp bằng” (3 3 3): tháp 3 chỉ cộng tháp 2, mất cặp tháp 1 với tháp 3, sơ đồ in 2 thay vì 3.",
-      sua: function (S) { S.khoi("add", "bo").chu = ["không rỗng(st) và", "h[đỉnh(st)] ≤ h[j] ?"]; } },
+      giai_thich: "Sơ đồ lấy ra cả nhóm BẰNG a[j] (≤ thay vì <), nên j không được gộp vào nhóm đó và các phần tử bằng nhau cũ bị quên. Ví dụ “ba phần tử bằng” (3 3 3): vị trí 3 chỉ cộng vị trí 2, mất cặp (1, 3), sơ đồ in 2 thay vì 3.",
+      sua: function (S) { S.khoi("add", "bo").chu = ["không rỗng(st) và", "a[đỉnh(st)] ≤ a[j] ?"]; } },
     { ten: "Tìm lỗi 2", goi_y: "sau khi gộp nhóm bằng nhau",
-      giai_thich: "Sơ đồ chỉ cộng 1 cho tháp cao hơn hẳn khi KHÔNG gộp nhóm (nhánh Sai của “= h[j] ?”). Gộp xong, nhóm cao hơn còn bên dưới vẫn có đại diện nhìn thấy tháp j. Ví dụ “cao rồi bằng” (5 2 2): tháp 3 phải cộng 1 (tháp 2) + 1 (tháp 1), sơ đồ chỉ cộng 1 và in 2 thay vì 3.",
+      giai_thich: "Sơ đồ chỉ cộng 1 cho phần tử lớn hơn hẳn khi KHÔNG gộp nhóm (nhánh Sai của “= a[j] ?”). Gộp xong, nhóm lớn hơn hẳn còn bên dưới vẫn có đại diện tạo cặp đẹp với j. Ví dụ “lớn rồi bằng” (5 2 2): vị trí 3 phải cộng 1 (vị trí 2) + 1 (vị trí 1), sơ đồ chỉ cộng 1 và in 2 thay vì 3.",
       cau_truc: cauTruc(true) }
   ];
 
-  var DE_BAI = {   // chưa có de.json — chép từ đề cvpoi nx09_nhinthay.md
-    desc: ["Dọc một bờ biển có $n$ tháp canh dựng thẳng hàng, đánh số từ $1$ đến $n$ theo thứ tự từ trái sang phải; tháp thứ $i$ cao $h_i$ mét. Ban chỉ huy muốn biết có bao nhiêu cặp tháp mà lính gác hai tháp nhìn thấy nhau, để hai tháp đó báo tin trực tiếp bằng cờ hiệu.",
-           "Người gác đứng trên đỉnh tháp thấp hơn nhìn theo phương ngang về phía tháp kia. Một tháp đứng giữa hai tháp sẽ che khuất tầm nhìn nếu nó cao hơn hẳn tháp thấp hơn trong hai tháp; tháp đứng giữa cao bằng thì không che.",
-           "Nói chính xác: hai tháp $i$ và $j$ với $i < j$ nhìn thấy nhau khi mọi tháp $k$ có $i < k < j$ đều thỏa mãn $h_k ≤ min(h_i, h_j)$. Đặc biệt, hai tháp đứng cạnh nhau ($j = i + 1$) luôn nhìn thấy nhau. Mỗi cặp tháp chỉ đếm một lần."],
-    input: ["Dòng đầu chứa số nguyên $n$ — số tháp canh ($1 ≤ n ≤ 2 \\cdot 10^5$).",
-            "Dòng thứ hai chứa $n$ số nguyên $h_1, h_2, …, h_n$ — chiều cao các tháp ($1 ≤ h_i ≤ 10^9$). Các chiều cao có thể bằng nhau."],
-    output: ["Một số nguyên duy nhất: số cặp tháp nhìn thấy nhau."],
+  var DE_BAI = {   // chưa có de.json — chép từ đề cvpoi nx09_nhinthay.md (bản 26/10/2026, “Đếm cặp đẹp”)
+    desc: ["Cho dãy gồm $n$ số nguyên dương $a_1, a_2, …, a_n$.",
+           "Một cặp chỉ số $(i, j)$ với $1 ≤ i < j ≤ n$ được gọi là cặp đẹp nếu mọi phần tử nằm giữa hai vị trí đó đều không lớn hơn phần tử nhỏ hơn trong hai đầu, tức là $a_k ≤ min(a_i, a_j)$ với mọi $k$ thỏa mãn $i < k < j$. Đặc biệt, hai vị trí đứng cạnh nhau ($j = i + 1$) luôn tạo thành một cặp đẹp, vì giữa chúng không có phần tử nào.",
+           "Hãy đếm số cặp đẹp."],
+    input: ["Dòng đầu chứa số nguyên $n$ ($1 ≤ n ≤ 2 \\cdot 10^5$).",
+            "Dòng thứ hai chứa $n$ số nguyên $a_1, a_2, …, a_n$ ($1 ≤ a_i ≤ 10^9$). Các số có thể bằng nhau."],
+    output: ["Một số nguyên duy nhất: số cặp đẹp."],
     examples: [
-      { inp: ["7", "5 3 1 2 2 2 4"], out: ["14"], exp: ["Có 6 cặp tháp đứng cạnh nhau, và 8 cặp không đứng cạnh nhau: (2, 4), (2, 5), (2, 6), (2, 7), (4, 6), (4, 7), (5, 7), (1, 7). Chẳng hạn tháp 4 và tháp 6 cùng cao 2, tháp 5 ở giữa cũng cao 2 nên không che. Còn tháp 1 và tháp 3 không nhìn thấy nhau vì tháp 2 cao 3, cao hơn hẳn tháp 3 (cao 1)."] }
+      { inp: ["7", "5 3 1 2 2 2 4"], out: ["14"], exp: ["Có $6$ cặp hai vị trí đứng cạnh nhau, và $8$ cặp đẹp không đứng cạnh nhau: $(2, 4)$, $(2, 5)$, $(2, 6)$, $(2, 7)$, $(4, 6)$, $(4, 7)$, $(5, 7)$, $(1, 7)$. Chẳng hạn cặp $(4, 6)$ đẹp vì $a_5 = 2 ≤ min(2, 2)$. Cặp $(1, 3)$ không đẹp vì $a_2 = 3$ lớn hơn $min(5, 1) = 1$."] }
     ]
   };
   var HUONG_DAN = {
-    dan: "Đếm mỗi cặp tại tháp bên phải $j$. Chỉ những tháp “chưa bị che” (bên phải chúng chưa có tháp nào cao hơn hẳn) mới còn nhìn thấy được $j$; chúng có chiều cao không tăng từ trái sang phải.",
-    y: ["Tháp $j$ được nhìn thấy bởi mọi tháp chưa bị che cao không quá $h_j$, cộng tháp cao hơn hẳn gần nhất. Ví dụ mẫu, tháp 7 (cao 4): tháp 6, 5, 4, 2 cao ≤ 4, thêm tháp 1 (cao 5): 5 cặp. Tháp 3 đã bị tháp 4 che.",
-        "Ngăn xếp lưu NHÓM tháp chưa bị che cao bằng nhau: đại diện $p$ (tháp gần phải nhất) và $cnt[p]$ tháp. Nhóm thấp hơn hẳn $h_j$: cộng $cnt$ rồi lấy ra (từ nay bị $j$ che). Nhóm cao bằng: cộng $cnt$, gộp $j$ vào ($cnt[j] = cnt + 1$). Còn nhóm cao hơn: cộng 1 (chỉ đại diện nhìn thấy $j$).",
-        "Không gộp nhóm thì dãy toàn tháp bằng nhau phải đếm lại từng tháp: $n(n − 1)/2 ≈ 2 \\cdot 10^{10}$ bước. Gộp rồi, mỗi tháp vào ngăn xếp một lần, ra nhiều nhất một lần ⇒ $O(n)$."],
-    chot: "Đáp số tới $n(n − 1)/2 ≈ 2 \\cdot 10^{10}$ (mọi tháp bằng nhau): dùng long long."
+    dan: "Đếm mỗi cặp đẹp tại vị trí bên phải $j$. Chỉ những phần tử “chưa bị chặn” (bên phải chúng chưa có phần tử nào lớn hơn hẳn) mới còn tạo cặp đẹp được với $j$; đi từ trái sang phải, chúng không tăng.",
+    y: ["Vị trí $j$ tạo cặp đẹp với mọi phần tử chưa bị chặn không lớn hơn $a_j$, cộng phần tử lớn hơn hẳn gần nhất. Ví dụ mẫu, $j = 7$ ($a_7 = 4$): các vị trí 6, 5, 4, 2 có giá trị ≤ 4, thêm vị trí 1 ($a_1 = 5$): 5 cặp. Phần tử $a_3$ đã bị $a_4$ chặn.",
+        "Ngăn xếp lưu NHÓM các phần tử chưa bị chặn bằng nhau: đại diện $p$ (vị trí bên phải nhất của nhóm) và $cnt[p]$ phần tử. Nhóm nhỏ hơn hẳn $a_j$: cộng $cnt$ rồi lấy ra (từ nay bị $a_j$ chặn). Nhóm bằng $a_j$: cộng $cnt$, gộp $j$ vào ($cnt[j] = cnt + 1$). Còn nhóm lớn hơn hẳn: cộng 1 (chỉ đại diện tạo cặp đẹp với $j$).",
+        "Không gộp nhóm thì dãy toàn phần tử bằng nhau phải đếm lại từng phần tử: $n(n − 1)/2 ≈ 2 \\cdot 10^{10}$ bước. Gộp rồi, mỗi phần tử vào ngăn xếp một lần, ra nhiều nhất một lần ⇒ $O(n)$."],
+    chot: "Đáp số tới $n(n − 1)/2 ≈ 2 \\cdot 10^{10}$ (mọi phần tử bằng nhau): dùng long long."
   };
   var HINH = (function () {
     var MAXN = 7;
-    function nhom(v) {           // nhom[k] = đại diện của nhóm chứa tháp k (nếu tháp k chưa bị che)
-      var g = {}, st = v.st || [], h = v.h || [];
+    function nhom(v) {           // nhom[k] = đại diện của nhóm chứa vị trí k (nếu a[k] chưa bị chặn)
+      var g = {}, st = v.st || [], a = v.a || [];
       for (var q = 1; q < st.length; q++) {
         var p = st[q], truoc = q > 1 ? st[q - 1] : 0;
-        for (var k = truoc + 1; k <= p; k++) if (h[k] === h[p]) g[k] = p;
+        for (var k = truoc + 1; k <= p; k++) if (a[k] === a[p]) g[k] = p;
       }
       return g;
     }
     return {
-      ten: "tháp canh và ngăn xếp nhóm", khung: [384, 540], rong: 0.36, moc: ["lay", "gop", "cong"],
+      ten: "dãy số và ngăn xếp nhóm", khung: [384, 540], rong: 0.36, moc: ["lay", "gop", "cong"],
       ve: function (v, b) {
-        var h = v.h || [], n = v.n || 0, o = "";
-        if (!n || !h.length) return HV.chu(192, 260, "(chưa nhập)", { lop: "t-mo", canh: "giua", co: 20 });
+        var a = v.a || [], n = v.n || 0, o = "";
+        if (!n || !a.length) return HV.chu(192, 260, "(chưa nhập)", { lop: "t-mo", canh: "giua", co: 20 });
         var m = Math.max(n, MAXN), w = Math.min(46, 366 / (m + 1) - 4), Lg = HV.luoi(14, w, 4);
-        var hmax = 1; for (var k = 1; k <= n; k++) hmax = Math.max(hmax, h[k] || 0);
-        var day = 300, cao = 220, sc = cao / hmax, j = v.j, g = nhom(v);
+        var amax = 1; for (var k = 1; k <= n; k++) amax = Math.max(amax, a[k] || 0);
+        var day = 300, H = 220, sc = H / amax, j = v.j, g = nhom(v);
         var coJ = b.sd === "add" && j !== undefined && j >= 1 && j <= n;
         for (var k = 1; k <= n; k++) {
           var lop = coJ && k === j ? "o-b" : (g[k] ? "o-io" : "nen");
-          var hh = Math.max(4, h[k] * sc), cx = Lg.cx(k);
+          var hh = Math.max(4, a[k] * sc), cx = Lg.cx(k);
           o += HV.hop(Lg.x(k), day - hh, w, hh, { lop: lop, bo: true });
-          o += HV.chu(cx, day - hh - 6, String(h[k]), { canh: "giua", co: Math.min(15, w / (String(h[k]).length * 0.6)) });
+          o += HV.chu(cx, day - hh - 6, String(a[k]), { canh: "giua", co: Math.min(15, w / (String(a[k]).length * 0.6)) });
           o += HV.chu(cx, day + 18, String(k), { canh: "giua", co: 13, lop: "t-mo" });
           if (g[k] === k && v.cnt) o += HV.chu(cx, day + 36, "×" + v.cnt[k], { canh: "giua", co: 13, lop: "t-a", dam: true });
         }
@@ -666,25 +666,25 @@
         if (top < 1) o += HV.chu(18, 436, "rỗng", { co: 15, lop: "t-mo" });
         for (var q = 1; q <= top && q <= 4; q++) {
           var p = st[q], x = 14 + (q - 1) * 92;
-          o += HV.the(x, 408, 86, 40, "cao " + h[p] + " ×" + (v.cnt ? v.cnt[p] : "?"), { lop: q === top ? "o-b" : "nen", co: 15 });
+          o += HV.the(x, 408, 86, 40, "giá trị " + a[p] + " ×" + (v.cnt ? v.cnt[p] : "?"), { lop: q === top ? "o-b" : "nen", co: 14 });
         }
         if (top > 4) o += HV.chu(370, 434, "…", { co: 16, canh: "phai" });
-        o += HV.chu(14, 470, "ô: chiều cao chung × số tháp của nhóm", { co: 13, lop: "t-mo" });
-        if (v.ans !== undefined) o += HV.chu(192, 512, "Số cặp đã đếm: " + v.ans, { canh: "giua", co: 19, dam: true, lop: "t-a" });
+        o += HV.chu(14, 470, "ô: giá trị chung × số phần tử của nhóm", { co: 13, lop: "t-mo" });
+        if (v.ans !== undefined) o += HV.chu(192, 512, "Số cặp đẹp đã đếm: " + v.ans, { canh: "giua", co: 19, dam: true, lop: "t-a" });
         return o;
       },
       chu: function (v, b) {
-        if (!v.n) return "Chưa có dãy tháp.";
+        if (!v.n) return "Chưa có dãy số.";
         if (b.sd !== "add") {
-          if (b.cuoi || (b.ra && b.ra.length)) return "Sơ đồ in " + v.ans + " cặp.";
-          return "Xanh nhạt: tháp chưa bị che (×k: nhóm k tháp cao bằng nhau, ghi ở đại diện).";
+          if (b.cuoi || (b.ra && b.ra.length)) return "Sơ đồ in " + v.ans + " cặp đẹp.";
+          return "Xanh nhạt: phần tử chưa bị chặn (×k: nhóm k phần tử bằng nhau, ghi ở đại diện).";
         }
         var j = v.j, v0 = b.v0 || {}, s0 = v0.st || [], p = s0[s0.length - 1];
-        if (b.khoi === "lay" && p) return "Nhóm cao " + v.h[p] + " (" + v0.cnt[p] + " tháp) thấp hơn hẳn tháp " + j + ": cả nhóm nhìn thấy tháp " + j + ", ans = " + v.ans + ".";
-        if (b.khoi === "gop" && p) return "Nhóm cao " + v.h[p] + " (" + v0.cnt[p] + " tháp) cao bằng tháp " + j + ": cộng " + v0.cnt[p] + ", gộp tháp " + j + " vào, cnt[" + j + "] = " + v.cnt[j] + ".";
-        if (b.khoi === "cong" && p) return "Tháp " + p + " (cao " + v.h[p] + ") là tháp cao hơn hẳn gần nhất: nhìn thấy tháp " + j + ", ans = " + v.ans + ".";
-        if (j === undefined) return "Vàng: tháp đang xét.";
-        return "Xét tháp " + j + " (cao " + v.h[j] + "): đếm các tháp bên trái nhìn thấy nó.";
+        if (b.khoi === "lay" && p) return "Nhóm giá trị " + v.a[p] + " (" + v0.cnt[p] + " phần tử) nhỏ hơn hẳn a[" + j + "] = " + v.a[j] + ": cả nhóm tạo cặp đẹp với vị trí " + j + ", ans = " + v.ans + ".";
+        if (b.khoi === "gop" && p) return "Nhóm giá trị " + v.a[p] + " (" + v0.cnt[p] + " phần tử) bằng a[" + j + "]: cộng " + v0.cnt[p] + ", gộp vị trí " + j + " vào, cnt[" + j + "] = " + v.cnt[j] + ".";
+        if (b.khoi === "cong" && p) return "Vị trí " + p + " (a[" + p + "] = " + v.a[p] + ") là phần tử lớn hơn hẳn gần nhất: tạo cặp đẹp với vị trí " + j + ", ans = " + v.ans + ".";
+        if (j === undefined) return "Vàng: vị trí đang xét.";
+        return "Xét vị trí " + j + " (a[" + j + "] = " + v.a[j] + "): đếm các vị trí bên trái tạo cặp đẹp với nó.";
       }
     };
   })();
